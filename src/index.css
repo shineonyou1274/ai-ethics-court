@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+}
+
+@layer components {
+  /* 공문서 프레임 — 이중 괘선 */
+  .doc-frame {
+    @apply border-2 border-ink/70 bg-card p-1;
+  }
+  .doc-frame-inner {
+    @apply border border-ink/30 p-5;
+  }
+  .input-base {
+    @apply w-full border border-line bg-card px-3 py-2 text-sm focus:border-ink focus:outline-none disabled:bg-paper;
+  }
+  .btn-primary {
+    @apply bg-ink px-4 py-2 text-sm font-bold text-white hover:bg-ink/90 disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply border border-line bg-card px-4 py-2 text-sm text-ink hover:bg-paper disabled:opacity-50;
+  }
+}
