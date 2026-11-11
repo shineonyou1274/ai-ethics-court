@@ -124,10 +124,10 @@ export function build(S) {
       custom: '직접 쓰기', text: '이 사람과 어떤 사이가 되고 싶어?',
     },
     {
-      id: 'fork', age: 27, type: 'chips', title: '나의 일', max: 1, min: 1,
-      q: '스물일곱, 일의 갈림길이야. 너는 어떤 일을 하며 살고 있을까?', hint: '직업 이름을 몰라도 괜찮아. 일하는 모습을 골라 봐.',
-      options: [{ k: 'deep', label: '좋아하는 일을 깊게 파는 길' }, { k: 'new', label: '낯선 곳에서 새로 시작하는 길' }, { k: 'team', label: '사람들과 함께 만드는 길' }, { k: 'steady', label: '안정된 자리를 단단히 다지는 길' }],
-      custom: '나만의 길 (직접 쓰기)', text: '무슨 일을 하고 있어? 그 일의 하루를 그려 봐.', prep: '그 일을 하려면 지금 길러야 할 힘',
+      id: 'job', age: 26, type: 'chips', title: '취업과 나의 일', max: 1, min: 1,
+      q: '스물여섯, 첫 일터에 들어섰어. 너는 어디에서 어떤 일을 시작했을까?', hint: '직업 이름을 몰라도 괜찮아. 가까운 쪽을 고르고 아래에 적어 봐.',
+      options: [{ k: 'company', label: '회사에 취업하기' }, { k: 'public', label: '공무원·공공기관' }, { k: 'pro', label: '전문직·기술직' }, { k: 'own', label: '내 가게·창업' }, { k: 'free', label: '프리랜서·창작' }],
+      custom: '다른 일 (직접 쓰기)', text: '무슨 일을 하는 곳이야? 출근하는 하루를 그려 봐.', prep: '그 일을 얻으려고 지금부터 쌓을 것',
     },
     {
       id: 'marry', age: 31, type: 'chips', title: '결혼과 동반자', people: 'picks', max: 1, optional: true,
