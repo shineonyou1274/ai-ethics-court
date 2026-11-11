@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffd8c9">
+<meta name="description" content="태어난 새벽부터 마지막 별밤까지, 내 인생의 길을 직접 걸으며 쓰는 드라마.">
+<title>인생 드라마</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ffd8c9'/%3E%3Ccircle cx='32' cy='30' r='13' fill='%23fff3c4'/%3E%3Cpath d='M8 52q24-16 48 0v12H8z' fill='%239bdc97'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+</head>
+<body>
+<canvas id="gl" aria-label="내 인생의 길을 걷는 3D 장면"></canvas>
+
+<header id="hud" hidden>
+  <div id="bar"><i id="barFill"></i></div>
+  <div class="hud-row">
+    <span id="chip"></span>
+    <button id="menuBtn" class="round" aria-label="메뉴 열기">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<section id="title">
+  <div class="title-box">
+    <p class="eyebrow">내가 쓰는 한 번뿐인 이야기</p>
+    <h1>인생 드라마</h1>
+    <p class="lead">태어난 새벽부터 마지막 별밤까지,<br>오늘 먼저 걸어 보자.</p>
+    <button id="startBtn" class="primary">걷기 시작</button>
+    <button id="resumeBtn" class="ghost" hidden>이어서 걷기</button>
+    <p class="fine">여기 적는 글은 이 기기에만 남고, 어디로도 보내지 않아.</p>
+  </div>
+</section>
+
+<section id="sheet" hidden><div id="card"></div></section>
+
+<section id="movie" hidden>
+  <div id="mvTop">
+    <span id="mvRec" hidden>● 녹화 중 · 화면을 켜 둬</span>
+    <button id="mvClose" class="pill">닫기</button>
+  </div>
+  <div id="mvBig" hidden><h2 id="mvBigTitle"></h2><p id="mvBigSub"></p></div>
+  <div id="mvCap" hidden>
+    <div id="mvTag"></div>
+    <p id="mvText"></p>
+    <p id="mvPrep"></p>
+  </div>
+  <div id="mvBar">
+    <button id="mvPrev" class="round" aria-label="이전 장면">‹</button>
+    <button id="mvPlay" class="round" aria-label="멈춤">Ⅱ</button>
+    <button id="mvNext" class="round" aria-label="다음 장면">›</button>
+    <div id="mvProg"><i id="mvFill"></i></div>
+  </div>
+</section>
+
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" hidden></div>
+<div id="print"></div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
