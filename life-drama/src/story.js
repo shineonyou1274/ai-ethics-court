@@ -98,32 +98,49 @@ export function build(S) {
   });
 
   // ── 3막 앞으로의 길 ──
+  // 중학생까지는 고등학생이 된 나를 먼저 그려 본다
   const soon = now + 3;
-  add({
-    id: 'soon', act: 3, age: soon, type: 'text', scene: true, optional: true, title: '몇 년 뒤의 나',
-    q: `여기부터는 아직 아무도 걸어 보지 않은 길이야. ${soon}살의 너는 어디에서 무엇을 하고 있을까?`,
-    starters: ['나는 ', '아침에 눈을 뜨면 ', '그때 내가 매일 하는 일은 '],
-    prep: '이 장면을 위해 올해 시작할 수 있는 것',
-  });
+  const hasSoon = soon <= 17;
+  if (hasSoon) {
+    add({
+      id: 'soon', act: 3, age: soon, type: 'text', scene: true, optional: true, title: '몇 년 뒤의 나',
+      q: `여기부터는 아직 아무도 걸어 보지 않은 길이야. ${soon}살, 고등학생이 된 너는 어떤 하루를 보내고 있을까?`,
+      starters: ['나는 ', '아침에 눈을 뜨면 ', '그때 내가 매일 하는 일은 '],
+      prep: '이 장면을 위해 올해 시작할 수 있는 것',
+    });
+  }
   const hints = S.hints || [0, 1];
   const fut = [
     {
+      id: 'school', age: 20, type: 'chips', title: '스무 살의 진로', max: 1, min: 1,
+      q: (hasSoon ? '' : '여기부터는 아직 아무도 걸어 보지 않은 길이야. ') + '스무 살, 고등학교를 마친 너는 어느 길에 서 있을까?', hint: '정답은 없어. 지금 마음이 가는 쪽을 골라 봐.',
+      options: [{ k: 'univ', label: '대학에 진학하기' }, { k: 'skill', label: '전문 기술 배우기' }, { k: 'work', label: '바로 일 시작하기' }, { k: 'world', label: '세상 경험 먼저 하기' }],
+      custom: '나만의 길 (직접 쓰기)', text: '거기서 무엇을 배우고, 어떤 하루를 보내고 있어?', prep: '그 길에 서려고 올해 준비할 것',
+    },
+    {
       id: 'meet1', age: 23, type: 'chips', title: '뜻밖의 만남', people: 'one', wait: true, cam: 'meet', max: 1, min: 1,
       q: '길모퉁이에서 누군가 손을 흔들고 있어. 이 사람은 누구일까?', hint: `"${HINTS[hints[0] % HINTS.length]}"`,
-      options: [opt('friend', '평생 친구', 'friend'), opt('mentor', '스승·멘토', 'mentor'), opt('partner'), opt('coworker', '함께 일하는 동료', 'coworker')],
+      options: [opt('friend', '평생 친구', 'friend'), opt('mentor', '스승·멘토', 'mentor'), opt('coworker', '함께 일하는 동료', 'coworker'), opt('senior', '닮고 싶은 선배', 'mentor')],
       custom: '직접 쓰기', text: '이 사람과 어떤 사이가 되고 싶어?',
     },
     {
-      id: 'fork', age: 27, type: 'chips', title: '갈림길', max: 1, min: 1,
-      q: '갈림길이야. 어느 쪽으로 걸어 볼래?', hint: '정답은 없어. 다른 길은 나중에 대본에서 다시 골라도 돼.',
+      id: 'fork', age: 27, type: 'chips', title: '나의 일', max: 1, min: 1,
+      q: '스물일곱, 일의 갈림길이야. 너는 어떤 일을 하며 살고 있을까?', hint: '직업 이름을 몰라도 괜찮아. 일하는 모습을 골라 봐.',
       options: [{ k: 'deep', label: '좋아하는 일을 깊게 파는 길' }, { k: 'new', label: '낯선 곳에서 새로 시작하는 길' }, { k: 'team', label: '사람들과 함께 만드는 길' }, { k: 'steady', label: '안정된 자리를 단단히 다지는 길' }],
-      custom: '나만의 길 (직접 쓰기)', text: '그 길 위의 하루를 그려 봐.', prep: '그 길을 고르려면 지금 길러야 할 힘',
+      custom: '나만의 길 (직접 쓰기)', text: '무슨 일을 하고 있어? 그 일의 하루를 그려 봐.', prep: '그 일을 하려면 지금 길러야 할 힘',
     },
     {
-      id: 'home', age: 35, type: 'chips', title: '나의 저녁', people: 'picks', max: 3, optional: true,
-      q: '서른다섯의 저녁. 너는 누구와 어떤 집에서 어떤 시간을 보내고 있을까?', hint: '함께 사는 이를 고르면 길에 합류해. 혼자여도 충분해.',
-      options: [opt('partner', '짝꿍', 'partner'), opt('child'), opt('friend'), opt('pet'), { k: 'alone', label: '혼자서도 충분해' }],
-      text: '그 저녁의 풍경을 적어 봐.',
+      id: 'marry', age: 31, type: 'chips', title: '결혼과 동반자', people: 'picks', max: 1, optional: true,
+      q: '서른 즈음, 인생을 함께 걸을 사람에 대해 너는 어떤 선택을 할까?', hint: '어느 쪽이든 네 삶이야. 나중에 대본에서 다시 골라도 돼.',
+      options: [{ k: 'wed', label: '결혼해서 함께 걷기', role: 'partner', as: '배우자' }, { k: 'with', label: '결혼은 아니어도 소중한 사람과 함께', role: 'partner', as: '동반자' }, { k: 'solo', label: '혼자 걷는 길도 좋아' }, { k: 'later', label: '아직 모르겠어' }],
+      text: '어떤 사람과 어떤 사이로 살고 싶어? 혼자라면 그 삶을 무엇으로 채울까?',
+    },
+    {
+      id: 'home', age: 35, type: 'chips', title: '자녀와 가족', people: 'picks', max: 1, optional: true,
+      q: '서른다섯, 아이에 대해서는 어떤 그림을 그리고 있어?', hint: '고른 가족이 길에 합류해. 어느 쪽이든 괜찮아.',
+      options: [{ k: 'one', label: '아이 한 명', roles: ['child'], names: ['아이'] }, { k: 'two', label: '아이 둘 이상', roles: ['child', 'child'], names: ['첫째', '둘째'] }, { k: 'none', label: '아이 없이 살기' }, { k: 'later', label: '아직 모르겠어' }],
+      text: '부모가 된다면 어떤 부모가 되고 싶어? 아니라면 그 시간에 무엇을 할까?',
+      prep: '좋은 가족이 되려고 지금 해 볼 수 있는 것',
     },
     {
       id: 'storm', age: 45, type: 'text', title: '길 한가운데의 비', weather: 'rain', optional: true,
@@ -152,9 +169,9 @@ export function build(S) {
   ];
   const ELDERS = ['mom', 'dad', 'grandma', 'grandpa', 'teacher'];
   const hasElder = ['care', 'beside'].some((id) => !S.a[id]?.skip && (S.a[id]?.picks || []).some((k) => ELDERS.includes(k)));
-  let lastFut = soon;
+  let lastFut = hasSoon ? soon : now;
   for (const f of fut) {
-    if (f.age < soon + 3) continue;
+    if (f.age < (hasSoon ? soon : now) + 2) continue;
     if (f.needElder && !hasElder) continue;
     add({ act: 3, scene: true, ...f });
     lastFut = f.age;
@@ -218,7 +235,8 @@ function peopleOf(b, a) {
   if (b.people === 'picks') {
     for (const k of a.picks || []) {
       const o = b.options.find((x) => x.k === k);
-      if (o && o.role) out.push({ id: b.id + ':' + k, role: o.role, label: o.label });
+      if (o && o.roles) o.roles.forEach((r, n) => out.push({ id: b.id + ':' + k + n, role: r, label: o.names[n] }));
+      else if (o && o.role) out.push({ id: b.id + ':' + k, role: o.role, label: o.as || o.label });
     }
     if (a.custom) out.push({ id: b.id + ':custom', role: 'custom', label: a.custom });
   } else if (b.people === 'one') {

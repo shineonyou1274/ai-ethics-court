@@ -279,15 +279,17 @@ const movie = createMovie({
   onOpen: () => { $('dlg').open && $('dlg').close(); sheet.hidden = true; $('hud').hidden = true; reportInset(); },
   onClose: () => { $('hud').hidden = false; busy = false; go(idx, { instant: true }); },
   onVideo: (blob, ext) => {
+    let vid;
     const url = URL.createObjectURL(blob);
     const name = `인생드라마_${S.name}.${ext}`;
     const file = new File([blob], name, { type: blob.type });
     const canShare = navigator.canShare && navigator.canShare({ files: [file] });
     dialog('영상이 완성됐어', [
-      h('video', { src: url, controls: true, playsInline: true }),
+      (vid = h('video', { src: url, controls: true, playsInline: true })),
+      h('div', { class: 'chips', style: 'margin-top:10px' }, [1, 1.5, 2].map((r) => h('button', { class: 'chip', type: 'button', onclick: () => { vid.playbackRate = r; vid.play(); } }, r + '배속'))),
       h('button', { class: 'primary', type: 'button', style: 'margin-top:12px', onclick: () => store.download(name, blob) }, '내 기기에 저장'),
       canShare ? h('button', { class: 'ghost', type: 'button', style: 'border-color:var(--line)', onclick: () => navigator.share({ files: [file], title: S.title }).catch(() => {}) }, '공유하기') : null,
-      h('p', { style: 'font-size:14px;color:var(--soft);margin-top:12px' }, ext === 'webm' ? '이 파일은 WebM 형식이야. 크롬·갤러리·카카오톡에서 열려. 아이폰에서 찍으면 MP4로 저장돼.' : 'MP4 형식이라 대부분의 앱에서 바로 열려.'),
+      h('p', { style: 'font-size:14px;color:var(--soft);margin-top:12px' }, ext === 'webm' ? '이 브라우저는 MP4 녹화를 지원하지 않아 WebM 형식으로 저장돼. 크롬과 최신 갤러리에서는 열리지만 아이폰에서는 안 열릴 수 있어. 최신 크롬이나 사파리에서 다시 녹화하면 MP4로 저장돼.' : 'MP4 형식이라 대부분의 기기와 앱에서 바로 열려. 저장한 뒤에도 재생 앱에서 배속을 바꿀 수 있어.'),
     ]);
     movie.close();
   },

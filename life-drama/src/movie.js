@@ -28,6 +28,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
   let segs = [], total = 0, t = 0, playing = false, open = false, stageKey = '', jumped = true;
   let cap = { mode: 'none' }, shownCap = '';
   let rec = null;
+  let speed = 1;
 
   function plan() {
     const { scenes } = getData();
@@ -115,7 +116,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
 
   function tick(dt) {
     if (!open) return;
-    if (playing) t += dt;
+    if (playing) t += dt * speed;
     if (t >= total) {
       t = total; playing = false; $('mvPlay').textContent = '↺';
       if (rec) stopRec(true);
@@ -169,6 +170,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     if (t >= total) { t = 0; jumped = true; stageKey = ''; playing = true; } else playing = !playing;
     $('mvPlay').textContent = playing ? 'Ⅱ' : '▶';
   };
+  $('mvSpeed').onclick = () => { speed = speed === 1 ? 1.5 : speed === 1.5 ? 2 : 1; $('mvSpeed').textContent = speed + '배'; };
   $('mvPrev').onclick = () => seekScene(-1);
   $('mvNext').onclick = () => seekScene(1);
   $('mvClose').onclick = () => api.close();
@@ -181,6 +183,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
       if (record && !api.canRecord()) { toast('이 브라우저는 영상 저장이 안 돼. 장면 카드로 저장해 줘.'); return; }
       plan();
       onOpen();
+      if (record) { speed = 1; $('mvSpeed').textContent = '1배'; }
       open = true; t = 0; playing = true; jumped = true; stageKey = ''; shownCap = '';
       world.state.ageOverride = null; world.state.labels = true;
       world.setInset(0, 0);
