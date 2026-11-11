@@ -1,7 +1,7 @@
 // 흐름 지휘: 걷기 → 질문 카드 → 답 저장 → 다음 걸음.
 import './style.css';
 import { createWorld } from './world.js';
-import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText } from './story.js';
+import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf } from './story.js';
 import * as store from './store.js';
 import { createMovie } from './movie.js';
 import { audio } from './audio.js';
@@ -150,6 +150,18 @@ function showCard(b) {
     const inp = h('input', { type: 'text', maxLength: 30, value: S.title || `${S.name}의 인생 드라마`, autocomplete: 'off', enterKeyHint: 'done' });
     body.push(h('label', { class: 'field' }, h('span', {}, '드라마 제목'), inp));
     collect = () => ({ text: inp.value.trim() || `${S.name}의 인생 드라마` });
+  } else if (b.type === 'plan') {
+    const rows = planOf(S);
+    const box = h('div', { class: 'plan' });
+    const draw = () => box.replaceChildren(...rows.map((r) => h('div', { class: 'plan-row' + (r.on ? '' : ' off') },
+      h('button', { class: 'tog', type: 'button', 'aria-pressed': String(r.on), 'aria-label': `${r.label} 계획에 ${r.on ? '넣음' : '안 넣음'}`, onclick: () => { r.on = !r.on; draw(); } }, h('i', {}, r.on ? '✓' : ''), r.label),
+      h('div', { class: 'mini' },
+        h('button', { type: 'button', disabled: !r.on, 'aria-label': `${r.label} 한 살 앞으로`, onclick: () => { r.age = Math.max((S.now || 15) + 2, r.age - 1); draw(); } }, '−'),
+        h('output', {}, r.on ? r.age + '살' : '안 해'),
+        h('button', { type: 'button', disabled: !r.on, 'aria-label': `${r.label} 한 살 뒤로`, onclick: () => { r.age = Math.min(80, r.age + 1); draw(); } }, '+')))));
+    draw();
+    body.push(box);
+    collect = () => ({ plan: Object.fromEntries(rows.map((r) => [r.k, { on: r.on, age: r.age }])) });
   } else if (b.type === 'hub') {
     renderHub();
     return;
@@ -203,10 +215,10 @@ function showCard(b) {
 
   primary = h('button', { class: 'primary', type: 'button', onclick: () => submit(b, collect()) }, b.cta || '다음 걸음');
   const act = b.act === 0 ? '여는 장' : `${b.act}막 · ${ACTS[b.act]}`;
-  card.className = '';
+  card.className = b.type === 'plan' ? 'tall' : '';
   card.replaceChildren(
     h('div', { class: 'scroll' },
-      h('p', { class: 'eyebrow' }, b.act === 0 || b.type === 'say' ? act : `${act} · ${b.age}살`),
+      h('p', { class: 'eyebrow' }, b.act === 0 || b.type === 'say' ? act : b.surprise ? `뜻밖의 질문 · ${b.age}살` : `${act} · ${b.age}살`),
       h('h2', {}, b.q),
       b.hint ? h('p', { class: 'hint' }, b.hint) : null,
       body),
@@ -226,6 +238,7 @@ function submit(b, ans) {
   else if (b.type === 'age') { S.now = ans.value; }
   else if (b.type === 'slider') { S.life = ans.value; }
   else if (b.type === 'title') { S.title = ans.text; }
+  else if (b.type === 'plan') { S.plan = ans.plan; }
   else if (b.type !== 'say') {
     const empty = !ans.skip && !(ans.picks && ans.picks.length) && !ans.custom && !(ans.text && ans.text.trim()) ;
     if (ans.text) ans.text = ans.text.trim();
@@ -377,6 +390,7 @@ function openMenu() {
   dialog('메뉴', [
     item(audio.on ? '♪ 배경 소리 끄기' : '♪ 배경 소리 켜기', '잔잔한 소리가 길을 따라 바뀌어', () => { S.sound = audio.toggle(); save(); $('dlg').close(); }),
     item('대본 보기·고치기', '지금까지 쓴 장면을 한눈에', openScript),
+    S.plan ? item('인생 계획표 고치기', '진학·취업·결혼·자녀·은퇴의 나이를 다시 정해', () => { $('dlg').close(); go(beats.findIndex((x) => x.id === 'plan'), { instant: true }); }) : null,
     item('처음부터 감상하기', '쓴 장면이 영상처럼 이어져', () => { $('dlg').close(); movie.play(); }),
     item('영상으로 저장', '감상하는 동안 녹화해서 파일로', () => { $('dlg').close(); movie.play({ record: true }); }),
     item('장면 카드 저장', '장면마다 이미지 한 장', () => { $('dlg').close(); openCards(); }),

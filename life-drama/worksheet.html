@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인생 드라마 사전 활동지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 12mm 13mm; }
+  :root { --ink: #2f2a3a; --soft: #6b647a; --line: #d9cfc6; --coral: #f0806c; --peach: #fff1e8; --mint: #e6f5ef; --sky: #e8f2fc; --lilac: #f0ebfa; --gold: #fdf3d6; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; background: #ece7e1; color: var(--ink); font: 10.5pt/1.5 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif; }
+  .page { width: 210mm; min-height: 297mm; margin: 8mm auto; padding: 12mm 13mm; background: #fff; box-shadow: 0 4px 24px #0002; display: flex; flex-direction: column; }
+  h1, h2, .num { font-family: 'Gowun Batang', 'Gowun Dodum', 'Apple SD Gothic Neo', serif; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; padding-bottom: 4mm; border-bottom: 2.2pt solid var(--ink); }
+  header small { display: block; color: var(--coral); letter-spacing: .12em; font-size: 8.5pt; font-weight: 700; }
+  h1 { margin: 0; font-size: 22pt; letter-spacing: -.02em; line-height: 1.2; }
+  .who { display: flex; gap: 5mm; font-size: 10pt; white-space: nowrap; }
+  .who span { display: inline-block; border-bottom: 1pt solid var(--ink); min-width: 24mm; height: 7mm; margin-left: 1.5mm; vertical-align: bottom; }
+  .lead { margin: 3.5mm 0 0; color: var(--soft); font-size: 10pt; }
+  section { margin-top: 4mm; }
+  h2 { display: flex; align-items: center; gap: 2.5mm; margin: 0 0 2.2mm; font-size: 13pt; }
+  .num { display: inline-grid; place-items: center; width: 7.5mm; height: 7.5mm; border-radius: 50%; background: var(--ink); color: #fff; font-size: 10.5pt; flex: none; }
+  h2 em { font: 400 9pt 'Gowun Dodum', sans-serif; color: var(--soft); margin-left: 1mm; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1pt solid var(--ink); border-radius: 3mm; overflow: hidden; table-layout: fixed; }
+  th, td { border-right: .6pt solid var(--line); border-bottom: .6pt solid var(--line); padding: 1.4mm 2.2mm; vertical-align: top; text-align: left; }
+  tr > :last-child { border-right: 0; }
+  tr:last-child > * { border-bottom: 0; }
+  thead th { background: var(--ink); color: #fff; font-weight: 700; font-size: 9.5pt; text-align: center; vertical-align: middle; border-color: #ffffff33; }
+  tbody th { font-weight: 700; font-size: 10pt; vertical-align: middle; }
+  tbody th small, td small { display: block; font-weight: 400; color: var(--soft); font-size: 8.3pt; line-height: 1.35; }
+  .c-peach tbody th { background: var(--peach); } .c-mint tbody th { background: var(--mint); } .c-sky tbody th { background: var(--sky); } .c-lilac tbody th { background: var(--lilac); } .c-gold tbody th { background: var(--gold); }
+  .h9 td, .h9 th { height: 9mm; } .h12 td, .h12 th { height: 12.4mm; } .h14 td, .h14 th { height: 13.8mm; } .h17 td, .h17 th { height: 17mm; }
+  .center { text-align: center; }
+  .mark { font-size: 11pt; letter-spacing: .25em; color: #b9b0a6; text-align: center; vertical-align: middle; }
+  .age { text-align: right; vertical-align: bottom; color: var(--soft); font-size: 9pt; }
+  .values { display: grid; grid-template-columns: repeat(9, 1fr); gap: 1.3mm; }
+  .values span { border: .8pt solid var(--line); border-radius: 99px; text-align: center; padding: .7mm 0; font-size: 9.5pt; }
+  .line { border-bottom: .8pt solid var(--line); height: 8.5mm; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .axis { position: relative; height: 34mm; border: 1pt solid var(--ink); border-radius: 3mm; background: linear-gradient(90deg, #ffe3d6 0%, #fff6d9 16%, #dff0ff 38%, #ffeccb 60%, #ffd3c4 78%, #d9d3f0 100%); }
+  .axis .rule { position: absolute; left: 5mm; right: 5mm; bottom: 9mm; border-top: 1.2pt solid var(--ink); }
+  .axis .tick { position: absolute; bottom: 2.2mm; transform: translateX(-50%); font-size: 8.5pt; text-align: center; }
+  .axis .tick::before { content: ''; display: block; width: 0; height: 3mm; border-left: 1pt solid var(--ink); margin: 0 auto 0.6mm; }
+  .axis .cap { position: absolute; top: 1.6mm; left: 4mm; font-size: 8.5pt; color: var(--soft); }
+  .note { margin: 2mm 0 0; font-size: 8.8pt; color: var(--soft); }
+  .box { border: 1pt solid var(--ink); border-radius: 3mm; padding: 2.5mm 3mm; }
+  .box b { font-size: 10pt; }
+  footer { margin-top: auto; padding-top: 4mm; display: flex; justify-content: space-between; font-size: 8.3pt; color: var(--soft); }
+  @media print { body { background: #fff; } .page { margin: 0; padding: 0; width: auto; min-height: 0; height: 270mm; box-shadow: none; break-after: page; } .page:last-child { break-after: auto; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <div><small>LIFE DRAMA · 사전 활동지</small><h1>인생 드라마, 걷기 전에</h1></div>
+    <div class="who">학번<span></span> 이름<span></span></div>
+  </header>
+  <p class="lead">잠시 뒤 화면 속 길을 걸으며 내 인생을 한 편의 드라마로 씁니다. 그 전에 종이 위에서 먼저 그려 봅시다. 정답은 없고, 쓰기 어려운 칸은 비워 두어도 됩니다.</p>
+
+  <section>
+    <h2><span class="num">1</span>지나온 길 <em>태어나서 지금까지</em></h2>
+    <table class="c-peach h12">
+      <colgroup><col style="width:34%"><col></colgroup>
+      <tbody>
+        <tr><th>나를 돌봐 준 사람<small>아주 어렸을 때 곁에 있던 사람</small></th><td></td></tr>
+        <tr><th>빠져들었던 것<small>시간 가는 줄 모르고 하던 일</small></th><td></td></tr>
+        <tr><th>비 오던 날<small>힘들었던 순간과 나를 다시 걷게 한 것</small></th><td></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>지금의 나 <em>가장 소중한 것 세 가지에 동그라미</em></h2>
+    <div class="values">
+      <span>가족</span><span>우정</span><span>사랑</span><span>자유</span><span>도전</span><span>성장</span><span>배움</span><span>건강</span><span>안정</span>
+      <span>재미</span><span>창작</span><span>나눔</span><span>정의</span><span>성실</span><span>용기</span><span>평화</span><span>인정</span><span>자연</span>
+    </div>
+    <table class="c-mint h12" style="margin-top:2.5mm">
+      <colgroup><col style="width:34%"><col></colgroup>
+      <tbody>
+        <tr><th>나를 한 문장으로<small>나를 잘 아는 사람이 소개한다면</small></th><td></td></tr>
+        <tr><th>지금 곁에 있는 사람<small>함께 걷고 있는 한두 명</small></th><td></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>인생 계획표 <em>굵직한 일을 몇 살에 맞이할까</em></h2>
+    <table class="c-sky h14">
+      <colgroup><col style="width:19%"><col style="width:11%"><col style="width:11%"><col style="width:31%"><col></colgroup>
+      <thead><tr><th>굵직한 일</th><th>할까?</th><th>몇 살에</th><th>어떤 모습으로</th><th>지금 준비할 것</th></tr></thead>
+      <tbody>
+        <tr><th>진학·진로<small>대학, 기술, 일, 경험</small></th><td class="mark">○△×</td><td class="age">살</td><td></td><td></td></tr>
+        <tr><th>취업<small>첫 일터와 하는 일</small></th><td class="mark">○△×</td><td class="age">살</td><td></td><td></td></tr>
+        <tr><th>결혼·동반자<small>함께 걸을 사람</small></th><td class="mark">○△×</td><td class="age">살</td><td></td><td></td></tr>
+        <tr><th>자녀<small>어떤 부모가 될까</small></th><td class="mark">○△×</td><td class="age">살</td><td></td><td></td></tr>
+        <tr><th>은퇴<small>일을 내려놓은 뒤</small></th><td class="mark">○△×</td><td class="age">살</td><td></td><td></td></tr>
+        <tr><th>나만의 사건<small>꼭 이루고 싶은 일</small></th><td class="mark">○△×</td><td class="age">살</td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    <p class="note">○ 하고 싶다 · △ 아직 모르겠다 · × 하지 않겠다. 화면에서 이 나이를 그대로 옮겨 적습니다. 나중에 얼마든지 고칠 수 있습니다.</p>
+  </section>
+  <footer><span>인생 드라마 사전 활동지</span><span>1 / 2</span></footer>
+</div>
+
+<div class="page">
+  <section style="margin-top:0">
+    <h2><span class="num">4</span>내 인생의 길 <em>계획표의 일들을 나이에 맞춰 길 위에 표시하기</em></h2>
+    <div class="axis">
+      <span class="cap">새벽 → 아침 → 한낮 → 오후 → 노을 → 별밤 · 지금 내 나이에 ★, 굵직한 일마다 ● 와 이름을 적어 보세요.</span>
+      <div class="rule"></div>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * 0)">0</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .1)">10</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .2)">20</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .3)">30</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .4)">40</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .5)">50</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .6)">60</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .7)">70</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .8)">80</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * .9)">90</span>
+      <span class="tick" style="left:calc(5mm + (100% - 10mm) * 1)">100</span>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>평생 배움 계획 <em>직업과 상관없이, 그냥 좋아서 배우고 싶은 것</em></h2>
+    <table class="c-lilac h14">
+      <colgroup><col style="width:17%"><col style="width:27%"><col style="width:28%"><col></colgroup>
+      <thead><tr><th>시기</th><th>배우고 싶은 것</th><th>배우고 싶은 까닭</th><th>누구와, 어떻게</th></tr></thead>
+      <tbody>
+        <tr><th>10대<small>지금부터</small></th><td></td><td></td><td></td></tr>
+        <tr><th>20~30대<small>일을 시작할 때</small></th><td></td><td></td><td></td></tr>
+        <tr><th>40~50대<small>인생 한가운데</small></th><td></td><td></td><td></td></tr>
+        <tr><th>60대 이후<small>일을 내려놓은 뒤</small></th><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    <p class="note">악기·노래, 운동·춤, 외국어, 그림·글쓰기, 요리·만들기, 새로운 공부… 직업이 되지 못한 꿈도 취미로 평생 이어 갈 수 있습니다.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>뜻밖의 일을 만난다면 <em>계획대로 되지 않는 날</em></h2>
+    <table class="c-gold h12">
+      <colgroup><col style="width:34%"><col></colgroup>
+      <tbody>
+        <tr><th>나를 다시 일으키는 것<small>사람, 습관, 떠올릴 말</small></th><td></td></tr>
+        <tr><th>내가 손 내밀고 싶은 사람<small>언젠가 내가 도울 누군가</small></th><td></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>길의 끝에서 <em>쓰기 어려우면 비워 두어도 됩니다</em></h2>
+    <table class="c-peach h12">
+      <colgroup><col style="width:34%"><col></colgroup>
+      <tbody>
+        <tr class="h9"><th>이 길은 몇 살까지</th><td class="age" style="text-align:left;vertical-align:middle">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;살까지</td></tr>
+        <tr><th>마지막 날의 나<small>어디에서, 어떤 모습으로</small></th><td></td></tr>
+        <tr><th>남겨질 사람들에게<small>건네고 싶은 마지막 인사</small></th><td></td></tr>
+        <tr><th>기억되고 싶은 모습<small>“…한 사람”</small></th><td></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="box"><b>이번 주의 한 걸음</b> <span style="color:var(--soft);font-size:9pt">· 그 마지막 장면에 닿으려고 이번 주에 할 수 있는 작은 일 하나</span><div class="line"></div></div>
+  </section>
+  <footer><span>인생 드라마 사전 활동지</span><span>2 / 2</span></footer>
+</div>
+</body>
+</html>

@@ -41,6 +41,16 @@ const HINTS = [
   '같은 꿈을 꾸는 사람',
 ];
 
+const PLAN = [['school', '진학·진로', 20], ['job', '취업', 26], ['marry', '결혼·동반자', 31], ['home', '자녀', 35], ['retire', '은퇴', 65]];
+/** 굵직한 사건의 계획표. 이미 지난 나이의 사건은 빼고, 학생이 정한 나이와 켜고 끔을 반영한다. */
+export function planOf(S) {
+  const now = S.now ?? 15;
+  return PLAN.filter(([, , def]) => def > now).map(([k, label, def]) => {
+    const p = (S.plan || {})[k] || {};
+    return { k, label, on: p.on !== false, age: Math.min(80, Math.max(now + 2, p.age || def)) };
+  });
+}
+
 const opt = (k, label, role) => ({ k, label: label || ROLES[k].label, role: role || k });
 
 /** 현재 상태로 질문 카드 목록을 만든다. 답이 바뀌어도 앞쪽 순서는 달라지지 않는다. */
@@ -98,81 +108,120 @@ export function build(S) {
   });
 
   // ── 3막 앞으로의 길 ──
-  // 중학생까지는 고등학생이 된 나를 먼저 그려 본다
-  const soon = now + 3;
-  const hasSoon = soon <= 17;
-  if (hasSoon) {
+  // 굵직한 사건은 먼저 계획하고 나이도 스스로 정한다. 그 사이사이에 뜻밖의 질문을 만난다.
+  const P = planOf(S);
+  if (P.length) {
     add({
-      id: 'soon', act: 3, age: soon, type: 'text', scene: true, optional: true, title: '몇 년 뒤의 나',
-      q: `여기부터는 아직 아무도 걸어 보지 않은 길이야. ${soon}살, 고등학생이 된 너는 어떤 하루를 보내고 있을까?`,
+      id: 'plan', act: 3, age: now, walk: false, type: 'plan', cam: 'front',
+      q: '이제부터는 아직 걸어 보지 않은 길이야. 굵직한 일을 몇 살에 맞이할까?',
+      hint: '활동지의 나이를 옮겨 적어. 계획에 없는 일은 체크를 꺼 둬.', cta: '이 계획으로 출발',
+    });
+  }
+  const at = (k) => { const r = P.find((x) => x.k === k); return r && r.on ? r.age : null; };
+  const hints = S.hints || [0, 1];
+  const fut = [];
+  const soon = now + 3;
+  if (soon <= 17) {
+    fut.push({
+      id: 'soon', age: soon, type: 'text', optional: true, title: '몇 년 뒤의 나',
+      q: `${soon}살, 고등학생이 된 너는 어떤 하루를 보내고 있을까?`,
       starters: ['나는 ', '아침에 눈을 뜨면 ', '그때 내가 매일 하는 일은 '],
       prep: '이 장면을 위해 올해 시작할 수 있는 것',
     });
   }
-  const hints = S.hints || [0, 1];
-  const fut = [
-    {
-      id: 'school', age: 20, type: 'chips', title: '스무 살의 진로', max: 1, min: 1,
-      q: (hasSoon ? '' : '여기부터는 아직 아무도 걸어 보지 않은 길이야. ') + '스무 살, 고등학교를 마친 너는 어느 길에 서 있을까?', hint: '정답은 없어. 지금 마음이 가는 쪽을 골라 봐.',
+  // 계획한 사건
+  const EVENTS = {
+    school: (a) => ({
+      type: 'chips', title: '진학과 진로', max: 1, min: 1,
+      q: `${a}살, 학교를 마친 너는 어느 길에 서 있을까?`, hint: '정답은 없어. 지금 마음이 가는 쪽을 골라 봐.',
       options: [{ k: 'univ', label: '대학에 진학하기' }, { k: 'skill', label: '전문 기술 배우기' }, { k: 'work', label: '바로 일 시작하기' }, { k: 'world', label: '세상 경험 먼저 하기' }],
       custom: '나만의 길 (직접 쓰기)', text: '거기서 무엇을 배우고, 어떤 하루를 보내고 있어?', prep: '그 길에 서려고 올해 준비할 것',
-    },
+    }),
+    job: (a) => ({
+      type: 'chips', title: '취업과 나의 일', max: 1, min: 1,
+      q: `${a}살, 첫 일터에 들어섰어. 너는 어디에서 어떤 일을 시작했을까?`, hint: '직업 이름을 몰라도 괜찮아. 가까운 쪽을 고르고 아래에 적어 봐.',
+      options: [{ k: 'company', label: '회사에 취업하기' }, { k: 'public', label: '공무원·공공기관' }, { k: 'pro', label: '전문직·기술직' }, { k: 'own', label: '내 가게·창업' }, { k: 'free', label: '프리랜서·창작' }],
+      custom: '다른 일 (직접 쓰기)', text: '무슨 일을 하는 곳이야? 출근하는 하루를 그려 봐.', prep: '그 일을 얻으려고 지금부터 쌓을 것',
+    }),
+    marry: (a) => ({
+      type: 'chips', title: '결혼과 동반자', people: 'picks', max: 1, optional: true,
+      q: `${a}살, 인생을 함께 걸을 사람을 만났어. 너는 어떤 선택을 할까?`, hint: '어느 쪽이든 네 삶이야. 나중에 대본에서 다시 골라도 돼.',
+      options: [{ k: 'wed', label: '결혼해서 함께 걷기', role: 'partner', as: '배우자' }, { k: 'with', label: '결혼은 아니어도 소중한 사람과 함께', role: 'partner', as: '동반자' }, { k: 'solo', label: '혼자 걷는 길도 좋아' }, { k: 'later', label: '아직 모르겠어' }],
+      text: '어떤 사람과 어떤 사이로 살고 싶어? 혼자라면 그 삶을 무엇으로 채울까?',
+    }),
+    home: (a) => ({
+      type: 'chips', title: '자녀와 가족', people: 'picks', max: 1, optional: true,
+      q: `${a}살, 아이에 대해서는 어떤 그림을 그리고 있어?`, hint: '고른 가족이 길에 합류해. 어느 쪽이든 괜찮아.',
+      options: [{ k: 'one', label: '아이 한 명', roles: ['child'], names: ['아이'] }, { k: 'two', label: '아이 둘 이상', roles: ['child', 'child'], names: ['첫째', '둘째'] }, { k: 'none', label: '아이 없이 살기' }, { k: 'later', label: '아직 모르겠어' }],
+      text: '부모가 된다면 어떤 부모가 되고 싶어? 아니라면 그 시간에 무엇을 할까?', prep: '좋은 가족이 되려고 지금 해 볼 수 있는 것',
+    }),
+    retire: (a) => ({
+      type: 'chips', title: '은퇴와 그 뒤', max: 2, optional: true,
+      q: `${a}살, 오래 해 온 일을 내려놓는 날이야. 그 뒤의 시간을 무엇으로 채울까?`, hint: '두 가지까지 골라 봐. 길은 아직 많이 남았어.',
+      options: [{ k: 'learn', label: '새로운 것 배우기' }, { k: 'serve', label: '봉사와 나눔' }, { k: 'trip', label: '여행' }, { k: 'family', label: '가족과 보내는 시간' }, { k: 'small', label: '작은 일 계속하기' }],
+      custom: '직접 쓰기', text: '은퇴한 다음 날 아침을 그려 봐.',
+    }),
+  };
+  for (const k of Object.keys(EVENTS)) { const a = at(k); if (a != null) fut.push({ id: k, age: a, planned: true, ...EVENTS[k](a) }); }
+  // 뜻밖의 질문: 늘 만나는 것
+  fut.push(
     {
-      id: 'meet1', age: 23, type: 'chips', title: '뜻밖의 만남', people: 'one', wait: true, cam: 'meet', max: 1, min: 1,
+      id: 'meet1', age: 23, surprise: true, type: 'chips', title: '뜻밖의 만남', people: 'one', wait: true, cam: 'meet', max: 1, min: 1,
       q: '길모퉁이에서 누군가 손을 흔들고 있어. 이 사람은 누구일까?', hint: `"${HINTS[hints[0] % HINTS.length]}"`,
       options: [opt('friend', '평생 친구', 'friend'), opt('mentor', '스승·멘토', 'mentor'), opt('coworker', '함께 일하는 동료', 'coworker'), opt('senior', '닮고 싶은 선배', 'mentor')],
       custom: '직접 쓰기', text: '이 사람과 어떤 사이가 되고 싶어?',
     },
     {
-      id: 'job', age: 26, type: 'chips', title: '취업과 나의 일', max: 1, min: 1,
-      q: '스물여섯, 첫 일터에 들어섰어. 너는 어디에서 어떤 일을 시작했을까?', hint: '직업 이름을 몰라도 괜찮아. 가까운 쪽을 고르고 아래에 적어 봐.',
-      options: [{ k: 'company', label: '회사에 취업하기' }, { k: 'public', label: '공무원·공공기관' }, { k: 'pro', label: '전문직·기술직' }, { k: 'own', label: '내 가게·창업' }, { k: 'free', label: '프리랜서·창작' }],
-      custom: '다른 일 (직접 쓰기)', text: '무슨 일을 하는 곳이야? 출근하는 하루를 그려 봐.', prep: '그 일을 얻으려고 지금부터 쌓을 것',
+      id: 'learn', age: 40, surprise: true, type: 'chips', title: '배우고 싶은 것', max: 2, min: 1,
+      q: '일이나 성적과 상관없이, 그냥 좋아서 배우고 싶은 게 있다면 뭘까?', hint: '직업이 되지 못한 꿈도 취미로 평생 이어 갈 수 있어. 두 가지까지 골라 봐.',
+      options: [{ k: 'music', label: '악기·노래' }, { k: 'sport', label: '운동·춤' }, { k: 'lang', label: '외국어' }, { k: 'art', label: '그림·글쓰기' }, { k: 'make', label: '요리·만들기' }, { k: 'study', label: '새로운 공부' }],
+      custom: '직접 쓰기', text: '왜 배우고 싶어? 언제, 누구와, 어떻게 배울까?', prep: '지금 맛보기로 시작해 볼 수 있는 것',
     },
     {
-      id: 'marry', age: 31, type: 'chips', title: '결혼과 동반자', people: 'picks', max: 1, optional: true,
-      q: '서른 즈음, 인생을 함께 걸을 사람에 대해 너는 어떤 선택을 할까?', hint: '어느 쪽이든 네 삶이야. 나중에 대본에서 다시 골라도 돼.',
-      options: [{ k: 'wed', label: '결혼해서 함께 걷기', role: 'partner', as: '배우자' }, { k: 'with', label: '결혼은 아니어도 소중한 사람과 함께', role: 'partner', as: '동반자' }, { k: 'solo', label: '혼자 걷는 길도 좋아' }, { k: 'later', label: '아직 모르겠어' }],
-      text: '어떤 사람과 어떤 사이로 살고 싶어? 혼자라면 그 삶을 무엇으로 채울까?',
-    },
-    {
-      id: 'home', age: 35, type: 'chips', title: '자녀와 가족', people: 'picks', max: 1, optional: true,
-      q: '서른다섯, 아이에 대해서는 어떤 그림을 그리고 있어?', hint: '고른 가족이 길에 합류해. 어느 쪽이든 괜찮아.',
-      options: [{ k: 'one', label: '아이 한 명', roles: ['child'], names: ['아이'] }, { k: 'two', label: '아이 둘 이상', roles: ['child', 'child'], names: ['첫째', '둘째'] }, { k: 'none', label: '아이 없이 살기' }, { k: 'later', label: '아직 모르겠어' }],
-      text: '부모가 된다면 어떤 부모가 되고 싶어? 아니라면 그 시간에 무엇을 할까?',
-      prep: '좋은 가족이 되려고 지금 해 볼 수 있는 것',
-    },
-    {
-      id: 'storm', age: 45, type: 'text', title: '길 한가운데의 비', weather: 'rain', optional: true,
+      id: 'storm', age: 45, surprise: true, type: 'text', title: '길 한가운데의 비', weather: 'rain', optional: true,
       q: '인생의 한가운데에서 큰비를 만났어. 계획대로 되지 않는 날, 너를 다시 일으키는 건 무엇일까?',
       starters: ['그럴 때 나는 ', '나를 일으키는 건 ', '포기하고 싶을 때 떠올릴 것은 '],
       prep: '그 힘을 기르려고 지금 해 볼 수 있는 것',
     },
+    {
+      id: 'bye', age: 70, surprise: true, type: 'text', title: '먼저 길을 마친 사람에게', optional: true, fx: 'depart', needElder: true,
+      q: '함께 걷던 누군가는 먼저 길을 마치기도 해. 그 사람에게 지금 꼭 전하고 싶은 말이 있다면?',
+      hint: '마음이 무거우면 건너뛰어도 돼. 건너뛰면 모두 끝까지 함께 걸어.',
+      starters: ['고마웠어요, ', '미처 말하지 못했지만 '],
+      skipLabel: '끝까지 함께 걸을래',
+    },
+  );
+  // 뜻밖의 질문: 사람마다 다르게 두 장을 뽑는다
+  const DECK = [
     {
       id: 'give', age: 52, type: 'chips', title: '손을 내미는 사람', people: 'one', wait: true, cam: 'meet', max: 1, min: 1, fixedRole: 'junior',
       q: '이번엔 네가 누군가에게 손을 내밀 차례야. 너는 누구를, 어떻게 돕고 있을까?', hint: `"${HINTS[hints[1] % HINTS.length]}"이 되어 주는 건 이제 너야.`,
       options: [{ k: 'young', label: '예전의 나 같은 아이' }, { k: 'jr', label: '일을 배우는 후배' }, { k: 'nb', label: '이웃과 마을' }, { k: 'far', label: '먼 곳의 누군가' }],
       custom: '직접 쓰기', text: '어떻게 돕고 있어?',
     },
+    { id: 'proud', age: 62, type: 'text', title: '가장 뿌듯한 일', optional: true, q: '문득 걸어온 길을 돌아봤어. 무엇이 가장 뿌듯할까?', starters: ['내가 가장 잘한 일은 ', '끝까지 놓지 않은 것은 '] },
     {
-      id: 'proud', age: 62, type: 'text', title: '가장 뿌듯한 일', optional: true,
-      q: '예순둘. 걸어온 길을 돌아보니 무엇이 가장 뿌듯할까?',
-      starters: ['내가 가장 잘한 일은 ', '끝까지 놓지 않은 것은 '],
+      id: 'chance', age: 29, type: 'chips', title: '뜻밖의 제안', max: 1, min: 1,
+      q: '전혀 다른 나라에서 1년 살아 볼 기회가 갑자기 생겼어. 어떻게 할래?',
+      options: [{ k: 'go', label: '떠난다' }, { k: 'stay', label: '지금 자리를 지킨다' }, { k: 'later', label: '조금 미뤄 두고 준비한다' }], text: '그렇게 고른 까닭은?',
     },
-    {
-      id: 'bye', age: 70, type: 'text', title: '먼저 길을 마친 사람에게', optional: true, fx: 'depart', needElder: true,
-      q: '함께 걷던 누군가는 먼저 길을 마치기도 해. 그 사람에게 지금 꼭 전하고 싶은 말이 있다면?',
-      hint: '마음이 무거우면 건너뛰어도 돼. 건너뛰면 모두 끝까지 함께 걸어.',
-      starters: ['고마웠어요, ', '미처 말하지 못했지만 '],
-      skipLabel: '끝까지 함께 걸을래',
-    },
+    { id: 'fail', age: 33, type: 'text', title: '크게 넘어진 날', optional: true, q: '오래 공들인 일이 크게 실패했어. 그날 저녁, 너는 누구에게 연락하고 무슨 말을 할까?', starters: ['나는 ', '제일 먼저 떠오르는 사람은 '] },
+    { id: 'money', age: 38, type: 'text', title: '뜻밖의 큰돈', optional: true, q: '생각지도 못한 큰돈이 생겼어. 가장 먼저 어디에, 누구를 위해 쓸까?', starters: ['가장 먼저 ', '나를 위해서는 '] },
+    { id: 'health', age: 48, type: 'text', title: '몸이 보내는 신호', optional: true, q: '몸이 쉬어 가라는 신호를 보냈어. 오래 걷기 위해 바꿀 습관 한 가지는?', starters: ['나는 ', '그만둘 것은 '], prep: '지금부터 들일 수 있는 건강 습관' },
+    { id: 'ask', age: 57, type: 'text', title: '오랜 친구의 부탁', optional: true, q: '오랜 친구가 들어주기 어려운 부탁을 해 왔어. 너는 어떻게 할까?', starters: ['나는 ', '친구에게 '] },
   ];
+  const d1 = hints[0] % DECK.length, d2 = (d1 + 1 + (hints[1] % (DECK.length - 1))) % DECK.length;
+  fut.push({ surprise: true, ...DECK[d1] }, { surprise: true, ...DECK[d2] });
+
   const ELDERS = ['mom', 'dad', 'grandma', 'grandpa', 'teacher'];
   const hasElder = ['care', 'beside'].some((id) => !S.a[id]?.skip && (S.a[id]?.picks || []).some((k) => ELDERS.includes(k)));
-  let lastFut = hasSoon ? soon : now;
-  for (const f of fut) {
-    if (f.age < (hasSoon ? soon : now) + 2) continue;
-    if (f.needElder && !hasElder) continue;
+  // 계획한 사건이 먼저 자리를 잡고, 뜻밖의 질문은 겹치지 않는 나이로 옮긴다
+  const taken = new Set(fut.filter((f) => f.planned).map((f) => f.age));
+  let lastFut = now;
+  const list = fut.filter((f) => f.age >= now + 2 && !(f.needElder && !hasElder));
+  for (const f of list) { if (f.planned) continue; while (taken.has(f.age)) f.age += 1; taken.add(f.age); }
+  list.sort((x, y) => x.age - y.age);
+  for (const f of list) {
     add({ act: 3, scene: true, ...f });
     lastFut = f.age;
   }
