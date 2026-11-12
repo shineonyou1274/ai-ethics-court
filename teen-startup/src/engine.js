@@ -12,7 +12,7 @@ export function newGame(name) {
     name: name || '우리 치킨', month: 1, cash: 1000, trust: 50, team: 60, impact: 10,
     price: 18000, unitCost: 8000, staff: 2, wage: 110, rent: 150, etc: 60,
     feeRate: 0.1, deliveryShare: 0.2, demand: 1, temp: 1, level: 1,
-    loan: 0, interest: 0, assets: 0, flags: {}, history: [], picks: [], over: null,
+    loan: 0, interest: 0, assets: 0, risky: 0, hires: 0, flags: {}, history: [], picks: [], over: null,
   };
 }
 
@@ -64,6 +64,7 @@ export function choose(s, idx, rng = Math.random) {
   applyFx(s, c.fx); tags.push(...tagsOf(c.fx, s));
   let luck = null;
   if (c.risk) {
+    s.risky = (s.risky || 0) + 1;
     if (rng() < c.risk.p) { applyFx(s, c.risk.bad.fx); tags.push(...tagsOf(c.risk.bad.fx, s)); text += ' ' + c.risk.bad.text; luck = 'bad'; }
     else { text += ' ' + c.risk.good.text; luck = 'good'; }
   }
@@ -128,7 +129,7 @@ export function act(s, id) {
   const a = actions(s).find((x) => x.id === id);
   if (!a || !a.ok) return false;
   s.cash -= a.cost;
-  if (id === 'hire') { s.staff += 1; s.team = clamp(s.team + 5); }
+  if (id === 'hire') { s.hires = (s.hires || 0) + 1; s.staff += 1; s.team = clamp(s.team + 5); }
   if (id === 'remodel') { s.level = 2; s.assets += 400; s.trust = clamp(s.trust + 6); s.demand *= 1.15; }
   if (id === 'expand') { s.level = 3; s.assets += 1000; s.rent += 100; s.trust = clamp(s.trust + 5); s.demand *= 1.25; }
   return true;
@@ -151,5 +152,16 @@ export function ending(s) {
       impact: { icon: '💖', name: '동네의 자랑 사장님', line: '가게가 잘될수록 동네도 좋아졌어. 장사가 세상을 바꿀 수 있다는 걸 보여 줬어.' },
     }[top];
   }
-  return { type, net, total };
+  // 창업가 역량 여섯 가지. 시험 점수가 아니라 이번 판의 선택이 남긴 흔적이다.
+  const n = Math.max(1, s.history.length), black = s.history.filter((h) => h.profit >= 0).length;
+  const cap = (v) => Math.max(5, Math.min(100, Math.round(v)));
+  const skills = [
+    { key: 'customer', name: '고객 중심', v: cap(s.trust), tip: '손님이 무엇을 원하는지 살피고 믿음을 쌓는 힘' },
+    { key: 'money', name: '돈 관리', v: cap(black / n * 55 + Math.max(0, total) / 80), tip: '들어오는 돈과 나가는 돈을 읽고 이익을 남기는 힘' },
+    { key: 'growth', name: '도전과 성장', v: cap((s.level - 1) * 35 + (s.hires || 0) * 10 + (s.over === 'bankrupt' ? 0 : 10)), tip: '기회를 보고 과감하게 투자해 가게를 키우는 힘' },
+    { key: 'risk', name: '위험 관리', v: cap(100 - (s.risky || 0) * 22 - (s.loan ? 20 : 0)), tip: '잘못될 수 있는 일을 미리 따져 보고 피하는 힘' },
+    { key: 'team', name: '함께 일하기', v: cap(s.team), tip: '같이 일하는 사람을 존중하고 힘을 모으는 힘' },
+    { key: 'social', name: '사회적 가치', v: cap(s.impact * 1.2), tip: '장사로 동네와 환경에 보탬이 되려는 마음' },
+  ];
+  return { type, net, total, skills };
 }
