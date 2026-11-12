@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#cfeeff">
+<meta name="description" content="치킨집 사장님이 되어 열두 달 동안 가게를 키우는 창업 체험 게임.">
+<title>틴 스타트업 · 치킨집</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ffd9c7'/%3E%3Ccircle cx='32' cy='34' r='15' fill='%23ffb14e'/%3E%3Crect x='28' y='8' width='8' height='16' rx='4' fill='%23fffaf0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="app">
+  <section id="stage">
+    <canvas id="gl" aria-label="내 치킨집을 위에서 내려다본 3D 장면"></canvas>
+    <div id="hud" hidden>
+      <span id="monthChip"></span>
+      <div id="stats"></div>
+    </div>
+  </section>
+  <main id="panel" aria-live="polite"></main>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
