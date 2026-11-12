@@ -104,6 +104,22 @@ input[type='range'] { width: 100%; height: 44px; accent-color: var(--accent); ma
 .foot-row { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
 .count { font-size: 14px; color: #a79fb2; text-align: right; margin: 4px 4px 0; }
 
+/* 접힌 기록 칸: 살짝 누르면 슥 올라온다 */
+.peekbtn { display: none; width: 100%; align-items: center; gap: 10px; min-height: 56px; margin-top: 8px; padding: 10px 14px; border-radius: 18px; background: #fff; border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, #fff); color: #a79fb2; font-size: 17px; text-align: left; transition: transform .15s, border-color .2s; }
+.peekbtn:active { transform: scale(.98); }
+.peekbtn .pen { color: var(--accent); font-size: 20px; flex: none; }
+.peekbtn .ptext { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.peekbtn .chev { color: var(--accent); flex: none; animation: nudge 1.6s ease-in-out infinite; }
+.peekbtn.filled { border-style: solid; color: var(--ink); }
+@keyframes nudge { 50% { transform: translateY(-4px); } }
+#card.peek .peekbtn { display: flex; }
+#card.peek .more { display: none; }
+#card .more { animation: slideup .42s cubic-bezier(.2, .9, .3, 1.1) both; }
+@keyframes slideup { from { opacity: 0; transform: translateY(46px); } to { opacity: 1; transform: none; } }
+.fold { display: block; width: 100%; height: 26px; margin: -4px 0 2px; }
+.fold i { display: block; width: 44px; height: 5px; border-radius: 5px; background: #d9d0c6; margin: 0 auto; }
+#card.peek .scroll { padding-bottom: 12px; }
+
 /* 완성 화면 */
 .poster { text-align: center; padding: 6px 0 2px; }
 .poster h2 { font-size: 26px !important; margin-bottom: 2px !important; }

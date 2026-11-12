@@ -304,13 +304,22 @@ function showCard(b) {
 
   primary = h('button', { class: 'primary', type: 'button', onclick: () => submit(b, collect()) }, b.cta || '다음 걸음');
   const act = b.act === 0 ? '여는 장' : `${b.act}막 · ${ACTS[b.act]}`;
-  card.className = b.type === 'plan' ? 'tall' : '';
+  // 기록하는 카드는 처음엔 접혀 있다. 살짝 누르면 기록 칸이 슥 올라온다. 그동안은 장면이 넓게 보인다.
+  const foldable = ['text', 'chips', 'connect'].includes(b.type);
+  const summary = answerText(b, a) || ((a.links || []).length ? '이어 둔 점 ' + a.links.length + '개' : '');
+  const openUp = () => { card.classList.remove('peek'); const m = card.querySelector('.more'); if (m) { m.style.animation = 'none'; void m.offsetWidth; m.style.animation = ''; } reportInset(); };
+  const peekBtn = foldable ? h('button', { class: 'peekbtn' + (summary ? ' filled' : ''), type: 'button', 'aria-label': '기록 칸 열기', onclick: openUp },
+    h('span', { class: 'pen', 'aria-hidden': 'true' }, '✎'), h('span', { class: 'ptext' }, summary || (b.type === 'text' ? '여기를 눌러 기록하기' : b.type === 'connect' ? '여기를 눌러 점 잇기' : '여기를 눌러 고르기')), h('span', { class: 'chev', 'aria-hidden': 'true' }, '⌃')) : null;
+  card.className = (b.type === 'plan' ? 'tall' : '') + (foldable ? ' peek' : '');
   card.replaceChildren(
     h('div', { class: 'scroll' },
       h('p', { class: 'eyebrow' }, b.act === 0 || b.type === 'say' || b.type === 'constel' ? act : b.fork ? `갈림길 · ${b.age}살` : b.turning ? `새로 난 길 · ${b.age}살` : b.sudden ? `갑작스러운 일 · ${b.age}살` : b.surprise ? `뜻밖의 질문 · ${b.age}살` : `${act} · ${b.age}살`),
       h('h2', {}, b.q),
-      b.hint ? h('p', { class: 'hint' }, b.hint) : null,
-      body),
+      peekBtn,
+      h('div', { class: 'more' },
+        foldable ? h('button', { class: 'fold', type: 'button', 'aria-label': '기록 칸 접기', onclick: () => { card.classList.add('peek'); const t = card.querySelector('.ptext'); const v = collect(); const sum = answerText(b, v) || ((v.links || []).length ? '이어 둔 점 ' + v.links.length + '개' : ''); if (t && sum) { t.textContent = sum; peekBtn.classList.add('filled'); } reportInset(); } }, h('i')) : null,
+        b.hint ? h('p', { class: 'hint' }, b.hint) : null,
+        body)),
     h('div', { class: 'foot' }, primary, h('div', { class: 'foot-row' },
       idx > 0 ? h('button', { class: 'link', type: 'button', onclick: () => go(idx - 1, { instant: true }) }, '‹ 이전') : h('span'),
       b.optional ? h('button', { class: 'link', type: 'button', onclick: () => submit(b, { skip: true }) }, b.skipLabel || '건너뛰기 ›') : null)),
