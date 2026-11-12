@@ -7,7 +7,7 @@ import { ROLES } from './story.js';
 
 const ROAD = 8.4;
 const SLOT = 7;
-const AHEAD = 150;
+let AHEAD = 150; // 느린 기기에서는 줄어든다
 const BEHIND = 28;
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
@@ -220,10 +220,14 @@ export function createWorld(canvas) {
         const w = new THREE.Mesh(waterGeo, waterMat); w.position.y = 0.012;
         const b1 = new THREE.Mesh(bankGeo, edgeMat), b2 = new THREE.Mesh(bankGeo, edgeMat);
         b1.position.set(0, 0.02, -5); b2.position.set(0, 0.02, 5);
-        o.add(w, b1, b2, makeObject('bridge', 0));
+        const boat = makeObject('boat', 0);
+        o.add(w, b1, b2, makeObject('bridge', 0), boat);
+        o.userData.boat = boat;
         scene.add(o); riverObjs.set(r, o);
       }
       o.position.set(lane(r) - L0, Y(r), -(r - S.dist));
+      o.userData.boat.position.set(-13 + Math.sin(S.t * 0.25 + r) * 5, 0.02 + Math.sin(S.t * 1.4) * 0.05, 0.6);
+      o.userData.boat.rotation.z = Math.sin(S.t * 1.1 + r) * 0.05;
     }
     for (const [r, o] of riverObjs) if (!rivers.includes(r)) { scene.remove(o); riverObjs.delete(r); }
     cG2.copy(skyU.top.value).lerp(cW.set('#9fdcf7'), 0.55);
@@ -280,6 +284,7 @@ export function createWorld(canvas) {
   const planeShadow = new THREE.Mesh(new THREE.CircleGeometry(2.4, 20).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#2b2440', transparent: true, opacity: 0.14, depthWrite: false }));
   planeShadow.position.y = 0.1; planeShadow.visible = false;
   scene.add(planeShadow);
+  const balloons = [0, 1, 2].map((i) => { const b = makeObject('balloon', i); b.scale.setScalar(2.4); scene.add(b); return b; });
   const skyPlane = makeObject('plane', 0); // 먼 하늘을 지나가는 비행기
   skyPlane.scale.setScalar(2.2); skyPlane.rotation.y = -Math.PI / 2;
   scene.add(skyPlane);
@@ -650,6 +655,7 @@ export function createWorld(canvas) {
     return [w, h];
   }
 
+  let quality = 2, slowT = 0, slowN = 0;
   let last = performance.now();
   let prevDist = S.dist;
   function frame(nowMs) {
@@ -657,6 +663,20 @@ export function createWorld(canvas) {
     let dt = Math.min(0.05, (nowMs - last) / 1000);
     last = nowMs;
     if (document.hidden) return;
+    // 느린 기기: 3초쯤 끊기면 화질과 풍경을 한 단계 낮춘다(두 번까지)
+    if (!S.onFrame) {
+      slowT += dt; slowN++;
+      if (slowT > 3) {
+        if (slowN / slowT < 24 && quality > 0) {
+          quality--;
+          renderer.setPixelRatio(quality === 1 ? Math.min(window.devicePixelRatio || 1, 1.25) : 1);
+          AHEAD = quality === 1 ? 120 : 95;
+          pGeo.setDrawRange(0, Math.round(PN * (quality === 1 ? 0.6 : 0.35)));
+          canvas.width = 0; // 다음 프레임에 크기를 다시 잡는다
+        }
+        slowT = 0; slowN = 0;
+      }
+    }
     S.t += dt;
 
     if (tween) {
@@ -729,6 +749,7 @@ export function createWorld(canvas) {
     }
     skyPlane.visible = age > 17 && age < 60 && S.wet < 0.3;
     skyPlane.position.set(((S.t * 6) % 520) - 260, 78, -330);
+    balloons.forEach((bl, i) => { bl.visible = age < 22 && S.wet < 0.3; bl.position.set(-120 + i * 95 + Math.sin(S.t * 0.08 + i) * 14, 46 + i * 9 + Math.sin(S.t * 0.4 + i * 2) * 2.5, -210 - i * 40); });
     walker.setOpacity(aboard ? 0 : 1 - smooth(S.fin, 0.2, 0.62));
     // 길이 휘는 쪽으로 몸을 돌린다
     const heading = S.walking ? -Math.atan((lane(S.dist + 2) - lane(S.dist - 2)) / 4) : 0;
@@ -767,7 +788,7 @@ export function createWorld(canvas) {
     const zoom = 1 + 1.25 * clamp(inset.tb / h, 0, 0.7) + 0.5 * clamp(inset.tr / w, 0, 0.5);
     tp.sub(tl).multiplyScalar(zoom).add(tl);
     tp.x = clamp(tp.x, -3.7, 3.7); // 길가 나무 속으로 들어가지 않게
-    scene.fog.near = 55 + tp.length(); scene.fog.far = scene.fog.near + 105;
+    scene.fog.near = (quality === 2 ? 55 : quality === 1 ? 40 : 28) + tp.length(); scene.fog.far = scene.fog.near + (quality === 2 ? 105 : quality === 1 ? 85 : 70);
     if (S.cam === 'fly') { tp.y += alt; tl.y += alt + 1; }
     if (S.cam === 'finale') tl.y = lerp(1.5, 13, ease(smooth(S.fin, 0.15, 0.9)));
     if (S.cam === 'meet') { let wz = -5; for (const c of comps.values()) if (c.wait != null) wz = clamp(c.z, -14, -2); tl.z = wz * 0.6; }

@@ -52,6 +52,8 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     world.state.onFrame = null;
     $('movie').hidden = true;
     constelCanvas.hidden = true;
+    $('movie').classList.remove('present', 'bar');
+    if (document.fullscreenElement) { try { document.exitFullscreen().catch(() => {}); } catch (e) { /* 이미 나감 */ } }
     world.setFinale(false); world.setFly(0); world.setRide(false);
     onClose();
   }
@@ -308,11 +310,13 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
   $('mvNext').onclick = () => seekScene(1);
   $('mvSave').onclick = () => { if (!rec || finishing) return; playing = false; $('mvPlay').textContent = '↺'; stopRec(true); };
   $('mvClose').onclick = () => api.close();
+  let barTimer = 0;
+  $('movie').addEventListener('click', () => { if (!$('movie').classList.contains('present')) return; $('movie').classList.add('bar'); clearTimeout(barTimer); barTimer = setTimeout(() => $('movie').classList.remove('bar'), 3000); });
 
   const api = {
     get open() { return open; },
     canRecord() { return typeof MediaRecorder !== 'undefined' && !!HTMLCanvasElement.prototype.captureStream; },
-    play({ record = false, speed: exportSpeed = 1, test = false } = {}) {
+    play({ record = false, speed: exportSpeed = 1, test = false, present = false } = {}) {
       if (rec || finishing) return;
       if (!getData().scenes.length) { toast('아직 쓴 장면이 없어. 질문에 답하면 장면이 생겨.'); return; }
       if (record && !api.canRecord()) { toast('이 브라우저는 영상 저장이 안 돼. 장면 카드로 저장해 줘.'); return; }
@@ -328,6 +332,9 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
       world.state.ageOverride = null; world.state.labels = true;
       world.setInset(0, 0);
       $('movie').hidden = false; $('mvPlay').textContent = 'Ⅱ';
+      // 발표 화면: 글씨를 키우고 단추를 숨긴다. 화면을 누르면 단추가 잠깐 보인다.
+      $('movie').classList.toggle('present', !!present && !record);
+      if (present && !record) { try { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => {}); } catch (e) { /* 전체 화면을 못 쓰는 기기 */ } }
       $('mvRec').hidden = !record; $('mvSave').hidden = !record; $('movie').classList.toggle('rec', record);
       world.state.onFrame = tick;
       if (record) startRec();

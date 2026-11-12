@@ -20,6 +20,15 @@ export function save(S) {
   try { localStorage.setItem(KEY, JSON.stringify({ ...S, savedAt: new Date().toISOString() })); return true; } catch (e) { return false; }
 }
 
+const PREV = 'lifeDrama.prev';
+/** 다시 걸을 때 견줄 수 있게, 지난번 별자리를 한 벌 남겨 둔다. */
+export function savePrev(constel) {
+  try { if (constel && constel.nodes && constel.nodes.length >= 4) localStorage.setItem(PREV, JSON.stringify({ when: new Date().toISOString().slice(0, 10), constel })); } catch (e) { /* 저장소가 막힌 환경 */ }
+}
+export function loadPrev() {
+  try { const x = JSON.parse(localStorage.getItem(PREV)); return x && x.constel && Array.isArray(x.constel.nodes) ? x : null; } catch (e) { return null; }
+}
+
 export function clear() {
   try { localStorage.removeItem(KEY); } catch (e) { /* 저장소가 막힌 환경 */ }
 }

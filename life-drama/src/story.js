@@ -110,6 +110,7 @@ const TP2_OPTIONS = [
   { k: 'grow', label: '좋아서 하던 것을 두 번째 일로 키운다', dir: 1 },
 ];
 const CHANCE = {
+  tier: 2,
       id: 'chance', age: 29, type: 'chips', title: '뜻밖의 제안', max: 1, min: 0, optional: true,
       q: '전혀 다른 나라에서 1년 살아 볼 기회가 갑자기 생겼어. 어떻게 할래?',
       options: [{ k: 'go', label: '떠난다' }, { k: 'stay', label: '지금 자리를 지킨다' }, { k: 'later', label: '조금 미뤄 두고 준비한다' }], text: '그렇게 고른 까닭은?',
@@ -122,11 +123,14 @@ export function build(S) {
   const name = S.name || '너';
   const P = planOf(S);
   const B = [];
-  const add = (b) => B.push(b);
+  // 걷는 길이: 짧게(1)는 꼭 필요한 장면만, 보통(2)은 갈림길 두 번까지, 길게(3)는 모든 장면
+  const level = { short: 1, mid: 2, long: 3 }[S.pace] || 3;
+  const add = (b) => { if ((b.tier || 1) <= level) B.push(b); };
 
   // ── 0막 문 열기 ──
   add({ id: 'name', act: 0, age: 0, type: 'name', q: '반가워. 이 드라마의 주인공을 뭐라고 부를까?', hint: '실명 대신 별명도 좋아. 옷 색과 머리 모양도 골라 봐.', cta: '이 모습으로 할게' });
   add({ id: 'now', act: 0, age: 0, walk: false, type: 'age', q: `${name}, 지금 몇 살이야?`, hint: '활동지와 같은 나이 기준을 골라 줘. 이 기준으로 현재·고입·대입·모든 계획을 적어. 기준을 바꿔도 숫자는 자동 변환하지 않아.' });
+  add({ id: 'pace', act: 0, age: 0, walk: false, type: 'pace', q: '오늘은 얼마나 걸어 볼까?', hint: '선생님이 알려 준 길이를 골라. 나중에 메뉴에서 바꿀 수 있어.' });
   add({ id: 'open', act: 0, age: 0, walk: false, type: 'say', cam: 'front', q: `${name}의 길은 새벽에 시작됐어.`, hint: '맨 처음으로 돌아가서, 마지막 날까지 천천히 걸어 보자. 네가 남기는 답은 길 위의 점이 되고, 언젠가 서로 이어져. 쓰기 어려운 질문은 건너뛰어도 괜찮아.', cta: '첫걸음 떼기' });
 
   // ── 1막 지나온 길 ──
@@ -136,17 +140,17 @@ export function build(S) {
     options: [opt('mom'), opt('dad'), opt('grandma'), opt('grandpa'), opt('sibling', '언니·누나', 'sibling'), opt('sibling2', '오빠·형', 'sibling'), opt('teacher'), opt('caregiver', '나를 돌봐 준 다른 사람', 'custom'), { k: 'alone', label: '혼자 시작하기' }],
     text: '떠오르는 어린 시절 기억이 있다면 적어 봐. (선택)',
   });
-  if (now > 4) add({ id: 'childhood4', act: 1, age: 4, type: 'text', scene: true, optional: true, dot: '어릴 적 놀이', title: '어릴 적 나', q: '4살 무렵, 너는 어떤 아이였어?', hint: '좋아하던 놀이가 있다면 떠올려 봐. 기억나지 않으면 비워 두거나 건너뛰어도 돼.', starters: ['그때 나는 '] });
-  if (now > 7) add({ id: 'childhood7', act: 1, age: 7, type: 'text', scene: true, optional: true, dot: '어린 날의 나', title: '조금 자란 나', q: '7살 무렵, 너는 어떤 아이였어?', hint: '자주 하던 일이나 함께 놀던 모습을 떠올려 봐. 기억나지 않으면 비워 두거나 건너뛰어도 돼.', starters: ['그때 나는 '] });
+  if (now > 4) add({ id: 'childhood4', tier: 3, act: 1, age: 4, type: 'text', scene: true, optional: true, dot: '어릴 적 놀이', title: '어릴 적 나', q: '4살 무렵, 너는 어떤 아이였어?', hint: '좋아하던 놀이가 있다면 떠올려 봐. 기억나지 않으면 비워 두거나 건너뛰어도 돼.', starters: ['그때 나는 '] });
+  if (now > 7) add({ id: 'childhood7', tier: 3, act: 1, age: 7, type: 'text', scene: true, optional: true, dot: '어린 날의 나', title: '조금 자란 나', q: '7살 무렵, 너는 어떤 아이였어?', hint: '자주 하던 일이나 함께 놀던 모습을 떠올려 봐. 기억나지 않으면 비워 두거나 건너뛰어도 돼.', starters: ['그때 나는 '] });
 
   const past = pastEdu(S);
   if (past.middle != null) add({
-    id: 'middle', act: 1, age: past.middle, type: 'chips', scene: true, optional: true, dot: '중학교', title: '중학교 입학', max: 1, min: 0,
+    id: 'middle', tier: 2, act: 1, age: past.middle, type: 'chips', scene: true, optional: true, dot: '중학교', title: '중학교 입학', max: 1, min: 0,
     q: `${past.middle}살, 중학생이 되는 나이였어. 너는 어떤 길로 배웠어?`, hint: '학교에 다니지 않고 배운 길도 똑같이 네 길이야.',
     options: SCHOOL_WAYS, custom: '직접 쓰기', text: '그때 가장 기억나는 일 (선택)',
   });
   if (past.highschool != null) add({
-    id: 'highschool', act: 1, age: past.highschool, type: 'chips', scene: true, optional: true, dot: '고등학교', title: '고등학교 입학', max: 1, min: 0,
+    id: 'highschool', tier: 2, act: 1, age: past.highschool, type: 'chips', scene: true, optional: true, dot: '고등학교', title: '고등학교 입학', max: 1, min: 0,
     q: `${past.highschool}살, 고등학생이 되는 나이였어. 너는 어떤 길을 골랐어?`, hint: '검정고시나 홈스쿨링도 괜찮아.',
     options: [{ k: 'general', label: '일반고' }, { k: 'vocational', label: '특성화고·마이스터고' }, { k: 'alt', label: '대안학교' }, { k: 'home', label: '홈스쿨링·검정고시' }, { k: 'other', label: '다른 배움의 길' }],
     custom: '직접 쓰기', text: '그 길을 고른 까닭 (선택)',
@@ -164,20 +168,26 @@ export function build(S) {
     starters: ['나는 ', '그때 제일 신났던 건 ', '혼자서도 몇 시간씩 '],
   });
   add({
-    id: 'hard', act: 2, age: now, walk: false, type: 'text', scene: true, optional: true, dot: '나를 일으킨 것', weather: 'rain', title: '비 오던 날',
+    id: 'hard', tier: 2, act: 2, age: now, walk: false, type: 'text', scene: true, optional: true, dot: '나를 일으킨 것', weather: 'rain', title: '비 오던 날',
     q: '지금까지 힘들었던 순간이 있다면, 무엇이 너를 다시 걷게 했어?', hint: '지금 돌아보며 기억나는 만큼만 적어 봐. 적기 어려우면 비워 두거나 건너뛰어도 돼. 이 글은 이 기기에만 남아.',
     starters: ['그때 나는 ', '나를 다시 걷게 한 건 '],
   });
   add({
-    id: 'me', act: 2, age: now, walk: false, type: 'text', scene: true, optional: true, dot: '나는 이런 사람', title: '나는 이런 사람', cam: 'front',
+    id: 'me', tier: 3, act: 2, age: now, walk: false, type: 'text', scene: true, optional: true, dot: '나는 이런 사람', title: '나는 이런 사람', cam: 'front',
     q: '너를 잘 아는 사람이 너를 한 문장으로 소개한다면?',
     starters: ['나는 ', '겉으로는 ', '사람들은 잘 모르지만 나는 '],
   });
   add({
-    id: 'beside', act: 2, age: now, walk: false, type: 'chips', scene: true, title: '지금 곁에 있는 사람', people: 'picks', max: 2, optional: true, cam: 'front',
+    id: 'beside', tier: 2, act: 2, age: now, walk: false, type: 'chips', scene: true, title: '지금 곁에 있는 사람', people: 'picks', max: 2, optional: true, cam: 'front',
     custom: '직접 쓰기 (별명도 좋아)',
     q: '지금 네 곁에서 함께 걷는 사람은 누구야?', hint: '최대 두 명까지 길에 합류해.',
     options: [opt('friend'), opt('sibling', '형제자매', 'sibling'), opt('teacher'), opt('pet')],
+  });
+
+  if (past.highschool != null && now <= 19 + basisOf(S)) add({
+    id: 'major', tier: 2, act: 2, age: now, walk: false, type: 'text', scene: true, optional: true, dot: '깊이 배우고 싶은 것', title: '깊이 배우고 싶은 분야', cam: 'front',
+    q: '고등학생인 지금, 더 깊이 배워 보고 싶은 분야가 있다면 뭘까?', hint: '과목, 전공, 직업, 기술 무엇이든 좋아. 아직 없다면 궁금한 것 하나만 적어도 돼.',
+    starters: ['요즘 궁금한 건 ', '더 배워 보고 싶은 건 '],
   });
 
   // ── 3막 앞으로의 길 ──
@@ -194,7 +204,7 @@ export function build(S) {
   const hints = S.hints || [0, 1];
   const fut = [];
   fut.push({
-    id: 'soon', age: now + 3, pin: true, type: 'text', optional: true, dot: '몇 년 뒤의 나', title: '몇 년 뒤의 나',
+    id: 'soon', tier: 3, age: now + 3, pin: true, type: 'text', optional: true, dot: '몇 년 뒤의 나', title: '몇 년 뒤의 나',
     q: `${now + 3}살, 지금보다 세 해 뒤의 너는 어떤 하루를 보내고 싶어?`, hint: '학교나 직업을 정하지 않아도 괜찮아. 하고 싶은 일 하나만 짧게 쓰거나 건너뛰어도 돼.',
     starters: ['나는 ', '그때 해 보고 싶은 건 '], prep: '그날을 위해 지금 해 볼 작은 일',
   });
@@ -288,13 +298,13 @@ export function build(S) {
   const tp2Text = draw([['세상이 빠르게 바뀌어, 네가 해 오던 일이 점점 사라지고 있어.', true], ['문득, 지금까지와 전혀 다른 일에 가슴이 뛰기 시작했어.', false], ['오래 몸담은 일터가 갑자기 문을 닫았어.', true], ['몸이 지쳐서, 지금까지처럼 일하기가 어려워졌어.', true], ['함께 일하자는 뜻밖의 제안이 왔어. 지금 자리를 떠나야 해.', false]]);
   const shaken = tp2Text[1];
   fut.push({
-    id: 'tp2', age: tp2Age, pin: true, noArch: true, turning: true, fork: true, type: 'chips', title: '일이 바뀌는 날', weather: shaken ? 'rain' : undefined, max: 1, min: 0, optional: true, skipLabel: '그냥 계속 걷기 ›',
+    id: 'tp2', tier: 2, age: tp2Age, pin: true, noArch: true, turning: true, fork: true, type: 'chips', title: '일이 바뀌는 날', weather: shaken ? 'rain' : undefined, max: 1, min: 0, optional: true, skipLabel: '그냥 계속 걷기 ›',
     q: `${tp2Age}살. ${tp2Text[0]} 너는 어느 쪽으로 걸을까?`,
     hint: '진로는 한 번 정하면 끝나는 게 아니야. 어느 쪽을 골라도 길은 이어져.',
     options: TP2_OPTIONS, custom: '나만의 선택 (직접 쓰기)',
   });
   fut.push({
-    id: 'tp2b', age: tp2Age + 1, pin: true, noArch: true, turning: true, type: 'connect', title: '또 다른 길', dot: '또 다른 길', optional: true,
+    id: 'tp2b', tier: 2, age: tp2Age + 1, pin: true, noArch: true, turning: true, type: 'connect', title: '또 다른 길', dot: '또 다른 길', optional: true,
     q: { renew: '익숙한 일에 새 옷을 입히는 중이야. 무엇을 새로 배우고 있어?', move: '낯선 일터의 첫날이야. 어떤 일을 시작했어?', grow: '좋아서 하던 것이 일이 되는 날이야. 무엇을 키워 가고 있어?', custom: '네가 고른 길 위에 섰어. 어떤 일을 하고 있어?' }[tp2Pick] || '길은 조금 달라졌지만 너는 계속 걷고 있어. 요즘 어떤 일을 하고 있어?',
     hint: '예전에 남긴 점이 여기서 쓰일지도 몰라. 두 개까지 골라 이어 봐.',
     starters: ['나는 요즘 ', '예전에 배운 '],
@@ -303,19 +313,19 @@ export function build(S) {
   // 뜻밖의 질문: 늘 만나는 것
   fut.push(
     {
-      id: 'meet1', age: 23, surprise: true, type: 'chips', title: '뜻밖의 만남', dot: '만난 사람', people: 'one', wait: true, cam: 'meet', max: 1, min: 0, optional: true,
+      id: 'meet1', tier: 2, age: 23, surprise: true, type: 'chips', title: '뜻밖의 만남', dot: '만난 사람', people: 'one', wait: true, cam: 'meet', max: 1, min: 0, optional: true,
       q: '길모퉁이에서 누군가 손을 흔들고 있어. 이 사람은 누구일까?', hint: `"${HINTS[hints[0] % HINTS.length]}"`,
       options: [opt('friend', '평생 친구', 'friend'), opt('mentor', '스승·멘토', 'mentor'), opt('coworker', '함께 일하는 동료', 'coworker'), opt('senior', '닮고 싶은 선배', 'mentor')],
       custom: '직접 쓰기', text: '이 사람과 어떤 사이가 되고 싶어?',
     },
     {
-      id: 'learn', age: 33, surprise: true, type: 'chips', title: '배우고 싶은 것', dot: '좋아서 배운 것', max: 2, min: 0, optional: true,
+      id: 'learn', tier: 2, age: 33, surprise: true, type: 'chips', title: '배우고 싶은 것', dot: '좋아서 배운 것', max: 2, min: 0, optional: true,
       q: '일이나 성적과 상관없이, 그냥 좋아서 배우고 싶은 게 있다면 뭘까?', hint: '직업이 되지 못한 꿈도 취미로 평생 이어 갈 수 있어. 두 가지까지 골라 봐.',
       options: [{ k: 'music', label: '악기·노래' }, { k: 'sport', label: '운동·춤' }, { k: 'lang', label: '외국어' }, { k: 'art', label: '그림·글쓰기' }, { k: 'make', label: '요리·만들기' }, { k: 'study', label: '새로운 공부' }],
       custom: '직접 쓰기', text: '왜 배우고 싶어? 언제, 누구와, 어떻게 배울까?', prep: '지금 맛보기로 시작해 볼 수 있는 것',
     },
     {
-      id: 'bye', age: 70, surprise: true, type: 'text', title: '먼저 길을 마친 사람에게', optional: true, fx: 'depart', needElder: true,
+      id: 'bye', tier: 3, age: 70, surprise: true, type: 'text', title: '먼저 길을 마친 사람에게', optional: true, fx: 'depart', needElder: true,
       q: '함께 걷던 누군가는 먼저 길을 마치기도 해. 그 사람에게 지금 꼭 전하고 싶은 말이 있다면?',
       hint: '마음이 무거우면 건너뛰어도 돼. 건너뛰면 모두 끝까지 함께 걸어.',
       starters: ['고마웠어요, ', '미처 말하지 못했지만 '], skipLabel: '끝까지 함께 걸을래',
@@ -350,7 +360,7 @@ export function build(S) {
     { id: 'letter', age: 55, type: 'text', title: '스무 살의 편지', optional: true, q: '스무 살의 네가 미래의 너에게 쓴 편지가 도착했어. 뭐라고 적혀 있을까?', starters: ['“지금쯤 너는 ', '“약속해 줘. '] },
   ];
   // 새로 시작할 때마다 다른 세 장이 나온다
-  const pool = DECK.map((d) => [rnd(), d]).sort((x, y) => x[0] - y[0]).slice(0, 3).map((x) => x[1]);
+  const pool = DECK.map((d) => [rnd(), d]).sort((x, y) => x[0] - y[0]).slice(0, [0, 0, 1, 3][level]).map((x) => x[1]);
   for (const d of pool) fut.push({ surprise: true, sudden: true, ...d });
 
 
@@ -377,7 +387,7 @@ export function build(S) {
     q: `${life}살, 길의 끝이야. 마지막 날의 너는 어디에서 어떤 모습으로 있을까?`, starters: ['나는 ', '창밖에는 ', '내 손에는 '],
   });
   add({
-    id: 'words', act: 4, age: life, walk: false, type: 'text', scene: true, optional: true, final: true, title: '남겨질 사람들에게', cam: 'front',
+    id: 'words', tier: 2, act: 4, age: life, walk: false, type: 'text', scene: true, optional: true, final: true, title: '남겨질 사람들에게', cam: 'front',
     q: '네가 떠난 뒤에도 길을 걸어갈 사람들이 있어. 그들에게 건네는 마지막 인사는?', starters: ['고마웠어. ', '내가 없어도 ', '너희와 걸어서 '],
   });
   add({
@@ -439,7 +449,7 @@ function peopleOf(b, a) {
 /** i번째 카드에 섰을 때 함께 걷는 사람들. 감상 화면에서도 같은 규칙을 쓴다. */
 export function partyAt(S, beats, i) {
   let b = beats[i];
-  if (b && b.back) i = beats.findIndex((x) => x.id === 'beside') + 1;
+  if (b && b.back) i = beats.findIndex((x) => x.id === 'plan');
   b = beats[i];
   let list = [];
   for (let j = 0; j < i; j++) {

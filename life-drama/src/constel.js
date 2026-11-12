@@ -138,6 +138,44 @@ export function drawConstel(ctx, W, H, data, prog = 1, opts = {}) {
   ctx.restore();
 }
 
+function wrapText(ctx, text, maxW, maxLines) {
+  const lines = [];
+  let line = '';
+  for (const ch of String(text).replace(/\s+/g, ' ')) {
+    if (ctx.measureText(line + ch).width > maxW && line) { lines.push(line); line = ch === ' ' ? '' : ch; } else line += ch;
+  }
+  if (line) lines.push(line);
+  if (lines.length > maxLines) { lines.length = maxLines; lines[maxLines - 1] = lines[maxLines - 1].slice(0, -1) + '…'; }
+  return lines;
+}
+
+/** 제출용 한 장(세로 1080×1920): 위에는 별자리, 아래에는 핵심 답. rows: [[이름, 내용]] */
+export function summaryImage(data, title, by, rows) {
+  const c = document.createElement('canvas');
+  c.width = 1080; c.height = 1920;
+  const ctx = c.getContext('2d');
+  const top = 1080;
+  drawConstel(ctx, 1080, top, data, 1, { night: true });
+  ctx.fillStyle = '#fffdf8'; ctx.fillRect(0, top, 1080, 1920 - top);
+  ctx.fillStyle = '#ff8f7a'; ctx.fillRect(0, top, 1080, 8);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#3a3448'; ctx.font = `700 54px ${TITLE}`;
+  let y = top + 92;
+  for (const l of wrapText(ctx, title, 960, 2)) { ctx.fillText(l, 60, y); y += 66; }
+  ctx.fillStyle = '#6f6880'; ctx.font = `30px ${FONT}`; ctx.fillText(by, 60, y - 8); y += 44;
+  const kept = rows.filter((r) => r[1]);
+  const room = 1920 - 50 - y;
+  const per = Math.min(150, room / Math.max(1, kept.length));
+  for (const [k, v] of kept) {
+    ctx.fillStyle = '#e0705c'; ctx.font = `700 27px ${FONT}`; ctx.fillText(k, 60, y);
+    ctx.fillStyle = '#3a3448'; ctx.font = `34px ${FONT}`;
+    let yy = y + 44;
+    for (const l of wrapText(ctx, v, 960, per > 120 ? 2 : 1)) { ctx.fillText(l, 60, yy); yy += 44; }
+    y += per;
+  }
+  return c;
+}
+
 /** 저장용 그림 한 장(세로 1080×1620). */
 export function constelImage(data) {
   const c = document.createElement('canvas');

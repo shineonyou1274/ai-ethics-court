@@ -2,7 +2,7 @@
 import './style.css';
 import { createWorld } from './world.js';
 import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf, flightInto, riversOf, tunnelsOf, summitOf, WISHES, wishKind, rideInto, homesOf } from './story.js';
-import { drawConstel, constelImage } from './constel.js';
+import { drawConstel, constelImage, summaryImage } from './constel.js';
 import * as store from './store.js';
 import { createMovie } from './movie.js';
 import { audio } from './audio.js';
@@ -124,7 +124,8 @@ const sheet = $('sheet'), card = $('card');
 const wide = window.matchMedia('(min-width: 900px)');
 function reportInset() {
   if (sheet.hidden) { world.setInset(0, 0); return; }
-  if (wide.matches) world.setInset(0, card.offsetWidth + 40); else world.setInset(card.offsetHeight + 10, 0);
+  const box = card.getBoundingClientRect(); // 글씨를 키워도 실제 크기를 잰다
+  if (wide.matches) world.setInset(0, box.width + 40); else world.setInset(box.height + 10, 0);
 }
 new ResizeObserver(reportInset).observe(card);
 wide.addEventListener('change', reportInset);
@@ -164,6 +165,14 @@ function showCard(b) {
       ...[['man', '만 나이 · 생일 기준'], ['korean', '세는나이 · 태어나면 1살'], ['unspecified', '기존 기록의 기준 유지']].map(([v2, label]) => h('option', { value: v2, selected: (S.ageBasis || 'unspecified') === v2 }, label)));
     body.push(h('label', { class: 'field' }, h('span', {}, '나이 기준'), basis));
     collect = () => ({ value: v });
+  } else if (b.type === 'pace') {
+    let v = S.pace || 'mid';
+    const OPTS = [['short', '짧게', '약 20분 · 꼭 필요한 장면만'], ['mid', '보통', '약 40분 · 갈림길 두 번과 뜻밖의 일'], ['long', '길게', '두 차시 · 모든 장면을 천천히']];
+    const box = h('div', { class: 'plan' });
+    const draw = () => box.replaceChildren(...OPTS.map(([k, t, sub]) => h('button', { class: 'tile pace', type: 'button', 'aria-pressed': String(v === k), onclick: () => { v = k; draw(); } }, t, h('small', {}, sub))));
+    draw();
+    body.push(box);
+    collect = () => ({ value: v });
   } else if (b.type === 'slider') {
     let v = Math.max(b.min, Math.min(b.max, S.life || b.def));
     const out = h('output', {}, String(v));
@@ -181,16 +190,18 @@ function showCard(b) {
     const box = h('div', { class: 'plan' });
     const draw = () => box.replaceChildren(...rows.map((r) => {
       const note = h('small', { class: 'note' }, '');
+      const usual = { middle: 13, highschool: 16, school: 19 }[r.k] != null ? { middle: 13, highschool: 16, school: 19 }[r.k] + (S.ageBasis === 'korean' ? 1 : 0) : null;
       const feedback = () => {
         note.textContent = r.on && (!Number.isInteger(r.age) || (r.extra && !r.title.trim()))
           ? (r.extra ? '나이와 제목을' : '나이를') + ' 정하면 장면이 생겨. 지금은 비워 두고 출발해도 돼.'
-          : r.on && Number.isInteger(r.age) && r.age <= S.now ? '지나온 나이 · 미래 장면 없음' : '';
+          : r.on && Number.isInteger(r.age) && r.age <= S.now ? '지나온 나이 · 미래 장면 없음'
+            : usual != null && Number.isInteger(r.age) && Math.abs(r.age - usual) >= 2 ? `보통은 ${usual}살이야. 일찍 가거나 늦게 가는 길이라면 그대로 둬도 돼.` : '';
       };
       const age = h('input', { type: 'number', min: 1, max: 100, step: 1, value: r.age ?? '', inputMode: 'numeric', 'aria-label': r.label + ' 나이', placeholder: '미정',
         oninput: () => { const v = Number(age.value); r.age = age.value.trim() && Number.isInteger(v) && v >= 1 && v <= 100 ? v : null; feedback(); } });
       const title = r.extra ? h('input', { type: 'text', maxLength: 24, value: r.title, 'aria-label': '이루고 싶은 일', placeholder: '예: 첫 여행, 책 출간', oninput: () => { r.title = r.label = title.value; r.kind = wishKind(title.value); r.fly = r.kind === 'fly'; feedback(); } }) : null;
       feedback();
-      const bump = (dv) => { r.age = Number.isInteger(r.age) ? Math.min(100, Math.max(1, r.age + dv)) : Math.min(100, (S.now || 15) + 1); draw(); };
+      const bump = (dv) => { r.age = Number.isInteger(r.age) ? Math.min(100, Math.max(1, r.age + dv)) : usual != null ? usual : Math.min(100, (S.now || 15) + 1); draw(); };
       return h('div', { class: 'plan-row' + (r.status === 'no' ? ' off' : '') },
         h('button', { class: 'tog', type: 'button', 'aria-pressed': r.status === 'yes' ? 'true' : r.status === 'maybe' ? 'mixed' : 'false', 'aria-label': r.label + ' ' + LABELS[r.status] + ' · 누르면 바뀜',
           onclick: () => { r.status = r.status === 'maybe' ? 'yes' : r.status === 'yes' ? 'no' : 'maybe'; r.on = r.status === 'yes'; draw(); } },
@@ -332,6 +343,7 @@ function showCard(b) {
     if (b.type === 'name') S.name = v.text;
     else if (b.type === 'age') S.now = v.value;
     else if (b.type === 'slider') S.life = v.value;
+    else if (b.type === 'pace') S.pace = v.value;
     else if (b.type === 'title') S.title = v.text;
     else if (b.type === 'plan') S.plan = v.plan;
     else if (b.type !== 'say' && b.type !== 'constel') S.a[b.id] = v;
@@ -349,6 +361,7 @@ function submit(b, ans) {
   if (b.type === 'name') { S.name = ans.text; }
   else if (b.type === 'age') { S.now = ans.value; }
   else if (b.type === 'slider') { S.life = ans.value; }
+  else if (b.type === 'pace') { S.pace = ans.value; }
   else if (b.type === 'title') { S.title = ans.text; }
   else if (b.type === 'plan') { S.plan = ans.plan; }
   else if (b.type !== 'say' && b.type !== 'constel') {
@@ -386,6 +399,9 @@ function renderHub() {
     h('button', { class: 'primary', type: 'button', onclick: () => movie.play() }, '▶ 처음부터 감상하기'),
     h('div', { class: 'grid2' },
       h('button', { class: 'tile', type: 'button', onclick: openConstel }, '내 별자리 보기', h('small', {}, '이어진 점들을 한 장으로')),
+      h('button', { class: 'tile', type: 'button', onclick: openSummary }, '제출용 한 장', h('small', {}, '별자리와 핵심 답을 그림으로')),
+      h('button', { class: 'tile', type: 'button', onclick: () => movie.play({ present: true }) }, '발표 화면', h('small', {}, '교실 화면에 크게 틀기')),
+      store.loadPrev() ? h('button', { class: 'tile', type: 'button', onclick: openCompare }, '지난번과 견주기', h('small', {}, '두 별자리를 나란히')) : null,
       h('button', { class: 'tile', type: 'button', onclick: () => recordOptions() }, '영상으로 저장', h('small', {}, '일반 · 고속 녹화 선택')),
       h('button', { class: 'tile', type: 'button', onclick: openCards }, '장면 카드 저장', h('small', {}, '슬라이드처럼 한 장씩')),
       h('button', { class: 'tile', type: 'button', onclick: openScript }, '대본 보기·고치기', h('small', {}, '언제든 다시 쓸 수 있어')),
@@ -455,6 +471,37 @@ function constelShow(on) {
     constelRaf = requestAnimationFrame(tick);
   };
   constelRaf = requestAnimationFrame(tick);
+}
+function openSummary() {
+  const pick = (id) => { const b = beats.find((x) => x.id === id); return b ? answerText(b, S.a[id]).split(' — ')[0] : ''; };
+  const img = summaryImage(constelOf(S, beats), S.title || `${S.name}의 인생 드라마`, `주연 ${S.name} · ${S.now}살에 쓰다`, [
+    ['내게 소중한 것', ((S.a.values || {}).picks || []).join(' · ')],
+    ['첫 번째 갈림길에서 고른 길', pick('tp1')],
+    ['두 번째 갈림길에서 고른 길', pick('tp2')],
+    ['이어진 점', linksOf(S, beats).map((l) => `${l.fromLabel} → ${(beats.find((x) => x.id === l.to) || {}).title}`).join(' / ')],
+    ['기억되고 싶은 모습', (S.a.remember || {}).text],
+    ['오늘 찍는 점 하나', (S.a.step || {}).text],
+  ]);
+  img.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    const name = `인생드라마_${S.name}_제출용.jpg`;
+    dialog('제출용 한 장', [
+      h('img', { src: url, alt: '별자리와 핵심 답을 담은 그림', style: 'width:100%;border-radius:14px;display:block' }),
+      h('button', { class: 'primary', type: 'button', style: 'margin-top:12px', onclick: () => store.download(name, blob) }, '그림으로 저장'),
+      h('p', { style: 'font-size:14px;color:var(--soft);margin-top:10px' }, '보여 주고 싶지 않은 답이 있으면 대본에서 고친 뒤 다시 만들어.'),
+    ]);
+    $('dlg').addEventListener('close', () => URL.revokeObjectURL(url), { once: true });
+  }, 'image/jpeg', 0.92);
+}
+function openCompare() {
+  const prev = store.loadPrev();
+  if (!prev) return;
+  const urls = [];
+  const fig = (data, cap) => { const u = constelImage(data).toDataURL('image/jpeg', 0.85); urls.push(u); return h('figure', {}, h('img', { src: u, alt: cap }), h('a', {}, cap)); };
+  dialog('지난번과 견주기', [
+    h('p', {}, '무엇이 달라졌고 무엇이 그대로인지 살펴봐. 달라진 까닭을 사후 활동지에 적어도 좋아.'),
+    h('div', { class: 'shots' }, fig(prev.constel, `지난번 · ${prev.when}`), fig(constelOf(S, beats), '이번')),
+  ]);
 }
 function openConstel() {
   const img = constelImage(constelOf(S, beats));
@@ -551,15 +598,18 @@ function openScript() {
 function openMenu() {
   const item = (label, sub, fn) => h('button', { type: 'button', onclick: fn }, label, sub ? h('small', {}, sub) : null);
   dialog('메뉴', [
-    h('a', { class: 'manual-link menu-manual', href: 'https://m.blog.naver.com/shineonyou4ever/224474221343', target: '_blank', rel: 'noopener noreferrer' }, '사용 설명서 보기'),
     item(audio.on ? '♪ 배경 음악 끄기' : '♪ 배경 음악 켜기', '화면 위 ♪ 단추로도 켜고 끌 수 있어', () => { S.sound = audio.toggle(); save(); soundIcon(); $('dlg').close(); }),
     item(audio.trackName ? '♪ 내 음악 바꾸기' : '♪ 내 음악 넣기', audio.trackName ? '지금: ' + audio.trackName : '가진 음악 파일(mp3 등)을 배경으로', () => {
       const inp = h('input', { type: 'file', accept: 'audio/*' });
       inp.onchange = () => { const f = inp.files[0]; if (!f) return; audio.useFile(f); S.sound = audio.toggle(true); save(); $('dlg').close(); toast('내 음악을 틀었어. 이 기기를 새로 고치면 다시 골라야 해.'); };
       inp.click();
     }),
-    audio.trackName ? item('♪ 원래 음악으로 돌아가기', '', () => { audio.useFile(null); audio.probe(); $('dlg').close(); }) : null,
+    audio.trackName ? item('♪ 원래 음악으로 돌아가기', '', () => { audio.useFile(null); audio.probe();
+document.body.classList.toggle('big', !!S.big);
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {}); $('dlg').close(); }) : null,
+    item(S.big ? '글씨 보통으로' : '글씨 크게', '카드와 안내 글의 크기', () => { S.big = !S.big; save(); document.body.classList.toggle('big', !!S.big); $('dlg').close(); reportInset(); }),
     item('대본 보기·고치기', '지금까지 쓴 장면을 한눈에', openScript),
+    item('걷는 길이 바꾸기', '짧게 · 보통 · 길게', () => { $('dlg').close(); go(beats.findIndex((x) => x.id === 'pace'), { instant: true }); }),
     S.plan ? item('인생 계획표 고치기', '입학·취업·결혼·은퇴와 이루고 싶은 일을 다시 정해', () => { $('dlg').close(); go(beats.findIndex((x) => x.id === 'plan'), { instant: true }); }) : null,
     item('처음부터 감상하기', '쓴 장면이 영상처럼 이어져', () => { $('dlg').close(); movie.play(); }),
     item('내 별자리 보기', '이어진 점들을 한 장으로', openConstel),
@@ -570,7 +620,7 @@ function openMenu() {
     item('파일 불러오기', '', importFile),
     item('처음부터 다시 쓰기', '지금 이야기는 지워져', () => {
       if (!confirm('지금까지 쓴 이야기를 지우고 처음부터 다시 쓸까? 간직하고 싶으면 먼저 파일로 보관해 줘.')) return;
-      store.clear(); location.reload();
+      store.savePrev(constelOf(S, beats)); store.clear(); location.reload();
     }),
     item('도움말·개인정보', '', () => dialog('도움말', [
       h('p', {}, '길을 걷다가 질문을 만나면 답을 적어. 적은 답이 장면이 되고, 고른 사람들이 곁에서 함께 걸어.'),
@@ -613,7 +663,7 @@ if (resumeAt > 0) {
   $('resumeBtn').onclick = () => begin(resumeAt);
   $('startBtn').onclick = () => {
     if (!confirm('지금까지 쓴 이야기를 지우고 새로 시작할까?')) return;
-    store.clear(); S = store.fresh(); beats = build(S); begin(0);
+    store.savePrev(constelOf(S, beats)); store.clear(); S = store.fresh(); beats = build(S); begin(0);
   };
 } else {
   $('startBtn').onclick = () => begin(0);

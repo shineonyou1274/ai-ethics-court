@@ -1,5 +1,5 @@
 // 배경 음악. 앱에 담긴 곡을 틀고, 곡을 쓸 수 없으면 브라우저에서 만든 소리로 대신한다.
-import bgmData from './bgm.mp3?inline';
+import bgmData from './bgm-data.js';
 let ctx = null, master = null, timer = 0, on = false, mood = 0;
 const SCALE = [0, 2, 4, 7, 9, 12, 14, 16];
 
