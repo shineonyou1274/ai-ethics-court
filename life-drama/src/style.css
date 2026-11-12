@@ -7,7 +7,9 @@
   --accent2: #ffb86b;
   --on-accent: #ffffff;
   --font: 'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
-  --title: 'Gowun Batang', 'Gowun Dodum', 'Apple SD Gothic Neo', serif;
+  --title: 'Jua', 'Gowun Dodum', 'Apple SD Gothic Neo', sans-serif;
+  --tw: 400;
+  --calm: 'Gowun Batang', 'Gowun Dodum', 'Apple SD Gothic Neo', serif;
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-t: env(safe-area-inset-top, 0px);
 }
@@ -15,7 +17,8 @@
 body[data-act='1'] { --accent: #ff8fa3; --accent2: #ffb38a; }
 body[data-act='2'] { --accent: #3fb8a0; --accent2: #7ccf8a; }
 body[data-act='3'] { --accent: #4a9be8; --accent2: #6fc3e8; }
-body[data-act='4'] { --accent: #8a6fd6; --accent2: #f08aa8; }
+/* 해 질 녘은 차분한 글씨로 */
+body[data-act='4'] { --accent: #8a6fd6; --accent2: #f08aa8; --title: var(--calm); --tw: 700; }
 body[data-act='5'] { --accent: #ff8f7a; --accent2: #ffb86b; }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -42,14 +45,14 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 #title.out { opacity: 0; pointer-events: none; }
 .title-box { width: 100%; max-width: 440px; text-align: center; animation: rise .9s ease both; }
 .title-box .eyebrow { font-size: 15px; letter-spacing: .08em; color: #c0705f; margin: 0 0 6px; }
-.title-box h1 { font-family: var(--title); font-size: clamp(46px, 13vw, 68px); margin: 0; letter-spacing: -.02em; line-height: 1.15; color: #4a3f58; }
+.title-box h1 { font-weight: var(--tw); font-family: var(--title); font-size: clamp(46px, 13vw, 68px); margin: 0; letter-spacing: -.02em; line-height: 1.15; color: #4a3f58; }
 .title-box .lead { font-size: 18px; margin: 12px 0 24px; color: #5b5268; }
 .title-box .fine { font-size: 14px; color: #7d7488; margin: 16px 0 0; }
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
 /* ── 버튼 ── */
-.primary { display: block; width: 100%; min-height: 56px; border-radius: 18px; padding: 12px 20px; font-size: 18px; font-weight: 700; color: var(--on-accent); background: linear-gradient(100deg, var(--accent), var(--accent2)); box-shadow: 0 8px 20px -6px var(--accent); text-shadow: 0 1px 0 #00000022; transition: transform .15s, filter .2s, opacity .2s; }
-.primary:active { transform: scale(.98); }
+.primary { display: block; width: 100%; min-height: 56px; border-radius: 18px; padding: 12px 20px; font-size: 18px; font-weight: 700; color: var(--on-accent); background: linear-gradient(100deg, var(--accent), var(--accent2)); font-family: var(--title); font-weight: var(--tw); letter-spacing: .02em; box-shadow: 0 5px 0 color-mix(in srgb, var(--accent) 78%, #3a3448), 0 14px 20px -10px var(--accent); text-shadow: 0 1px 0 #00000022; transition: transform .12s, box-shadow .12s, filter .2s, opacity .2s; margin-bottom: 5px; }
+.primary:active { transform: translateY(4px); box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 78%, #3a3448), 0 6px 12px -8px var(--accent); }
 .primary:disabled { opacity: .45; box-shadow: none; cursor: not-allowed; }
 .ghost { display: block; width: 100%; min-height: 50px; margin-top: 10px; border-radius: 16px; background: #fffdf8cc; font-weight: 700; font-size: 16px; border: 1.5px solid #ffffff; }
 .link { min-height: 48px; padding: 8px 14px; border-radius: 12px; color: var(--soft); font-size: 16px; }
@@ -65,8 +68,8 @@ button { cursor: pointer; border: 0; background: none; touch-action: manipulatio
 .chips.vals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .chips.vals .chip { min-height: 48px; padding: 6px 6px; font-size: 16px; }
 @keyframes up { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
-#card .eyebrow { font-size: 14px; font-weight: 700; color: var(--accent); margin: 0 0 6px; letter-spacing: .02em; }
-#card h2 { font-family: var(--title); font-size: 21px; line-height: 1.45; margin: 0 0 6px; letter-spacing: -.01em; word-break: keep-all; }
+#card .eyebrow { font-family: var(--title); font-size: 15px; font-weight: var(--tw); color: var(--accent); margin: 0 0 6px; letter-spacing: .02em; }
+#card h2 { font-weight: var(--tw); font-family: var(--title); font-size: 22px; line-height: 1.45; margin: 0 0 6px; letter-spacing: -.01em; word-break: keep-all; }
 #card .hint { margin: 0 0 12px; font-size: 16px; color: var(--soft); word-break: keep-all; }
 .field { display: block; margin: 10px 0 0; }
 .field > span { display: block; font-size: 16px; color: var(--soft); margin: 0 0 5px 2px; }
@@ -142,7 +145,7 @@ input[type='range'] { width: 100%; height: 44px; accent-color: var(--accent); ma
 #mvRec { margin-right: auto; background: #e5484dee; color: #fff; padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 700; animation: blink 1.4s infinite; }
 @keyframes blink { 50% { opacity: .65; } }
 #mvBig { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; background: #1b173066; color: #fff; }
-#mvBig h2 { font-family: var(--title); font-size: clamp(30px, 8vw, 54px); margin: 0 0 12px; word-break: keep-all; overflow-wrap: anywhere; text-shadow: 0 2px 18px #00000055; }
+#mvBig h2 { font-weight: var(--tw); font-family: var(--title); font-size: clamp(30px, 8vw, 54px); margin: 0 0 12px; word-break: keep-all; overflow-wrap: anywhere; text-shadow: 0 2px 18px #00000055; }
 #mvBig p { font-size: 18px; margin: 0; white-space: pre-line; text-shadow: 0 1px 10px #00000066; max-width: 30em; }
 #mvCap { max-width: 720px; width: 100%; margin: 0 auto 12px; color: #fff; text-shadow: 0 1px 10px #000000aa; animation: rise .6s ease both; }
 #mvTag { display: inline-block; font-size: 15px; font-weight: 700; background: #fffdf8; color: #4a3f58; text-shadow: none; padding: 4px 14px; border-radius: 999px; margin-bottom: 10px; }
@@ -167,7 +170,7 @@ body.big #card { max-height: min(60dvh, 560px); }
 dialog { border: 0; border-radius: 24px; padding: 0; width: min(560px, calc(100vw - 24px)); max-height: 86dvh; background: var(--paper); color: var(--ink); box-shadow: 0 20px 60px #2b244055; }
 dialog::backdrop { background: #2b244066; }
 .dlg-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 14px 10px 20px; background: var(--paper); border-bottom: 1px solid var(--line); }
-.dlg-head h3 { font-family: var(--title); margin: 0; font-size: 20px; }
+.dlg-head h3 { font-weight: var(--tw); font-family: var(--title); margin: 0; font-size: 20px; }
 .dlg-body { padding: 14px 18px 20px; }
 .dlg-body p { margin: 0 0 10px; word-break: keep-all; }
 .menu button { display: block; width: 100%; text-align: left; min-height: 54px; padding: 10px 14px; border-radius: 14px; font-size: 17px; }
@@ -208,6 +211,22 @@ select { width: 100%; min-height: 50px; border: 1.5px solid var(--line); border-
 .links li b { color: var(--accent); }
 body[data-turning='1'] #card .eyebrow { color: #e0705c; }
 
+/* 카드는 주인공에게 건네는 말풍선 */
+#sheet::before { content: ''; position: absolute; top: -9px; left: 50%; width: 24px; height: 24px; margin-left: -12px; background: #fffdf8f5; border-radius: 6px; transform: rotate(45deg); animation: up .45s cubic-bezier(.2, .9, .3, 1.15) both; }
+#card { position: relative; border: 2.5px solid #ffffff; }
+.chip[aria-pressed='true'] { animation: pop .28s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes pop { from { transform: scale(.88); } to { transform: none; } }
+.tile { border-bottom-width: 4px; }
+.tile:active { border-bottom-width: 1.5px; margin-top: 2.5px; }
+#chip { font-family: var(--title); font-weight: var(--tw); font-size: 15px; }
+
+/* 내 인생 마을 */
+.village { display: block; width: 100%; aspect-ratio: 1 / 1; max-height: 56dvh; border-radius: 22px; background: linear-gradient(180deg, #bfe3fb, #ffeede 62%, #ffd8c9); touch-action: pan-y; cursor: grab; }
+.village-thumb { display: block; width: 100%; margin: 0 0 12px; padding: 0; border-radius: 20px; overflow: hidden; position: relative; border: 2.5px solid #fff; box-shadow: 0 6px 18px #4a3a6022; }
+.village-thumb img { display: block; width: 100%; }
+.village-thumb span { position: absolute; left: 10px; bottom: 10px; background: #fffdf8ee; border-radius: 99px; padding: 5px 13px; font-family: var(--title); font-size: 14px; color: #c0705f; }
+.village-thumb:active { transform: scale(.985); }
+
 /* ── 넓은 화면: 카드를 오른쪽에 세운다 ── */
 @media (min-width: 900px) {
   #sheet { left: auto; right: 28px; top: 0; bottom: 0; width: 440px; display: flex; align-items: center; padding: 90px 0 28px; }
@@ -216,6 +235,7 @@ body[data-turning='1'] #card .eyebrow { color: #e0705c; }
   #card .foot { padding: 10px 24px 12px; }
   #card h2 { font-size: 23px; }
   #hud { padding: 18px 28px 0; }
+  #sheet::before { display: none; }
 }
 @media (max-height: 620px) and (max-width: 899px) { #card { max-height: 74dvh; } textarea { min-height: 64px; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
@@ -247,6 +267,9 @@ body[data-turning='1'] #card .eyebrow { color: #e0705c; }
   .pr-sub { margin-top: 1.2mm !important; font-size: 9pt; color: #6b647a; }
   .pr-link { color: #b07a12; font-weight: 700; }
   .pr-end { break-inside: avoid; }
+  .pr-village { margin: 0 0 6mm; break-inside: avoid; }
+  .pr-village img { display: block; width: 100%; border-radius: 5mm; }
+  .pr-village figcaption { text-align: center; font-size: 9.5pt; color: #6b647a; margin-top: 2mm; }
   .pr-end blockquote { margin: 4mm 0 6mm; padding: 8mm 8mm 7mm; border-radius: 5mm; background: #12173f; color: #fff; font-family: var(--title); font-size: 19pt; line-height: 1.4; text-align: center; overflow-wrap: anywhere; }
   .pr-end cite { display: block; margin-top: 3mm; font: 400 10pt var(--font); color: #ffe9a8; font-style: normal; }
   .pr-box { border: .8pt solid #e2d9cf; border-radius: 3mm; padding: 3.5mm 4.5mm; margin-bottom: 3.5mm; break-inside: avoid; }

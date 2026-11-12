@@ -597,3 +597,68 @@ export function constelOf(S, beats) {
   const ids = new Set(nodes.map((n) => n.id));
   return { name: S.name || '나', nodes, links: linksOf(S, beats).filter((l) => ids.has(l.from) && ids.has(l.to)) };
 }
+
+// ── 답이 물건이 된다 ──
+const LEARN_KEEP = { music: 'guitar', sport: 'ball', lang: 'globe', art: 'easel', make: 'pot', study: 'books' };
+const KEEP = {
+  care: 'cradle', childhood4: 'toy', childhood7: 'ball', middle: 'books', highschool: 'books', kid: 'kite', hard: 'sprout', me: 'flag', major: 'globe', soon: 'flag',
+  school: 'cap', job: 'desk', tp1b: 'sprout', tp2b: 'sprout', proud: 'trophy', award: 'trophy', money: 'gift', health: 'sprout', letter: 'mailbox', talent: 'gift',
+  moving: 'suitcase', offer: 'flag', lost: 'sprout', reunion: 'park', crisis: 'lantern', care2: 'heart', ask: 'mailbox', last: 'lantern', words: 'mailbox',
+};
+/** 이 장면에 답하면 길가에 무엇이 생기는가. 건너뛴 장면에는 아무것도 생기지 않는다. */
+export function keepKind(b, a) {
+  if (!a || a.skip || b.back) return '';
+  const picks = a.picks || [], p = picks[0];
+  if (b.id === 'marry') return p === 'wed' || p === 'with' ? 'heart' : p === 'solo' ? 'park' : '';
+  if (b.id === 'home') return p === 'one' || p === 'two' ? 'toy' : '';
+  if (b.id === 'retire') return picks.includes('trip') ? 'suitcase' : picks.includes('learn') ? 'easel' : 'park';
+  if (b.id === 'learn') return LEARN_KEEP[p] || 'easel';
+  if (b.id === 'chance') return p === 'go' ? 'suitcase' : 'flag';
+  if (b.home || b.car) return ''; // 집과 차는 따로 생긴다
+  if (b.planned && b.type === 'text') return b.fly ? 'suitcase' : /특허|출간|책|마라톤|무대|우승|합격|완주/.test(b.title) ? 'trophy' : /창업|가게/.test(b.title) ? 'flag' : 'gift';
+  return KEEP[b.id] || '';
+}
+/** i번째 카드까지 길가에 쌓인 물건들. */
+export function keepsOf(S, beats, i) {
+  const out = [];
+  const end = beats[i] && beats[i].back ? beats.length : i;
+  for (let j = 0; j < end && j < beats.length; j++) {
+    const b = beats[j];
+    const kind = keepKind(b, S.a[b.id]);
+    if (kind) out.push({ id: b.id, kind, dist: b.dist, soft: b.act >= 4 || b.id === 'care2' || b.id === 'lost' || b.id === 'crisis' });
+  }
+  return out;
+}
+
+/** 내 인생 마을: 답한 것이 한 섬에 모인다. 큰 것(big)은 건물·탈것, 작은 것은 길가의 물건. */
+export function villageOf(S, beats) {
+  const items = [];
+  let school = false;
+  for (const b of beats) {
+    if (b.back) continue;
+    const a = S.a[b.id];
+    if (!a || a.skip) continue;
+    const picks = a.picks || [], p = picks[0];
+    const push = (kind, big, v = 0) => items.push({ id: b.id + (big ? ':big' : ''), age: b.age, kind, big, v, title: b.title, text: answerText(b, a) });
+    if ((b.id === 'middle' || b.id === 'highschool') && !school && !['home', 'other'].includes(p)) { school = true; push('school', true); }
+    else if (b.id === 'school' && p === 'univ') push('building', true, 1);
+    else if (b.id === 'job') push(p === 'own' ? 'shop' : 'building', true, 2);
+    else if (b.id === 'marry' && (p === 'wed' || p === 'with')) push('house', true, 1);
+    else if (b.home) push('myhome', true);
+    else if (b.car) push('car', true);
+    else if (b.fly || (b.id === 'chance' && p === 'go') || (b.id === 'retire' && picks.includes('trip')) || (b.id === 'school' && p === 'world')) push('balloon', true, b.age % 3);
+    const k = keepKind(b, a);
+    if (k) push(k, false);
+  }
+  const people = [], seen = new Set();
+  beats.forEach((b, i) => {
+    if (b.back) return;
+    for (const q of partyAt(S, beats, i + 1)) if (q.label !== '?' && q.role !== 'unknown' && !seen.has(q.id)) { seen.add(q.id); people.push({ id: q.id, role: q.role, label: q.label, age: b.age, color: (ROLES[q.role] || ROLES.custom).color, pet: !!(ROLES[q.role] || {}).pet }); }
+  });
+  const last = beats.find((b) => b.id === 'last');
+  return {
+    name: S.name || '나', now: S.now ?? 15, life: last ? last.age : S.life || 85, look: S.look || {}, items, people,
+    values: ((S.a.values || {}).picks || []).map((v) => (VALUES.find((x) => x[0] === v) || [])[1] || '#fff'),
+    finished: !!(S.a.last && !S.a.last.skip), step: (S.a.step || {}).text || '',
+  };
+}

@@ -1,0 +1,17 @@
+{
+  "name": "인생 드라마",
+  "short_name": "인생 드라마",
+  "description": "태어난 새벽부터 마지막 별밤까지, 내 인생의 길을 걸으며 쓰는 드라마",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffd8c9",
+  "theme_color": "#ffd8c9",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+  ]
+}

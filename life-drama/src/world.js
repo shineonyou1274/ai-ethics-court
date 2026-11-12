@@ -42,6 +42,7 @@ const CAMS = {
   finale: { p: [0, 2.6, 10], l: [0, 1.6, -6] },
   sky: { p: [0, 2.0, 9], l: [0, 26, -34] },
   fork: { p: [0, 6.2, 10.5], l: [0, 0.6, -20] },
+  pop: { p: [0.6, 3.3, 9.2], l: [0, 2.3, -4] },
   fly: { p: [3.6, 3.0, 14.5], l: [0, 0.9, -4] },
   home: { p: [-3.6, 3.4, 9.5], l: [4.6, 1.6, -8] },
   high: { p: [0, 15, 17], l: [0, 0, -30] },
@@ -264,6 +265,64 @@ export function createWorld(canvas) {
       o.position.set(lane(d) - L0 + ROAD / 2 + 5.6, Y(d), -(d - S.dist));
     }
     for (const [r, o] of homeObjs) if (!homes.includes(r)) { scene.remove(o); homeObjs.delete(r); }
+  }
+
+  // ── 답할 때마다 생기는 물건: 주인공 앞에 뿅 하고 나타났다가 길가로 통통 뛰어가 자리를 잡는다 ──
+  let keeps = [];
+  const keepObjs = new Map();
+  const sparks = [];
+  const backOut = (t) => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+  function setKeeps(list, { instant = false } = {}) {
+    const seen = {};
+    for (const k of list) { k.n = seen[k.dist] = (seen[k.dist] || 0) + 1; }
+    const had = new Set(keeps.map((k) => k.id));
+    for (const k of list) k.fresh = !instant && !had.has(k.id) && Math.abs(k.dist - S.dist) < 12;
+    keeps = list;
+    return list.filter((k) => k.fresh);
+  }
+  function syncKeeps(dt) {
+    const ids = new Set();
+    for (const k of keeps) {
+      const near = k.dist > S.dist - 45 && k.dist < S.dist + AHEAD;
+      let o = keepObjs.get(k.id);
+      if (o && (!near || o.kind !== k.kind)) { scene.remove(o.g); keepObjs.delete(k.id); o = null; }
+      if (!near) continue;
+      ids.add(k.id);
+      if (!o) {
+        const g = makeObject(k.kind, 0);
+        scene.add(g);
+        o = { g, kind: k.kind, born: k.fresh ? 0 : 1, settle: k.fresh ? 0 : 1, spin: hash(k.dist + k.n) * 6.28 };
+        keepObjs.set(k.id, o);
+        if (k.fresh && !k.soft) for (let i = 0; i < 8; i++) {
+          const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, color: ['#ffd166', '#ff9eb5', '#fffdf8', '#9ad0f5'][i % 4], fog: false, depthWrite: false, transparent: true }));
+          const a = (i / 8) * 6.28;
+          sp.userData = { t: 0, vx: Math.cos(a) * 2.4, vy: 1.6 + Math.sin(a) * 2.2, vz: 0.3, d: k.dist + 0.4, y: heightOf(shownAge ?? 20) * 2.45 + 1.2 };
+          sp.scale.setScalar(0.34);
+          scene.add(sp); sparks.push(sp);
+        }
+        k.fresh = false;
+      }
+      const slow = k.soft ? 0.45 : 1; // 해 질 녘에는 튀지 않고 조용히 놓인다
+      o.born = Math.min(1, o.born + dt * 1.7 * slow);
+      if (o.born >= 1) { o.hold = (o.hold || 0) + dt; if (o.hold > 0.35 || o.settle > 0) o.settle = Math.min(1, o.settle + dt * 1.25 * slow); }
+      // 머리 위에 떠올랐다가(일행에 가리지 않게) 포물선을 그리며 길가에 내려앉는다
+      const e = ease(o.settle);
+      const d = lerp(k.dist + 0.4, k.dist + 5.2 + (k.n - 1) * 1.9, e);
+      const x = lerp(0, -(ROAD / 2 + 0.75), e);
+      const top = heightOf(shownAge ?? 20) * 2.45 + 0.75;
+      const sc = lerp(1.5, 1.3, e) * (k.soft ? ease(o.born) : backOut(o.born));
+      o.g.scale.setScalar(Math.max(0.001, sc));
+      o.g.position.set(x + lane(d) - L0, Y(d) + 0.06 + top * (1 - e) + Math.sin(Math.PI * o.settle) * 1.1 + Math.sin(S.t * 5) * 0.06 * (1 - e), -(d - S.dist));
+      o.g.rotation.y = lerp(0.4, o.spin * 0.2 - 0.9, e) + (k.soft ? 0 : (1 - o.born) * 5) + (1 - e) * S.t * 1.5;
+    }
+    for (const [id, o] of keepObjs) if (!ids.has(id)) { scene.remove(o.g); keepObjs.delete(id); }
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const sp = sparks[i], u = sp.userData;
+      u.t += dt; u.vy -= 6 * dt;
+      sp.position.set(lane(u.d) - L0 + u.vx * u.t, Y(u.d) + u.y + u.vy * u.t, -(u.d - S.dist) + u.vz * u.t);
+      sp.material.opacity = 1 - smooth(u.t, 0.35, 0.8);
+      if (u.t > 0.8) { scene.remove(sp); sp.material.dispose(); sparks.splice(i, 1); }
+    }
   }
 
   // ── 내 차 ──
@@ -513,7 +572,7 @@ export function createWorld(canvas) {
         c = makeComp(item);
         comps.set(item.id, c);
         const f = FORM[n % FORM.length];
-        if (item.wait != null) { c.x = 3.0; c.z = -(item.wait - S.dist); } else if (instant) { c.x = f[0]; c.z = f[1]; c.born = 1; } else { c.x = f[0] * 1.6; c.z = 11; }
+        if (item.wait != null) { c.x = 3.0; c.z = -(item.wait - S.dist); c.joined = true; } else if (instant) { c.x = f[0]; c.z = f[1]; c.born = 1; c.joined = true; } else { c.x = f[0] * 1.6; c.z = 11; }
       } else if (c.role !== item.role || c.label !== item.label) {
         c.role = item.role; c.label = item.label;
         c.p.setColor(r.color); c.p.setLabel(item.label);
@@ -548,13 +607,16 @@ export function createWorld(canvas) {
         c.x += dx * damp(dt, 2.4); c.z += dz * damp(dt, 2.4);
         p.walking = S.walking || far > 0.2;
         p.waving = S.fin > 0.12 && S.fin < 0.97;
+        if (far < 0.3) c.joined = true;
         const turn = S.cam === 'front' && !S.walking ? 0 : far > 0.6 ? Math.atan2(-dx, -dz) : 0;
         p.group.rotation.y = lerp(p.group.rotation.y, turn, damp(dt, 5));
         p.setOpacity(1);
       }
       const lt = S.labels ? c.label : '';
       if (c.shownLabel !== lt) { c.shownLabel = lt; p.setLabel(lt); }
-      p.group.position.set(c.x, c.wait != null && !c.leaving ? Y(c.wait) : 0, c.z);
+      // 새로 온 사람은 통통 뛰어서 곁으로 온다. 해 질 녘에는 조용히 걸어온다.
+      const hop = !c.joined && !c.leaving && c.wait == null && S.fin < 0.01 && wAge < S.lifespan - 12 ? Math.abs(Math.sin(S.t * 9 + c.slot)) * 0.3 : 0;
+      p.group.position.set(c.x, (c.wait != null && !c.leaving ? Y(c.wait) : 0) + hop, c.z);
       p.update(dt, S.t);
     }
   }
@@ -722,6 +784,7 @@ export function createWorld(canvas) {
     syncRivers();
     syncTunnels();
     syncHomes();
+    syncKeeps(dt);
     updateLights(dt);
     syncMarks();
 
@@ -761,7 +824,7 @@ export function createWorld(canvas) {
     const hgt = heightOf(wAge);
     orbs.forEach((o, i) => {
       const a = S.t * 0.9 + (i * Math.PI * 2) / orbs.length;
-      o.position.set(Math.cos(a) * 0.8, hgt * 2.2 + 0.55 + Math.sin(S.t * 1.6 + i) * 0.1 + ease(S.fin) * 14, Math.sin(a) * 0.8);
+      o.position.set(Math.cos(a) * 0.8, hgt * 2.3 + 0.75 + Math.sin(S.t * 1.6 + i) * 0.1 + ease(S.fin) * 14, Math.sin(a) * 0.8);
     });
     starSprite.material.opacity = smooth(S.fin, 0.18, 0.4);
     starSprite.position.set(0, lerp(1.6, 46, ease(smooth(S.fin, 0.2, 1))), lerp(0, -40, smooth(S.fin, 0.2, 1)));
@@ -819,7 +882,7 @@ export function createWorld(canvas) {
       if (changed) clearSlots(S.dist + 50);
     },
     setLook(look) { walker.setColor(look.color); walker.setHair(look.hair); },
-    setParty, setOrbs,
+    setParty, setOrbs, setKeeps,
     setWeather(w) { S.weather = w || 'clear'; },
     setCamera(mode) { S.cam = mode; },
     setInset(b, r) { inset.tb = b; inset.tr = r; },
