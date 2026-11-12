@@ -52,7 +52,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     world.state.onFrame = null;
     $('movie').hidden = true;
     constelCanvas.hidden = true;
-    world.setFinale(false); world.setFly(0);
+    world.setFinale(false); world.setFly(0); world.setRide(false);
     onClose();
   }
 
@@ -65,7 +65,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     push(4, pos + 9, { kind: 'intro', si: 0 });
     scenes.forEach((sc, k) => {
       const arrive = sc.dist - 2;
-      if (arrive > pos + 1) push(sc.flyIn ? 5 : clamp((arrive - pos) / 12, 1.6, 3.2), arrive, { kind: 'travel', si: k, fly: !!sc.flyIn });
+      if (arrive > pos + 1) push(sc.flyIn ? 5 : clamp((arrive - pos) / 12, 1.6, 3.2), arrive, { kind: 'travel', si: k, fly: !!sc.flyIn, car: !!sc.rideIn });
       const extra = (sc.prep ? sc.prep.length + 8 : 0) + (sc.linked.length ? 14 : 0);
       const H = clamp(3.4 + (sc.text.length + extra) / 10, 4.8, 12);
       push(H, pos + (sc.final ? 0.5 : sc.fork ? 9 : Math.min(6, H * 0.85)), { kind: 'scene', si: k });
@@ -180,6 +180,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     const d = lerp(seg.d0, seg.d1, k);
     if (jumped) { world.jump(d); jumped = false; }
     world.setFly(seg.fly ? Math.pow(Math.sin(Math.PI * k), 0.7) : 0);
+    world.setRide(!!seg.car && k < 0.97);
     world.setDist(d, playing && seg.kind !== 'finale' && seg.kind !== 'end' && seg.kind !== 'constel');
     showCap();
     $('mvFill').style.width = (t / total) * 100 + '%';

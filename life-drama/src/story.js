@@ -44,7 +44,7 @@ const HINTS = [
 const PLAN = [
   ['middle', '중학교 입학', 13],
   ['highschool', '고등학교 입학', 16],
-  ['school', '대입 · 고교 이후 진로', 19],
+  ['school', '대입·진로', 19],
   ['job', '취업', 26],
   ['marry', '결혼·동반자', 31],
   ['home', '자녀', 35],
@@ -53,10 +53,12 @@ const PLAN = [
 const EDU = ['middle', 'highschool', 'school'];
 /** 계획표에 더할 수 있는 '이루고 싶은 일'. fly: 그 장면까지 비행기를 타고 간다. */
 export const WISHES = [
-  ['집 장만', 38], ['자동차 구입', 28], ['세계여행', 30, true], ['부모님 여행 보내 드리기', 32, true], ['유학·해외에서 살아 보기', 24, true],
+  ['집 장만', 38, 'home'], ['자동차 구입', 28, 'car'], ['세계여행', 30, 'fly'], ['부모님 여행 보내 드리기', 32, 'fly'], ['유학·해외에서 살아 보기', 24, 'fly'],
   ['특허 등록', 33], ['창업', 35], ['책 출간', 40], ['대학원·다시 공부', 30], ['이직', 34],
   ['반려동물 입양', 27], ['마라톤 완주', 29], ['무대에 서기', 26], ['봉사·기부', 45], ['귀촌·시골살이', 60],
 ];
+/** 직접 쓴 일도 낱말을 보고 종류를 알아챈다: 비행기(fly), 내 집(home), 내 차(car). */
+export const wishKind = (t) => (/여행|유학|해외|세계|외국/.test(t) ? 'fly' : /자동차|차 구입|차를|차 사|운전|드라이브|캠핑카/.test(t) ? 'car' : /집|아파트|주택|보금자리/.test(t) ? 'home' : '');
 const basisOf = (S) => (S.ageBasis === 'korean' ? 1 : 0);
 /** 이미 지난 입학(중학교·고등학교)은 계획이 아니라 지나온 길의 장면이 된다. */
 export const pastEdu = (S) => { const now = S.now ?? 15, b = basisOf(S); return { middle: now >= 13 + b ? 13 + b : null, highschool: now >= 16 + b ? 16 + b : null }; };
@@ -81,7 +83,7 @@ export function planOf(S) {
   if (legacy && typeof legacy.title === 'string' && legacy.title.trim() && !extras.some((x) => x.id === 'customEvent')) extras.push({ id: 'customEvent', title: legacy.title, age: legacy.age, status: legacy.status || 'yes' });
   for (const x of extras.slice(0, 8)) {
     const status = x.status || 'yes';
-    rows.push({ k: x.id === 'customEvent' ? 'customEvent' : 'x' + x.id, id: x.id, extra: true, label: x.title, title: x.title, status, on: status === 'yes', age: valid(x.age) ? x.age : null, fly: !!x.fly });
+    rows.push({ k: x.id === 'customEvent' ? 'customEvent' : 'x' + x.id, id: x.id, extra: true, label: x.title, title: x.title, status, on: status === 'yes', age: valid(x.age) ? x.age : null, kind: x.kind || (x.fly ? 'fly' : ''), fly: (x.kind || (x.fly ? 'fly' : '')) === 'fly' });
   }
   return rows;
 }
@@ -255,8 +257,8 @@ export function build(S) {
     if (a == null || !r.title.trim()) continue;
     const t = r.title.trim();
     fut.push({
-      id: r.k, age: a, planned: true, fly: r.fly, type: 'text', optional: true, dot: t, title: t,
-      q: `${a}살, ‘${t}’. 그날의 너는 어떤 모습일까?`, hint: (r.fly ? '비행기를 타고 도착했어. ' : '') + '한두 단어만 써도 되고 건너뛰어도 괜찮아.', ph: '예: 누구와, 어디에서, 어떤 기분으로', prep: '그날을 위해 지금 해 볼 작은 준비',
+      id: r.k, age: a, planned: true, fly: r.fly, home: r.kind === 'home', car: r.kind === 'car', cam: r.kind === 'home' ? 'home' : undefined, type: 'text', optional: true, dot: t, title: t,
+      q: `${a}살, ‘${t}’. 그날의 너는 어떤 모습일까?`, hint: (r.fly ? '비행기를 타고 도착했어. ' : r.kind === 'home' ? '길가에 네 집이 생겼어. ' : r.kind === 'car' ? '이제부터는 차를 타고 달려. ' : '') + '한두 단어만 써도 되고 건너뛰어도 괜찮아.', ph: '예: 누구와, 어디에서, 어떤 기분으로', prep: '그날을 위해 지금 해 볼 작은 준비',
     });
   }
 
@@ -529,6 +531,17 @@ export function flightInto(S, beats, i) {
   return (p.id === 'chance' && picks.includes('go')) || (p.id === 'retire' && picks.includes('trip')) || (p.id === 'school' && picks.includes('world'));
 }
 
+/** 차를 산 뒤로는 장면 사이를 차로 달린다. 해 질 녘부터는 다시 걷는다. */
+export function rideInto(S, beats, i) {
+  const b = beats[i];
+  if (!b || b.back || b.walk === false || b.act !== 3 || flightInto(S, beats, i)) return false;
+  return beats.slice(0, i).some((x) => x.car);
+}
+/** 집을 장만한 장면의 길가에는 내 집이 선다. */
+export function homesOf(beats) {
+  return beats.filter((b) => b.home).map((b) => b.dist);
+}
+
 /** 강을 건너는 다리가 놓이는 곳: 어린 시절, 아직 걷지 않은 길로 들어설 때, 해 질 녘으로 넘어갈 때. */
 export function riversOf(beats) {
   const d = (id) => (beats.find((b) => b.id === id) || {}).dist;
@@ -558,7 +571,7 @@ export function scenesOf(S, beats) {
     if (!text) return;
     out.push({
       id: b.id, i, act: b.act, age: b.age, dist: b.dist, title: b.title, text, prep: (a && a.prep) || '', weather: b.weather, final: !!b.final,
-      turning: !!b.turning, fork: !!b.fork, flyIn: flightInto(S, beats, i), linked: mine.map((l) => l.fromLabel),
+      turning: !!b.turning, fork: !!b.fork, flyIn: flightInto(S, beats, i), rideIn: rideInto(S, beats, i), linked: mine.map((l) => l.fromLabel),
       others: b.fork ? b.options.map((o) => o.label).filter((l) => l !== text.split(' — ')[0]) : [],
     });
   });

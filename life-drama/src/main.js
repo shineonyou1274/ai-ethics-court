@@ -1,7 +1,7 @@
 // 흐름 지휘: 걷기 → 질문 카드 → 답 저장 → 다음 걸음.
 import './style.css';
 import { createWorld } from './world.js';
-import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf, flightInto, riversOf, tunnelsOf, summitOf, WISHES } from './story.js';
+import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf, flightInto, riversOf, tunnelsOf, summitOf, WISHES, wishKind, rideInto, homesOf } from './story.js';
 import { drawConstel, constelImage } from './constel.js';
 import * as store from './store.js';
 import { createMovie } from './movie.js';
@@ -72,6 +72,7 @@ function lights(i) {
   const upto = b.back ? Infinity : b.dist;
   world.setRivers(riversOf(beats));
   world.setTunnels(tunnelsOf(beats));
+  world.setHomes(homesOf(beats));
   world.setSummit(summitOf(beats));
   world.setForks(forksOf(S, beats).map((f) => (f.dist > upto ? { ...f, done: false, dir: 0, chosen: '' } : f)));
   world.setDots(dotsAt(S, beats, b.back ? beats.length : i));
@@ -107,6 +108,7 @@ async function go(i, { instant = false } = {}) {
   else {
     const gap = Math.abs(b.dist - world.state.dist);
     if (gap > 0.5 && flightInto(S, beats, i)) { world.setCamera('fly'); toast('비행기를 타고 날아가는 중 ✈'); await world.walkTo(b.dist, 6.5, { fly: true }); }
+    else if (gap > 0.5 && rideInto(S, beats, i)) { world.setCamera('walk'); await world.walkTo(b.dist, Math.min(3.6, Math.max(1.4, (gap / STEP) * 3.2)), { car: true }); }
     else if (gap > 0.5) { world.setCamera('walk'); await world.walkTo(b.dist, Math.min(4.6, Math.max(1.4, (gap / STEP) * 4.2))); }
   }
   world.setCamera(b.cam || (b.fork ? 'fork' : 'card'));
@@ -175,6 +177,7 @@ function showCard(b) {
   } else if (b.type === 'plan') {
     const rows = planOf(S);
     const LABELS = { yes: '계획함', maybe: '미정', no: '안 함' };
+    const ICON = { fly: '✈ ', home: '🏠 ', car: '🚗 ' };
     const box = h('div', { class: 'plan' });
     const draw = () => box.replaceChildren(...rows.map((r) => {
       const note = h('small', { class: 'note' }, '');
@@ -185,13 +188,13 @@ function showCard(b) {
       };
       const age = h('input', { type: 'number', min: 1, max: 100, step: 1, value: r.age ?? '', inputMode: 'numeric', 'aria-label': r.label + ' 나이', placeholder: '미정',
         oninput: () => { const v = Number(age.value); r.age = age.value.trim() && Number.isInteger(v) && v >= 1 && v <= 100 ? v : null; feedback(); } });
-      const title = r.extra ? h('input', { type: 'text', maxLength: 24, value: r.title, 'aria-label': '이루고 싶은 일', placeholder: '예: 첫 여행, 책 출간', oninput: () => { r.title = r.label = title.value; feedback(); } }) : null;
+      const title = r.extra ? h('input', { type: 'text', maxLength: 24, value: r.title, 'aria-label': '이루고 싶은 일', placeholder: '예: 첫 여행, 책 출간', oninput: () => { r.title = r.label = title.value; r.kind = wishKind(title.value); r.fly = r.kind === 'fly'; feedback(); } }) : null;
       feedback();
       const bump = (dv) => { r.age = Number.isInteger(r.age) ? Math.min(100, Math.max(1, r.age + dv)) : Math.min(100, (S.now || 15) + 1); draw(); };
       return h('div', { class: 'plan-row' + (r.status === 'no' ? ' off' : '') },
         h('button', { class: 'tog', type: 'button', 'aria-pressed': r.status === 'yes' ? 'true' : r.status === 'maybe' ? 'mixed' : 'false', 'aria-label': r.label + ' ' + LABELS[r.status] + ' · 누르면 바뀜',
           onclick: () => { r.status = r.status === 'maybe' ? 'yes' : r.status === 'yes' ? 'no' : 'maybe'; r.on = r.status === 'yes'; draw(); } },
-          h('i', {}, r.status === 'yes' ? '✓' : r.status === 'maybe' ? '?' : '−'), h('span', {}, r.extra ? (r.fly ? '✈ 하고 싶은 일' : '하고 싶은 일') : r.label, h('small', { style: 'display:block;font-weight:400' }, LABELS[r.status]))),
+          h('i', {}, r.status === 'yes' ? '✓' : r.status === 'maybe' ? '?' : '−'), h('span', {}, r.extra ? (ICON[r.kind] || '') + '하고 싶은 일' : r.label, h('small', { style: 'display:block;font-weight:400' }, LABELS[r.status]))),
         h('div', { class: 'mini' },
           h('button', { type: 'button', 'aria-label': r.label + ' 한 살 앞으로', onclick: () => bump(-1) }, '−'), age, h('small', {}, '살'),
           h('button', { type: 'button', 'aria-label': r.label + ' 한 살 뒤로', onclick: () => bump(1) }, '+')),
@@ -202,21 +205,21 @@ function showCard(b) {
     // 이루고 싶은 일 더하기: 고르면 계획표에 줄이 생긴다
     const wish = h('div', { class: 'chips' });
     const wishInput = h('input', { type: 'text', maxLength: 24, placeholder: '직접 쓰기 (예: 내 가게 열기)', autocomplete: 'off' });
-    const addWish = (title, age, fly) => {
+    const addWish = (title, age, kind) => {
       if (rows.filter((r) => r.extra).length >= 8) { toast('여덟 개까지 더할 수 있어.'); return; }
       const id = Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
-      rows.push({ k: 'x' + id, id, extra: true, label: title, title, status: 'yes', on: true, age: Math.min(100, Math.max((S.now || 15) + 1, age)), fly: !!fly });
+      rows.push({ k: 'x' + id, id, extra: true, label: title, title, status: 'yes', on: true, age: Math.min(100, Math.max((S.now || 15) + 1, age)), kind: kind || '', fly: kind === 'fly' });
       draw(); drawWish();
     };
-    const drawWish = () => wish.replaceChildren(...WISHES.filter(([t]) => !rows.some((r) => r.extra && r.title === t)).map(([t, age, fly]) => chip((fly ? '✈ ' : '+ ') + t, false, () => addWish(t, age, fly), 'starter')));
+    const drawWish = () => wish.replaceChildren(...WISHES.map(([t, age, kind]) => { const n = rows.filter((r) => r.extra && r.title === t).length; return chip((ICON[kind] || '+ ') + t + (n ? ` (${n})` : ''), false, () => addWish(t, age + n * 5, kind), 'starter'); }));
     drawWish();
     body.push(h('p', { class: 'hint' }, '나이 기준: ' + (S.ageBasis === 'man' ? '만 나이' : S.ageBasis === 'korean' ? '세는나이' : '기존 기록 기준') + ' · 왼쪽 단추를 누르면 계획함 → 안 함 → 미정으로 바뀌어. 계획함이고 나이를 정했을 때만 장면이 생겨.'), box,
-      h('div', { class: 'field' }, h('span', {}, '이루고 싶은 일 더하기 · ✈는 비행기를 타고 가는 일'), wish),
-      h('div', { style: 'display:flex;gap:6px;margin-top:8px' }, wishInput, h('button', { class: 'chip', type: 'button', style: 'flex:none', onclick: () => { const t = wishInput.value.trim(); if (!t) return; addWish(t, (S.now || 15) + 10, /여행|유학|해외|세계/.test(t)); wishInput.value = ''; } }, '더하기')));
+      h('div', { class: 'field' }, h('span', {}, '이루고 싶은 일 더하기 · 같은 일을 여러 번 더해도 돼. ✈ 비행기, 🏠 길가에 내 집, 🚗 차를 타고 이동'), wish),
+      h('div', { style: 'display:flex;gap:6px;margin-top:8px' }, wishInput, h('button', { class: 'chip', type: 'button', style: 'flex:none', onclick: () => { const t = wishInput.value.trim(); if (!t) return; addWish(t, (S.now || 15) + 10, wishKind(t)); wishInput.value = ''; } }, '더하기')));
     collect = () => {
       const plan = { ...(S.plan || {}), ...Object.fromEntries(rows.filter((r) => !r.extra).map((r) => [r.k, { on: r.on, status: r.status, age: r.age }])) };
       delete plan.customEvent;
-      plan.extras = rows.filter((r) => r.extra).map((r) => ({ id: r.id, title: r.title.trim(), age: r.age, status: r.status, fly: r.fly }));
+      plan.extras = rows.filter((r) => r.extra).map((r) => ({ id: r.id, title: r.title.trim(), age: r.age, status: r.status, kind: r.kind || '', fly: r.kind === 'fly' }));
       return { plan };
     };
   } else if (b.type === 'constel') {

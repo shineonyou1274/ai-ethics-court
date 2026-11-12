@@ -43,6 +43,7 @@ const CAMS = {
   sky: { p: [0, 2.0, 9], l: [0, 26, -34] },
   fork: { p: [0, 6.2, 10.5], l: [0, 0.6, -20] },
   fly: { p: [3.6, 3.0, 14.5], l: [0, 0.9, -4] },
+  home: { p: [-3.6, 3.4, 9.5], l: [4.6, 1.6, -8] },
   high: { p: [0, 15, 17], l: [0, 0, -30] },
 };
 
@@ -173,7 +174,7 @@ export function createWorld(canvas) {
 
   const S = {
     dist: -400, walking: false, lifespan: 85, weather: 'clear', wet: 0, cam: 'title', ageOverride: null,
-    finaleOn: false, fin: 0, fly: 0, t: 0, speed: 0, cruise: 0, onFrame: null, labels: true,
+    finaleOn: false, fin: 0, fly: 0, ride: false, t: 0, speed: 0, cruise: 0, onFrame: null, labels: true,
   };
   let stops = [{ dist: 0, age: 0 }];
   let tween = null;
@@ -202,7 +203,7 @@ export function createWorld(canvas) {
   const Y = (d) => elev(d) - H0;
   let L0 = 0; // 주인공이 선 자리의 굽이. 모든 것은 여기서 본 위치에 놓인다.
   let rivers = [];
-  const inForkZone = (d) => forks.some((f) => d > f.dist + 1 && d < f.dist + RAMP0 + RAMP + 12) || rivers.some((r) => Math.abs(d - r) < 10) || tunnels.some((r) => Math.abs(d - r) < 13);
+  const inForkZone = (d) => forks.some((f) => d > f.dist + 1 && d < f.dist + RAMP0 + RAMP + 12) || rivers.some((r) => Math.abs(d - r) < 10) || tunnels.some((r) => Math.abs(d - r) < 13) || homes.some((r) => Math.abs(d - r - 8) < 9);
 
   // ── 강과 다리 ──
   const waterMat = new THREE.MeshLambertMaterial({ color: '#8fd3f4', polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
@@ -245,6 +246,29 @@ export function createWorld(canvas) {
     }
     for (const [r, o] of tunnelObjs) if (!tunnels.includes(r)) { scene.remove(o); tunnelObjs.delete(r); }
   }
+
+  // ── 내 집 ──
+  let homes = [];
+  const homeObjs = new Map();
+  function syncHomes() {
+    for (const r of homes) {
+      const d = r + 8;
+      const near = d > S.dist - 40 && d < S.dist + AHEAD;
+      let o = homeObjs.get(r);
+      if (!near) { if (o) { scene.remove(o); homeObjs.delete(r); } continue; }
+      if (!o) { o = makeObject('myhome', 0); o.rotation.y = -Math.PI / 2 + 0.5; scene.add(o); homeObjs.set(r, o); }
+      o.position.set(lane(d) - L0 + ROAD / 2 + 5.6, Y(d), -(d - S.dist));
+    }
+    for (const [r, o] of homeObjs) if (!homes.includes(r)) { scene.remove(o); homeObjs.delete(r); }
+  }
+
+  // ── 내 차 ──
+  const car = makeObject('car', 0);
+  car.visible = false;
+  scene.add(car);
+  const wheelGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.3, 14).rotateZ(Math.PI / 2);
+  const wheelMat = new THREE.MeshLambertMaterial({ color: '#4a4458' });
+  const wheels = [[-1.15, -1.45], [1.15, -1.45], [-1.15, 1.45], [1.15, 1.45]].map(([x, z]) => { const w = new THREE.Mesh(wheelGeo, wheelMat); w.position.set(x, 0.42, z); car.add(w); return w; });
 
   // ── 비행기 ──
   const plane = makeObject('plane', 0);
@@ -640,6 +664,7 @@ export function createWorld(canvas) {
       const k = clamp(tween.t / tween.dur, 0, 1);
       S.dist = lerp(tween.from, tween.to, ease(k));
       if (tween.fly) S.fly = Math.pow(Math.sin(Math.PI * k), 0.7);
+      if (tween.car) S.ride = k < 0.97;
       S.walking = k < 0.985;
       if (k >= 1) { const r = tween.resolve; tween = null; S.walking = false; r(); }
     } else if (S.cruise) { S.dist += S.cruise * dt; S.walking = true; }
@@ -676,6 +701,7 @@ export function createWorld(canvas) {
     syncForks();
     syncRivers();
     syncTunnels();
+    syncHomes();
     updateLights(dt);
     syncMarks();
 
@@ -686,9 +712,16 @@ export function createWorld(canvas) {
     walker.umbrella = S.wet > 0.5;
     // 비행: 일행은 비행기에 타고, 길 위로 떠올랐다가 내려앉는다
     const alt = S.fly * 8.5;
-    const aboard = S.fly > 0.04;
-    plane.visible = aboard; planeShadow.visible = aboard;
-    if (aboard) {
+    // 차: 일행이 차에 타고 길을 달린다
+    car.visible = S.ride && S.fly <= 0.04;
+    if (car.visible) {
+      car.rotation.y = walker.group.rotation.y;
+      car.position.y = Math.abs(Math.sin(S.t * 9)) * 0.03;
+      for (const w of wheels) w.rotation.x -= S.speed * dt * 2.2;
+    }
+    const aboard = S.fly > 0.04 || car.visible;
+    plane.visible = S.fly > 0.04; planeShadow.visible = plane.visible;
+    if (plane.visible) {
       plane.position.set(0, 1.0 + alt, 0.4);
       plane.rotation.set(-0.16 * Math.cos(Math.PI * Math.min(1, S.fly)) * (S.fly < 0.98 ? 1 : 0) * 0, 0, Math.sin(S.t * 1.3) * 0.05);
       prop.rotation.z += dt * 40;
@@ -774,6 +807,8 @@ export function createWorld(canvas) {
     setSummit(d) { summit = d; },
     setRivers(list) { if (list.join() !== rivers.join()) { rivers = list; clearSlots(); } },
     setFly(v) { S.fly = v; },
+    setRide(v) { S.ride = !!v; },
+    setHomes(list) { if (list.join() !== homes.join()) { homes = list; clearSlots(); } },
     setForks(list) {
       const sig = (x) => x.map((f) => f.id + ':' + f.dist).join(',');
       const moved = sig(list) !== sig(forks);
@@ -785,7 +820,7 @@ export function createWorld(canvas) {
       if (tween) { const r = tween.resolve; tween = null; r(); }
       S.cruise = 0;
       if (Math.abs(d - S.dist) < 0.05) return Promise.resolve();
-      return new Promise((resolve) => { tween = { from: S.dist, to: d, t: 0, dur: secs, resolve: () => { S.fly = 0; resolve(); }, fly: !!opts.fly }; });
+      return new Promise((resolve) => { tween = { from: S.dist, to: d, t: 0, dur: secs, resolve: () => { S.fly = 0; S.ride = false; resolve(); }, fly: !!opts.fly, car: !!opts.car }; });
     },
     setDist(d, walking = true) { if (tween) { const r = tween.resolve; tween = null; r(); } S.cruise = 0; S.dist = d; S.walking = walking; },
     jump(d) {

@@ -92,7 +92,7 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px
 .plan-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #fff; border: 1.5px solid var(--line); border-radius: 16px; padding: 3px 8px 3px 6px; }
 .plan-row.off { background: #f7f3ee; }
 .plan-row.off .tog { color: #a79fb2; }
-.tog { display: flex; align-items: center; gap: 9px; min-height: 48px; padding: 4px 8px; font-size: 17px; font-weight: 700; text-align: left; border-radius: 12px; }
+.tog { display: flex; align-items: center; gap: 9px; min-height: 48px; padding: 4px 6px; font-size: 16px; font-weight: 700; text-align: left; border-radius: 12px; }
 .tog i { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--accent); display: grid; place-items: center; font-style: normal; font-size: 16px; color: #fff; flex: none; }
 .tog[aria-pressed='true'] i { background: var(--accent); }
 .mini { display: flex; align-items: center; gap: 4px; flex: none; }
