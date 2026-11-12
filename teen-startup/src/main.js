@@ -2,7 +2,7 @@
 import './style.css';
 import { createShop } from './shop.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
-import { newGame, cardFor, choose, runMonth, actions, act, ending, fmt, MONTHS } from './engine.js';
+import { newGame, cardFor, choose, runMonth, actions, act, ending, fmt, MONTHS, MENU, menuDue, skipMenu, makeMenu } from './engine.js';
 
 const $ = (q) => document.querySelector(q);
 const panel = $('#panel'), hud = $('#hud');
@@ -67,7 +67,7 @@ function title() {
   on('#resume', () => start(saved));
 }
 function start(state) {
-  S = state; shown = {}; shop.setName(S.name); shop.update(S, true); drawHud(); store.set(S); card();
+  S = state; shown = {}; shop.setName(S.name); shop.setMenu(S.menu ? S.menu.name : ''); shop.update(S, true); drawHud(); store.set(S); (menuDue(S) ? menuOffer : card)();
 }
 
 // ── 딜레마 카드 ──
@@ -78,12 +78,48 @@ function card() {
     <p class="eyebrow">${S.month}개월 차 · 이달의 고민</p>
     <h2>${esc(c.title)}</h2>
     <div class="bubble">${esc(c.text)}</div>
-    ${c.choices.map((ch, i) => `<button class="choice" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(ch.label)}</span></button>`).join('')}`);
-  on('.choice', (b) => result(choose(S, +b.dataset.i)));
+    ${c.choices.map((ch, i) => `<button class="choice" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(ch.label)}</span></button>`).join('')}
+    ${c.idea ? `<div class="idea"><label for="idea">✏️ 선택지에 없는 나만의 방법이 떠오르면 적어 둬 <small>(점수와 상관없어. 마지막에 다시 보여 줄게)</small></label><input id="idea" type="text" maxlength="80" placeholder="나라면 이렇게 하겠다" autocomplete="off"></div>` : ''}`);
+  on('.choice', (b) => result(choose(S, +b.dataset.i, Math.random, $('#idea') ? $('#idea').value : '')));
+}
+
+// ── 나만의 대표 메뉴 ──
+function menuOffer() {
+  chipMonth = 0; drawHud();
+  view(`
+    <p class="eyebrow">${S.month}개월 차 · 기회가 왔어</p>
+    <h2>우리 가게만의 대표 메뉴를 만들까?</h2>
+    <div class="bubble">가게가 조금씩 자리를 잡았어. 단골들이 "여기만의 메뉴는 없어요?" 하고 물어. 개발비는 ${fmt(MENU.cost)}이야. 꼭 하지 않아도 돼.</div>
+    <button class="btn" id="mk" ${S.cash >= MENU.cost ? '' : 'disabled'}>직접 만들어 본다</button>
+    <button class="btn ghost" id="sk">지금은 하던 대로 한다</button>`);
+  on('#mk', menuMaker);
+  on('#sk', () => { skipMenu(S); store.set(S); card(); });
+}
+function menuMaker() {
+  const pick = { taste: null, target: null, price: null };
+  const group = (key, title, list) => `<h3>${title}</h3><div class="opts" data-k="${key}">${list.map((o) => `<button class="opt" data-v="${o.v}">${o.t}</button>`).join('')}</div>`;
+  view(`
+    <p class="eyebrow">대표 메뉴 만들기</p>
+    <h2>어떤 메뉴를 내놓을까?</h2>
+    <label for="mn">메뉴 이름</label>
+    <input id="mn" type="text" maxlength="10" placeholder="예: 꿀벌 치킨" autocomplete="off">
+    ${group('target', '누구를 위한 메뉴야?', MENU.targets.map((t) => ({ v: t[0], t: `${t[1]} ${t[2]}` })))}
+    ${group('taste', '어떤 맛으로 할까?', MENU.tastes.map((t) => ({ v: t[0], t: `${t[1]} ${t[2]}` })))}
+    ${group('price', '값은 얼마나 받을까?', MENU.prices.map((t, i) => ({ v: i, t: t[1] })))}
+    <button class="btn" id="launch" style="margin-top:18px" disabled>이 메뉴로 내놓기</button>`);
+  on('.opt', (b) => {
+    const k = b.parentElement.dataset.k; pick[k] = b.dataset.v;
+    b.parentElement.querySelectorAll('.opt').forEach((x) => x.classList.toggle('on', x === b));
+    $('#launch').disabled = !(pick.taste && pick.target && pick.price !== null);
+  });
+  on('#launch', () => {
+    const r = makeMenu(S, { name: $('#mn').value, taste: pick.taste, target: pick.target, price: +pick.price });
+    store.set(S); shop.setMenu(S.menu.name); result(r, card);
+  });
 }
 
 const NAMES = { cash: '💰 통장', trust: '⭐ 신뢰', team: '👥 팀 행복', impact: '💖 나눔' };
-function result(r) {
+function result(r, after) {
   sync();
   const d = r.deltas;
   const sum = d.trust + d.team + d.impact + d.cash / 20;
@@ -103,8 +139,8 @@ function result(r) {
     <div class="bubble">${esc(r.text)}</div>
     <div class="chips">${chips || '<span class="chip tag">당장 바뀐 것은 없어</span>'}</div>
     <div class="concept"><b>💡 오늘의 경제 한 줄</b>${esc(r.concept)}</div>
-    <button class="btn" id="sell">이번 달 장사 시작!</button>`);
-  on('#sell', selling);
+    <button class="btn" id="sell">${after ? '이달의 고민으로' : '이번 달 장사 시작!'}</button>`);
+  on('#sell', after || selling);
 }
 
 function selling() {
@@ -126,6 +162,7 @@ function report(r, quiet) {
       <table class="pl">
         <tr><td>매출 <small>${r.qty.toLocaleString('ko-KR')}마리 × ${r.price.toLocaleString('ko-KR')}원</small></td><td class="up">+${fmt(r.revenue)}</td></tr>
         ${r.rows.filter((x) => x[1]).map(([n, v, sub]) => `<tr><td>${n}${sub ? ` <small>${sub}</small>` : ''}</td><td>−${fmt(v)}</td></tr>`).join('')}
+        ${r.branch ? `<tr><td>2호점이 벌어 온 돈</td><td class="${r.branch > 0 ? 'up' : 'down'}">${r.branch > 0 ? '+' : '−'}${fmt(Math.abs(r.branch))}</td></tr>` : ''}
         <tr class="sum"><td>이번 달 이익</td><td class="${r.profit >= 0 ? 'up' : 'down'}">${r.profit >= 0 ? '+' : '−'}${fmt(Math.abs(r.profit))}</td></tr>
       </table>
     </div>
@@ -134,7 +171,7 @@ function report(r, quiet) {
     ${grow.length ? `<h3>가게 키우기 <small>(하고 싶을 때만)</small></h3>` + grow.map((a) => `<button class="grow" data-id="${a.id}" ${a.ok ? '' : 'disabled'}><span class="ic">${a.icon}</span><span><b>${a.label}</b><small>${a.desc}${a.ok ? '' : ' · 돈이 모자라'}</small></span><span class="cost">${a.cost ? fmt(a.cost) : ''}</span></button>`).join('') : ''}
     <button class="btn" id="next" style="margin-top:16px">${S.over === 'bankrupt' ? '가게 문을 닫으며…' : S.over ? '1년 결산 보기' : '다음 달로'}</button>`);
   on('.grow', (b) => { if (act(S, b.dataset.id)) { store.set(S); setTimeout(() => sfx('pop'), 80); report(r, true); } });
-  on('#next', () => (S.over ? finale() : card()));
+  on('#next', () => (S.over ? finale() : menuDue(S) ? menuOffer() : card()));
 }
 
 // ── 결말 ──
@@ -178,12 +215,12 @@ function finale() {
       <p style="font-size:15px;margin-top:6px"><b class="jua" style="color:var(--coral-d)">다음에 길러 볼 힘 · ${lo.name}</b><br>${lo.tip}</p>
       <p style="font-size:13.5px;color:var(--soft);margin-top:8px">5점이 가장 높아. 이 도형은 시험 점수가 아니라 이번 판에서 내가 내린 선택의 흔적이야. 활동지에 옮겨 그려 봐.</p></div>
     <div class="bubble"><b class="jua">달마다 남긴 이익</b>${chart(S.history)}
-      <p style="font-size:15px;color:var(--soft)">열두 달 동안 모두 ${fmt(e.total)}을 남겼고, 가장 잘된 달은 ${best.month}개월 차(${fmt(best.profit)})였어.${S.loan ? ' 은행 빚 500만 원이 남아 있어.' : ''}</p></div>
+      <p style="font-size:15px;color:var(--soft)">열두 달 동안 모두 ${fmt(e.total)}을 남겼고, 가장 잘된 달은 ${best.month}개월 차(${fmt(best.profit)})였어.${S.loan ? ` 은행 빚 ${fmt(S.loan)}이 남아 있어.` : ''}</p></div>
     <div class="concept"><b>🗣 친구들과 이야기해 봐</b>
       <ul class="ask"><li>가장 오래 고민한 선택은 무엇이고, 왜 그렇게 골랐어?</li><li>돈이 가장 많이 남는 선택과 내가 옳다고 생각한 선택이 달랐던 때가 있었어?</li><li>진짜 사장님이 된다면 꼭 지키고 싶은 원칙 한 가지는?</li></ul></div>
-    <details class="bubble"><summary class="jua">내가 내린 결정 ${S.picks.length}가지</summary><ol class="log">${S.picks.map((p) => `<li>${esc(p.title)} <span>→ ${esc(p.label)}</span></li>`).join('')}</ol></details>
+    <details class="bubble"><summary class="jua">내가 내린 결정 ${S.picks.length}가지</summary><ol class="log">${S.picks.map((p) => `<li>${esc(p.title)} <span>→ ${esc(p.label)}</span>${p.idea ? `<br><span class="mine">✏️ 내 아이디어: ${esc(p.idea)}</span>` : ''}</li>`).join('')}</ol>${S.menu ? `<p style="font-size:15px;margin-top:8px">🍗 내가 만든 대표 메뉴: <b>${esc(S.menu.name)}</b></p>` : ''}</details>
     <button class="btn" id="again">처음부터 다시 해 보기</button>`);
-  on('#again', () => { hud.hidden = true; $('#stats').innerHTML = ''; S = null; shop.update(newGame(''), true); title(); });
+  on('#again', () => { hud.hidden = true; $('#stats').innerHTML = ''; S = null; shop.setMenu(''); shop.update(newGame(''), true); title(); });
 }
 
 // ── 가게 크게 보기 ──

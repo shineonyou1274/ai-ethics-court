@@ -214,7 +214,7 @@ export function createShop(canvas) {
   add(frozen, new THREE.PlaneGeometry(0.5, 0.25), new THREE.MeshBasicMaterial({ map: labelTex('냉동 수입', '#eef6ff', '#4a6fa5') }), 0, 0.22, 0.26);
 
   // 탁자와 의자
-  const seats = { 1: [], 2: [], 3: [] };
+  const seats = { 1: [], 2: [], 3: [], 4: [] };
   const table = (p, x, z, nice, list, y = 0) => {
     const g = group(p, x, 0.06, z);
     if (nice) { cyl(g, 0.5, 0.5, 0.07, '#fffaf0', 0, 0.74, 0, 16); cyl(g, 0.07, 0.07, 0.7, '#f2b79a', 0, 0.37, 0, 8); cyl(g, 0.26, 0.3, 0.05, '#f2b79a', 0, 0.03, 0, 12); }
@@ -235,17 +235,23 @@ export function createShop(canvas) {
   const plant = (p, x, z, s = 1, cols = ['#7fcf8f', '#9bdcab']) => { const g = group(p, x, 0.06, z); g.scale.setScalar(s); cyl(g, 0.24, 0.18, 0.4, '#ffb38a', 0, 0.2, 0, 10); blob(g, 0.36, cols[0], 0, 0.7, 0); blob(g, 0.26, cols[1], 0.2, 0.95, 0.05); blob(g, 0.22, cols[1], -0.2, 0.9, -0.05); return g; };
   when(plant(room, 3.55, -2.55, 1.2), lvUp(2));
 
-  // 3단계: 2층(뒤쪽 절반)과 떠 있는 계단
-  const up = when(group(room, 0, 3, 0), lvUp(3));
-  box(up, 8.25, 0.25, 2.75, '#fff4e3', -0.125, 0.125, -1.75);
-  box(up, 8.25, 2.7, 0.25, '#ffe1d3', -0.125, 1.6, -3.125); box(up, 0.25, 2.7, 6, '#ffd6c6', -4.125, 1.6, 0);
-  box(up, 0.06, 1.3, 2.2, '#bfe6ff', -3.98, 1.6, 1.3); box(up, 2.4, 1.2, 0.06, '#bfe6ff', 1.5, 1.6, -2.98); box(up, 2.4, 1.2, 0.06, '#bfe6ff', -1.8, 1.6, -2.98);
-  for (let i = 0; i < 9; i++) cyl(up, 0.03, 0.03, 0.6, '#f2b79a', -3.9 + i * 0.95, 0.55, -0.45, 6);
-  box(up, 7.7, 0.06, 0.08, '#f2b79a', -0.1, 0.86, -0.45);
-  for (const x of [-2.6, -0.2, 2.2]) table(up, x, -1.8, true, seats[3], 3.25).position.y = 0.25;
-  when(plant(up, -3.5, -2.5, 1.1, ['#ffb3c8', '#ffd1dc']), lvUp(3)).position.y = 0.25;
+  // 3단계부터: 위층(뒤쪽 절반)과 떠 있는 계단
+  const floor = (y, n, wallA, wallB, list, potCols) => {
+    const up = when(group(room, 0, y, 0), lvUp(n));
+    box(up, 8.25, 0.25, 2.75, '#fff4e3', -0.125, 0.125, -1.75);
+    box(up, 8.25, 2.7, 0.25, wallA, -0.125, 1.6, -3.125); box(up, 0.25, 2.7, 6, wallB, -4.125, 1.6, 0);
+    box(up, 0.06, 1.3, 2.2, '#bfe6ff', -3.98, 1.6, 1.3); box(up, 2.4, 1.2, 0.06, '#bfe6ff', 1.5, 1.6, -2.98); box(up, 2.4, 1.2, 0.06, '#bfe6ff', -1.8, 1.6, -2.98);
+    for (let i = 0; i < 9; i++) cyl(up, 0.03, 0.03, 0.6, '#f2b79a', -3.9 + i * 0.95, 0.55, -0.45, 6);
+    box(up, 7.7, 0.06, 0.08, '#f2b79a', -0.1, 0.86, -0.45);
+    for (const x of [-2.6, -0.2, 2.2]) table(up, x, -1.8, true, list, y + 0.25).position.y = 0.25;
+    plant(up, -3.5, -2.5, 1.1, potCols).position.y = 0.25;
+  };
+  floor(3, 3, '#ffe1d3', '#ffd6c6', seats[3], ['#ffb3c8', '#ffd1dc']);
+  floor(5.95, 4, '#dfe6ff', '#d2dbfb', seats[4], ['#ffd97d', '#ffe9a8']);
   const stairs = when(group(room), lvUp(3));
   for (let i = 0; i < 10; i++) box(stairs, 0.7, 0.1, 0.3, i % 2 ? '#ffd9c7' : '#fffaf0', 3.55, 0.3 + i * 0.3, 2.5 - i * 0.3);
+  const stairs2 = when(group(room), lvUp(4));
+  for (let i = 0; i < 9; i++) box(stairs2, 0.3, 0.1, 0.6, i % 2 ? '#d2dbfb' : '#fffaf0', 3.4 - i * 0.32, 3.5 + i * 0.3, -0.05);
 
   // 간판: 낡은 나무판 → 네온
   const signG = group(room, -0.1, 3.5, -3.1);
@@ -262,13 +268,24 @@ export function createShop(canvas) {
 
   // 가게 밖: 배달 오토바이, 꽃, 현판
   const scooter = (x, z, c) => {
-    const g = when(group(land, x, 0, z), lvUp(3));
+    const g = when(group(land, x, 0, z), (s) => !!s.flags.delivery);
     for (const dz of [-0.5, 0.5]) { const w = cyl(g, 0.2, 0.2, 0.12, '#4b4566', 0, 0.2, dz, 14); w.rotation.z = Math.PI / 2; }
     box(g, 0.3, 0.16, 1.0, c, 0, 0.36, 0); box(g, 0.34, 0.14, 0.5, '#4b4566', 0, 0.56, -0.2); box(g, 0.28, 0.5, 0.14, c, 0, 0.6, 0.42);
     box(g, 0.6, 0.05, 0.05, '#6f6a8a', 0, 0.9, 0.42); box(g, 0.5, 0.46, 0.46, '#fffaf0', 0, 0.82, -0.52); box(g, 0.52, 0.1, 0.48, '#ff8f7a', 0, 1.02, -0.52);
     g.rotation.y = -0.25;
   };
   scooter(5.1, 0.8, '#ff9f8a'); scooter(6.0, 0.8, '#9be3d0'); scooter(6.9, 0.8, '#ffd97d');
+  // 2호점: 섬 뒤쪽 구석의 작은 가게
+  const branch = when(group(land, 6.3, 0, -3.1), (s) => !!s.flags.branch);
+  box(branch, 2, 1.5, 1.6, '#ffe1d3', 0, 0.75, 0); box(branch, 2.3, 0.2, 1.9, '#ff9f8a', 0, 1.6, 0); box(branch, 0.5, 0.9, 0.06, '#ff9f8a', -0.5, 0.45, 0.81); box(branch, 0.7, 0.5, 0.06, '#bfe6ff', 0.4, 0.85, 0.81);
+  add(branch, new THREE.PlaneGeometry(1.3, 0.5), new THREE.MeshBasicMaterial({ map: labelTex('2호점', '#2d2748', '#ffd166', 256, 100) }), 0, 2.0, 0.6);
+  box(branch, 1.4, 0.6, 0.1, '#2d2748', 0, 2.0, 0.54);
+  // 대표 메뉴 포스터 (뒷벽 오른쪽)
+  const posterM = new THREE.MeshBasicMaterial({ color: '#ffffff' });
+  const poster = when(group(room, 2.5, 1.95, -2.96), () => !!menuName);
+  box(poster, 1.9, 1.25, 0.05, '#ff9f8a', 0, 0, 0); add(poster, new THREE.PlaneGeometry(1.7, 1.05), posterM, 0, 0, 0.03).castShadow = false;
+  let menuName = '';
+  function paintPoster() { if (posterM.map) posterM.map.dispose(); posterM.map = labelTex('NEW 대표 메뉴\n' + (menuName || ' '), '#fffaf0', '#e9735e', 384, 236); posterM.needsUpdate = true; }
   const flower = (p, x, z, c, y = 0) => { cyl(p, 0.025, 0.025, 0.3, '#7fcf8f', x, y + 0.15, z, 5); blob(p, 0.11, c, x, y + 0.34, z); };
   const pots = when(group(land), (s) => s.impact >= 25);
   for (const x of [-3.5, -0.5]) { cyl(pots, 0.26, 0.2, 0.36, '#ffb38a', x, 0.18, 3.75, 10); for (let i = 0; i < 4; i++) flower(pots, x + Math.cos(i * 1.6) * 0.12, 3.75 + Math.sin(i * 1.6) * 0.12, ['#ff9cc2', '#ffd166', '#ffffff', '#ff8f7a'][i], 0.3); }
@@ -287,14 +304,14 @@ export function createShop(canvas) {
 
   // ── 사람들 ──
   const people = group(scene, 0, 0.12, 0);
-  const STAFF_AT = [[-3.1, -1.75], [-1.9, -1.75], [-0.9, -1.75], [1.8, -0.2], [-3.2, 0.9]];
+  const STAFF_AT = [[-3.1, -1.75], [-1.9, -1.75], [-0.9, -1.75], [1.8, -0.2], [-3.2, 0.9], [3.3, -2.3]];
   const staff = STAFF_AT.map(([x, z], i) => {
     const g = person(people, i + 2, true); g.position.set(x, 0, z); g.rotation.y = 0.6; when(g, (s) => s.staff > i);
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false })); sp.scale.setScalar(0.55); sp.position.y = 1.75; sp.visible = false; g.add(sp);
     g.userData.mood = sp; return g;
   });
   const icons = {}; for (const k of ['coin', 'star', 'heart', 'smile', 'sad']) icons[k] = iconTex(k);
-  const sitters = []; for (let i = 0; i < 14; i++) { const g = person(people, i + 3); g.userData.seat = i; when(g, () => false); sitters.push(g); }
+  const sitters = []; for (let i = 0; i < 20; i++) { const g = person(people, i + 3); g.userData.seat = i; when(g, () => false); sitters.push(g); }
   const custs = []; let nextShirt = 0;
   const slot = (i) => (i < 5 ? [-2.35, -0.15 + i * 0.8] : i === 5 ? [-2.35, 3.9] : [-0.9 + (i - 6) * 0.8, 4.5]);
   const OUT = [[-1.65, -0.15], [-1.65, 5.5], [-7, 5.5]];
@@ -313,7 +330,7 @@ export function createShop(canvas) {
   function update(s, snap = false) {
     const lvChanged = s.level !== st.level;
     st = { level: s.level, trust: s.trust, team: s.team, impact: s.impact, staff: s.staff, flags: { ...s.flags } };
-    const list = [...seats[Math.min(2, st.level)], ...(st.level >= 3 ? seats[3] : [])];
+    const list = [...seats[Math.min(2, st.level)], ...(st.level >= 3 ? seats[3] : []), ...(st.level >= 4 ? seats[4] : [])];
     const fill = Math.min(list.length, Math.round(list.length * Math.max(0, st.trust - 18) / 75));
     sitters.forEach((g, i) => {
       const on = i < fill; g.userData.pop.test = () => on;
@@ -323,7 +340,7 @@ export function createShop(canvas) {
     fryers[0].body.material = mat(st.flags.oldFryer && st.level === 1 ? '#c4a78f' : '#cfd6e4');
     queueWant = Math.max(0, Math.min(8, Math.round((st.trust - 12) / 11)));
     staff.forEach((g) => { const m = g.userData.mood; const k = st.team >= 75 ? 'smile' : st.team <= 35 ? 'sad' : null; m.visible = !!k; if (k) { m.material.map = icons[k]; m.material.needsUpdate = true; } });
-    signT = st.level >= 3 ? 6.15 : 3.5;
+    signT = st.level >= 4 ? 9.1 : st.level >= 3 ? 6.15 : 3.5;
     if (lvChanged && !first && !snap) burst('star', 14);
     first = false; fit();
   }
@@ -333,7 +350,7 @@ export function createShop(canvas) {
   const view = { l: -10, r: 10, t: 10, b: -10 }, goal = { ...view };
   const v3 = new THREE.Vector3();
   function fit() {
-    const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1, top = st.level >= 3 ? 7.6 : 4.9;
+    const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1, top = st.level >= 4 ? 10.5 : st.level >= 3 ? 7.6 : 4.9;
     let l = 1e9, r = -1e9, t = -1e9, b = 1e9;
     // 좁은 화면에서는 섬 전체 대신 가게와 앞길만 크게 잡는다
     const pts = w < 700
@@ -438,6 +455,7 @@ export function createShop(canvas) {
   return {
     update, burst,
     setBusy(b) { busy = b; },
+    setMenu(n) { menuName = n || ''; if (menuName) paintPoster(); update(Object.assign({}, st), false); },
     setName(n) { shopName = n || '우리 치킨'; paintSigns(); },
   };
 }

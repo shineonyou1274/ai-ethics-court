@@ -100,3 +100,11 @@ ul.ask { padding-left: 20px; margin: 4px 0 0; } ul.ask li { margin: 6px 0; }
   .stat small { font-size: 13px; } .stat .nm, .stat i { display: none; }
   .stat b { font-size: 14px; }
 }
+
+.idea { margin-top: 16px; } .idea input { font-family: inherit; font-size: 16px; text-align: left; margin: 6px 0 0; }
+.idea small { font-size: 13px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.opt { font: inherit; font-size: 16px; background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 8px 14px; box-shadow: 0 3px 0 var(--line); }
+.opt.on { background: var(--sun); border-color: #f0b93a; box-shadow: 0 3px 0 #f0b93a; }
+.btn:disabled { opacity: .45; box-shadow: none; cursor: default; }
+ol.log .mine { color: var(--coral-d); }
