@@ -1,7 +1,7 @@
 // 걷는 세계. 주인공은 제자리에 있고 풍경이 다가온다.
 // 나이가 곧 하루의 시간이다: 새벽에 태어나 별밤에 길을 마친다.
 import * as THREE from 'three';
-import { makeObject, makeArch, makeSign, cloudGeometry, biomeOf, GLOW } from './prefabs.js';
+import { makeObject, makeArch, makeSign, makePlaque, cloudGeometry, biomeOf, GLOW } from './prefabs.js';
 import { makePerson, makePet, heightOf } from './people.js';
 import { ROLES } from './story.js';
 
@@ -245,7 +245,7 @@ export function createWorld(canvas) {
       const near = r > S.dist - 60 && r < S.dist + AHEAD + 10;
       let o = tunnelObjs.get(r);
       if (!near) { if (o) { scene.remove(o); tunnelObjs.delete(r); } continue; }
-      if (!o) { o = makeObject('tunnel', 0); scene.add(o); tunnelObjs.set(r, o); }
+      if (!o) { o = makeObject('tunnel', 0); const pl = makePlaque('어두운 길에도 끝이 있어'); pl.position.set(0, 9.3, 9.7); o.add(pl); scene.add(o); tunnelObjs.set(r, o); }
       o.position.set(lane(r) - L0, Y(r), -(r - S.dist));
     }
     for (const [r, o] of tunnelObjs) if (!tunnels.includes(r)) { scene.remove(o); tunnelObjs.delete(r); }
@@ -335,7 +335,7 @@ export function createWorld(canvas) {
         st.tree.position.set(base(de) + st.dir * bendOf(f, de), Y(de), -(de - S.dist));
       }
       for (const sg of fd.signs) {
-        const d = f.dist + RAMP0 + (sg.dir ? 20 : 31) + sg.n * 5;
+        const d = f.dist + RAMP0 + (sg.dir ? 15 : 23) + sg.n * 4; // 뒤따르는 터널에 묻히지 않게 갈림목 가까이에 세운다
         const side = sg.dir || -1;
         sg.o.position.set(base(d) + sg.dir * bendOf(f, d) + side * (ROAD / 2 + 1.3), Y(d), -(d - S.dist));
       }

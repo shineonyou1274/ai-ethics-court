@@ -276,8 +276,8 @@ export function makeArch(label, half = 4.7) {
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, fog: false }));
-  s.scale.set(2.6, 1.14, 1);
-  s.position.set(0, 5.5, 0);
+  s.scale.set(3.3, 1.44, 1);
+  s.position.set(0, 5.7, 0);
   g.add(s);
   g.userData.dispose = () => { tex.dispose(); s.material.dispose(); g.children[0].geometry.dispose(); };
   return g;
@@ -309,6 +309,23 @@ export function makeSign(text, mode = 'open') {
   g.add(sp);
   g.userData.dispose = () => { tex.dispose(); sp.material.dispose(); pole.geometry.dispose(); };
   return g;
+}
+
+/** 터널 들머리의 글판. 멀리서도 읽히게 크게 쓴다. */
+export function makePlaque(text) {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 176;
+  const x = c.getContext('2d');
+  x.fillStyle = '#fffdf8'; x.beginPath(); x.roundRect(6, 6, 1012, 164, 40); x.fill();
+  x.lineWidth = 10; x.strokeStyle = '#f5b942'; x.stroke();
+  x.fillStyle = '#3a3448'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '700 86px "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+  x.fillText(text, 512, 94, 960);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, fog: false }));
+  sp.scale.set(8.2, 1.41, 1);
+  return sp;
 }
 
 export function cloudGeometry(v) {

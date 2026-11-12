@@ -545,7 +545,10 @@ export function flightInto(S, beats, i) {
 export function rideInto(S, beats, i) {
   const b = beats[i];
   if (!b || b.back || b.walk === false || b.act !== 3 || flightInto(S, beats, i)) return false;
-  return beats.slice(0, i).some((x) => x.car);
+  // 차를 산 뒤 세 번은 차로 달리고, 그다음부터는 다시 걷는다. 차를 또 사면 다시 탄다.
+  let since = 99;
+  for (let j = 0; j < i; j++) { if (beats[j].car) since = 0; else if (beats[j + 1] && beats[j + 1].walk !== false) since++; }
+  return since < 3;
 }
 /** 집을 장만한 장면의 길가에는 내 집이 선다. */
 export function homesOf(beats) {
@@ -560,7 +563,7 @@ export function riversOf(beats) {
 
 /** 갈림길을 지나 새 길에 들어선 뒤에는 터널을 하나 빠져나온다. */
 export function tunnelsOf(beats) {
-  return beats.filter((b) => b.type === 'connect').map((b) => b.dist + STEP / 2);
+  return beats.filter((b) => b.type === 'connect').map((b) => b.dist + 18); // 갈림길 팻말과 다음 나이 팻말 사이에 둔다
 }
 /** 길의 오르막: 마지막 장면은 언덕 위에 있다. */
 export function summitOf(beats) {

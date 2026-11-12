@@ -172,7 +172,8 @@ dialog::backdrop { background: #2b244066; }
 .dlg-body p { margin: 0 0 10px; word-break: keep-all; }
 .menu button { display: block; width: 100%; text-align: left; min-height: 54px; padding: 10px 14px; border-radius: 14px; font-size: 17px; }
 .menu button:active { background: #00000008; }
-.menu button small { display: block; color: var(--soft); font-size: 13px; }
+.menu button small, .menu-link small { display: block; color: var(--soft); font-size: 13px; }
+.menu-link { display: block; min-height: 54px; padding: 10px 14px; border-radius: 14px; font-size: 17px; color: inherit; text-decoration: none; }
 .script-item { border: 1.5px solid var(--line); border-radius: 16px; padding: 12px; margin-bottom: 10px; background: #fff; }
 .script-item .eyebrow { font-size: 13px; font-weight: 700; color: #c0705f; margin: 0; }
 .script-item .q { font-size: 14px; color: var(--soft); margin: 2px 0 8px; }
@@ -220,13 +221,37 @@ body[data-turning='1'] #card .eyebrow { color: #e0705c; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
 @media print {
+  @page { size: A4; margin: 12mm; }
   html, body { overflow: visible; height: auto; background: #fff; }
-  #gl, #hud, #sheet, #title, #movie, dialog, #toast { display: none !important; }
-  #print { display: block; padding: 10mm; color: #222; font-size: 11pt; }
-  #print h1 { font-family: var(--title); font-size: 24pt; margin: 0 0 2mm; }
-  #print .by { color: #666; margin: 0 0 6mm; }
-  #print article { border-left: 3px solid #ff8f7a; padding: 1mm 0 1mm 5mm; margin: 0 0 5mm; break-inside: avoid; }
-  #print article small { color: #b35f4f; font-weight: 700; }
-  #print article p { margin: 1mm 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-  #print .prep { color: #555; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #gl, #constel, #hud, #sheet, #title, #movie, dialog, #toast { display: none !important; }
+  #print { display: block; color: #2f2a3a; font-size: 10.5pt; line-height: 1.55; }
+  .pr-cover { position: relative; height: 271mm; border-radius: 6mm; overflow: hidden; background: #12173f; break-after: page; }
+  .pr-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pr-title { position: absolute; left: 0; right: 0; bottom: 0; padding: 26mm 14mm 14mm; color: #fff; background: linear-gradient(180deg, #12173f00, #12173fee 55%); }
+  .pr-title small { letter-spacing: .3em; font-size: 9pt; color: #ffe9a8; }
+  .pr-title h1 { font-family: var(--title); font-size: 30pt; line-height: 1.25; margin: 2mm 0 2mm; overflow-wrap: anywhere; }
+  .pr-title p { margin: 0; font-size: 12pt; }
+  .pr-title .pr-note { margin-top: 3mm; font-size: 9.5pt; color: #d9d6f0; }
+  .pr-act { margin: 0 0 7mm; }
+  .pr-act h2 { display: flex; align-items: center; gap: 3mm; font-family: var(--title); font-size: 16pt; margin: 0 0 3.5mm; padding-bottom: 2mm; border-bottom: 1.6pt solid var(--c); break-after: avoid; }
+  .pr-act h2 i { font-style: normal; font-family: var(--font); font-size: 9.5pt; font-weight: 700; color: #fff; background: var(--c); border-radius: 99px; padding: 1mm 3.5mm; }
+  .pr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm; }
+  .pr-grid article { border: .8pt solid #e2d9cf; border-top: 2.4pt solid var(--c); border-radius: 3mm; padding: 3mm 3.5mm; break-inside: avoid; background: #fffdf8; }
+  .pr-grid article.fork { background: #fff7dc; border-color: #f5cf7a; border-top-color: #f5b942; grid-column: 1 / -1; }
+  .pr-grid article.turn { background: #f4f0fb; }
+  .pr-grid header { display: flex; align-items: baseline; gap: 2.5mm; margin-bottom: 1.2mm; }
+  .pr-grid header b { font-family: var(--title); font-size: 13pt; color: var(--c); white-space: nowrap; }
+  .pr-grid header span { font-weight: 700; font-size: 10pt; }
+  .pr-grid p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .pr-sub { margin-top: 1.2mm !important; font-size: 9pt; color: #6b647a; }
+  .pr-link { color: #b07a12; font-weight: 700; }
+  .pr-end { break-inside: avoid; }
+  .pr-end blockquote { margin: 4mm 0 6mm; padding: 8mm 8mm 7mm; border-radius: 5mm; background: #12173f; color: #fff; font-family: var(--title); font-size: 19pt; line-height: 1.4; text-align: center; overflow-wrap: anywhere; }
+  .pr-end cite { display: block; margin-top: 3mm; font: 400 10pt var(--font); color: #ffe9a8; font-style: normal; }
+  .pr-box { border: .8pt solid #e2d9cf; border-radius: 3mm; padding: 3.5mm 4.5mm; margin-bottom: 3.5mm; break-inside: avoid; }
+  .pr-box b { color: #e0705c; font-size: 9.5pt; }
+  .pr-box ul { margin: 1mm 0 0; padding-left: 5mm; }
+  .pr-box p { margin: 1mm 0 0; font-size: 12pt; }
+  .pr-step { background: #fff1e8; border-color: #ffc9b5; }
 }

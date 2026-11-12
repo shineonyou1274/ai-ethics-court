@@ -22,6 +22,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   const url = new URL(req.url);
+  if (url.pathname.endsWith('life-drama.html')) return; // 내려받는 파일은 넣어 두지 않는다
   const page = req.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
   if (url.origin === location.origin && page) {
     e.respondWith(fetch(req).then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res; }).catch(() => caches.match(req).then((r) => r || caches.match('index.html'))));

@@ -533,13 +533,36 @@ async function openCards() {
 
 function doPrint() {
   const scenes = scenesOf(S, beats);
+  const ls = linksOf(S, beats);
+  const cover = constelImage(constelOf(S, beats)).toDataURL('image/jpeg', 0.9);
+  const ACT_COLOR = ['', '#ff8fa3', '#3fb8a0', '#4a9be8', '#8a6fd6', '#ff8f7a'];
+  const groups = [1, 2, 3, 4].map((act) => [act, scenes.filter((s) => s.act === act)]).filter(([, list]) => list.length);
+  const rem = (S.a.remember || {}).text, step = (S.a.step || {}).text;
   $('print').replaceChildren(...[
-    h('h1', {}, S.title || `${S.name || '나'}의 인생 드라마`),
-    h('p', { class: 'by' }, `주연 ${S.name} · ${S.now}살에 쓰다 · 예측이 아니라, 내가 고르고 다시 쓸 수 있는 이야기`),
-    ...scenes.map((s) => h('article', {}, h('small', {}, `${s.age}살 · ${s.title}`), h('p', {}, s.text), s.linked.length ? h('p', { class: 'prep' }, '이어진 점: ' + s.linked.join(', ')) : null, s.prep ? h('p', { class: 'prep' }, '지금 준비할 것: ' + s.prep) : null)),
-    S.a.step && S.a.step.text ? h('article', {}, h('small', {}, '오늘 찍는 점 하나'), h('p', {}, S.a.step.text)) : null,
+    // 표지
+    h('section', { class: 'pr-cover' },
+      h('img', { src: cover, alt: '' }),
+      h('div', { class: 'pr-title' }, h('small', {}, 'LIFE DRAMA'), h('h1', {}, S.title || `${S.name || '나'}의 인생 드라마`), h('p', {}, `주연 ${S.name} · ${S.now}살에 쓰다`),
+        h('p', { class: 'pr-note' }, '예측이 아니라, 내가 고르고 다시 쓸 수 있는 이야기'))),
+    // 막마다 장면 카드
+    ...groups.map(([act, list]) => h('section', { class: 'pr-act', style: `--c:${ACT_COLOR[act]}` },
+      h('h2', {}, h('i', {}, act + '막'), ACTS[act]),
+      h('div', { class: 'pr-grid' }, list.map((s) => h('article', { class: s.fork ? 'fork' : s.turning ? 'turn' : '' },
+        h('header', {}, h('b', {}, s.age + '살'), h('span', {}, (s.fork ? '갈림길 · ' : '') + s.title)),
+        h('p', {}, s.text),
+        s.fork && s.others.length ? h('p', { class: 'pr-sub' }, '가지 않은 길: ' + s.others.join(' / ')) : null,
+        s.linked.length ? h('p', { class: 'pr-sub pr-link' }, '이어진 점: ' + s.linked.join(', ')) : null,
+        s.prep ? h('p', { class: 'pr-sub' }, '지금 준비할 것: ' + s.prep) : null))))),
+    // 마무리
+    h('section', { class: 'pr-end' },
+      rem ? h('blockquote', {}, `“${rem}”`, h('cite', {}, `${S.name}, 그렇게 기억되고 싶은 사람`)) : null,
+      ls.length ? h('div', { class: 'pr-box' }, h('b', {}, '이어진 점'), h('ul', {}, ls.map((l) => h('li', {}, `${l.fromLabel} → ${(beats.find((x) => x.id === l.to) || {}).title}`)))) : null,
+      step ? h('div', { class: 'pr-box pr-step' }, h('b', {}, '오늘 찍는 점 하나'), h('p', {}, step)) : null),
   ].filter(Boolean));
-  window.print();
+  // 표지 그림이 준비된 뒤에 인쇄 창을 연다
+  const img = $('print').querySelector('img');
+  const fire = () => window.print();
+  if (img.complete) setTimeout(fire, 60); else { img.onload = fire; img.onerror = fire; }
 }
 
 function exportFile() {
@@ -618,6 +641,7 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigat
     item('인쇄하기', '', () => { $('dlg').close(); doPrint(); }),
     item('파일로 보관', '다른 기기로 옮기거나 나중에 다시 열기', exportFile),
     item('파일 불러오기', '', importFile),
+    /^https?:$/.test(location.protocol) ? h('a', { class: 'menu-link', href: 'life-drama.html', download: '인생드라마.html' }, '앱을 파일로 내려받기', h('small', {}, '통신 없이 쓰거나 다른 사람에게 나눠 줄 때')) : null,
     item('처음부터 다시 쓰기', '지금 이야기는 지워져', () => {
       if (!confirm('지금까지 쓴 이야기를 지우고 처음부터 다시 쓸까? 간직하고 싶으면 먼저 파일로 보관해 줘.')) return;
       store.savePrev(constelOf(S, beats)); store.clear(); location.reload();

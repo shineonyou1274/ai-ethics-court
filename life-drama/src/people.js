@@ -21,23 +21,29 @@ export { heightOf };
 
 export function makeLabel(text) {
   const c = document.createElement('canvas');
-  c.width = 320; c.height = 80;
+  c.height = 80;
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, fog: false }));
-  sprite.scale.set(1.8, 0.45, 1);
   sprite.renderOrder = 5;
+  const FONT = '700 34px "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
   const draw = (t) => {
-    const x = c.getContext('2d');
-    x.clearRect(0, 0, 320, 80);
-    x.font = '700 34px "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
-    const str = String(t).slice(0, 12);
-    const w = Math.min(300, x.measureText(str).width + 44);
+    // 글이 길면 이름표도 길어진다. 열여섯 자를 넘으면 줄임표를 붙인다.
+    let str = String(t);
+    if (str.length > 16) str = str.slice(0, 15) + '…';
+    let x = c.getContext('2d');
+    x.font = FONT;
+    const w = Math.ceil(x.measureText(str).width) + 48;
+    c.width = w + 8; // 크기를 바꾸면 그림판이 비워진다
+    x = c.getContext('2d');
+    x.font = FONT;
     x.fillStyle = 'rgba(255,253,248,.93)';
-    x.beginPath(); x.roundRect(160 - w / 2, 10, w, 60, 30); x.fill();
+    x.beginPath(); x.roundRect(4, 10, w, 60, 30); x.fill();
     x.fillStyle = '#4a4458'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.fillText(str, 160, 42, 290);
+    x.fillText(str, c.width / 2, 42);
+    tex.dispose(); // 크기가 달라졌으니 새로 올린다
     tex.needsUpdate = true;
+    sprite.scale.set(0.45 * (c.width / 80), 0.45, 1);
   };
   draw(text);
   return { sprite, draw, dispose: () => { tex.dispose(); sprite.material.dispose(); } };
