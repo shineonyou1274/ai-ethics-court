@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && cp dist/index.html life-drama.html",
-    "build:site": "vite build --mode site && cp src/bgm.mp3 site/bgm.mp3 && cp life-drama.html site/life-drama.html",
+    "build:site": "vite build --mode site && cp src/bgm.mp3 site-v2/bgm.mp3 && cp life-drama.html site-v2/life-drama.html",
     "preview": "vite preview"
   },
   "dependencies": {
