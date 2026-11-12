@@ -52,7 +52,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     world.state.onFrame = null;
     $('movie').hidden = true;
     constelCanvas.hidden = true;
-    world.setFinale(false);
+    world.setFinale(false); world.setFly(0);
     onClose();
   }
 
@@ -65,7 +65,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     push(4, pos + 9, { kind: 'intro', si: 0 });
     scenes.forEach((sc, k) => {
       const arrive = sc.dist - 2;
-      if (arrive > pos + 1) push(clamp((arrive - pos) / 12, 1.6, 3.2), arrive, { kind: 'travel', si: k });
+      if (arrive > pos + 1) push(sc.flyIn ? 5 : clamp((arrive - pos) / 12, 1.6, 3.2), arrive, { kind: 'travel', si: k, fly: !!sc.flyIn });
       const extra = (sc.prep ? sc.prep.length + 8 : 0) + (sc.linked.length ? 14 : 0);
       const H = clamp(3.4 + (sc.text.length + extra) / 10, 4.8, 12);
       push(H, pos + (sc.final ? 0.5 : sc.fork ? 9 : Math.min(6, H * 0.85)), { kind: 'scene', si: k });
@@ -89,7 +89,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     }
     world.setWeather(seg.kind === 'intro' ? 'clear' : sc.weather);
     world.setFinale(seg.kind === 'finale' || seg.kind === 'constel' || (seg.kind === 'end' && sc.final));
-    world.setCamera(seg.kind === 'intro' ? 'title' : seg.kind === 'travel' ? 'walk' : seg.kind === 'constel' ? 'sky' : seg.kind === 'finale' || seg.kind === 'end' ? 'finale' : sc.final ? 'front' : sc.fork ? 'fork' : ['card', 'front', 'walk'][seg.si % 3]);
+    world.setCamera(seg.kind === 'intro' ? 'title' : seg.kind === 'travel' ? (seg.fly ? 'fly' : 'walk') : seg.kind === 'constel' ? 'sky' : seg.kind === 'finale' || seg.kind === 'end' ? 'finale' : sc.final ? 'front' : sc.fork ? 'fork' : ['card', 'front', 'walk'][seg.si % 3]);
     if (seg.kind === 'intro') cap = { mode: 'big', title: S.title || `${S.name}의 인생 드라마`, sub: `주연 ${S.name}` };
     else if (seg.kind === 'scene') {
       const notes = [sc.linked.length ? `이어진 점 · ${sc.linked.join(', ')}` : '', sc.prep ? `지금 준비할 것 · ${sc.prep}` : ''].filter(Boolean).join('  /  ');
@@ -179,6 +179,7 @@ export function createMovie({ world, $, getData, stage, onOpen, onClose, onVideo
     const k = clamp((t - seg.t0) / (seg.t1 - seg.t0), 0, 1);
     const d = lerp(seg.d0, seg.d1, k);
     if (jumped) { world.jump(d); jumped = false; }
+    world.setFly(seg.fly ? Math.pow(Math.sin(Math.PI * k), 0.7) : 0);
     world.setDist(d, playing && seg.kind !== 'finale' && seg.kind !== 'end' && seg.kind !== 'constel');
     showCap();
     $('mvFill').style.width = (t / total) * 100 + '%';

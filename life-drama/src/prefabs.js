@@ -142,6 +142,32 @@ const BUILDERS = {
     return g;
   },
   pebble: (v) => [box(0.6, 0.03, 0.32, '#ffffff', (v % 3 - 1) * 2.2, 0.07, 0, v), box(0.4, 0.03, 0.24, '#ffffff', ((v + 1) % 3 - 1) * 2.4, 0.07, 3.2, v * 2)],
+  bridge: () => {
+    const g = [];
+    const half = 4.75, len = 13;
+    for (let i = 0; i < 9; i++) g.push(box(half * 2, 0.07, 1.25, i % 2 ? '#e6b98a' : '#dcab78', 0, 0.085, -len / 2 + 0.75 + i * 1.44));
+    for (const sx of [-1, 1]) {
+      for (let i = 0; i <= 6; i++) {
+        const z = -len / 2 + (i * len) / 6, h = 1.05 + Math.sin((i / 6) * Math.PI) * 0.95;
+        g.push(box(0.2, h, 0.2, '#ff8f7a', sx * half, h / 2, z));
+        if (i < 6) {
+          const h2 = 1.05 + Math.sin(((i + 1) / 6) * Math.PI) * 0.95, zz = z + len / 12;
+          g.push(box(0.14, 0.14, len / 6 + 0.15, '#ff8f7a', sx * half, (h + h2) / 2, zz));
+          g.push(box(0.1, 0.1, len / 6, '#ffd0c4', sx * half, 0.55, zz));
+        }
+      }
+      g.push(blob(0.28, '#ffd166', sx * half, 2.2, 0));
+    }
+    return g;
+  },
+  plane: () => {
+    const g = [paint(new THREE.CapsuleGeometry(0.75, 3.4, 4, 10), '#fffdf8', 0, 0, 0, 0, 1, 1, 1, 0)];
+    g[0].rotateX(Math.PI / 2); g[0].computeVertexNormals();
+    g.push(box(7.4, 0.14, 1.25, '#ff9f8a', 0, -0.15, -0.2), box(2.6, 0.12, 0.8, '#ff9f8a', 0, 0.2, 2.1), box(0.14, 1.1, 0.9, '#ff9f8a', 0, 0.75, 2.15));
+    g.push(blob(0.34, '#7fc8e8', 0, 0, -2.5, 1, 1, 1.3));
+    for (const sx of [-1, 1]) g.push(cyl(0.2, 0.2, 0.5, '#8d8aa0', sx * 1.9, -0.5, -0.2, 8));
+    return { main: g, glow: [-1.2, -0.3, 0.6].flatMap((z) => [box(0.05, 0.3, 0.42, '#ffffff', 0.74, 0.18, z), box(0.05, 0.3, 0.42, '#ffffff', -0.74, 0.18, z)]) };
+  },
   bigtree: () => {
     const g = [cyl(0.7, 1.1, 5, '#a8825f', 0, 2.5, 0, 8), cyl(0.3, 0.45, 3, '#a8825f', 1.3, 5.4, 0, 6, -0.7), cyl(0.3, 0.45, 3, '#a8825f', -1.3, 5.6, 0.2, 6, 0.7)];
     const cs = ['#f6c453', '#f4a259', '#ffd98a', '#f9b872', '#ffe2a0'];

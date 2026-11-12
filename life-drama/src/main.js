@@ -1,7 +1,7 @@
 // 흐름 지휘: 걷기 → 질문 카드 → 답 저장 → 다음 걸음.
 import './style.css';
 import { createWorld } from './world.js';
-import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf } from './story.js';
+import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf, flightInto, riversOf } from './story.js';
 import { drawConstel, constelImage } from './constel.js';
 import * as store from './store.js';
 import { createMovie } from './movie.js';
@@ -70,6 +70,7 @@ function stage(i, { instant = false, depart = false } = {}) {
 function lights(i) {
   const b = beats[i];
   const upto = b.back ? Infinity : b.dist;
+  world.setRivers(riversOf(beats));
   world.setForks(forksOf(S, beats).map((f) => (f.dist > upto ? { ...f, done: false, dir: 0, chosen: '' } : f)));
   world.setDots(dotsAt(S, beats, b.back ? beats.length : i));
   world.setLinks(linksOf(S, beats).filter((l) => l.toDist <= upto));
@@ -103,7 +104,8 @@ async function go(i, { instant = false } = {}) {
   else if (b.fx === 'rewind') { world.setCamera('high'); await world.walkTo(b.dist, 5.5); }
   else {
     const gap = Math.abs(b.dist - world.state.dist);
-    if (gap > 0.5) { world.setCamera('walk'); await world.walkTo(b.dist, Math.min(4.6, Math.max(1.4, (gap / STEP) * 4.2))); }
+    if (gap > 0.5 && flightInto(S, beats, i)) { world.setCamera('fly'); toast('비행기를 타고 날아가는 중 ✈'); await world.walkTo(b.dist, 6.5, { fly: true }); }
+    else if (gap > 0.5) { world.setCamera('walk'); await world.walkTo(b.dist, Math.min(4.6, Math.max(1.4, (gap / STEP) * 4.2))); }
   }
   world.setCamera(b.cam || (b.fork ? 'fork' : 'card'));
   if (b.fx === 'finale') world.setFinale(true);

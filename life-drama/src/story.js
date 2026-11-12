@@ -81,6 +81,11 @@ const TP2_OPTIONS = [
   { k: 'move', label: '전혀 다른 일로 옮겨 간다', dir: -1 },
   { k: 'grow', label: '좋아서 하던 것을 두 번째 일로 키운다', dir: 1 },
 ];
+const CHANCE = {
+      id: 'chance', age: 29, type: 'chips', title: '뜻밖의 제안', max: 1, min: 0, optional: true,
+      q: '전혀 다른 나라에서 1년 살아 볼 기회가 갑자기 생겼어. 어떻게 할래?',
+      options: [{ k: 'go', label: '떠난다' }, { k: 'stay', label: '지금 자리를 지킨다' }, { k: 'later', label: '조금 미뤄 두고 준비한다' }], text: '그렇게 고른 까닭은?',
+    };
 const pickOf = (S, id) => (S.a[id] && !S.a[id].skip ? (S.a[id].picks || [])[0] || (S.a[id].custom ? 'custom' : null) : null);
 
 /** 현재 상태로 질문 카드 목록을 만든다. 답이 바뀌어도 앞쪽 순서는 달라지지 않는다. */
@@ -258,6 +263,8 @@ export function build(S) {
       starters: ['고마웠어요, ', '미처 말하지 못했지만 '], skipLabel: '끝까지 함께 걸을래',
     },
   );
+  // 뜻밖의 제안: 떠난다고 고르면 다음 장면까지 비행기를 타고 간다
+  fut.push({ surprise: true, hint: '떠난다를 고르면 다음 장면까지 비행기를 타고 가.', ...CHANCE });
   // 뜻밖의 질문: 사람마다 다르게 한 장을 뽑는다
   const DECK = [
     {
@@ -267,11 +274,6 @@ export function build(S) {
       custom: '직접 쓰기', text: '어떻게 돕고 있어?',
     },
     { id: 'proud', age: 62, type: 'text', title: '가장 뿌듯한 일', optional: true, q: '문득 걸어온 길을 돌아봤어. 무엇이 가장 뿌듯할까?', starters: ['내가 가장 잘한 일은 ', '끝까지 놓지 않은 것은 '] },
-    {
-      id: 'chance', age: 29, type: 'chips', title: '뜻밖의 제안', max: 1, min: 0, optional: true,
-      q: '전혀 다른 나라에서 1년 살아 볼 기회가 갑자기 생겼어. 어떻게 할래?',
-      options: [{ k: 'go', label: '떠난다' }, { k: 'stay', label: '지금 자리를 지킨다' }, { k: 'later', label: '조금 미뤄 두고 준비한다' }], text: '그렇게 고른 까닭은?',
-    },
     { id: 'money', age: 38, type: 'text', title: '뜻밖의 큰돈', optional: true, q: '생각지도 못한 큰돈이 생겼어. 가장 먼저 어디에, 누구를 위해 쓸까?', starters: ['가장 먼저 ', '나를 위해서는 '] },
     { id: 'health', age: 48, type: 'text', title: '몸이 보내는 신호', optional: true, q: '몸이 쉬어 가라는 신호를 보냈어. 오래 걷기 위해 바꿀 습관 한 가지는?', starters: ['나는 ', '그만둘 것은 '], prep: '지금부터 들일 수 있는 건강 습관' },
     { id: 'ask', age: 57, type: 'text', title: '오랜 친구의 부탁', optional: true, q: '오랜 친구가 들어주기 어려운 부탁을 해 왔어. 너는 어떻게 할까?', starters: ['나는 ', '친구에게 '] },
@@ -444,6 +446,22 @@ export function forksOf(S, beats) {
   });
 }
 
+/** 바로 앞 장면에서 먼 곳으로 떠나기로 했다면, 이 장면까지는 비행기를 타고 간다. */
+export function flightInto(S, beats, i) {
+  const b = beats[i], p = beats[i - 1];
+  if (!b || !p || b.back || b.walk === false) return false;
+  const a = S.a[p.id];
+  if (!a || a.skip) return false;
+  const picks = a.picks || [];
+  return (p.id === 'chance' && picks.includes('go')) || (p.id === 'retire' && picks.includes('trip')) || (p.id === 'school' && picks.includes('world'));
+}
+
+/** 강을 건너는 다리가 놓이는 곳: 어린 시절, 아직 걷지 않은 길로 들어설 때, 해 질 녘으로 넘어갈 때. */
+export function riversOf(beats) {
+  const d = (id) => (beats.find((b) => b.id === id) || {}).dist;
+  return [d('care') != null ? d('care') + STEP / 2 : null, d('plan') != null ? d('plan') + STEP / 2 : null, d('life') != null ? d('life') + STEP / 2 : null].filter((x) => x != null);
+}
+
 /** 감상·내보내기에 쓰는 장면 목록. 답한 장면만 담는다. */
 export function scenesOf(S, beats) {
   const out = [];
@@ -457,7 +475,7 @@ export function scenesOf(S, beats) {
     if (!text) return;
     out.push({
       id: b.id, i, act: b.act, age: b.age, dist: b.dist, title: b.title, text, prep: (a && a.prep) || '', weather: b.weather, final: !!b.final,
-      turning: !!b.turning, fork: !!b.fork, linked: mine.map((l) => l.fromLabel),
+      turning: !!b.turning, fork: !!b.fork, flyIn: flightInto(S, beats, i), linked: mine.map((l) => l.fromLabel),
       others: b.fork ? b.options.map((o) => o.label).filter((l) => l !== text.split(' — ')[0]) : [],
     });
   });

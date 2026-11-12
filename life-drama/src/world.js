@@ -42,6 +42,7 @@ const CAMS = {
   finale: { p: [0, 2.6, 10], l: [0, 1.6, -6] },
   sky: { p: [0, 2.0, 9], l: [0, 26, -34] },
   fork: { p: [0, 6.2, 10.5], l: [0, 0.6, -20] },
+  fly: { p: [3.6, 3.0, 14.5], l: [0, 0.9, -4] },
   high: { p: [0, 15, 17], l: [0, 0, -30] },
 };
 
@@ -173,7 +174,7 @@ export function createWorld(canvas) {
 
   const S = {
     dist: -400, walking: false, lifespan: 85, weather: 'clear', wet: 0, cam: 'title', ageOverride: null,
-    finaleOn: false, fin: 0, t: 0, speed: 0, cruise: 0, onFrame: null, labels: true,
+    finaleOn: false, fin: 0, fly: 0, t: 0, speed: 0, cruise: 0, onFrame: null, labels: true,
   };
   let stops = [{ dist: 0, age: 0 }];
   let tween = null;
@@ -192,7 +193,48 @@ export function createWorld(canvas) {
     return x;
   }
   let L0 = 0; // 주인공이 선 자리의 굽이. 모든 것은 여기서 본 위치에 놓인다.
-  const inForkZone = (d) => forks.some((f) => d > f.dist + 1 && d < f.dist + RAMP0 + RAMP + 12);
+  let rivers = [];
+  const inForkZone = (d) => forks.some((f) => d > f.dist + 1 && d < f.dist + RAMP0 + RAMP + 12) || rivers.some((r) => Math.abs(d - r) < 10);
+
+  // ── 강과 다리 ──
+  const waterMat = new THREE.MeshLambertMaterial({ color: '#8fd3f4', polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
+  const waterGeo = new THREE.PlaneGeometry(900, 9.5).rotateX(-Math.PI / 2);
+  const bankGeo = new THREE.PlaneGeometry(900, 0.5).rotateX(-Math.PI / 2);
+  const riverObjs = new Map();
+  function syncRivers() {
+    for (const r of rivers) {
+      const near = r > S.dist - 50 && r < S.dist + AHEAD + 10;
+      let o = riverObjs.get(r);
+      if (!near) { if (o) { scene.remove(o); riverObjs.delete(r); } continue; }
+      if (!o) {
+        o = new THREE.Group();
+        const w = new THREE.Mesh(waterGeo, waterMat); w.position.y = 0.012;
+        const b1 = new THREE.Mesh(bankGeo, edgeMat), b2 = new THREE.Mesh(bankGeo, edgeMat);
+        b1.position.set(0, 0.02, -5); b2.position.set(0, 0.02, 5);
+        o.add(w, b1, b2, makeObject('bridge', 0));
+        scene.add(o); riverObjs.set(r, o);
+      }
+      o.position.set(lane(r) - L0, 0, -(r - S.dist));
+    }
+    for (const [r, o] of riverObjs) if (!rivers.includes(r)) { scene.remove(o); riverObjs.delete(r); }
+    cG2.copy(skyU.top.value).lerp(cW.set('#9fdcf7'), 0.55);
+    waterMat.color.copy(cG2);
+  }
+  const cG2 = new THREE.Color(), cW = new THREE.Color();
+
+  // ── 비행기 ──
+  const plane = makeObject('plane', 0);
+  plane.visible = false;
+  scene.add(plane);
+  const prop = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.16, 0.06), new THREE.MeshLambertMaterial({ color: '#6f6c85' }));
+  prop.position.set(0, 0, -3.0);
+  plane.add(prop);
+  const planeShadow = new THREE.Mesh(new THREE.CircleGeometry(2.4, 20).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#2b2440', transparent: true, opacity: 0.14, depthWrite: false }));
+  planeShadow.position.y = 0.1; planeShadow.visible = false;
+  scene.add(planeShadow);
+  const skyPlane = makeObject('plane', 0); // 먼 하늘을 지나가는 비행기
+  skyPlane.scale.setScalar(2.2); skyPlane.rotation.y = -Math.PI / 2;
+  scene.add(skyPlane);
 
   const forkDecor = new Map();
   function dropFork(id) {
@@ -570,6 +612,7 @@ export function createWorld(canvas) {
       tween.t += dt;
       const k = clamp(tween.t / tween.dur, 0, 1);
       S.dist = lerp(tween.from, tween.to, ease(k));
+      if (tween.fly) S.fly = Math.pow(Math.sin(Math.PI * k), 0.7);
       S.walking = k < 0.985;
       if (k >= 1) { const r = tween.resolve; tween = null; S.walking = false; r(); }
     } else if (S.cruise) { S.dist += S.cruise * dt; S.walking = true; }
@@ -599,6 +642,7 @@ export function createWorld(canvas) {
     }
     road.done(); e1.done(); e2.done();
     syncForks();
+    syncRivers();
     updateLights(dt);
     syncMarks();
 
@@ -607,12 +651,25 @@ export function createWorld(canvas) {
     walker.setAge(wAge);
     walker.walking = S.walking;
     walker.umbrella = S.wet > 0.5;
-    walker.setOpacity(1 - smooth(S.fin, 0.2, 0.62));
+    // 비행: 일행은 비행기에 타고, 길 위로 떠올랐다가 내려앉는다
+    const alt = S.fly * 8.5;
+    const aboard = S.fly > 0.04;
+    plane.visible = aboard; planeShadow.visible = aboard;
+    if (aboard) {
+      plane.position.set(0, 1.0 + alt, 0.4);
+      plane.rotation.set(-0.16 * Math.cos(Math.PI * Math.min(1, S.fly)) * (S.fly < 0.98 ? 1 : 0) * 0, 0, Math.sin(S.t * 1.3) * 0.05);
+      prop.rotation.z += dt * 40;
+      planeShadow.scale.setScalar(1 - S.fly * 0.45);
+    }
+    skyPlane.visible = age > 17 && age < 60 && S.wet < 0.3;
+    skyPlane.position.set(((S.t * 6) % 520) - 260, 78, -330);
+    walker.setOpacity(aboard ? 0 : 1 - smooth(S.fin, 0.2, 0.62));
     // 길이 휘는 쪽으로 몸을 돌린다
     const heading = S.walking ? -Math.atan((lane(S.dist + 2) - lane(S.dist - 2)) / 4) : 0;
     walker.group.rotation.y = lerp(walker.group.rotation.y, heading, damp(dt, 4));
     walker.update(dt, S.t);
     updateParty(dt, wAge);
+    if (aboard) for (const c of comps.values()) if (c.wait == null) c.p.setOpacity(0);
 
     const hgt = heightOf(wAge);
     orbs.forEach((o, i) => {
@@ -645,6 +702,7 @@ export function createWorld(canvas) {
     tp.sub(tl).multiplyScalar(zoom).add(tl);
     tp.x = clamp(tp.x, -3.7, 3.7); // 길가 나무 속으로 들어가지 않게
     scene.fog.near = 55 + tp.length(); scene.fog.far = scene.fog.near + 105;
+    if (S.cam === 'fly') { tp.y += alt; tl.y += alt + 1; }
     if (S.cam === 'finale') tl.y = lerp(1.5, 13, ease(smooth(S.fin, 0.15, 0.9)));
     if (S.cam === 'meet') { let wz = -5; for (const c of comps.values()) if (c.wait != null) wz = clamp(c.z, -14, -2); tl.z = wz * 0.6; }
     tp.y += Math.sin(S.t * 0.8) * 0.05;
@@ -679,6 +737,8 @@ export function createWorld(canvas) {
     setCamera(mode) { S.cam = mode; },
     setInset(b, r) { inset.tb = b; inset.tr = r; },
     setFinale(on) { S.finaleOn = on; },
+    setRivers(list) { if (list.join() !== rivers.join()) { rivers = list; clearSlots(); } },
+    setFly(v) { S.fly = v; },
     setForks(list) {
       const sig = (x) => x.map((f) => f.id + ':' + f.dist).join(',');
       const moved = sig(list) !== sig(forks);
@@ -686,11 +746,11 @@ export function createWorld(canvas) {
       if (moved) clearSlots();
     },
     setDots, setLinks,
-    walkTo(d, secs) {
+    walkTo(d, secs, opts = {}) {
       if (tween) { const r = tween.resolve; tween = null; r(); }
       S.cruise = 0;
       if (Math.abs(d - S.dist) < 0.05) return Promise.resolve();
-      return new Promise((resolve) => { tween = { from: S.dist, to: d, t: 0, dur: secs, resolve }; });
+      return new Promise((resolve) => { tween = { from: S.dist, to: d, t: 0, dur: secs, resolve: () => { S.fly = 0; resolve(); }, fly: !!opts.fly }; });
     },
     setDist(d, walking = true) { if (tween) { const r = tween.resolve; tween = null; r(); } S.cruise = 0; S.dist = d; S.walking = walking; },
     jump(d) {
