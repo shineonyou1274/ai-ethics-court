@@ -151,15 +151,16 @@ function chart(hist) {
     <text x="${pad}" y="13" font-size="12" fill="#2f9e77">▲ 남은 달</text><text x="${pad}" y="${H - 22}" font-size="12" fill="#d9534f">▼ 손해 본 달</text></svg>`;
 }
 function radar(skills) {
-  const W = 360, H = 300, cx = W / 2, cy = H / 2 + 4, R = 100, n = skills.length;
+  const W = 380, H = 330, cx = W / 2, cy = H / 2 + 6, R = 108, n = skills.length;
   const pt = (i, r) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + Math.cos(a) * r, cy + Math.sin(a) * r]; };
   const poly = (r) => skills.map((_, i) => pt(i, r).map((v) => v.toFixed(1)).join(',')).join(' ');
-  const grid = [0.25, 0.5, 0.75, 1].map((k) => `<polygon points="${poly(R * k)}" fill="${k === 1 ? '#fffaf2' : 'none'}" stroke="#eadccb" stroke-width="1.5"/>`).reverse().join('');
+  const grid = [5, 4, 3, 2, 1].map((k) => `<polygon points="${poly(R * k / 5)}" fill="${k === 5 ? '#fffaf2' : 'none'}" stroke="#eadccb" stroke-width="1.5"/>`).join('');
+  const nums = [1, 2, 3, 4, 5].map((k) => `<text x="${cx + 4}" y="${cy - R * k / 5 + 4}" font-size="10" fill="#b3a595">${k}</text>`).join('');
   const spokes = skills.map((_, i) => { const [x, y] = pt(i, R); return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#eadccb" stroke-width="1.5"/>`; }).join('');
-  const shape = skills.map((k, i) => pt(i, R * k.v / 100).map((v) => v.toFixed(1)).join(',')).join(' ');
-  const dots = skills.map((k, i) => { const [x, y] = pt(i, R * k.v / 100); return `<circle cx="${x}" cy="${y}" r="5" fill="#ff8f7a" stroke="#fff" stroke-width="2"/>`; }).join('');
-  const labels = skills.map((k, i) => { const [x, y] = pt(i, R + 26); return `<text x="${x}" y="${y}" text-anchor="middle" font-size="14" fill="#4b3f57" font-family="Jua, sans-serif">${k.name}<tspan x="${x}" dy="15" font-size="13" fill="#e9735e">${k.v}</tspan></text>`; }).join('');
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="창업가 역량 육각형: ${skills.map((k) => `${k.name} ${k.v}`).join(', ')}">${grid}${spokes}<polygon points="${shape}" fill="rgba(255,143,122,.35)" stroke="#ff8f7a" stroke-width="3" stroke-linejoin="round"/>${dots}${labels}</svg>`;
+  const shape = skills.map((k, i) => pt(i, R * k.v / 5).map((v) => v.toFixed(1)).join(',')).join(' ');
+  const dots = skills.map((k, i) => { const [x, y] = pt(i, R * k.v / 5); return `<circle cx="${x}" cy="${y}" r="5" fill="#ff8f7a" stroke="#fff" stroke-width="2"/>`; }).join('');
+  const labels = skills.map((k, i) => { const [x, y] = pt(i, R + 30); return `<text x="${x}" y="${y}" text-anchor="middle" font-size="14" fill="#4b3f57" font-family="Jua, sans-serif">${k.name}<tspan x="${x}" dy="15" font-size="13" fill="#e9735e">${k.v}</tspan></text>`; }).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="창업가 역량 도형(5점 만점): ${skills.map((k) => `${k.name} ${k.v}`).join(', ')}">${grid}${spokes}${nums}<polygon points="${shape}" fill="rgba(255,143,122,.35)" stroke="#ff8f7a" stroke-width="3" stroke-linejoin="round"/>${dots}${labels}</svg>`;
 }
 function finale() {
   const e = ending(S); store.clear(); sync();
@@ -172,10 +173,10 @@ function finale() {
     <div class="chips">
       <span class="chip">💰 가게의 값어치 ${fmt(e.net)}</span><span class="chip">⭐ 신뢰 ${S.trust}</span><span class="chip">👥 팀 행복 ${S.team}</span><span class="chip">💖 나눔 ${S.impact}</span>
     </div>
-    <div class="bubble"><b class="jua">나의 창업가 역량 육각형</b>${radar(e.skills)}
+    <div class="bubble"><b class="jua">나의 창업가 역량 도형</b>${radar(e.skills)}
       <p style="font-size:15px"><b class="jua up">가장 빛난 힘 · ${hi.name}</b><br>${hi.tip}</p>
       <p style="font-size:15px;margin-top:6px"><b class="jua" style="color:var(--coral-d)">다음에 길러 볼 힘 · ${lo.name}</b><br>${lo.tip}</p>
-      <p style="font-size:13.5px;color:var(--soft);margin-top:8px">이 도형은 시험 점수가 아니라 이번 판에서 내가 내린 선택의 흔적이야. 다시 하면 다른 모양이 나와.</p></div>
+      <p style="font-size:13.5px;color:var(--soft);margin-top:8px">5점이 가장 높아. 이 도형은 시험 점수가 아니라 이번 판에서 내가 내린 선택의 흔적이야. 활동지에 옮겨 그려 봐.</p></div>
     <div class="bubble"><b class="jua">달마다 남긴 이익</b>${chart(S.history)}
       <p style="font-size:15px;color:var(--soft)">열두 달 동안 모두 ${fmt(e.total)}을 남겼고, 가장 잘된 달은 ${best.month}개월 차(${fmt(best.profit)})였어.${S.loan ? ' 은행 빚 500만 원이 남아 있어.' : ''}</p></div>
     <div class="concept"><b>🗣 친구들과 이야기해 봐</b>

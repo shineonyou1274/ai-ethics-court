@@ -7,12 +7,18 @@ const BASE = 560; // 신뢰 50일 때 한 달에 찾는 치킨 수
 const CAP = [0, 800, 1300, 2000]; // 가게 크기별로 한 달에 튀길 수 있는 양
 const BUSY = 330; // 알바 한 명이 무리 없이 맡는 양
 
+// 카드별·선택별로 드러나는 역량. P 문제해결 · I 혁신적사고 · C 도전정신 · T 협업능력 · G 성장의지
+const SKILL = [
+  ['', 'C', 'P'], ['', '', 'I'], ['C', 'P', 'I'], ['T', '', ''], ['P', 'C', ''], ['P', '', 'C'],
+  ['C', 'CI', 'P'], ['T', '', 'G'], ['P', '', 'PI'], ['P', '', 'PI'], ['T', '', 'PT'], ['G', 'T', 'C'],
+];
+
 export function newGame(name) {
   return {
     name: name || '우리 치킨', month: 1, cash: 1000, trust: 50, team: 60, impact: 10,
     price: 18000, unitCost: 8000, staff: 2, wage: 110, rent: 150, etc: 60,
     feeRate: 0.1, deliveryShare: 0.2, demand: 1, temp: 1, level: 1,
-    loan: 0, interest: 0, assets: 0, risky: 0, hires: 0, flags: {}, history: [], picks: [], over: null,
+    loan: 0, interest: 0, assets: 0, risky: 0, hires: 0, acts: 0, flags: {}, history: [], picks: [], over: null,
   };
 }
 
@@ -129,6 +135,7 @@ export function act(s, id) {
   const a = actions(s).find((x) => x.id === id);
   if (!a || !a.ok) return false;
   s.cash -= a.cost;
+  s.acts = (s.acts || 0) + 1;
   if (id === 'hire') { s.hires = (s.hires || 0) + 1; s.staff += 1; s.team = clamp(s.team + 5); }
   if (id === 'remodel') { s.level = 2; s.assets += 400; s.trust = clamp(s.trust + 6); s.demand *= 1.15; }
   if (id === 'expand') { s.level = 3; s.assets += 1000; s.rent += 100; s.trust = clamp(s.trust + 5); s.demand *= 1.25; }
@@ -152,16 +159,19 @@ export function ending(s) {
       impact: { icon: '💖', name: '동네의 자랑 사장님', line: '가게가 잘될수록 동네도 좋아졌어. 장사가 세상을 바꿀 수 있다는 걸 보여 줬어.' },
     }[top];
   }
-  // 창업가 역량 여섯 가지. 시험 점수가 아니라 이번 판의 선택이 남긴 흔적이다.
-  const n = Math.max(1, s.history.length), black = s.history.filter((h) => h.profit >= 0).length;
-  const cap = (v) => Math.max(5, Math.min(100, Math.round(v)));
+  // 창업가 역량 일곱 가지(0~5점). 시험 점수가 아니라 이번 판의 선택이 남긴 흔적이다.
+  const n = Math.max(1, s.history.length), black = s.history.filter((h) => h.profit >= 0).length / n;
+  const cnt = (k) => s.picks.reduce((a, p) => a + ((SKILL[p.month - 1] || [])[p.idx] || '').split(k).length - 1, 0);
+  const half = (v) => Math.max(0.5, Math.min(5, Math.round(v * 2) / 2));
+  const alive = s.over !== 'bankrupt';
   const skills = [
-    { key: 'customer', name: '고객 중심', v: cap(s.trust), tip: '손님이 무엇을 원하는지 살피고 믿음을 쌓는 힘' },
-    { key: 'money', name: '돈 관리', v: cap(black / n * 55 + Math.max(0, total) / 80), tip: '들어오는 돈과 나가는 돈을 읽고 이익을 남기는 힘' },
-    { key: 'growth', name: '도전과 성장', v: cap((s.level - 1) * 35 + (s.hires || 0) * 10 + (s.over === 'bankrupt' ? 0 : 10)), tip: '기회를 보고 과감하게 투자해 가게를 키우는 힘' },
-    { key: 'risk', name: '위험 관리', v: cap(100 - (s.risky || 0) * 22 - (s.loan ? 20 : 0)), tip: '잘못될 수 있는 일을 미리 따져 보고 피하는 힘' },
-    { key: 'team', name: '함께 일하기', v: cap(s.team), tip: '같이 일하는 사람을 존중하고 힘을 모으는 힘' },
-    { key: 'social', name: '사회적 가치', v: cap(s.impact * 1.2), tip: '장사로 동네와 환경에 보탬이 되려는 마음' },
+    { name: '자기유능감', v: half(1 + black * 2 + s.trust / 100 * 1.5 + (alive && !s.loan ? 0.5 : 0)), tip: '"나는 해낼 수 있다"는 믿음. 흑자를 낸 달과 손님의 믿음이 쌓일수록 커져.' },
+    { name: '자기주도성', v: half(1 + Math.min(2.5, (s.acts || 0) * 0.6) + (s.name !== '우리 치킨' ? 0.5 : 0) + Math.max(0, 1 - (s.risky || 0) * 0.5)), tip: '시키지 않아도 스스로 정하고 움직이는 힘. 가게를 스스로 키우고, 운에 맡기지 않을수록 커져.' },
+    { name: '성장의지', v: half(1 + (s.level - 1) * 1.2 + (s.hires || 0) * 0.4 + cnt('G') * 0.4 + (alive ? 0.4 : 0)), tip: '지금에 머물지 않고 더 나아지려는 마음. 번 돈을 다시 가게에 들일수록 커져.' },
+    { name: '도전정신', v: half(1 + cnt('C') * 0.5 + (s.level - 1)), tip: '실패할 수 있어도 해 보는 용기. 과감한 투자와 새로운 시도를 고를수록 커져.' },
+    { name: '혁신적사고', v: half(1 + cnt('I') * 0.8), tip: '남들과 다른 방법을 떠올리는 힘. 새 메뉴나 새로운 방식을 고를수록 커져.' },
+    { name: '협업능력', v: half(1 + s.team / 100 * 2.5 + cnt('T') * 0.4), tip: '같이 일하는 사람과 힘을 모으는 능력. 알바생을 존중하는 선택을 할수록 커져.' },
+    { name: '문제해결', v: half(1 + Math.min(3, cnt('P') * 0.5) + black), tip: '문제의 원인을 찾아 바로잡는 힘. 눈앞의 불만 끄지 않고 까닭을 고칠수록 커져.' },
   ];
   return { type, net, total, skills };
 }
