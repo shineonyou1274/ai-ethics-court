@@ -540,13 +540,13 @@ function openMenu() {
   const item = (label, sub, fn) => h('button', { type: 'button', onclick: fn }, label, sub ? h('small', {}, sub) : null);
   dialog('메뉴', [
     h('a', { class: 'manual-link menu-manual', href: 'https://m.blog.naver.com/shineonyou4ever/224474221343', target: '_blank', rel: 'noopener noreferrer' }, '사용 설명서 보기'),
-    item(audio.on ? '♪ 배경 소리 끄기' : '♪ 배경 소리 켜기', '잔잔한 소리가 길을 따라 바뀌어', () => { S.sound = audio.toggle(); save(); $('dlg').close(); }),
+    item(audio.on ? '♪ 배경 음악 끄기' : '♪ 배경 음악 켜기', '화면 위 ♪ 단추로도 켜고 끌 수 있어', () => { S.sound = audio.toggle(); save(); soundIcon(); $('dlg').close(); }),
     item(audio.trackName ? '♪ 내 음악 바꾸기' : '♪ 내 음악 넣기', audio.trackName ? '지금: ' + audio.trackName : '가진 음악 파일(mp3 등)을 배경으로', () => {
       const inp = h('input', { type: 'file', accept: 'audio/*' });
       inp.onchange = () => { const f = inp.files[0]; if (!f) return; audio.useFile(f); S.sound = audio.toggle(true); save(); $('dlg').close(); toast('내 음악을 틀었어. 이 기기를 새로 고치면 다시 골라야 해.'); };
       inp.click();
     }),
-    audio.trackName ? item('♪ 기본 소리로 돌아가기', '', () => { audio.useFile(null); $('dlg').close(); }) : null,
+    audio.trackName ? item('♪ 원래 음악으로 돌아가기', '', () => { audio.useFile(null); audio.probe(); $('dlg').close(); }) : null,
     item('대본 보기·고치기', '지금까지 쓴 장면을 한눈에', openScript),
     S.plan ? item('인생 계획표 고치기', '입학·취업·결혼·은퇴와 이루고 싶은 일을 다시 정해', () => { $('dlg').close(); go(beats.findIndex((x) => x.id === 'plan'), { instant: true }); }) : null,
     item('처음부터 감상하기', '쓴 장면이 영상처럼 이어져', () => { $('dlg').close(); movie.play(); }),
@@ -570,6 +570,8 @@ function openMenu() {
   ], 'menu');
 }
 $('menuBtn').onclick = openMenu;
+function soundIcon() { $('soundBtn').style.opacity = audio.on ? 1 : 0.45; $('soundBtn').setAttribute('aria-label', audio.on ? '배경 음악 끄기' : '배경 음악 켜기'); $('soundBtn').setAttribute('aria-pressed', String(audio.on)); }
+$('soundBtn').onclick = () => { S.sound = audio.toggle(); save(); soundIcon(); toast(audio.on ? '배경 음악을 켰어.' : '배경 음악을 껐어.'); };
 
 audio.probe();
 
@@ -579,6 +581,7 @@ function begin(i) {
   setTimeout(() => { $('title').hidden = true; }, 800);
   $('hud').hidden = false;
   if (S.sound) audio.toggle(true);
+  soundIcon();
   busy = false;
   if (i > 0) go(i, { instant: true });
   else { world.jump(-16); world.state.ageOverride = S.now || 16; go(0); }

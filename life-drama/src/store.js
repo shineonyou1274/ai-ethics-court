@@ -2,7 +2,7 @@
 const KEY = 'lifeDrama.v3';
 
 export function fresh() {
-  return { v: 3, name: '', look: { color: '#ff9f8a', hair: 0 }, now: null, ageBasis: 'man', life: null, title: '', a: {}, at: null, hints: [Math.floor(Math.random() * 6), Math.floor(Math.random() * 6)], seed: Math.floor(Math.random() * 1e9), sound: false };
+  return { v: 3, name: '', look: { color: '#ff9f8a', hair: 0 }, now: null, ageBasis: 'man', life: null, title: '', a: {}, at: null, hints: [Math.floor(Math.random() * 6), Math.floor(Math.random() * 6)], seed: Math.floor(Math.random() * 1e9), sound: true };
 }
 
 export function valid(x) {

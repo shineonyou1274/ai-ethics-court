@@ -1,4 +1,5 @@
-// 잔잔한 배경 소리. 파일 없이 브라우저에서 바로 만든다.
+// 배경 음악. 앱에 담긴 곡을 틀고, 곡을 쓸 수 없으면 브라우저에서 만든 소리로 대신한다.
+import bgmData from './bgm.mp3?inline';
 let ctx = null, master = null, timer = 0, on = false, mood = 0;
 const SCALE = [0, 2, 4, 7, 9, 12, 14, 16];
 
@@ -62,8 +63,12 @@ export const audio = {
     if (!file) { setTrack(null); if (on) tick(); return; }
     setTrack(URL.createObjectURL(file), file.name, true);
   },
-  /** 같은 폴더에 bgm.mp3가 있으면 그 곡을 쓴다. 없으면 조용히 넘어간다. */
+  /** 앱에 담긴 곡을 배경으로 건다. 처음 한 번만 부른다. */
   probe() {
+    if (bgmData) {
+      fetch(bgmData).then((r) => r.blob()).then((b) => { if (!track) setTrack(URL.createObjectURL(b), '', true); }).catch(() => {});
+      return;
+    }
     const el = new Audio();
     el.preload = 'metadata';
     el.oncanplay = () => { if (!track) setTrack('bgm.mp3', 'bgm.mp3', /^https?:/.test(location.protocol)); };
