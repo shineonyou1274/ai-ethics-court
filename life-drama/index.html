@@ -28,18 +28,22 @@
   <div class="title-box">
     <p class="eyebrow">내가 쓰는 한 번뿐인 이야기</p>
     <h1>인생 드라마</h1>
-    <p class="lead">태어난 새벽부터 마지막 별밤까지,<br>오늘 먼저 걸어 보자.</p>
+    <p class="lead">길이 막혀도, 갈라져도 괜찮아.<br>네가 남긴 점들은 언젠가 이어져.</p>
     <button id="startBtn" class="primary">걷기 시작</button>
     <button id="resumeBtn" class="ghost" hidden>이어서 걷기</button>
+    <a class="manual-link" href="https://m.blog.naver.com/shineonyou4ever/224474221343" target="_blank" rel="noopener noreferrer">사용 설명서 보기</a>
     <p class="fine">여기 적는 글은 이 기기에만 남고, 어디로도 보내지 않아.</p>
   </div>
 </section>
+
+<canvas id="constel" hidden aria-label="걸어온 길이 이어진 별자리"></canvas>
 
 <section id="sheet" hidden><div id="card"></div></section>
 
 <section id="movie" hidden>
   <div id="mvTop">
     <span id="mvRec" hidden>● 녹화 중 · 화면을 켜 둬</span>
+    <button id="mvSave" class="pill" hidden>여기까지 저장</button>
     <button id="mvClose" class="pill">닫기</button>
   </div>
   <div id="mvBig" hidden><h2 id="mvBigTitle"></h2><p id="mvBigSub"></p></div>

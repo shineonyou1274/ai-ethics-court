@@ -1,7 +1,7 @@
 // 걷는 세계. 주인공은 제자리에 있고 풍경이 다가온다.
 // 나이가 곧 하루의 시간이다: 새벽에 태어나 별밤에 길을 마친다.
 import * as THREE from 'three';
-import { makeObject, makeArch, cloudGeometry, biomeOf, GLOW } from './prefabs.js';
+import { makeObject, makeArch, makeSign, cloudGeometry, biomeOf, GLOW } from './prefabs.js';
 import { makePerson, makePet, heightOf } from './people.js';
 import { ROLES } from './story.js';
 
@@ -28,6 +28,9 @@ const SKY = [
 ];
 const GROUND = [[0, '#bfe8ae'], [18, '#9bdc97'], [40, '#9fd08a'], [58, '#d6cf86'], [74, '#d9c690'], [95, '#b9bfa6']];
 
+// 갈림길에서 길이 옆으로 휘는 폭, 휘기 시작하는 거리, 휘는 구간의 길이
+const BEND = 13, RAMP0 = 6, RAMP = 30;
+
 const FORM = [[-1.4, 0.5], [1.4, 0.7], [-2.7, 1.2], [2.7, 1.0], [-3.9, 1.9], [3.9, 2.1], [-2.0, 2.7], [2.0, 2.9], [0, 3.3]];
 
 const CAMS = {
@@ -37,6 +40,8 @@ const CAMS = {
   meet: { p: [-3.0, 2.7, 6.8], l: [1.5, 1.2, -2.6] },
   title: { p: [1.6, 2.3, 8.6], l: [0, 2.0, -10] },
   finale: { p: [0, 2.6, 10], l: [0, 1.6, -6] },
+  sky: { p: [0, 2.0, 9], l: [0, 26, -34] },
+  fork: { p: [0, 6.2, 10.5], l: [0, 0.6, -20] },
   high: { p: [0, 15, 17], l: [0, 0, -30] },
 };
 
@@ -112,13 +117,28 @@ export function createWorld(canvas) {
   const groundMat = new THREE.MeshLambertMaterial({ color: '#bfe8ae' });
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(900, 900).rotateX(-Math.PI / 2), groundMat);
   const roadMat = new THREE.MeshLambertMaterial({ color: '#fdebd8' });
-  const road = new THREE.Mesh(new THREE.PlaneGeometry(ROAD, 900).rotateX(-Math.PI / 2), roadMat);
-  road.position.y = 0.04;
   const edgeMat = new THREE.MeshLambertMaterial({ color: '#ffffff' });
-  const edgeGeo = new THREE.PlaneGeometry(0.28, 900).rotateX(-Math.PI / 2);
-  const e1 = new THREE.Mesh(edgeGeo, edgeMat), e2 = new THREE.Mesh(edgeGeo, edgeMat);
-  e1.position.set(-ROAD / 2, 0.07, 0); e2.position.set(ROAD / 2, 0.07, 0);
-  scene.add(ground, road, e1, e2);
+  // 길은 곧은 평면이 아니라, 걸을 때마다 다시 놓이는 띠다. 그래서 굽이치고 갈라질 수 있다.
+  function makeRibbon(n, mat) {
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array((n + 1) * 6), nor = new Float32Array((n + 1) * 6), idx = [];
+    for (let i = 0; i <= n; i++) { nor[i * 6 + 1] = 1; nor[i * 6 + 4] = 1; if (i < n) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+    geo.setIndex(idx);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.frustumCulled = false;
+    scene.add(mesh);
+    return {
+      mesh, n,
+      set(i, xl, xr, y, z) { pos[i * 6] = xl; pos[i * 6 + 1] = y; pos[i * 6 + 2] = z; pos[i * 6 + 3] = xr; pos[i * 6 + 4] = y; pos[i * 6 + 5] = z; },
+      done() { geo.attributes.position.needsUpdate = true; },
+      dispose() { scene.remove(mesh); geo.dispose(); },
+    };
+  }
+  const RN = 100;
+  const road = makeRibbon(RN, roadMat), e1 = makeRibbon(RN, edgeMat), e2 = makeRibbon(RN, edgeMat);
+  scene.add(ground);
 
   // 주인공
   const walker = makePerson({ color: '#ff9f8a' });
@@ -162,6 +182,142 @@ export function createWorld(canvas) {
   const camPos = new THREE.Vector3(), camLook = new THREE.Vector3(), tp = new THREE.Vector3(), tl = new THREE.Vector3();
   const inset = { b: 0, r: 0, tb: 0, tr: 0 };
 
+  // ── 길의 굽이와 갈림길 ──
+  let forks = [];
+  const bendOf = (f, d) => BEND * smooth(d, f.dist + RAMP0, f.dist + RAMP0 + RAMP);
+  const meander = (d) => Math.sin(d * 0.021) * 2.4 + Math.sin(d * 0.0083 + 1.3) * 3.2;
+  function lane(d, skip) {
+    let x = meander(d);
+    for (const f of forks) if (f !== skip && f.done && f.dir) x += f.dir * bendOf(f, d);
+    return x;
+  }
+  let L0 = 0; // 주인공이 선 자리의 굽이. 모든 것은 여기서 본 위치에 놓인다.
+  const inForkZone = (d) => forks.some((f) => d > f.dist + 1 && d < f.dist + RAMP0 + RAMP + 12);
+
+  const forkDecor = new Map();
+  function dropFork(id) {
+    const fd = forkDecor.get(id);
+    if (!fd) return;
+    for (const st of fd.stubs) { st.rib.dispose(); st.e1.dispose(); st.e2.dispose(); scene.remove(st.tree); }
+    for (const sg of fd.signs) { scene.remove(sg.o); sg.o.userData.dispose(); }
+    forkDecor.delete(id);
+  }
+  function syncForks() {
+    for (const f of forks) {
+      const near = f.dist > S.dist - 70 && f.dist < S.dist + AHEAD;
+      const key = f.done + '|' + f.dir;
+      let fd = forkDecor.get(f.id);
+      if (fd && (!near || fd.key !== key)) { dropFork(f.id); fd = null; }
+      if (!near) continue;
+      const active = f.done ? f.dir : 0;
+      if (!fd) {
+        fd = { key, stubs: [], signs: [] };
+        for (const o of f.options) {
+          if (o.dir !== active && !fd.stubs.some((x) => x.dir === o.dir)) {
+            const tree = makeObject(o.dir ? 'round' : 'pine', Math.abs(Math.round(f.dist)) % 6);
+            tree.scale.setScalar(1.5);
+            scene.add(tree);
+            fd.stubs.push({ dir: o.dir, rib: makeRibbon(19, roadMat), e1: makeRibbon(19, edgeMat), e2: makeRibbon(19, edgeMat), tree });
+          }
+          const sg = makeSign(o.label, f.done ? (o.dir === active && o.label === f.chosen ? 'chosen' : 'dim') : 'open');
+          scene.add(sg);
+          fd.signs.push({ dir: o.dir, o: sg, n: fd.signs.filter((x) => x.dir === o.dir).length });
+        }
+        forkDecor.set(f.id, fd);
+      }
+      const base = (d) => lane(d, f) - L0;
+      for (const st of fd.stubs) {
+        for (let i = 0; i <= 19; i++) {
+          const d = f.dist + i * 2;
+          const x = base(d) + st.dir * bendOf(f, d), z = -(d - S.dist);
+          st.rib.set(i, x - ROAD / 2, x + ROAD / 2, 0.035, z);
+          st.e1.set(i, x - ROAD / 2 - 0.14, x - ROAD / 2 + 0.14, 0.06, z);
+          st.e2.set(i, x + ROAD / 2 - 0.14, x + ROAD / 2 + 0.14, 0.06, z);
+        }
+        st.rib.done(); st.e1.done(); st.e2.done();
+        const de = f.dist + 41;
+        st.tree.position.set(base(de) + st.dir * bendOf(f, de), 0, -(de - S.dist));
+      }
+      for (const sg of fd.signs) {
+        const d = f.dist + RAMP0 + (sg.dir ? 20 : 31) + sg.n * 5;
+        const side = sg.dir || -1;
+        sg.o.position.set(base(d) + sg.dir * bendOf(f, d) + side * (ROAD / 2 + 1.3), 0, -(d - S.dist));
+      }
+    }
+    for (const id of [...forkDecor.keys()]) if (!forks.some((f) => f.id === id)) dropFork(id);
+  }
+
+  // ── 길 위에 남긴 점과, 점을 잇는 빛줄기 ──
+  const dots = new Map();
+  const dotGeo = new THREE.SphereGeometry(0.17, 12, 10);
+  const stemGeo = new THREE.CylinderGeometry(0.025, 0.025, 1, 5);
+  const stemMat = new THREE.MeshBasicMaterial({ color: '#fffaf0' });
+  function setDots(list) {
+    const ids = new Set(list.map((x) => x.id));
+    for (const [id, o] of dots) if (!ids.has(id)) { scene.remove(o.g); o.m.material.dispose(); o.halo.material.dispose(); dots.delete(id); }
+    const seen = {};
+    for (const it of list) {
+      const n = (seen[it.dist] = (seen[it.dist] || 0) + 1) - 1;
+      let o = dots.get(it.id);
+      if (!o) {
+        const g = new THREE.Group();
+        const m = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color: it.color, fog: false }));
+        m.position.y = 1.05;
+        const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, color: it.color, transparent: true, opacity: 0.6, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
+        halo.scale.setScalar(1.1); halo.position.y = 1.05;
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.position.y = 0.5;
+        g.add(m, halo, stem); scene.add(g);
+        o = { g, m, halo, born: 0 };
+        dots.set(it.id, o);
+      }
+      o.m.material.color.set(it.color); o.halo.material.color.set(it.color);
+      o.d = it.dist + 2 + n * 1.3;
+      o.side = n % 2 ? -1 : 1;
+    }
+  }
+  const dotX = (o) => lane(o.d) - L0 + o.side * (ROAD / 2 + 0.85);
+  const links = new Map();
+  const LN = 28;
+  function setLinks(list) {
+    const keys = new Set(list.map((l) => l.from + '>' + l.to));
+    for (const [k, o] of links) if (!keys.has(k)) { scene.remove(o.line); o.line.geometry.dispose(); o.line.material.dispose(); links.delete(k); }
+    for (const l of list) {
+      const k = l.from + '>' + l.to;
+      if (links.has(k)) continue;
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array((LN + 1) * 3), 3));
+      const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: l.color || '#ffe9a8', transparent: true, opacity: 0.9, fog: false, depthWrite: false }));
+      line.frustumCulled = false;
+      scene.add(line);
+      links.set(k, { line, a: l.fromDist + 2, b: l.toDist, grow: 0 });
+    }
+  }
+  function updateLights(dt) {
+    for (const o of dots.values()) {
+      o.born = Math.min(1, o.born + dt * 1.6);
+      const k = ease(o.born);
+      o.g.position.set(dotX(o), 0, -(o.d - S.dist));
+      o.g.scale.setScalar(0.3 + 0.7 * k);
+      o.halo.scale.setScalar(1.1 + Math.sin(S.t * 2.2 + o.d) * 0.18);
+    }
+    for (const o of links.values()) {
+      o.grow = Math.min(1, o.grow + dt * 0.55);
+      const arr = o.line.geometry.attributes.position.array;
+      const len = Math.abs(o.b - o.a), H = Math.min(11, 2.6 + len * 0.03);
+      const xa = lane(o.a) - L0 + ROAD / 2 + 0.85, xb = lane(o.b) - L0;
+      for (let i = 0; i <= LN; i++) {
+        const t = i / LN, d = lerp(o.a, o.b, t);
+        arr[i * 3] = lerp(xa, xb, t) + (lane(d) - L0 - lerp(lane(o.a) - L0, lane(o.b) - L0, t)) * 0.6;
+        arr[i * 3 + 1] = lerp(1.05, 1.5, t) + Math.sin(Math.PI * t) * H;
+        arr[i * 3 + 2] = -(d - S.dist);
+      }
+      o.line.geometry.attributes.position.needsUpdate = true;
+      o.line.geometry.setDrawRange(0, Math.max(2, Math.round((LN + 1) * ease(o.grow))));
+      o.line.material.opacity = 0.65 + Math.sin(S.t * 1.8 + o.a) * 0.2;
+    }
+  }
+
   function ageAt(d) {
     if (d <= stops[0].dist) return stops[0].age;
     for (let i = 1; i < stops.length; i++) {
@@ -187,14 +343,15 @@ export function createWorld(canvas) {
     const biome = biomeOf(ageAt(d));
     for (const side of [-1, 1]) {
       const s = k * 2 + side;
-      if (hash(s * 1.37) < 0.82) {
+      const zone = inForkZone(d);
+      if (!zone && hash(s * 1.37) < 0.82) {
         const type = biome.near[Math.floor(hash(s * 3.11) * 6)];
         const tight = type === 'fence' || type === 'lamp' || type === 'lantern';
         const x = side * (ROAD / 2 + (tight ? 0.9 : 1.5 + hash(s * 7.7) * 2.6));
         const ry = type === 'lamp' ? (side > 0 ? Math.PI : 0) : type === 'fence' ? 0 : type === 'bench' || type === 'busstop' ? -side * Math.PI / 2 : hash(s * 5.1) * 6.28;
         place(list, type, Math.floor(hash(s * 9.9) * 6), d + hash(s * 2.9) * 3, x, ry);
       }
-      if ((k & 1) === 0) {
+      if (!zone && (k & 1) === 0) {
         const type = biome.big[Math.floor(hash(s * 4.71) * 6)];
         const x = side * (ROAD / 2 + 8.5 + hash(s * 6.3) * 4.5);
         place(list, type, Math.floor(hash(s * 8.3) * 6), d, x, -side * Math.PI / 2);
@@ -233,7 +390,7 @@ export function createWorld(canvas) {
     }
     for (const [key, o] of marks) {
       if (!want.has(key)) { scene.remove(o); if (o.userData.dispose) o.userData.dispose(); marks.delete(key); continue; }
-      o.position.set(o.userData.x, 0, -(o.userData.d - S.dist));
+      o.position.set(o.userData.x + lane(o.userData.d) - L0, 0, -(o.userData.d - S.dist));
     }
   }
 
@@ -284,7 +441,7 @@ export function createWorld(canvas) {
         if (c.leaving > 0.3 && !c.spirit) { c.spirit = true; addSpirit(c.x, c.z); }
         if (c.leaving >= 1) { scene.remove(p.group); p.dispose(); comps.delete(id); continue; }
       } else if (c.wait != null) {
-        c.x = lerp(c.x, 3.0, damp(dt, 3)); c.z = -(c.wait - S.dist);
+        c.x = lerp(c.x, 3.0 + lane(c.wait) - L0, damp(dt, 6)); c.z = -(c.wait - S.dist);
         p.walking = false; p.waving = c.z > -16;
         p.group.rotation.y = lerp(p.group.rotation.y, Math.PI * 0.92, damp(dt, 4));
         p.setOpacity(1);
@@ -431,7 +588,18 @@ export function createWorld(canvas) {
     for (const k of [...slots.keys()]) if (k < k0 || k > k1) dropSlot(k);
     let made = 0;
     for (let k = k0; k <= k1; k++) if (!slots.has(k)) { fillSlot(k); if (++made > 6 && !camSnap) break; }
-    for (const list of slots.values()) for (const it of list) it.o.position.set(it.x, 0, -(it.d - S.dist));
+    L0 = lane(S.dist);
+    for (const list of slots.values()) for (const it of list) it.o.position.set(it.x + lane(it.d) - L0, 0, -(it.d - S.dist));
+    const rb = Math.floor(S.dist / 2) * 2 - 30;
+    for (let i = 0; i <= RN; i++) {
+      const d = rb + i * 2, x = lane(d) - L0, z = -(d - S.dist);
+      road.set(i, x - ROAD / 2, x + ROAD / 2, 0.04, z);
+      e1.set(i, x - ROAD / 2 - 0.14, x - ROAD / 2 + 0.14, 0.07, z);
+      e2.set(i, x + ROAD / 2 - 0.14, x + ROAD / 2 + 0.14, 0.07, z);
+    }
+    road.done(); e1.done(); e2.done();
+    syncForks();
+    updateLights(dt);
     syncMarks();
 
     // 주인공
@@ -440,8 +608,9 @@ export function createWorld(canvas) {
     walker.walking = S.walking;
     walker.umbrella = S.wet > 0.5;
     walker.setOpacity(1 - smooth(S.fin, 0.2, 0.62));
-    const faceCam = (S.cam === 'front' || S.cam === 'title') && !S.walking ? 0 : 0;
-    walker.group.rotation.y = lerp(walker.group.rotation.y, faceCam, damp(dt, 4));
+    // 길이 휘는 쪽으로 몸을 돌린다
+    const heading = S.walking ? -Math.atan((lane(S.dist + 2) - lane(S.dist - 2)) / 4) : 0;
+    walker.group.rotation.y = lerp(walker.group.rotation.y, heading, damp(dt, 4));
     walker.update(dt, S.t);
     updateParty(dt, wAge);
 
@@ -510,6 +679,13 @@ export function createWorld(canvas) {
     setCamera(mode) { S.cam = mode; },
     setInset(b, r) { inset.tb = b; inset.tr = r; },
     setFinale(on) { S.finaleOn = on; },
+    setForks(list) {
+      const sig = (x) => x.map((f) => f.id + ':' + f.dist).join(',');
+      const moved = sig(list) !== sig(forks);
+      forks = list;
+      if (moved) clearSlots();
+    },
+    setDots, setLinks,
     walkTo(d, secs) {
       if (tween) { const r = tween.resolve; tween = null; r(); }
       S.cruise = 0;

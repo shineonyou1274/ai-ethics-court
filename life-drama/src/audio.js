@@ -36,6 +36,24 @@ export const audio = {
     }
     return on;
   },
+  /** 완성 영상을 미리 볼 때 배경 소리가 겹치지 않게 잠시 줄인다. */
+  previewMute(v) { if (master) master.gain.value = v ? 0 : 0.6; },
+  /** 녹화에 넣을 소리 줄기. 다 쓰면 release()로 끊는다. */
+  recordAudio() {
+    if (!on || !ctx || !master || typeof ctx.createMediaStreamDestination !== 'function') return null;
+    const dest = ctx.createMediaStreamDestination();
+    master.connect(dest);
+    let released = false;
+    return {
+      stream: dest.stream,
+      release() {
+        if (released) return;
+        released = true;
+        try { master.disconnect(dest); } catch (e) { /* 이미 끊김 */ }
+        dest.stream.getTracks().forEach((t) => t.stop());
+      },
+    };
+  },
   /** 0(새벽) ~ 1(별밤). 밤이 될수록 낮고 느려진다. */
   setMood(m) { mood = Math.min(1, Math.max(0, m)); },
 };

@@ -216,6 +216,34 @@ export function makeArch(label, half = 4.7) {
   return g;
 }
 
+/** 갈림길 팻말. 고른 길은 금빛 테두리, 가지 않은 길은 흐리게. */
+export function makeSign(text, mode = 'open') {
+  const g = new THREE.Group();
+  const pole = new THREE.Mesh(merge([cyl(0.07, 0.09, 2.5, '#c9a98a', 0, 1.25, 0, 6)]), MAT);
+  g.add(pole);
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 208;
+  const x = c.getContext('2d');
+  const words = String(text).split(' ');
+  const lines = [''];
+  for (const w of words) { if ((lines[lines.length - 1] + ' ' + w).trim().length > 9 && lines[lines.length - 1]) lines.push(w); else lines[lines.length - 1] = (lines[lines.length - 1] + ' ' + w).trim(); }
+  if (lines.length > 2) { lines[1] = lines.slice(1).join(' '); lines.length = 2; }
+  x.fillStyle = mode === 'chosen' ? '#fff7dc' : '#fffdf8';
+  x.beginPath(); x.roundRect(8, 8, 496, 192, 44); x.fill();
+  x.lineWidth = 10; x.strokeStyle = mode === 'chosen' ? '#f5b942' : '#c9bfb4'; x.stroke();
+  x.fillStyle = '#3a3448'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '700 ' + (lines.length > 1 ? 56 : 64) + 'px "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+  lines.forEach((l, i) => x.fillText(l, 256, 104 + (i - (lines.length - 1) / 2) * 70, 470));
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, fog: false, transparent: true, opacity: mode === 'dim' ? 0.5 : 1 }));
+  sp.scale.set(3.3, 1.34, 1);
+  sp.position.set(0, 3.0, 0);
+  g.add(sp);
+  g.userData.dispose = () => { tex.dispose(); sp.material.dispose(); pole.geometry.dispose(); };
+  return g;
+}
+
 export function cloudGeometry(v) {
   return merge([blob(2.2, '#fff', 0, 0, 0, 1.4, 0.7, 1), blob(1.6, '#fff', 2.2, -0.2, 0.3, 1.2, 0.7, 1), blob(1.4, '#fff', -2.1, -0.3, -0.2, 1.2, 0.65, 1), blob(1.3, '#fff', 0.6 + (v % 2), 0.8, 0, 1, 0.7, 1)]);
 }

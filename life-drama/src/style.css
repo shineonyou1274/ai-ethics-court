@@ -158,6 +158,30 @@ video { width: 100%; border-radius: 14px; background: #000; max-height: 56dvh; }
 #toast { position: fixed; left: 50%; top: calc(74px + var(--safe-t)); transform: translateX(-50%); z-index: 20; background: #3a3448ee; color: #fff; padding: 11px 18px; border-radius: 14px; font-size: 15px; max-width: calc(100vw - 32px); text-align: center; }
 #print { display: none; }
 
+.manual-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 6px 12px; color: #6f587d; font-size: 15px; text-underline-offset: 4px; touch-action: manipulation; }
+.title-box > .manual-link { margin-top: 8px; }
+.title-box > .manual-link + .fine { margin-top: 4px; }
+.menu .menu-manual { display: flex; justify-content: flex-start; border-bottom: 1px solid var(--line); margin-bottom: 6px; padding: 10px 14px; font-size: 17px; min-height: 48px; }
+#constel { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+select { width: 100%; min-height: 50px; border: 1.5px solid var(--line); border-radius: 16px; background: #fff; padding: 10px 12px; font: inherit; font-size: 17px; color: inherit; }
+.plan-row { flex-wrap: wrap; }
+.plan-row .tog { flex: 1 1 0; min-width: 0; }
+.plan-row .tog span { min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
+.plan-row small { color: var(--soft); font-size: 14px; }
+.plan-row .note { flex-basis: 100%; padding: 0 8px 2px; }
+.plan-row .note:empty { display: none; }
+.mini input[type='number'] { width: 62px; min-height: 48px; padding: 6px 4px; text-align: center; font-family: var(--title); font-size: 20px; border-radius: 12px; -moz-appearance: textfield; }
+.mini input[type='number']::-webkit-outer-spin-button, .mini input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.tog i { font-weight: 700; }
+.tog[aria-pressed='mixed'] i { background: #fff; color: var(--accent); }
+.tog[aria-pressed='false'] i { border-color: #c9bfc9; color: #a79fb2; }
+.chip.dotpick { text-align: left; border-radius: 16px; line-height: 1.35; }
+.chip.dotpick small { display: block; font-size: 13px; color: var(--soft); font-weight: 400; }
+.links { margin: 6px 0 0; padding: 0; list-style: none; }
+.links li { padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 16px; overflow-wrap: anywhere; }
+.links li b { color: var(--accent); }
+body[data-turning='1'] #card .eyebrow { color: #e0705c; }
+
 /* ── 넓은 화면: 카드를 오른쪽에 세운다 ── */
 @media (min-width: 900px) {
   #sheet { left: auto; right: 28px; top: 0; bottom: 0; width: 440px; display: flex; align-items: center; padding: 90px 0 28px; }
