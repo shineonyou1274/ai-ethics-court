@@ -12,8 +12,28 @@ function note(freq, when, len, vol, type = 'sine') {
   o.start(when); o.stop(when + len + 0.05);
 }
 
+// 내 음악: 파일을 고르거나, 같은 폴더에 bgm.mp3를 두면 만든 소리 대신 그 곡이 흐른다.
+let track = null, trackNode = null, trackName = '';
+function ensureCtx() {
+  if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); master = ctx.createGain(); master.gain.value = 0.6; master.connect(ctx.destination); }
+  ctx.resume();
+}
+function setTrack(url, name, routed) {
+  if (track) { track.pause(); if (trackNode) { try { trackNode.disconnect(); } catch (e) { /* 이미 끊김 */ } } }
+  track = null; trackNode = null; trackName = '';
+  if (!url) return;
+  const el = new Audio(url);
+  el.loop = true; el.preload = 'auto'; el.volume = 0.7;
+  track = el; trackName = name;
+  if (routed) {
+    // 녹화에 함께 담기도록 소리 줄기에 잇는다(같은 출처의 파일만 가능)
+    try { ensureCtx(); trackNode = ctx.createMediaElementSource(el); trackNode.connect(master); el.volume = 1; } catch (e) { trackNode = null; }
+  }
+  if (on) { clearTimeout(timer); el.play().catch(() => {}); }
+}
+
 function tick() {
-  if (!on) return;
+  if (!on || track) return;
   const t = ctx.currentTime;
   const base = 261.63 * Math.pow(2, -mood * 0.42);
   const n = SCALE[Math.floor(Math.random() * SCALE.length)];
@@ -30,14 +50,28 @@ export const audio = {
     clearTimeout(timer);
     if (on) {
       try {
-        if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); master = ctx.createGain(); master.gain.value = 0.6; master.connect(ctx.destination); }
-        ctx.resume(); tick();
+        ensureCtx();
+        if (track) track.play().catch(() => {}); else tick();
       } catch (e) { on = false; }
-    }
+    } else if (track) track.pause();
     return on;
   },
+  get trackName() { return trackName; },
+  /** 학생이나 선생님이 고른 음악 파일을 배경으로 쓴다. null이면 만든 소리로 돌아간다. */
+  useFile(file) {
+    if (!file) { setTrack(null); if (on) tick(); return; }
+    setTrack(URL.createObjectURL(file), file.name, true);
+  },
+  /** 같은 폴더에 bgm.mp3가 있으면 그 곡을 쓴다. 없으면 조용히 넘어간다. */
+  probe() {
+    const el = new Audio();
+    el.preload = 'metadata';
+    el.oncanplay = () => { if (!track) setTrack('bgm.mp3', 'bgm.mp3', /^https?:/.test(location.protocol)); };
+    el.onerror = () => {};
+    el.src = 'bgm.mp3';
+  },
   /** 완성 영상을 미리 볼 때 배경 소리가 겹치지 않게 잠시 줄인다. */
-  previewMute(v) { if (master) master.gain.value = v ? 0 : 0.6; },
+  previewMute(v) { if (master) master.gain.value = v ? 0 : 0.6; if (track && !trackNode) track.volume = v ? 0 : 0.7; },
   /** 녹화에 넣을 소리 줄기. 다 쓰면 release()로 끊는다. */
   recordAudio() {
     if (!on || !ctx || !master || typeof ctx.createMediaStreamDestination !== 'function') return null;

@@ -1,7 +1,7 @@
 // 흐름 지휘: 걷기 → 질문 카드 → 답 저장 → 다음 걸음.
 import './style.css';
 import { createWorld } from './world.js';
-import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf, flightInto, riversOf } from './story.js';
+import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf, flightInto, riversOf, tunnelsOf, summitOf, WISHES } from './story.js';
 import { drawConstel, constelImage } from './constel.js';
 import * as store from './store.js';
 import { createMovie } from './movie.js';
@@ -71,6 +71,8 @@ function lights(i) {
   const b = beats[i];
   const upto = b.back ? Infinity : b.dist;
   world.setRivers(riversOf(beats));
+  world.setTunnels(tunnelsOf(beats));
+  world.setSummit(summitOf(beats));
   world.setForks(forksOf(S, beats).map((f) => (f.dist > upto ? { ...f, done: false, dir: 0, chosen: '' } : f)));
   world.setDots(dotsAt(S, beats, b.back ? beats.length : i));
   world.setLinks(linksOf(S, beats).filter((l) => l.toDist <= upto));
@@ -177,28 +179,46 @@ function showCard(b) {
     const draw = () => box.replaceChildren(...rows.map((r) => {
       const note = h('small', { class: 'note' }, '');
       const feedback = () => {
-        note.textContent = r.on && (!Number.isInteger(r.age) || (r.k === 'customEvent' && !r.title.trim()))
-          ? (r.k === 'customEvent' ? '나이와 제목을' : '나이를') + ' 정하면 장면이 생겨. 지금은 비워 두고 출발해도 돼.'
+        note.textContent = r.on && (!Number.isInteger(r.age) || (r.extra && !r.title.trim()))
+          ? (r.extra ? '나이와 제목을' : '나이를') + ' 정하면 장면이 생겨. 지금은 비워 두고 출발해도 돼.'
           : r.on && Number.isInteger(r.age) && r.age <= S.now ? '지나온 나이 · 미래 장면 없음' : '';
       };
       const age = h('input', { type: 'number', min: 1, max: 100, step: 1, value: r.age ?? '', inputMode: 'numeric', 'aria-label': r.label + ' 나이', placeholder: '미정',
         oninput: () => { const v = Number(age.value); r.age = age.value.trim() && Number.isInteger(v) && v >= 1 && v <= 100 ? v : null; feedback(); } });
-      const title = r.k === 'customEvent' ? h('input', { type: 'text', maxLength: 24, value: r.title, 'aria-label': '나만의 사건 제목', placeholder: '예: 첫 여행, 책 출간', oninput: () => { r.title = title.value; feedback(); } }) : null;
+      const title = r.extra ? h('input', { type: 'text', maxLength: 24, value: r.title, 'aria-label': '이루고 싶은 일', placeholder: '예: 첫 여행, 책 출간', oninput: () => { r.title = r.label = title.value; feedback(); } }) : null;
       feedback();
       const bump = (dv) => { r.age = Number.isInteger(r.age) ? Math.min(100, Math.max(1, r.age + dv)) : Math.min(100, (S.now || 15) + 1); draw(); };
       return h('div', { class: 'plan-row' + (r.status === 'no' ? ' off' : '') },
         h('button', { class: 'tog', type: 'button', 'aria-pressed': r.status === 'yes' ? 'true' : r.status === 'maybe' ? 'mixed' : 'false', 'aria-label': r.label + ' ' + LABELS[r.status] + ' · 누르면 바뀜',
           onclick: () => { r.status = r.status === 'maybe' ? 'yes' : r.status === 'yes' ? 'no' : 'maybe'; r.on = r.status === 'yes'; draw(); } },
-          h('i', {}, r.status === 'yes' ? '✓' : r.status === 'maybe' ? '?' : '−'), h('span', {}, r.label, h('small', { style: 'display:block;font-weight:400' }, LABELS[r.status]))),
+          h('i', {}, r.status === 'yes' ? '✓' : r.status === 'maybe' ? '?' : '−'), h('span', {}, r.extra ? (r.fly ? '✈ 하고 싶은 일' : '하고 싶은 일') : r.label, h('small', { style: 'display:block;font-weight:400' }, LABELS[r.status]))),
         h('div', { class: 'mini' },
           h('button', { type: 'button', 'aria-label': r.label + ' 한 살 앞으로', onclick: () => bump(-1) }, '−'), age, h('small', {}, '살'),
           h('button', { type: 'button', 'aria-label': r.label + ' 한 살 뒤로', onclick: () => bump(1) }, '+')),
-        title ? h('label', { class: 'field', style: 'flex-basis:100%;margin:2px 4px 6px' }, title) : null,
+        title ? h('div', { style: 'flex-basis:100%;display:flex;gap:6px;margin:2px 4px 6px' }, title, h('button', { class: 'link', type: 'button', 'aria-label': r.label + ' 지우기', style: 'flex:none', onclick: () => { rows.splice(rows.indexOf(r), 1); draw(); drawWish(); } }, '지우기')) : null,
         note);
     }));
     draw();
-    body.push(h('p', { class: 'hint' }, '나이 기준: ' + (S.ageBasis === 'man' ? '만 나이' : S.ageBasis === 'korean' ? '세는나이' : '기존 기록 기준') + ' · 왼쪽 단추를 누르면 계획함 → 안 함 → 미정으로 바뀌어. 계획함이고 나이를 정했을 때만 장면이 생겨.'), box);
-    collect = () => ({ plan: { ...(S.plan || {}), ...Object.fromEntries(rows.map((r) => [r.k, { on: r.on, status: r.status, age: r.age, ...(r.k === 'customEvent' ? { title: r.title } : {}) }])) } });
+    // 이루고 싶은 일 더하기: 고르면 계획표에 줄이 생긴다
+    const wish = h('div', { class: 'chips' });
+    const wishInput = h('input', { type: 'text', maxLength: 24, placeholder: '직접 쓰기 (예: 내 가게 열기)', autocomplete: 'off' });
+    const addWish = (title, age, fly) => {
+      if (rows.filter((r) => r.extra).length >= 8) { toast('여덟 개까지 더할 수 있어.'); return; }
+      const id = Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+      rows.push({ k: 'x' + id, id, extra: true, label: title, title, status: 'yes', on: true, age: Math.min(100, Math.max((S.now || 15) + 1, age)), fly: !!fly });
+      draw(); drawWish();
+    };
+    const drawWish = () => wish.replaceChildren(...WISHES.filter(([t]) => !rows.some((r) => r.extra && r.title === t)).map(([t, age, fly]) => chip((fly ? '✈ ' : '+ ') + t, false, () => addWish(t, age, fly), 'starter')));
+    drawWish();
+    body.push(h('p', { class: 'hint' }, '나이 기준: ' + (S.ageBasis === 'man' ? '만 나이' : S.ageBasis === 'korean' ? '세는나이' : '기존 기록 기준') + ' · 왼쪽 단추를 누르면 계획함 → 안 함 → 미정으로 바뀌어. 계획함이고 나이를 정했을 때만 장면이 생겨.'), box,
+      h('div', { class: 'field' }, h('span', {}, '이루고 싶은 일 더하기 · ✈는 비행기를 타고 가는 일'), wish),
+      h('div', { style: 'display:flex;gap:6px;margin-top:8px' }, wishInput, h('button', { class: 'chip', type: 'button', style: 'flex:none', onclick: () => { const t = wishInput.value.trim(); if (!t) return; addWish(t, (S.now || 15) + 10, /여행|유학|해외|세계/.test(t)); wishInput.value = ''; } }, '더하기')));
+    collect = () => {
+      const plan = { ...(S.plan || {}), ...Object.fromEntries(rows.filter((r) => !r.extra).map((r) => [r.k, { on: r.on, status: r.status, age: r.age }])) };
+      delete plan.customEvent;
+      plan.extras = rows.filter((r) => r.extra).map((r) => ({ id: r.id, title: r.title.trim(), age: r.age, status: r.status, fly: r.fly }));
+      return { plan };
+    };
   } else if (b.type === 'constel') {
     const ls = linksOf(S, beats);
     body.push(ls.length
@@ -284,7 +304,7 @@ function showCard(b) {
   card.className = b.type === 'plan' ? 'tall' : '';
   card.replaceChildren(
     h('div', { class: 'scroll' },
-      h('p', { class: 'eyebrow' }, b.act === 0 || b.type === 'say' || b.type === 'constel' ? act : b.fork ? `갈림길 · ${b.age}살` : b.turning ? `새로 난 길 · ${b.age}살` : b.surprise ? `뜻밖의 질문 · ${b.age}살` : `${act} · ${b.age}살`),
+      h('p', { class: 'eyebrow' }, b.act === 0 || b.type === 'say' || b.type === 'constel' ? act : b.fork ? `갈림길 · ${b.age}살` : b.turning ? `새로 난 길 · ${b.age}살` : b.sudden ? `갑작스러운 일 · ${b.age}살` : b.surprise ? `뜻밖의 질문 · ${b.age}살` : `${act} · ${b.age}살`),
       h('h2', {}, b.q),
       b.hint ? h('p', { class: 'hint' }, b.hint) : null,
       body),
@@ -521,8 +541,14 @@ function openMenu() {
   dialog('메뉴', [
     h('a', { class: 'manual-link menu-manual', href: 'https://m.blog.naver.com/shineonyou4ever/224474221343', target: '_blank', rel: 'noopener noreferrer' }, '사용 설명서 보기'),
     item(audio.on ? '♪ 배경 소리 끄기' : '♪ 배경 소리 켜기', '잔잔한 소리가 길을 따라 바뀌어', () => { S.sound = audio.toggle(); save(); $('dlg').close(); }),
+    item(audio.trackName ? '♪ 내 음악 바꾸기' : '♪ 내 음악 넣기', audio.trackName ? '지금: ' + audio.trackName : '가진 음악 파일(mp3 등)을 배경으로', () => {
+      const inp = h('input', { type: 'file', accept: 'audio/*' });
+      inp.onchange = () => { const f = inp.files[0]; if (!f) return; audio.useFile(f); S.sound = audio.toggle(true); save(); $('dlg').close(); toast('내 음악을 틀었어. 이 기기를 새로 고치면 다시 골라야 해.'); };
+      inp.click();
+    }),
+    audio.trackName ? item('♪ 기본 소리로 돌아가기', '', () => { audio.useFile(null); $('dlg').close(); }) : null,
     item('대본 보기·고치기', '지금까지 쓴 장면을 한눈에', openScript),
-    S.plan ? item('인생 계획표 고치기', '고입·대입·취업·결혼·자녀·은퇴를 따로 정해', () => { $('dlg').close(); go(beats.findIndex((x) => x.id === 'plan'), { instant: true }); }) : null,
+    S.plan ? item('인생 계획표 고치기', '입학·취업·결혼·은퇴와 이루고 싶은 일을 다시 정해', () => { $('dlg').close(); go(beats.findIndex((x) => x.id === 'plan'), { instant: true }); }) : null,
     item('처음부터 감상하기', '쓴 장면이 영상처럼 이어져', () => { $('dlg').close(); movie.play(); }),
     item('내 별자리 보기', '이어진 점들을 한 장으로', openConstel),
     item('영상으로 저장', '일반 · 2배 · 4배 녹화 선택', recordOptions),
@@ -544,6 +570,8 @@ function openMenu() {
   ], 'menu');
 }
 $('menuBtn').onclick = openMenu;
+
+audio.probe();
 
 // ── 시작 ──
 function begin(i) {

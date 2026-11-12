@@ -42,30 +42,56 @@ const HINTS = [
 ];
 
 const PLAN = [
-  ['highschool', '고입 · 고등학교', 16],
+  ['middle', '중학교 입학', 13],
+  ['highschool', '고등학교 입학', 16],
   ['school', '대입 · 고교 이후 진로', 19],
   ['job', '취업', 26],
   ['marry', '결혼·동반자', 31],
   ['home', '자녀', 35],
   ['retire', '은퇴', 65],
-  ['customEvent', '나만의 사건', 25],
 ];
+const EDU = ['middle', 'highschool', 'school'];
+/** 계획표에 더할 수 있는 '이루고 싶은 일'. fly: 그 장면까지 비행기를 타고 간다. */
+export const WISHES = [
+  ['집 장만', 38], ['자동차 구입', 28], ['세계여행', 30, true], ['부모님 여행 보내 드리기', 32, true], ['유학·해외에서 살아 보기', 24, true],
+  ['특허 등록', 33], ['창업', 35], ['책 출간', 40], ['대학원·다시 공부', 30], ['이직', 34],
+  ['반려동물 입양', 27], ['마라톤 완주', 29], ['무대에 서기', 26], ['봉사·기부', 45], ['귀촌·시골살이', 60],
+];
+const basisOf = (S) => (S.ageBasis === 'korean' ? 1 : 0);
+/** 이미 지난 입학(중학교·고등학교)은 계획이 아니라 지나온 길의 장면이 된다. */
+export const pastEdu = (S) => { const now = S.now ?? 15, b = basisOf(S); return { middle: now >= 13 + b ? 13 + b : null, highschool: now >= 16 + b ? 16 + b : null }; };
 /**
  * 굵직한 사건의 계획표. 사건마다 계획함(yes)·미정(maybe)·안 함(no) 세 상태가 있고,
  * 나이는 비워 둘 수 있다. 계획함이고 나이가 정해졌을 때만 장면이 생긴다.
+ * 학생이 더한 '이루고 싶은 일'은 extra 줄로 뒤에 붙는다.
  */
 export function planOf(S) {
   const now = S.now ?? 15;
-  const basis = S.ageBasis === 'korean' ? 1 : 0;
+  const basis = basisOf(S);
+  const past = pastEdu(S);
   const valid = (v) => Number.isInteger(v) && v >= 1 && v <= 100;
-  return PLAN.map(([k, label, def]) => {
+  const rows = PLAN.filter(([k]) => past[k] == null).map(([k, label, def]) => {
     const p = (S.plan || {})[k];
-    const education = k === 'highschool' || k === 'school';
     const status = p?.status || (p ? (p.on === false ? 'no' : 'yes') : 'maybe');
-    const age = p && Object.prototype.hasOwnProperty.call(p, 'age') ? (valid(p.age) ? p.age : null) : education ? def + basis : Math.min(100, Math.max(now + 1, def));
-    return { k, label, status, on: status === 'yes', age, title: typeof p?.title === 'string' ? p.title : '' };
+    const age = p && Object.prototype.hasOwnProperty.call(p, 'age') ? (valid(p.age) ? p.age : null) : EDU.includes(k) ? def + basis : Math.min(100, Math.max(now + 1, def));
+    return { k, label, status, on: status === 'yes', age, title: '' };
   });
+  const legacy = (S.plan || {}).customEvent;
+  const extras = [...(((S.plan || {}).extras) || [])];
+  if (legacy && typeof legacy.title === 'string' && legacy.title.trim() && !extras.some((x) => x.id === 'customEvent')) extras.push({ id: 'customEvent', title: legacy.title, age: legacy.age, status: legacy.status || 'yes' });
+  for (const x of extras.slice(0, 8)) {
+    const status = x.status || 'yes';
+    rows.push({ k: x.id === 'customEvent' ? 'customEvent' : 'x' + x.id, id: x.id, extra: true, label: x.title, title: x.title, status, on: status === 'yes', age: valid(x.age) ? x.age : null, fly: !!x.fly });
+  }
+  return rows;
 }
+
+// 같은 씨앗이면 같은 순서, 새로 시작하면 다른 순서가 나오는 난수
+function rng(seed) {
+  let a = (seed >>> 0) || 1;
+  return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const SCHOOL_WAYS = [{ k: 'general', label: '일반 학교' }, { k: 'alt', label: '대안학교' }, { k: 'home', label: '홈스쿨링' }, { k: 'other', label: '다른 배움의 길' }];
 
 const opt = (k, label, role) => ({ k, label: label || ROLES[k].label, role: role || k });
 const snip = (t, n = 14) => { t = String(t || '').trim().replace(/\s+/g, ' '); return t.length > n ? t.slice(0, n) + '…' : t; };
@@ -111,6 +137,19 @@ export function build(S) {
   if (now > 4) add({ id: 'childhood4', act: 1, age: 4, type: 'text', scene: true, optional: true, dot: '어릴 적 놀이', title: '어릴 적 나', q: '4살 무렵, 너는 어떤 아이였어?', hint: '좋아하던 놀이가 있다면 떠올려 봐. 기억나지 않으면 비워 두거나 건너뛰어도 돼.', starters: ['그때 나는 '] });
   if (now > 7) add({ id: 'childhood7', act: 1, age: 7, type: 'text', scene: true, optional: true, dot: '어린 날의 나', title: '조금 자란 나', q: '7살 무렵, 너는 어떤 아이였어?', hint: '자주 하던 일이나 함께 놀던 모습을 떠올려 봐. 기억나지 않으면 비워 두거나 건너뛰어도 돼.', starters: ['그때 나는 '] });
 
+  const past = pastEdu(S);
+  if (past.middle != null) add({
+    id: 'middle', act: 1, age: past.middle, type: 'chips', scene: true, optional: true, dot: '중학교', title: '중학교 입학', max: 1, min: 0,
+    q: `${past.middle}살, 중학생이 되는 나이였어. 너는 어떤 길로 배웠어?`, hint: '학교에 다니지 않고 배운 길도 똑같이 네 길이야.',
+    options: SCHOOL_WAYS, custom: '직접 쓰기', text: '그때 가장 기억나는 일 (선택)',
+  });
+  if (past.highschool != null) add({
+    id: 'highschool', act: 1, age: past.highschool, type: 'chips', scene: true, optional: true, dot: '고등학교', title: '고등학교 입학', max: 1, min: 0,
+    q: `${past.highschool}살, 고등학생이 되는 나이였어. 너는 어떤 길을 골랐어?`, hint: '검정고시나 홈스쿨링도 괜찮아.',
+    options: [{ k: 'general', label: '일반고' }, { k: 'vocational', label: '특성화고·마이스터고' }, { k: 'alt', label: '대안학교' }, { k: 'home', label: '홈스쿨링·검정고시' }, { k: 'other', label: '다른 배움의 길' }],
+    custom: '직접 쓰기', text: '그 길을 고른 까닭 (선택)',
+  });
+
   // ── 2막 지금의 나 ──
   add({
     id: 'values', act: 2, age: now, type: 'chips', scene: true, optional: true, dot: '소중한 것', title: '내게 소중한 것', min: 0, max: 3, cam: 'front', fx: 'orbs',
@@ -144,10 +183,12 @@ export function build(S) {
   add({
     id: 'plan', act: 3, age: now, walk: false, type: 'plan', cam: 'front',
     q: '이제부터는 아직 걸어 보지 않은 길이야. 굵직한 일을 몇 살에 맞이할까?',
-    hint: '고입과 대입은 각각 골라. 미정·안 함이면 그 장면은 나오지 않아. 나이는 예시일 뿐, 활동지대로 바꿔도 돼.', cta: '이 계획으로 출발',
+    hint: '미정·안 함이면 그 장면은 나오지 않아. 나이는 예시일 뿐, 활동지대로 바꿔도 돼. 아래에서 이루고 싶은 일도 더해 봐.', cta: '이 계획으로 출발',
   });
   const row = (k) => P.find((x) => x.k === k);
-  const at = (k) => { const r = row(k); return r && r.on && Number.isInteger(r.age) && (k !== 'customEvent' || r.title.trim()) ? r.age : null; };
+  const at = (k) => { const r = row(k); return r && r.on && Number.isInteger(r.age) ? r.age : null; };
+  const rnd = rng(S.seed ?? (S.hints || [0, 1])[0] * 97 + (S.hints || [0, 1])[1] * 13 + 7);
+  const draw = (arr) => arr[Math.floor(rnd() * arr.length)];
   const hints = S.hints || [0, 1];
   const fut = [];
   fut.push({
@@ -156,21 +197,21 @@ export function build(S) {
     starters: ['나는 ', '그때 해 보고 싶은 건 '], prep: '그날을 위해 지금 해 볼 작은 일',
   });
 
-  const customTitle = (row('customEvent')?.title || '나만의 사건').trim();
   const EVENTS = {
-    customEvent: (a) => ({
-      type: 'text', optional: true, dot: customTitle, title: customTitle,
-      q: `${a}살, ‘${customTitle}’을 맞이한 너. 어떤 모습일까?`, hint: '한두 단어만 써도 되고 건너뛰어도 괜찮아.', ph: '예: 설레는 첫 여행', prep: '지금 해 볼 작은 준비',
+    middle: (a) => ({
+      type: 'chips', title: '중학교 입학', dot: '중학교', max: 1, min: 0, optional: true,
+      q: `${a}살, 중학생이 되는 나이야. 어떤 길로 배우고 싶어?`, hint: '학교에 다니지 않고 배우는 길도 괜찮아.',
+      options: [...SCHOOL_WAYS, { k: 'later', label: '아직 미정' }], custom: '다른 계획 (선택)', text: '더 적고 싶다면 한마디 (선택)', prep: '지금 해 볼 작은 준비',
     }),
     highschool: (a) => ({
-      type: 'chips', title: '고입 · 고등학교', dot: '고등학교', max: 1, min: 0, optional: true,
-      q: `${a}살, 네가 계획한 고입 시기야. 어떤 길을 생각해?`, hint: '선택 하나면 충분해. 아직 모르겠으면 미정이나 건너뛰기를 골라도 돼.',
-      options: [{ k: 'general', label: '일반고' }, { k: 'vocational', label: '특성화고·마이스터고' }, { k: 'other', label: '다른 배움의 길' }, { k: 'later', label: '아직 미정' }],
+      type: 'chips', title: '고등학교 입학', dot: '고등학교', max: 1, min: 0, optional: true,
+      q: `${a}살, 고등학생이 되는 나이야. 어떤 길을 생각해?`, hint: '선택 하나면 충분해. 아직 모르겠으면 미정이나 건너뛰기를 골라도 돼.',
+      options: [{ k: 'general', label: '일반고' }, { k: 'vocational', label: '특성화고·마이스터고' }, { k: 'alt', label: '대안학교' }, { k: 'home', label: '홈스쿨링·검정고시' }, { k: 'later', label: '아직 미정' }],
       custom: '다른 계획 (선택)', text: '더 적고 싶다면 한마디 (선택)', ph: '예: 가까운 학교, 좋아하는 분야', prep: '지금 해 볼 작은 준비',
     }),
     school: (a) => ({
       type: 'chips', title: '대입 · 고교 이후 진로', dot: '스무 살의 길', max: 1, min: 0, optional: true,
-      q: `${a}살, 네가 정한 대입·진로 계획을 골라 봐.`, hint: '고입과는 별개의 계획이야. 대학에 가지 않는 길이나 미정도 괜찮아.',
+      q: `${a}살, 네가 정한 대입·진로 계획을 골라 봐.`, hint: '대학에 가지 않는 길이나 미정도 괜찮아. 세상 경험을 고르면 비행기를 타.',
       options: [{ k: 'univ', label: '대학에 진학하기' }, { k: 'skill', label: '전문 기술 배우기' }, { k: 'work', label: '바로 일 시작하기' }, { k: 'world', label: '세상 경험 먼저 하기' }, { k: 'later', label: '아직 미정' }],
       custom: '나만의 길 (직접 쓰기)', text: '더 적고 싶다면 한마디 (선택)', ph: '예: 디자인 공부, 일하며 찾기', prep: '그 길에 서려고 올해 준비할 것',
     }),
@@ -194,7 +235,7 @@ export function build(S) {
     }),
     retire: (a) => ({
       type: 'chips', title: '은퇴와 그 뒤', max: 2, min: 0, optional: true,
-      q: `${a}살, 오래 해 온 일을 내려놓는 날이야. 그 뒤의 시간을 무엇으로 채울까?`, hint: '두 가지까지 골라 봐. 길은 아직 많이 남았어.',
+      q: `${a}살, 오래 해 온 일을 내려놓는 날이야. 그 뒤의 시간을 무엇으로 채울까?`, hint: '두 가지까지 골라 봐. 여행을 고르면 비행기를 타고 떠나.',
       options: [{ k: 'learn', label: '새로운 것 배우기' }, { k: 'serve', label: '봉사와 나눔' }, { k: 'trip', label: '여행' }, { k: 'family', label: '가족과 보내는 시간' }, { k: 'small', label: '작은 일 계속하기' }],
       custom: '직접 쓰기', text: '은퇴한 다음 날 아침을 그려 봐.',
     }),
@@ -208,10 +249,24 @@ export function build(S) {
   // 다시 도전하거나 쉬어 가면, 그 뒤에 계획한 일들이 그만큼 늦어진다.
   const planned = (k) => { const a = at(k); return a == null ? null : a + (a > tp1Age ? tp1Delay : 0); };
   for (const k of Object.keys(EVENTS)) { const a = planned(k); if (a != null) fut.push({ id: k, age: a, planned: true, ...EVENTS[k](a) }); }
+  // 학생이 더한 '이루고 싶은 일'
+  for (const r of P.filter((x) => x.extra)) {
+    const a = planned(r.k);
+    if (a == null || !r.title.trim()) continue;
+    const t = r.title.trim();
+    fut.push({
+      id: r.k, age: a, planned: true, fly: r.fly, type: 'text', optional: true, dot: t, title: t,
+      q: `${a}살, ‘${t}’. 그날의 너는 어떤 모습일까?`, hint: (r.fly ? '비행기를 타고 도착했어. ' : '') + '한두 단어만 써도 되고 건너뛰어도 괜찮아.', ph: '예: 누구와, 어디에서, 어떤 기분으로', prep: '그날을 위해 지금 해 볼 작은 준비',
+    });
+  }
 
   fut.push({
     id: 'tp1', age: tp1Age, pin: true, noArch: true, turning: true, fork: true, type: 'chips', title: '막힌 길 앞에서', weather: 'rain', max: 1, min: 0, optional: true, skipLabel: '그냥 계속 걷기 ›',
-    q: (anchorKey === 'school' ? `${tp1Age}살. 그토록 바라던 곳에서, 기다리던 소식이 오지 않았어.` : anchorKey === 'job' ? `${tp1Age}살. 꼭 들어가고 싶던 일터의 문이 열리지 않았어.` : `${tp1Age}살. 오래 준비한 일이 뜻대로 되지 않았어.`) + ' 계획한 길이 막혔을 때, 너는 어느 쪽으로 걸을까?',
+    q: draw(anchorKey === 'school'
+      ? [`${tp1Age}살. 그토록 바라던 곳에서, 기다리던 소식이 오지 않았어.`, `${tp1Age}살. 들어가긴 했는데, 막상 배워 보니 이 길이 아닌 것 같아.`, `${tp1Age}살. 집안 사정으로 계획한 길을 그대로 가기 어려워졌어.`]
+      : anchorKey === 'job'
+        ? [`${tp1Age}살. 꼭 들어가고 싶던 일터의 문이 열리지 않았어.`, `${tp1Age}살. 어렵게 얻은 첫 일터가 생각과 너무 달라.`, `${tp1Age}살. 일하던 곳이 갑자기 문을 닫았어.`]
+        : [`${tp1Age}살. 오래 준비한 일이 뜻대로 되지 않았어.`, `${tp1Age}살. 믿고 있던 계획이 한순간에 어그러졌어.`]) + ' 계획한 길이 막혔을 때, 너는 어느 쪽으로 걸을까?',
     hint: '어느 길도 끝나지 않아. 고른 길 끝에서 또 다른 길이 열려.',
     options: TP1_OPTIONS, custom: '나만의 선택 (직접 쓰기)',
   });
@@ -228,10 +283,11 @@ export function build(S) {
   let tp2Age = Math.max(now + 9, tp1Age + 8, jobAge != null ? jobAge + 14 : 42);
   if (retireAge != null) tp2Age = Math.min(tp2Age, Math.max(tp1Age + 4, retireAge - 8));
   const tp2Pick = pickOf(S, 'tp2');
-  const shaken = hints[1] % 2 === 0;
+  const tp2Text = draw([['세상이 빠르게 바뀌어, 네가 해 오던 일이 점점 사라지고 있어.', true], ['문득, 지금까지와 전혀 다른 일에 가슴이 뛰기 시작했어.', false], ['오래 몸담은 일터가 갑자기 문을 닫았어.', true], ['몸이 지쳐서, 지금까지처럼 일하기가 어려워졌어.', true], ['함께 일하자는 뜻밖의 제안이 왔어. 지금 자리를 떠나야 해.', false]]);
+  const shaken = tp2Text[1];
   fut.push({
     id: 'tp2', age: tp2Age, pin: true, noArch: true, turning: true, fork: true, type: 'chips', title: '일이 바뀌는 날', weather: shaken ? 'rain' : undefined, max: 1, min: 0, optional: true, skipLabel: '그냥 계속 걷기 ›',
-    q: (shaken ? `${tp2Age}살. 세상이 빠르게 바뀌어, 네가 해 오던 일이 점점 사라지고 있어.` : `${tp2Age}살. 문득, 지금까지와 전혀 다른 일에 가슴이 뛰기 시작했어.`) + ' 너는 어느 쪽으로 걸을까?',
+    q: `${tp2Age}살. ${tp2Text[0]} 너는 어느 쪽으로 걸을까?`,
     hint: '진로는 한 번 정하면 끝나는 게 아니야. 어느 쪽을 골라도 길은 이어져.',
     options: TP2_OPTIONS, custom: '나만의 선택 (직접 쓰기)',
   });
@@ -277,8 +333,24 @@ export function build(S) {
     { id: 'money', age: 38, type: 'text', title: '뜻밖의 큰돈', optional: true, q: '생각지도 못한 큰돈이 생겼어. 가장 먼저 어디에, 누구를 위해 쓸까?', starters: ['가장 먼저 ', '나를 위해서는 '] },
     { id: 'health', age: 48, type: 'text', title: '몸이 보내는 신호', optional: true, q: '몸이 쉬어 가라는 신호를 보냈어. 오래 걷기 위해 바꿀 습관 한 가지는?', starters: ['나는 ', '그만둘 것은 '], prep: '지금부터 들일 수 있는 건강 습관' },
     { id: 'ask', age: 57, type: 'text', title: '오랜 친구의 부탁', optional: true, q: '오랜 친구가 들어주기 어려운 부탁을 해 왔어. 너는 어떻게 할까?', starters: ['나는 ', '친구에게 '] },
+    { id: 'talent', age: 28, type: 'text', title: '몰랐던 재능', optional: true, dot: '몰랐던 재능', q: '네가 몰랐던 재능을 누군가 알아봐 줬어. 어떤 재능일까?', starters: ['사람들이 말하길 나는 ', '해 보니 의외로 '] },
+    { id: 'moving', age: 31, type: 'text', title: '갑작스러운 이사', optional: true, q: '갑자기 먼 도시로 옮겨 살게 됐어. 낯선 곳에서 가장 먼저 무엇을 할까?', starters: ['가장 먼저 ', '낯선 동네에서 나는 '] },
+    {
+      id: 'offer', age: 34, type: 'chips', title: '꿈꾸던 연락', max: 1, min: 0, optional: true,
+      q: '꿈꾸던 곳에서 함께 일하자는 연락이 왔어. 그런데 지금 가진 걸 내려놓아야 해. 어떻게 할래?',
+      options: [{ k: 'go', label: '내려놓고 간다' }, { k: 'stay', label: '지금 자리를 지킨다' }, { k: 'ask', label: '둘 다 할 방법을 찾아본다' }], text: '그렇게 고른 까닭은?',
+    },
+    { id: 'lost', age: 36, type: 'text', title: '한순간에 잃은 것', optional: true, weather: 'rain', q: '오래 쌓아 온 것을 한순간에 잃었어. 다시 시작할 때 꼭 지키고 싶은 한 가지는?', starters: ['다시 시작한다면 ', '잃고 나서 알게 된 건 '] },
+    { id: 'reunion', age: 39, type: 'text', title: '우연히 만난 옛 친구', optional: true, q: '길에서 학창 시절 친구를 우연히 만났어. 친구는 지금의 너를 보고 뭐라고 할까?', starters: ['친구는 ', '우리는 한참 '] },
+    { id: 'award', age: 44, type: 'text', title: '뜻밖의 큰 상', optional: true, q: '생각지도 못한 큰 상을 받게 됐어. 무대에 올라 가장 먼저 할 말은?', starters: ['이 상은 ', '제일 먼저 고마운 사람은 '] },
+    { id: 'crisis', age: 46, type: 'text', title: '세상이 멈춘 날', optional: true, weather: 'rain', q: '큰 재난으로 세상이 한동안 멈췄어. 그때 너는 누구를 챙기고 무엇을 할까?', starters: ['나는 먼저 ', '집에 머무는 동안 '] },
+    { id: 'care2', age: 50, type: 'text', title: '달려가야 하는 날', optional: true, q: '소중한 사람이 아프다는 소식을 들었어. 너는 무엇을 내려놓고 달려갈까?', hint: '마음이 무거우면 건너뛰어도 돼.', starters: ['나는 ', '그 사람 곁에서 '] },
+    { id: 'letter', age: 55, type: 'text', title: '스무 살의 편지', optional: true, q: '스무 살의 네가 미래의 너에게 쓴 편지가 도착했어. 뭐라고 적혀 있을까?', starters: ['“지금쯤 너는 ', '“약속해 줘. '] },
   ];
-  fut.push({ surprise: true, ...DECK[hints[0] % DECK.length] });
+  // 새로 시작할 때마다 다른 세 장이 나온다
+  const pool = DECK.map((d) => [rnd(), d]).sort((x, y) => x[0] - y[0]).slice(0, 3).map((x) => x[1]);
+  for (const d of pool) fut.push({ surprise: true, sudden: true, ...d });
+
 
   const ELDERS = ['mom', 'dad', 'grandma', 'grandpa', 'teacher'];
   const hasElder = ['care', 'beside'].some((id) => !S.a[id]?.skip && (S.a[id]?.picks || []).some((k) => ELDERS.includes(k)));
@@ -450,6 +522,7 @@ export function forksOf(S, beats) {
 export function flightInto(S, beats, i) {
   const b = beats[i], p = beats[i - 1];
   if (!b || !p || b.back || b.walk === false) return false;
+  if (b.fly) return true; // 여행·유학처럼 먼 곳에서 벌어지는 장면에는 날아서 도착한다
   const a = S.a[p.id];
   if (!a || a.skip) return false;
   const picks = a.picks || [];
@@ -462,6 +535,16 @@ export function riversOf(beats) {
   return [d('care') != null ? d('care') + STEP / 2 : null, d('plan') != null ? d('plan') + STEP / 2 : null, d('life') != null ? d('life') + STEP / 2 : null].filter((x) => x != null);
 }
 
+/** 갈림길을 지나 새 길에 들어선 뒤에는 터널을 하나 빠져나온다. */
+export function tunnelsOf(beats) {
+  return beats.filter((b) => b.type === 'connect').map((b) => b.dist + STEP / 2);
+}
+/** 길의 오르막: 마지막 장면은 언덕 위에 있다. */
+export function summitOf(beats) {
+  const b = beats.find((x) => x.id === 'last');
+  return b ? b.dist : null;
+}
+
 /** 감상·내보내기에 쓰는 장면 목록. 답한 장면만 담는다. */
 export function scenesOf(S, beats) {
   const out = [];
@@ -469,7 +552,7 @@ export function scenesOf(S, beats) {
   beats.forEach((b, i) => {
     if (!b.scene) return;
     const a = S.a[b.id];
-    let text = answerText(b, a) || (b.id === 'customEvent' && a && !a.skip ? b.title : '');
+    let text = answerText(b, a) || (b.planned && b.type === 'text' && a && !a.skip ? b.title : '');
     const mine = links.filter((l) => l.to === b.id);
     if (!text && mine.length) text = b.title;
     if (!text) return;

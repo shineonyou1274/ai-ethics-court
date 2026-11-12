@@ -116,7 +116,6 @@ export function createWorld(canvas) {
 
   // 땅과 길
   const groundMat = new THREE.MeshLambertMaterial({ color: '#bfe8ae' });
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(900, 900).rotateX(-Math.PI / 2), groundMat);
   const roadMat = new THREE.MeshLambertMaterial({ color: '#fdebd8' });
   const edgeMat = new THREE.MeshLambertMaterial({ color: '#ffffff' });
   // 길은 곧은 평면이 아니라, 걸을 때마다 다시 놓이는 띠다. 그래서 굽이치고 갈라질 수 있다.
@@ -139,7 +138,7 @@ export function createWorld(canvas) {
   }
   const RN = 100;
   const road = makeRibbon(RN, roadMat), e1 = makeRibbon(RN, edgeMat), e2 = makeRibbon(RN, edgeMat);
-  scene.add(ground);
+  const ground = makeRibbon(RN, groundMat); // 땅도 길과 함께 오르내린다
 
   // 주인공
   const walker = makePerson({ color: '#ff9f8a' });
@@ -192,9 +191,18 @@ export function createWorld(canvas) {
     for (const f of forks) if (f !== skip && f.done && f.dir) x += f.dir * bendOf(f, d);
     return x;
   }
+  // ── 언덕: 길의 높낮이 ──
+  let summit = null, tunnels = [];
+  function elev(d) {
+    let y = Math.sin(d * 0.018 + 0.7) * 1.5 + Math.sin(d * 0.0071) * 2.2;
+    if (summit != null) y += 7.5 * smooth(d, summit - 75, summit - 4); // 마지막 장면은 언덕 위
+    return y;
+  }
+  let H0 = 0;
+  const Y = (d) => elev(d) - H0;
   let L0 = 0; // 주인공이 선 자리의 굽이. 모든 것은 여기서 본 위치에 놓인다.
   let rivers = [];
-  const inForkZone = (d) => forks.some((f) => d > f.dist + 1 && d < f.dist + RAMP0 + RAMP + 12) || rivers.some((r) => Math.abs(d - r) < 10);
+  const inForkZone = (d) => forks.some((f) => d > f.dist + 1 && d < f.dist + RAMP0 + RAMP + 12) || rivers.some((r) => Math.abs(d - r) < 10) || tunnels.some((r) => Math.abs(d - r) < 13);
 
   // ── 강과 다리 ──
   const waterMat = new THREE.MeshLambertMaterial({ color: '#8fd3f4', polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
@@ -214,13 +222,29 @@ export function createWorld(canvas) {
         o.add(w, b1, b2, makeObject('bridge', 0));
         scene.add(o); riverObjs.set(r, o);
       }
-      o.position.set(lane(r) - L0, 0, -(r - S.dist));
+      o.position.set(lane(r) - L0, Y(r), -(r - S.dist));
     }
     for (const [r, o] of riverObjs) if (!rivers.includes(r)) { scene.remove(o); riverObjs.delete(r); }
     cG2.copy(skyU.top.value).lerp(cW.set('#9fdcf7'), 0.55);
     waterMat.color.copy(cG2);
   }
   const cG2 = new THREE.Color(), cW = new THREE.Color();
+
+  // ── 터널 ──
+  const tunnelObjs = new Map();
+  let inTunnel = 0;
+  function syncTunnels() {
+    inTunnel = 0;
+    for (const r of tunnels) {
+      inTunnel = Math.max(inTunnel, 1 - smooth(Math.abs(S.dist + 2 - r), 5, 11));
+      const near = r > S.dist - 60 && r < S.dist + AHEAD + 10;
+      let o = tunnelObjs.get(r);
+      if (!near) { if (o) { scene.remove(o); tunnelObjs.delete(r); } continue; }
+      if (!o) { o = makeObject('tunnel', 0); scene.add(o); tunnelObjs.set(r, o); }
+      o.position.set(lane(r) - L0, Y(r), -(r - S.dist));
+    }
+    for (const [r, o] of tunnelObjs) if (!tunnels.includes(r)) { scene.remove(o); tunnelObjs.delete(r); }
+  }
 
   // ── 비행기 ──
   const plane = makeObject('plane', 0);
@@ -272,18 +296,19 @@ export function createWorld(canvas) {
         for (let i = 0; i <= 19; i++) {
           const d = f.dist + i * 2;
           const x = base(d) + st.dir * bendOf(f, d), z = -(d - S.dist);
-          st.rib.set(i, x - ROAD / 2, x + ROAD / 2, 0.035, z);
-          st.e1.set(i, x - ROAD / 2 - 0.14, x - ROAD / 2 + 0.14, 0.06, z);
-          st.e2.set(i, x + ROAD / 2 - 0.14, x + ROAD / 2 + 0.14, 0.06, z);
+          const y = Y(d);
+          st.rib.set(i, x - ROAD / 2, x + ROAD / 2, y + 0.035, z);
+          st.e1.set(i, x - ROAD / 2 - 0.14, x - ROAD / 2 + 0.14, y + 0.06, z);
+          st.e2.set(i, x + ROAD / 2 - 0.14, x + ROAD / 2 + 0.14, y + 0.06, z);
         }
         st.rib.done(); st.e1.done(); st.e2.done();
         const de = f.dist + 41;
-        st.tree.position.set(base(de) + st.dir * bendOf(f, de), 0, -(de - S.dist));
+        st.tree.position.set(base(de) + st.dir * bendOf(f, de), Y(de), -(de - S.dist));
       }
       for (const sg of fd.signs) {
         const d = f.dist + RAMP0 + (sg.dir ? 20 : 31) + sg.n * 5;
         const side = sg.dir || -1;
-        sg.o.position.set(base(d) + sg.dir * bendOf(f, d) + side * (ROAD / 2 + 1.3), 0, -(d - S.dist));
+        sg.o.position.set(base(d) + sg.dir * bendOf(f, d) + side * (ROAD / 2 + 1.3), Y(d), -(d - S.dist));
       }
     }
     for (const id of [...forkDecor.keys()]) if (!forks.some((f) => f.id === id)) dropFork(id);
@@ -339,7 +364,7 @@ export function createWorld(canvas) {
     for (const o of dots.values()) {
       o.born = Math.min(1, o.born + dt * 1.6);
       const k = ease(o.born);
-      o.g.position.set(dotX(o), 0, -(o.d - S.dist));
+      o.g.position.set(dotX(o), Y(o.d), -(o.d - S.dist));
       o.g.scale.setScalar(0.3 + 0.7 * k);
       o.halo.scale.setScalar(1.1 + Math.sin(S.t * 2.2 + o.d) * 0.18);
     }
@@ -351,7 +376,7 @@ export function createWorld(canvas) {
       for (let i = 0; i <= LN; i++) {
         const t = i / LN, d = lerp(o.a, o.b, t);
         arr[i * 3] = lerp(xa, xb, t) + (lane(d) - L0 - lerp(lane(o.a) - L0, lane(o.b) - L0, t)) * 0.6;
-        arr[i * 3 + 1] = lerp(1.05, 1.5, t) + Math.sin(Math.PI * t) * H;
+        arr[i * 3 + 1] = Y(d) + lerp(1.05, 1.5, t) + Math.sin(Math.PI * t) * H;
         arr[i * 3 + 2] = -(d - S.dist);
       }
       o.line.geometry.attributes.position.needsUpdate = true;
@@ -432,7 +457,7 @@ export function createWorld(canvas) {
     }
     for (const [key, o] of marks) {
       if (!want.has(key)) { scene.remove(o); if (o.userData.dispose) o.userData.dispose(); marks.delete(key); continue; }
-      o.position.set(o.userData.x + lane(o.userData.d) - L0, 0, -(o.userData.d - S.dist));
+      o.position.set(o.userData.x + lane(o.userData.d) - L0, Y(o.userData.d), -(o.userData.d - S.dist));
     }
   }
 
@@ -500,7 +525,7 @@ export function createWorld(canvas) {
       }
       const lt = S.labels ? c.label : '';
       if (c.shownLabel !== lt) { c.shownLabel = lt; p.setLabel(lt); }
-      p.group.position.set(c.x, 0, c.z);
+      p.group.position.set(c.x, c.wait != null && !c.leaving ? Y(c.wait) : 0, c.z);
       p.update(dt, S.t);
     }
   }
@@ -544,7 +569,9 @@ export function createWorld(canvas) {
     stars.material.opacity = star;
     moon.material.opacity = smooth(f, 0.8, 0.95) * (1 - S.wet);
     sun.color.copy(cSun); sun.intensity = lerp(a.sunI, b.sunI, t) * (1 - w * 0.5);
-    hemi.intensity = lerp(a.amb, b.amb, t) * 1.45;
+    const dim = 1 - inTunnel * 0.6;
+    sun.intensity *= dim;
+    hemi.intensity = lerp(a.amb, b.amb, t) * 1.45 * dim;
     fill.intensity = lerp(a.amb, b.amb, t) * 0.8;
     fill.color.copy(cHor).lerp(cA.set('#ffffff'), 0.5);
     hemi.color.copy(cTop).lerp(cA.set('#ffffff'), 0.55);
@@ -632,17 +659,23 @@ export function createWorld(canvas) {
     let made = 0;
     for (let k = k0; k <= k1; k++) if (!slots.has(k)) { fillSlot(k); if (++made > 6 && !camSnap) break; }
     L0 = lane(S.dist);
-    for (const list of slots.values()) for (const it of list) it.o.position.set(it.x + lane(it.d) - L0, 0, -(it.d - S.dist));
+    H0 = elev(S.dist);
+    for (const list of slots.values()) for (const it of list) it.o.position.set(it.x + lane(it.d) - L0, Y(it.d), -(it.d - S.dist));
+    const gb = Math.floor(S.dist / 4) * 4 - 80;
+    for (let i = 0; i <= RN; i++) { const d = gb + i * 4; ground.set(i, -450, 450, Y(d), -(d - S.dist)); }
+    ground.done();
     const rb = Math.floor(S.dist / 2) * 2 - 30;
     for (let i = 0; i <= RN; i++) {
       const d = rb + i * 2, x = lane(d) - L0, z = -(d - S.dist);
-      road.set(i, x - ROAD / 2, x + ROAD / 2, 0.04, z);
-      e1.set(i, x - ROAD / 2 - 0.14, x - ROAD / 2 + 0.14, 0.07, z);
-      e2.set(i, x + ROAD / 2 - 0.14, x + ROAD / 2 + 0.14, 0.07, z);
+      const y = Y(d);
+      road.set(i, x - ROAD / 2, x + ROAD / 2, y + 0.05, z);
+      e1.set(i, x - ROAD / 2 - 0.14, x - ROAD / 2 + 0.14, y + 0.08, z);
+      e2.set(i, x + ROAD / 2 - 0.14, x + ROAD / 2 + 0.14, y + 0.08, z);
     }
     road.done(); e1.done(); e2.done();
     syncForks();
     syncRivers();
+    syncTunnels();
     updateLights(dt);
     syncMarks();
 
@@ -737,6 +770,8 @@ export function createWorld(canvas) {
     setCamera(mode) { S.cam = mode; },
     setInset(b, r) { inset.tb = b; inset.tr = r; },
     setFinale(on) { S.finaleOn = on; },
+    setTunnels(list) { if (list.join() !== tunnels.join()) { tunnels = list; clearSlots(); } },
+    setSummit(d) { summit = d; },
     setRivers(list) { if (list.join() !== rivers.join()) { rivers = list; clearSlots(); } },
     setFly(v) { S.fly = v; },
     setForks(list) {

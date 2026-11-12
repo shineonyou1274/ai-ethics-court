@@ -160,6 +160,23 @@ const BUILDERS = {
     }
     return g;
   },
+  tunnel: () => {
+    const hw = 5.2, ht = 7.6, len = 18, wall = '#5d5670', stone = '#efe3d3';
+    const g = [];
+    for (const sx of [-1, 1]) {
+      g.push(box(1, ht, len, wall, sx * (hw + 0.5), ht / 2, 0));
+      g.push(box(12, ht + 1.4, len - 0.6, '#9bd3a1', sx * (hw + 7), (ht + 1.4) / 2, 0)); // 양옆 언덕
+      g.push(blob(6.5, '#a8dba0', sx * (hw + 9), ht + 1.2, 0, 1.3, 0.55, 1.5));
+      for (const sz of [-1, 1]) g.push(box(1.5, ht + 0.6, 0.9, stone, sx * (hw + 0.5), (ht + 0.6) / 2, sz * (len / 2)));
+    }
+    g.push(box(hw * 2 + 2, 1, len, wall, 0, ht + 0.5, 0));
+    g.push(box(26, 1.6, len - 0.6, '#9bd3a1', 0, ht + 1.6, 0));
+    g.push(blob(8, '#b7e3ab', 0, ht + 5.2, 0, 1.7, 0.5, 1.25));
+    for (const sz of [-1, 1]) g.push(box(hw * 2 + 3, 1.3, 0.9, stone, 0, ht + 0.4, sz * (len / 2)));
+    const glow = [];
+    for (let i = -3; i <= 3; i++) glow.push(box(0.5, 0.12, 0.9, '#ffffff', 0, ht - 0.08, i * 2.4));
+    return { main: g, glow };
+  },
   plane: () => {
     const g = [paint(new THREE.CapsuleGeometry(0.75, 3.4, 4, 10), '#fffdf8', 0, 0, 0, 0, 1, 1, 1, 0)];
     g[0].rotateX(Math.PI / 2); g[0].computeVertexNormals();
