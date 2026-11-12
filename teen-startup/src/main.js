@@ -26,7 +26,7 @@ function drawHud() {
   $('#monthChip').textContent = `${Math.min(MONTHS, chipMonth || S.month)}개월 차 / ${MONTHS}`;
   const box = $('#stats');
   if (!box.children.length) {
-    box.innerHTML = STATS.map(([k, ic, name, col]) => `<div class="stat" data-k="${k}"><small>${ic} ${name}</small><b></b>${col ? `<i><u style="background:${col}"></u></i>` : ''}</div>`).join('');
+    box.innerHTML = STATS.map(([k, ic, name, col]) => `<div class="stat" data-k="${k}"><small>${ic}<span class="nm"> ${name}</span></small><b></b>${col ? `<i><u style="background:${col}"></u></i>` : ''}</div>`).join('');
   }
   for (const [k] of STATS) {
     const el = box.querySelector(`[data-k="${k}"]`), v = S[k];
@@ -185,6 +185,10 @@ function finale() {
     <button class="btn" id="again">처음부터 다시 해 보기</button>`);
   on('#again', () => { hud.hidden = true; $('#stats').innerHTML = ''; S = null; shop.update(newGame(''), true); title(); });
 }
+
+// ── 가게 크게 보기 ──
+const zb = $('#zoomBtn');
+zb.addEventListener('click', () => { const big = $('#app').classList.toggle('big'); zb.textContent = big ? '⤡' : '⤢'; zb.setAttribute('aria-label', big ? '가게 작게 보기' : '가게 크게 보기'); });
 
 // ── 소리 ──
 const sb = $('#soundBtn');

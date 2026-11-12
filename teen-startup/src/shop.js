@@ -335,12 +335,16 @@ export function createShop(canvas) {
   function fit() {
     const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1, top = st.level >= 3 ? 7.6 : 4.9;
     let l = 1e9, r = -1e9, t = -1e9, b = 1e9;
-    for (const p of [[-6.6, -1.6, -5.2], [8.4, -1.6, -5.2], [-6.6, -1.6, 7.4], [8.4, -1.6, 7.4], [-6.6, 0, -5.2], [8.4, 0, 7.4], [-4.2, top, -3.2], [4, top, -3.2], [-4.2, top - 1, 3]]) {
+    // 좁은 화면에서는 섬 전체 대신 가게와 앞길만 크게 잡는다
+    const pts = w < 700
+      ? [[-4.6, 0, -3.4], [4.6, 0, -3.4], [-4.6, 0, 5.4], [5.2, 0, 5.4], [-4.2, top, -3.2], [4, top, -3.2], [-4.2, top - 1, 3]]
+      : [[-6.6, -1.6, -5.2], [8.4, -1.6, -5.2], [-6.6, -1.6, 7.4], [8.4, -1.6, 7.4], [-6.6, 0, -5.2], [8.4, 0, 7.4], [-4.2, top, -3.2], [4, top, -3.2], [-4.2, top - 1, 3]];
+    for (const p of pts) {
       v3.set(p[0], p[1], p[2]).applyMatrix4(cam.matrixWorldInverse);
       l = Math.min(l, v3.x); r = Math.max(r, v3.x); t = Math.max(t, v3.y); b = Math.min(b, v3.y);
     }
     const cx = (l + r) / 2, cy = (t + b) / 2; let hw = (r - l) / 2 * 1.04, hh = (t - b) / 2 * 1.04;
-    const padTop = Math.min(h * 0.3, w < 700 ? 96 : 64), uh = h - padTop; // 위쪽 지표가 가게를 가리지 않게 비워 둔다
+    const padTop = Math.min(h * 0.3, w < 700 ? 44 : 64), uh = h - padTop; // 위쪽 지표가 가게를 가리지 않게 비워 둔다
     if (hw / hh < w / uh) hw = hh * w / uh; else hh = hw * uh / w;
     Object.assign(goal, { l: cx - hw, r: cx + hw, t: cy + hh + padTop * (2 * hh / uh), b: cy - hh });
   }
