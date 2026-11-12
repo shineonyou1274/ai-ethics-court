@@ -1,7 +1,8 @@
 // 흐름 지휘: 걷기 → 질문 카드 → 답 저장 → 다음 걸음.
 import './style.css';
 import { createWorld } from './world.js';
-import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf, flightInto, riversOf, tunnelsOf, summitOf, WISHES, wishKind, rideInto, homesOf } from './story.js';
+import { build, ACTS, STEP, VALUES, partyAt, orbsAt, scenesOf, answerText, planOf, dotsAt, linksOf, forksOf, constelOf, flightInto, riversOf, tunnelsOf, summitOf, WISHES, wishKind, rideInto, homesOf, keepsOf, villageOf } from './story.js';
+import { createVillage, villageImage } from './village.js';
 import { drawConstel, constelImage, summaryImage } from './constel.js';
 import * as store from './store.js';
 import { createMovie } from './movie.js';
@@ -64,6 +65,8 @@ function stage(i, { instant = false, depart = false } = {}) {
   world.setOrbs(orbsAt(S, beats, i));
   lights(i);
   world.state.ageOverride = b.act === 0 ? (S.now || 16) : null;
+  // 방금 답한 장면에서 새로 생긴 물건을 알려 준다
+  return world.setKeeps(keepsOf(S, beats, i), { instant });
 }
 
 // 갈림길, 길 위의 점, 점을 잇는 빛줄기
@@ -99,8 +102,10 @@ async function go(i, { instant = false } = {}) {
   $('hud').hidden = false;
   const prev = beats[i - 1];
   const departing = !!(prev && prev.fx === 'depart' && S.a[prev.id] && !S.a[prev.id].skip);
-  stage(i, { instant, depart: departing });
+  const popped = stage(i, { instant, depart: departing });
   hud(b);
+  // 답이 물건이 되어 뿅 하고 생기는 걸 잠깐 지켜본 뒤에 걷는다
+  if (popped.length && !instant && b.fx !== 'rewind') { world.setCamera('pop'); await new Promise((r) => setTimeout(r, popped[0].soft ? 1300 : 950)); }
   world.setWeather(b.weather);
   if (b.fx !== 'finale') world.setFinale(false);
   if (instant) world.jump(b.dist);
@@ -384,12 +389,14 @@ function renderHub() {
   const rem = S.a.remember && S.a.remember.text;
   const step = S.a.step && S.a.step.text;
   const row = (t, v) => (v ? [h('dt', {}, t), h('dd', {}, v)] : []);
+  const vil = villageShot(720, 500);
   card.className = 'tall';
   card.replaceChildren(h('div', { class: 'scroll' },
     h('div', { class: 'poster' },
       h('p', { class: 'eyebrow' }, '드라마 완성'),
       h('h2', {}, S.title || `${S.name}의 인생 드라마`),
       h('p', { class: 'by' }, `주연 ${S.name} · ${S.now}살에 쓰다`),
+      vil ? h('button', { class: 'village-thumb', type: 'button', 'aria-label': '내 인생 마을 크게 보기', onclick: openVillage }, h('img', { src: vil, alt: '답한 것들이 모인 내 인생 마을' }), h('span', {}, '내 인생 마을 · 눌러서 돌려 보기')) : null,
       h('dl', {},
         ...row('함께 걸은 사람들', [...everyone.values()].join(', ')),
         ...row('내게 소중한 것', ((S.a.values || {}).picks || []).join(' · ')),
@@ -398,6 +405,7 @@ function renderHub() {
         ...row('오늘 찍는 점 하나', step))),
     h('button', { class: 'primary', type: 'button', onclick: () => movie.play() }, '▶ 처음부터 감상하기'),
     h('div', { class: 'grid2' },
+      h('button', { class: 'tile', type: 'button', onclick: openVillage }, '내 인생 마을', h('small', {}, '답한 것들이 모인 작은 섬')),
       h('button', { class: 'tile', type: 'button', onclick: openConstel }, '내 별자리 보기', h('small', {}, '이어진 점들을 한 장으로')),
       h('button', { class: 'tile', type: 'button', onclick: openSummary }, '제출용 한 장', h('small', {}, '별자리와 핵심 답을 그림으로')),
       h('button', { class: 'tile', type: 'button', onclick: () => movie.play({ present: true }) }, '발표 화면', h('small', {}, '교실 화면에 크게 틀기')),
@@ -449,6 +457,34 @@ function recordOptions() {
   ]);
 }
 
+// ── 내 인생 마을 ──
+function villageCanvas(w, hgt) {
+  try { return villageImage(villageOf(S, beats), w, hgt); } catch (e) { return null; } // 그래픽 장치를 더 못 여는 기기에서는 그림 없이 간다
+}
+function villageShot(w, hgt) { const c = villageCanvas(w, hgt); return c ? c.toDataURL('image/jpeg', 0.88) : ''; }
+function openVillage() {
+  const data = villageOf(S, beats);
+  const cv = h('canvas', { class: 'village', 'aria-label': '내 인생 마을. 손가락으로 돌려 볼 수 있어.' });
+  const list = [...data.items].filter((x) => !x.big || !data.items.some((y) => !y.big && y.id + ':big' === x.id)).sort((x, y) => x.age - y.age);
+  dialog('내 인생 마을', [
+    cv,
+    h('p', { style: 'font-size:14px;color:var(--soft);margin-top:8px' }, '길은 섬 가장자리에서 태어나 가운데 언덕으로 감겨 들어가. 네가 답한 만큼 마을이 채워져. 손가락으로 돌려 봐.'),
+    h('button', { class: 'primary', type: 'button', style: 'margin:6px 0 14px', onclick: () => {
+      const c = villageCanvas(1080, 1080);
+      if (!c) { toast('이 기기에서는 그림으로 저장하기 어려워.'); return; }
+      const x = c.getContext('2d');
+      x.fillStyle = '#4a4458'; x.textAlign = 'center'; x.font = '56px "Jua", "Gowun Dodum", sans-serif'; x.fillText(S.title || `${S.name}의 인생 드라마`, 540, 96, 980);
+      x.fillStyle = '#7d7488'; x.font = '30px "Gowun Dodum", sans-serif'; x.fillText(`${S.name}의 인생 마을 · ${S.now}살에 짓다`, 540, 146);
+      c.toBlob((blob) => store.download(`인생드라마_${S.name}_마을.jpg`, blob), 'image/jpeg', 0.92);
+    } }, '그림으로 저장'),
+    list.length ? h('ul', { class: 'links' }, list.map((x) => h('li', {}, h('b', {}, x.age + '살 '), x.title, x.text ? h('small', { style: 'display:block;color:var(--soft)' }, x.text) : null)))
+      : h('p', { class: 'hint' }, '아직 마을이 비어 있어. 길을 걸으며 답하면 하나씩 생겨.'),
+  ]);
+  let v = null;
+  try { v = createVillage(cv, data); v.start(); } catch (e) { cv.replaceWith(h('p', { class: 'hint' }, '이 기기에서는 마을을 그리기 어려워. 아래 목록으로 봐 줘.')); }
+  $('dlg').addEventListener('close', () => { if (v) v.dispose(); }, { once: true });
+}
+
 // ── 별자리 ──
 let constelRaf = 0;
 function constelShow(on) {
@@ -481,7 +517,7 @@ function openSummary() {
     ['이어진 점', linksOf(S, beats).map((l) => `${l.fromLabel} → ${(beats.find((x) => x.id === l.to) || {}).title}`).join(' / ')],
     ['기억되고 싶은 모습', (S.a.remember || {}).text],
     ['오늘 찍는 점 하나', (S.a.step || {}).text],
-  ]);
+  ], villageCanvas(720, 720));
   img.toBlob((blob) => {
     const url = URL.createObjectURL(blob);
     const name = `인생드라마_${S.name}_제출용.jpg`;
@@ -535,6 +571,7 @@ function doPrint() {
   const scenes = scenesOf(S, beats);
   const ls = linksOf(S, beats);
   const cover = constelImage(constelOf(S, beats)).toDataURL('image/jpeg', 0.9);
+  const vil = villageShot(1200, 760);
   const ACT_COLOR = ['', '#ff8fa3', '#3fb8a0', '#4a9be8', '#8a6fd6', '#ff8f7a'];
   const groups = [1, 2, 3, 4].map((act) => [act, scenes.filter((s) => s.act === act)]).filter(([, list]) => list.length);
   const rem = (S.a.remember || {}).text, step = (S.a.step || {}).text;
@@ -555,6 +592,7 @@ function doPrint() {
         s.prep ? h('p', { class: 'pr-sub' }, '지금 준비할 것: ' + s.prep) : null))))),
     // 마무리
     h('section', { class: 'pr-end' },
+      vil ? h('figure', { class: 'pr-village' }, h('img', { src: vil, alt: '' }), h('figcaption', {}, `${S.name}의 인생 마을 · 답한 것들이 길가에 하나씩 쌓였다`)) : null,
       rem ? h('blockquote', {}, `“${rem}”`, h('cite', {}, `${S.name}, 그렇게 기억되고 싶은 사람`)) : null,
       ls.length ? h('div', { class: 'pr-box' }, h('b', {}, '이어진 점'), h('ul', {}, ls.map((l) => h('li', {}, `${l.fromLabel} → ${(beats.find((x) => x.id === l.to) || {}).title}`)))) : null,
       step ? h('div', { class: 'pr-box pr-step' }, h('b', {}, '오늘 찍는 점 하나'), h('p', {}, step)) : null),
@@ -627,14 +665,13 @@ function openMenu() {
       inp.onchange = () => { const f = inp.files[0]; if (!f) return; audio.useFile(f); S.sound = audio.toggle(true); save(); $('dlg').close(); toast('내 음악을 틀었어. 이 기기를 새로 고치면 다시 골라야 해.'); };
       inp.click();
     }),
-    audio.trackName ? item('♪ 원래 음악으로 돌아가기', '', () => { audio.useFile(null); audio.probe();
-document.body.classList.toggle('big', !!S.big);
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {}); $('dlg').close(); }) : null,
+    audio.trackName ? item('♪ 원래 음악으로 돌아가기', '', () => { audio.useFile(null); $('dlg').close(); }) : null,
     item(S.big ? '글씨 보통으로' : '글씨 크게', '카드와 안내 글의 크기', () => { S.big = !S.big; save(); document.body.classList.toggle('big', !!S.big); $('dlg').close(); reportInset(); }),
     item('대본 보기·고치기', '지금까지 쓴 장면을 한눈에', openScript),
     item('걷는 길이 바꾸기', '짧게 · 보통 · 길게', () => { $('dlg').close(); go(beats.findIndex((x) => x.id === 'pace'), { instant: true }); }),
     S.plan ? item('인생 계획표 고치기', '입학·취업·결혼·은퇴와 이루고 싶은 일을 다시 정해', () => { $('dlg').close(); go(beats.findIndex((x) => x.id === 'plan'), { instant: true }); }) : null,
     item('처음부터 감상하기', '쓴 장면이 영상처럼 이어져', () => { $('dlg').close(); movie.play(); }),
+    item('내 인생 마을', '답한 것들이 모인 작은 섬', openVillage),
     item('내 별자리 보기', '이어진 점들을 한 장으로', openConstel),
     item('영상으로 저장', '일반 · 2배 · 4배 녹화 선택', recordOptions),
     item('장면 카드 저장', '장면마다 이미지 한 장', () => { $('dlg').close(); openCards(); }),
@@ -660,6 +697,9 @@ function soundIcon() { $('soundBtn').style.opacity = audio.on ? 1 : 0.45; $('sou
 $('soundBtn').onclick = () => { S.sound = audio.toggle(); save(); soundIcon(); toast(audio.on ? '배경 음악을 켰어.' : '배경 음악을 껐어.'); };
 
 audio.probe();
+document.body.classList.toggle('big', !!S.big);
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+if (document.fonts && document.fonts.load) document.fonts.load('40px Jua').catch(() => {});
 
 // ── 시작 ──
 function begin(i) {

@@ -26,7 +26,7 @@ export function makeLabel(text) {
   tex.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, fog: false }));
   sprite.renderOrder = 5;
-  const FONT = '700 34px "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+  const FONT = '34px "Jua", "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
   const draw = (t) => {
     // 글이 길면 이름표도 길어진다. 열여섯 자를 넘으면 줄임표를 붙인다.
     let str = String(t);
@@ -75,8 +75,8 @@ export function makePerson({ color = '#ff9f8a', hair = 0, label = '' } = {}) {
   head.position.set(0, 1.84, 0);
   body.add(head);
   add(new THREE.SphereGeometry(0.31, 18, 14), mSkin, 0, 0, 0, head);
-  add(new THREE.SphereGeometry(0.036, 8, 6), mDark, -0.11, 0.0, -0.29, head);
-  add(new THREE.SphereGeometry(0.036, 8, 6), mDark, 0.11, 0.0, -0.29, head);
+  add(new THREE.SphereGeometry(0.042, 8, 6), mDark, -0.115, 0.0, -0.285, head);
+  add(new THREE.SphereGeometry(0.042, 8, 6), mDark, 0.115, 0.0, -0.285, head);
   add(new THREE.SphereGeometry(0.05, 8, 6), mCheek, -0.19, -0.09, -0.24, head).scale.set(1, 0.6, 0.5);
   add(new THREE.SphereGeometry(0.05, 8, 6), mCheek, 0.19, -0.09, -0.24, head).scale.set(1, 0.6, 0.5);
   const hairG = new THREE.Group();
@@ -109,7 +109,7 @@ export function makePerson({ color = '#ff9f8a', hair = 0, label = '' } = {}) {
   let lab = null;
   const setLabel = (t) => {
     if (!t) { if (lab) lab.sprite.visible = false; return; }
-    if (!lab) { lab = makeLabel(t); root.add(lab.sprite); lab.sprite.position.y = 2.25 * heightOf(age) + 0.45; } else lab.draw(t);
+    if (!lab) { lab = makeLabel(t); root.add(lab.sprite); lab.sprite.position.y = 2.36 * heightOf(age) + 0.5; } else lab.draw(t);
     lab.sprite.visible = true;
   };
 
@@ -127,12 +127,12 @@ export function makePerson({ color = '#ff9f8a', hair = 0, label = '' } = {}) {
       age = me.age = a;
       const s = heightOf(a);
       body.scale.setScalar(s);
-      head.scale.setScalar(lerp(1.42, 1, smooth(a, 0, 17)));
+      head.scale.setScalar(lerp(1.55, 1.2, smooth(a, 0, 19)));
       mHair.color.copy(hairBase).lerp(hairGray, smooth(a, 52, 78));
       lean = -0.13 * smooth(a, 68, 88);
       cane.visible = a >= 74;
       shadow.scale.setScalar(s);
-      if (lab) lab.sprite.position.y = 2.25 * s + 0.45;
+      if (lab) lab.sprite.position.y = 2.36 * s + 0.5;
     },
     setOpacity(o) {
       if (o === opacity) return;
