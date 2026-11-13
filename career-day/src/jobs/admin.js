@@ -3,7 +3,9 @@ import { hospitalDay } from './_hospital-day.js';
 
 const job = {
   id: 'admin', name: '원무행정 직원', title: '접수와 안내의 하루', place: 'hospital', room: 'reception',
-  careernet: '1257', careernetNote: '커리어넷에 원무행정 직원이 따로 없어, 가장 가까운 병원코디네이터의 자료를 써요.',
+  careernet: '1257', careernetNote: '커리어넷에 원무행정 직원이 따로 없어서, 임금은 가까운 직업인 병원코디네이터의 자료를 썼어요. 실제 임금과 다를 수 있어요.',
+  // 커리어넷에 없는 직업이라 '하는 일'은 직접 적는다. 병원 원무과의 일반적인 업무만 적었다.
+  works: ['병원을 찾은 사람의 접수와 수납을 맡아요.', '진료 예약을 잡고, 바뀐 일정과 진료실 위치를 안내해요.', '진단서 같은 서류 발급을 돕고, 그 과정에서 개인정보를 지켜요.'],
   color: '#c7a569', look: { coat: '#d8b581', hair: 2, outfit: 'vest' }, uniform: '근무복',
   pay: 'salary', shift: { start: '08:30', end: '17:30', breakMin: 60 },
   person: '정이든',

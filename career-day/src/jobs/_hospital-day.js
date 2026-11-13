@@ -1,4 +1,5 @@
 // 병원 직업들이 함께 쓰는 하루의 틀. 직업 파일은 자기만의 고민(첫 만남, 팀, 돌발, 손으로 하는 일)만 채운다.
+// 쉬는 시간 보기에는 흥미 유형(type)을 달지 않는다. 쉬는 것은 직업의 일이 아니라서, 돌아보기의 '순간' 목록에서도 빠진다.
 // 시각은 출근 시각에서 몇 분 뒤인지로 적는다. 쉬는 시간(break)을 지난 장면은 그만큼 뒤로 민다.
 import { toHHMM, toMin } from '../engine.js';
 
@@ -18,9 +19,9 @@ export function hospitalDay(job, p) {
     { kind: 'choice', isBreak: true, at: at(half), place: 'lounge', title: '잠깐, 나도 숨을 고르기', body: `쉬는 시간 ${br}분. 내 힘을 돌보는 것도 하루의 일이에요.`,
       speaker: '동료', speech: '“먼저 쉬고 와요. 제가 자리 볼게요.”', fact: '근로기준법: 4시간 일하면 30분, 8시간 일하면 1시간 이상 쉬는 시간을 주어야 해요. 쉬는 시간에 일했다면 그건 일한 시간이에요.',
       options: [
-        { label: '쉬는 시간을 다 쓰고 돌아간다', fx: { energy: 18 }, reply: '물 한 잔, 따뜻한 밥 한 그릇. 오후를 버틸 힘이 차올랐어요.', moment: '쉬는 시간을 지킨 순간', type: 'R' },
-        { label: '쉬면서 동료와 오전 이야기를 나눈다', fx: { energy: 11, team: 6 }, reply: '“아까 그 일, 저도 그랬어요.” 웃으며 나눈 이야기가 오후의 손발을 맞춰 줘요.', moment: '동료와 쉬며 이야기 나눈 순간', type: 'S' },
-        { label: '15분만 쉬고 밀린 일을 하러 간다', when: (s) => s.delay > 0, fx: { energy: 2, delay: -15, breakWorked: 15 }, reply: '밀린 일을 조금 따라잡았어요. 대신 쉬지 못한 15분은 일한 시간으로 적혀요.', moment: '쉬는 시간을 줄여 일을 따라잡은 순간', type: 'C' },
+        { label: '쉬는 시간을 다 쓰고 돌아간다', fx: { energy: 18 }, reply: '물 한 잔, 따뜻한 밥 한 그릇. 오후를 버틸 힘이 차올랐어요.', moment: '쉬는 시간을 지킨 순간' },
+        { label: '쉬면서 동료와 오전 이야기를 나눈다', fx: { energy: 11, team: 6 }, reply: '“아까 그 일, 저도 그랬어요.” 웃으며 나눈 이야기가 오후의 손발을 맞춰 줘요.', moment: '동료와 쉬며 이야기 나눈 순간' },
+        { label: '15분만 쉬고 밀린 일을 하러 간다', when: (s) => s.delay > 0, fx: { energy: 2, delay: -15, breakWorked: 15 }, reply: '밀린 일을 조금 따라잡았어요. 대신 쉬지 못한 15분은 일한 시간으로 적혀요.', moment: '쉬는 시간을 줄여 일을 따라잡은 순간' },
       ] },
     { kind: 'choice', at: after(half + 50), place: job.room, ...p.incident },
     { kind: 'pick', at: after(half + 120), place: p.pickPlace || job.room, ...p.pick },

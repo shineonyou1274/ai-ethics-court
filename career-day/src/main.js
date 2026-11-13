@@ -98,7 +98,7 @@ function react(d = {}) {
 // ── 시작 화면 ──
 function title() {
   S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {};
-  ensureWorld('hospital')?.stage({ overview: true, hour: 9 });
+  const w0 = ensureWorld('hospital'); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
   const cur = saved.current && jobById(saved.current.job) ? saved.current : null;
   const been = new Set(saved.records.map((r) => r.job));
   const total = saved.records.reduce((a, r) => a + r.pay, 0);
@@ -146,8 +146,11 @@ function reveal(sc, head) {
     <div class="badge"><p class="eyebrow">${esc(PLACES[J.place].name)} · 오늘의 명찰</p><h2>${esc(J.name)}</h2><span class="tag">${esc(J.title)}</span>
       <p class="lead" style="margin-bottom:0">${esc(J.intro)}</p></div>
     <div class="bubble"><b class="jua">이 직업은 이런 일을 해요</b>
-      <ul class="works">${w.works.slice(0, 3).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
-      <p class="fine">자료: 커리어넷 직업정보 · ${esc(w.name)}</p></div>
+      <ul class="works">${(J.works || w.works).slice(0, 3).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+      <p class="fine">${J.works ? esc(J.careernetNote || '') : `자료: 커리어넷 직업정보 · ${esc(w.name)}`}</p></div>
+    <div class="bubble"><b class="jua">위쪽 세 가지 눈금</b>
+      ${GAUGES.map((g) => `<p>${g.icon} <b class="jua">${g.name}</b> · ${g.long}</p>`).join('')}
+      <p class="fine">내 판단에 따라 오르내려요. 일이 밀리면 시계 옆에 '밀림'이 생기고, 기다리는 사람이 늘어요.</p></div>
     <div class="bubble"><b class="jua">오늘의 근무</b>
       <p>${J.shift.start}–${J.shift.end} (쉬는 시간 ${J.shift.breakMin}분) · 하루 ${shiftMin(J) / 60}시간</p>
       <p>시급 약 <b class="jua">${won(hourly)}</b> · 오늘 8시간 일하면 <b class="jua">${won(hourly * 8)}</b></p>
@@ -300,9 +303,10 @@ function reflect() {
     if (like !== null && hard !== null) {
       const a = RIASEC[moments[like].type], b = RIASEC[moments[hard].type];
       out.innerHTML = `<div class="fact"><b>내 마음이 가리키는 쪽</b>
-        끌린 순간은 <b>${a.what}</b>이었어요. 흥미 유형으로는 <b>${a.name}</b>에 가까워요.<br>
-        버거웠던 순간은 <b>${b.what}</b>이었어요(${b.name}).<br>
-        ${moments[like].type === moments[hard].type ? '같은 종류의 일이 끌리기도, 버겁기도 했네요. 어떤 조건에서 달랐는지 떠올려 봐요.' : '이 직업의 하루에는 둘 다 들어 있어요. 끌림이 버거움보다 클지 생각해 봐요.'}</div>
+        끌린 순간은 <b>${a.what}</b>이었어요. 흥미 유형으로 치면 <b>${a.name}</b> 쪽의 일이에요.<br>
+        버거웠던 순간은 <b>${b.what}</b>이었어요(${b.name} 쪽).<br>
+        ${moments[like].type === moments[hard].type ? '같은 종류의 일이 끌리기도, 버겁기도 했네요. 어떤 조건에서 달랐는지 떠올려 봐요.' : '이 직업의 하루에는 둘 다 들어 있어요. 끌림이 버거움보다 클지 생각해 봐요.'}
+        <span class="fine" style="display:block">순간 하나로 나를 정할 수는 없어요. 여러 직업의 하루를 보내 보고, 흥미검사 결과와도 견주어 보세요.</span></div>
         <button class="btn" id="keep">출근 기록에 남기기</button>`;
       $('#keep').onclick = () => {
         saved.records.push({ job: J.id, name: J.name, date: new Date().toISOString().slice(0, 10), pay: p.total, mood: m.name, like: moments[like].label, hard: moments[hard].label, likeType: moments[like].type });
