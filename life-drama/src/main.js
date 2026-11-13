@@ -105,7 +105,8 @@ async function go(i, { instant = false } = {}) {
   const popped = stage(i, { instant, depart: departing });
   hud(b);
   // 답이 물건이 되어 뿅 하고 생기는 걸 잠깐 지켜본 뒤에 걷는다
-  if (popped.length && !instant && b.fx !== 'rewind') { world.setCamera('pop'); await new Promise((r) => setTimeout(r, popped[0].soft ? 1300 : 950)); }
+  bag();
+  if (popped.length && !instant && b.fx !== 'rewind') { world.setCamera('pop'); toast(`${popped[0].said} → ${popped[0].name}\n${popped[0].why}`); await new Promise((r) => setTimeout(r, popped[0].soft ? 1300 : 950)); }
   world.setWeather(b.weather);
   if (b.fx !== 'finale') world.setFinale(false);
   if (instant) world.jump(b.dist);
@@ -457,6 +458,15 @@ function recordOptions() {
   ]);
 }
 
+// 길에서 얻은 것의 수를 위쪽 단추에 보여 준다. 누르면 마을에서 다시 볼 수 있다.
+function bag() {
+  const n = villageOf(S, beats).items.filter((x) => !x.big).length;
+  $('bagBtn').hidden = !n;
+  $('bagN').textContent = n;
+  $('bagBtn').setAttribute('aria-label', `길에서 얻은 것 ${n}개 보기`);
+}
+$('bagBtn').onclick = () => openVillage();
+
 // ── 내 인생 마을 ──
 function villageCanvas(w, hgt) {
   try { return villageImage(villageOf(S, beats), w, hgt); } catch (e) { return null; } // 그래픽 장치를 더 못 여는 기기에서는 그림 없이 간다
@@ -468,7 +478,7 @@ function openVillage() {
   const list = [...data.items].filter((x) => !x.big || !data.items.some((y) => !y.big && y.id + ':big' === x.id)).sort((x, y) => x.age - y.age);
   dialog('내 인생 마을', [
     cv,
-    h('p', { style: 'font-size:14px;color:var(--soft);margin-top:8px' }, '길은 섬 가장자리에서 태어나 가운데 언덕으로 감겨 들어가. 네가 답한 만큼 마을이 채워져. 손가락으로 돌려 봐.'),
+    h('p', { style: 'font-size:14px;color:var(--soft);margin-top:8px' }, '길은 섬 가장자리에서 태어나 가운데 언덕으로 감겨 들어가. 네가 답해서 얻은 것들이 여기에 모여. 손가락으로 돌려 보고, 아래 목록에서 하나하나의 까닭을 읽어 봐.'),
     h('button', { class: 'primary', type: 'button', style: 'margin:6px 0 14px', onclick: () => {
       const c = villageCanvas(1080, 1080);
       if (!c) { toast('이 기기에서는 그림으로 저장하기 어려워.'); return; }
@@ -477,7 +487,7 @@ function openVillage() {
       x.fillStyle = '#7d7488'; x.font = '30px "Gowun Dodum", sans-serif'; x.fillText(`${S.name}의 인생 마을 · ${S.now}살에 짓다`, 540, 146);
       c.toBlob((blob) => store.download(`인생드라마_${S.name}_마을.jpg`, blob), 'image/jpeg', 0.92);
     } }, '그림으로 저장'),
-    list.length ? h('ul', { class: 'links' }, list.map((x) => h('li', {}, h('b', {}, x.age + '살 '), x.title, x.text ? h('small', { style: 'display:block;color:var(--soft)' }, x.text) : null)))
+    list.length ? h('ul', { class: 'links' }, list.map((x) => h('li', {}, h('b', {}, x.age + '살 · ' + x.name), h('small', { style: 'display:block' }, x.why), x.text ? h('small', { style: 'display:block;color:var(--soft)' }, x.text) : null)))
       : h('p', { class: 'hint' }, '아직 마을이 비어 있어. 길을 걸으며 답하면 하나씩 생겨.'),
   ]);
   let v = null;

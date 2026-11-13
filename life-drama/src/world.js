@@ -2,7 +2,7 @@
 // 나이가 곧 하루의 시간이다: 새벽에 태어나 별밤에 길을 마친다.
 import * as THREE from 'three';
 import { makeObject, makeArch, makeSign, makePlaque, cloudGeometry, biomeOf, GLOW } from './prefabs.js';
-import { makePerson, makePet, heightOf } from './people.js';
+import { makePerson, makePet, heightOf, makeLabel } from './people.js';
 import { ROLES } from './story.js';
 
 const ROAD = 8.4;
@@ -246,8 +246,9 @@ export function createWorld(canvas) {
       const near = r > S.dist - 60 && r < S.dist + AHEAD + 10;
       let o = tunnelObjs.get(r);
       if (!near) { if (o) { scene.remove(o); tunnelObjs.delete(r); } continue; }
-      if (!o) { o = makeObject('tunnel', 0); const pl = makePlaque('어두운 길에도 끝이 있어'); pl.position.set(0, 9.3, 9.7); o.add(pl); scene.add(o); tunnelObjs.set(r, o); }
+      if (!o) { o = makeObject('tunnel', 0); const pl = makePlaque('어두운 길에도 끝이 있어'); pl.position.set(0, 9.3, 9.7); o.add(pl); o.userData.pl = pl; scene.add(o); tunnelObjs.set(r, o); }
       o.position.set(lane(r) - L0, Y(r), -(r - S.dist));
+      o.userData.pl.visible = r - 9.7 - S.dist > 13; // 들머리 바로 앞에서는 글판이 화면 위로 잘리므로 접는다
     }
     for (const [r, o] of tunnelObjs) if (!tunnels.includes(r)) { scene.remove(o); tunnelObjs.delete(r); }
   }
@@ -285,13 +286,18 @@ export function createWorld(canvas) {
     for (const k of keeps) {
       const near = k.dist > S.dist - 45 && k.dist < S.dist + AHEAD;
       let o = keepObjs.get(k.id);
-      if (o && (!near || o.kind !== k.kind)) { scene.remove(o.g); keepObjs.delete(k.id); o = null; }
+      if (o && (!near || o.kind !== k.kind || o.said !== k.said)) { scene.remove(o.g); o.lab.dispose(); keepObjs.delete(k.id); o = null; }
       if (!near) continue;
       ids.add(k.id);
       if (!o) {
         const g = makeObject(k.kind, 0);
         scene.add(g);
-        o = { g, kind: k.kind, born: k.fresh ? 0 : 1, settle: k.fresh ? 0 : 1, spin: hash(k.dist + k.n) * 6.28 };
+        // 이름표: 무엇을 골라서 생긴 물건인지 알려 준다
+        const lab = makeLabel(k.said || k.name || '');
+        lab.sprite.position.y = k.kind === 'kite' ? 3.5 : k.kind === 'heart' || k.kind === 'guitar' || k.kind === 'flag' ? 2.9 : 2.1;
+        lab.sprite.scale.multiplyScalar(0.8);
+        g.add(lab.sprite);
+        o = { g, lab, said: k.said, kind: k.kind, born: k.fresh ? 0 : 1, settle: k.fresh ? 0 : 1, spin: hash(k.dist + k.n) * 6.28 };
         keepObjs.set(k.id, o);
         if (k.fresh && !k.soft) for (let i = 0; i < 8; i++) {
           const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, color: ['#ffd166', '#ff9eb5', '#fffdf8', '#9ad0f5'][i % 4], fog: false, depthWrite: false, transparent: true }));
@@ -315,7 +321,7 @@ export function createWorld(canvas) {
       o.g.position.set(x + lane(d) - L0, Y(d) + 0.06 + top * (1 - e) + Math.sin(Math.PI * o.settle) * 1.1 + Math.sin(S.t * 5) * 0.06 * (1 - e), -(d - S.dist));
       o.g.rotation.y = lerp(0.4, o.spin * 0.2 - 0.9, e) + (k.soft ? 0 : (1 - o.born) * 5) + (1 - e) * S.t * 1.5;
     }
-    for (const [id, o] of keepObjs) if (!ids.has(id)) { scene.remove(o.g); keepObjs.delete(id); }
+    for (const [id, o] of keepObjs) { o.lab.sprite.visible = S.labels; if (!ids.has(id)) { scene.remove(o.g); o.lab.dispose(); keepObjs.delete(id); } }
     for (let i = sparks.length - 1; i >= 0; i--) {
       const sp = sparks[i], u = sp.userData;
       u.t += dt; u.vy -= 6 * dt;
@@ -397,6 +403,9 @@ export function createWorld(canvas) {
         const d = f.dist + RAMP0 + (sg.dir ? 15 : 23) + sg.n * 4; // 뒤따르는 터널에 묻히지 않게 갈림목 가까이에 세운다
         const side = sg.dir || -1;
         sg.o.position.set(base(d) + sg.dir * bendOf(f, d) + side * (ROAD / 2 + 1.3), Y(d), -(d - S.dist));
+        // 바로 옆까지 오면 화면 가장자리에서 글자가 잘리므로, 가까워지기 전에 접어 넣는다
+        const near = smooth(d - S.dist, 9, 15);
+        sg.o.visible = near > 0.02; sg.o.scale.setScalar(Math.max(0.02, near));
       }
     }
     for (const id of [...forkDecor.keys()]) if (!forks.some((f) => f.id === id)) dropFork(id);
