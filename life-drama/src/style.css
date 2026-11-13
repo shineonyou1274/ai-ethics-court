@@ -188,7 +188,7 @@ dialog::backdrop { background: #2b244066; }
 .shots a { display: block; text-align: center; min-height: 44px; line-height: 44px; font-size: 14px; font-weight: 700; color: var(--ink); text-decoration: none; }
 video { width: 100%; border-radius: 14px; background: #000; max-height: 56dvh; }
 
-#toast { position: fixed; left: 50%; top: calc(74px + var(--safe-t)); transform: translateX(-50%); z-index: 20; background: #3a3448ee; color: #fff; padding: 11px 18px; border-radius: 14px; font-size: 15px; max-width: calc(100vw - 32px); text-align: center; }
+#toast { position: fixed; left: 50%; top: calc(74px + var(--safe-t)); transform: translateX(-50%); z-index: 20; background: #3a3448ee; color: #fff; padding: 11px 18px; border-radius: 14px; font-size: 15px; max-width: calc(100vw - 32px); text-align: center; white-space: pre-line; line-height: 1.45; }
 #print { display: none; }
 
 #constel { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
@@ -219,6 +219,10 @@ body[data-turning='1'] #card .eyebrow { color: #e0705c; }
 .tile { border-bottom-width: 4px; }
 .tile:active { border-bottom-width: 1.5px; margin-top: 2.5px; }
 #chip { font-family: var(--title); font-weight: var(--tw); font-size: 15px; }
+
+#soundBtn:first-of-type, #bagBtn[hidden] + #soundBtn { margin-left: auto; }
+.bag { position: relative; font-size: 20px; }
+.bag b { position: absolute; right: -3px; top: -3px; min-width: 21px; height: 21px; padding: 0 5px; border-radius: 99px; background: var(--accent); color: #fff; font: 400 13px/21px var(--title); }
 
 /* 내 인생 마을 */
 .village { display: block; width: 100%; aspect-ratio: 1 / 1; max-height: 56dvh; border-radius: 22px; background: linear-gradient(180deg, #bfe3fb, #ffeede 62%, #ffd8c9); touch-action: pan-y; cursor: grab; }

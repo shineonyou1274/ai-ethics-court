@@ -605,15 +605,34 @@ const KEEP = {
   school: 'cap', job: 'desk', tp1b: 'sprout', tp2b: 'sprout', proud: 'trophy', award: 'trophy', money: 'gift', health: 'sprout', letter: 'mailbox', talent: 'gift',
   moving: 'suitcase', offer: 'flag', lost: 'sprout', reunion: 'park', crisis: 'lantern', care2: 'heart', ask: 'mailbox', last: 'lantern', words: 'mailbox',
 };
+const KEEP_NAME = { cradle: '요람', toy: '장난감 블록', ball: '공', kite: '연', books: '책 더미', sprout: '새싹 화분', cap: '졸업 모자', desk: '내 책상', heart: '꽃 아치', gift: '선물 상자', trophy: '트로피', mailbox: '우체통', easel: '이젤', guitar: '기타', globe: '지구본', pot: '케이크', suitcase: '여행 가방', flag: '깃발', park: '벤치', lantern: '등불', tools: '공구함' };
+const BIG_NAME = { school: '학교', building: '일터·배움터', shop: '내 가게', house: '함께 사는 집', myhome: '내 집', car: '내 차', balloon: '열기구' };
+const WHY = {
+  care: '나를 돌봐 준 손길', childhood4: '어릴 적 놀이', childhood7: '뛰어놀던 날', kid: '시간 가는 줄 몰랐던 것', hard: '비 온 뒤에 돋은 싹', me: '나를 소개하는 깃발', major: '더 깊이 배우고 싶은 것', soon: '세 해 뒤에 꽂을 깃발',
+  middle: '중학생이 되던 날', highschool: '고등학생이 되던 날', school: '스무 살에 고른 길', job: '첫 일터에서 얻은 것', marry: '함께 걷기로 한 날', home: '아이와 지낸 시간', retire: '일을 내려놓은 뒤의 시간', learn: '좋아서 배운 것',
+  tp1b: '막힌 길 끝에서 돋은 싹', tp2b: '바뀐 길에서 돋은 싹', chance: '뜻밖의 제안 앞에서 고른 것', offer: '꿈꾸던 연락 앞에서 고른 것', give: '내가 내민 손', proud: '가장 뿌듯한 일', award: '뜻밖에 받은 상', money: '큰돈을 쓴 곳',
+  health: '몸을 돌보는 습관', letter: '스무 살의 내가 보낸 편지', talent: '뒤늦게 찾은 재능', moving: '낯선 도시의 첫날', lost: '잃고 나서 다시 심은 것', reunion: '옛 친구와 앉은 자리', crisis: '멈춘 세상을 밝힌 불', care2: '달려가 곁을 지킨 날', ask: '친구에게 보낸 답',
+  last: '마지막 날을 밝힌 등불', words: '남겨질 사람들에게 쓴 인사',
+};
+/** 물건의 이름, 생긴 까닭, 그 장면에서 고른 것. 길가의 이름표와 마을 목록에 쓴다. */
+function keepInfo(b, a, kind) {
+  const said = answerText(b, a).split(' — ')[0];
+  return { name: KEEP_NAME[kind] || '물건', why: WHY[b.id] || b.title, said: snip(said || b.title, 12), age: b.age };
+}
 /** 이 장면에 답하면 길가에 무엇이 생기는가. 건너뛴 장면에는 아무것도 생기지 않는다. */
 export function keepKind(b, a) {
   if (!a || a.skip || b.back) return '';
   const picks = a.picks || [], p = picks[0];
   if (b.id === 'marry') return p === 'wed' || p === 'with' ? 'heart' : p === 'solo' ? 'park' : '';
   if (b.id === 'home') return p === 'one' || p === 'two' ? 'toy' : '';
-  if (b.id === 'retire') return picks.includes('trip') ? 'suitcase' : picks.includes('learn') ? 'easel' : 'park';
+  if (b.id === 'retire') return picks.includes('trip') ? 'suitcase' : picks.includes('learn') ? 'easel' : picks.includes('serve') ? 'heart' : picks.includes('small') ? 'desk' : 'park';
   if (b.id === 'learn') return LEARN_KEEP[p] || 'easel';
-  if (b.id === 'chance') return p === 'go' ? 'suitcase' : 'flag';
+  if (b.id === 'chance' || b.id === 'offer') return p === 'go' ? 'suitcase' : p === 'stay' ? 'park' : 'flag';
+  if (b.id === 'school') return { univ: 'cap', skill: 'tools', work: 'desk', world: 'suitcase' }[p] || 'flag';
+  if (b.id === 'job') return { company: 'desk', public: 'desk', pro: 'tools', own: 'flag', free: 'easel' }[p] || 'desk';
+  if (b.id === 'middle' || b.id === 'highschool') return p === 'vocational' ? 'tools' : p === 'home' || p === 'alt' || p === 'other' ? 'globe' : 'books';
+  if (b.id === 'give') return 'heart';
+  if (b.id === 'tp1' || b.id === 'tp2') return '';
   if (b.home || b.car) return ''; // 집과 차는 따로 생긴다
   if (b.planned && b.type === 'text') return b.fly ? 'suitcase' : /특허|출간|책|마라톤|무대|우승|합격|완주/.test(b.title) ? 'trophy' : /창업|가게/.test(b.title) ? 'flag' : 'gift';
   return KEEP[b.id] || '';
@@ -625,7 +644,7 @@ export function keepsOf(S, beats, i) {
   for (let j = 0; j < end && j < beats.length; j++) {
     const b = beats[j];
     const kind = keepKind(b, S.a[b.id]);
-    if (kind) out.push({ id: b.id, kind, dist: b.dist, soft: b.act >= 4 || b.id === 'care2' || b.id === 'lost' || b.id === 'crisis' });
+    if (kind) out.push({ id: b.id, kind, dist: b.dist, soft: b.act >= 4 || b.id === 'care2' || b.id === 'lost' || b.id === 'crisis', ...keepInfo(b, S.a[b.id], kind) });
   }
   return out;
 }
@@ -639,7 +658,7 @@ export function villageOf(S, beats) {
     const a = S.a[b.id];
     if (!a || a.skip) continue;
     const picks = a.picks || [], p = picks[0];
-    const push = (kind, big, v = 0) => items.push({ id: b.id + (big ? ':big' : ''), age: b.age, kind, big, v, title: b.title, text: answerText(b, a) });
+    const push = (kind, big, v = 0) => items.push({ id: b.id + (big ? ':big' : ''), age: b.age, kind, big, v, title: b.title, text: answerText(b, a), ...(big ? { name: BIG_NAME[kind] || b.title, why: b.title } : keepInfo(b, a, kind)) });
     if ((b.id === 'middle' || b.id === 'highschool') && !school && !['home', 'other'].includes(p)) { school = true; push('school', true); }
     else if (b.id === 'school' && p === 'univ') push('building', true, 1);
     else if (b.id === 'job') push(p === 'own' ? 'shop' : 'building', true, 2);
