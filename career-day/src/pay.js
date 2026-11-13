@@ -1,0 +1,33 @@
+// 일당 계산. 화면 없이 숫자만 다룬다.
+// 연봉(만 원, 중앙값) → 시급 → 하루 기본급 + 연장 수당. 모두 세금과 보험료를 떼기 전(세전) 금액이다.
+
+export const MONTH_HOURS = 209; // 주 40시간 일하고 주휴 8시간을 더한 한 달 기준 시간 (근로기준법 계산 관행)
+export const MIN_WAGE = { year: 2026, hourly: 10320 }; // 2026년 최저임금 (최저임금위원회 고시)
+export const OVERTIME_RATE = 1.5; // 하루 8시간을 넘겨 일하면 시급의 50%를 더 준다 (상시 5명 이상 사업장)
+
+const r10 = (n) => Math.round(n / 10) * 10;
+
+export function hourlyFromAnnual(annualMan) {
+  return r10(annualMan * 10000 / 12 / MONTH_HOURS);
+}
+
+// workedMin: 오늘 실제로 일한 시간(분, 쉬는 시간 빼고). shiftMin: 약속된 근무 시간(분)
+export function salaryDay(annualMan, workedMin, shiftMin = 480) {
+  const hourly = hourlyFromAnnual(annualMan);
+  const baseMin = Math.min(workedMin, shiftMin);
+  const overMin = Math.max(0, workedMin - shiftMin);
+  const base = r10(hourly * baseMin / 60);
+  const overtime = r10(hourly * OVERTIME_RATE * overMin / 60);
+  return { hourly, base, overtime, overMin, total: base + overtime };
+}
+
+// 일한 시간만큼 지금까지 번 돈 (하루 중간에 보여 주는 용도)
+export function earnedSoFar(annualMan, workedMin, shiftMin = 480) {
+  return salaryDay(annualMan, workedMin, shiftMin).total;
+}
+
+export const won = (n) => `${Math.round(n).toLocaleString('ko-KR')}원`;
+export function manwon(n) { // 1234567 → "123만 4,567원"
+  n = Math.round(n); const man = Math.floor(n / 10000), rest = n % 10000;
+  return man ? `${man.toLocaleString('ko-KR')}만${rest ? ' ' + rest.toLocaleString('ko-KR') : ''}원` : won(n);
+}

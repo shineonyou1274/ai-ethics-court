@@ -1,0 +1,4 @@
+node_modules
+dist
+scripts/jobs_raw.json
+scripts/joblist_all.json
