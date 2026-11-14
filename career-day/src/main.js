@@ -6,6 +6,7 @@ import { createWorld } from './world/world.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
 import { MIN_WAGE, earnedSoFar, hourlyOf, won, manwon } from './pay.js';
+import { makeRecord, checkRecord, loadRecords, saveRecord, walletTotal, RECORDS_KEY } from '../../shared/workday.js';
 import {
   GAUGES, RIASEC, newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, thanksLine, leave, next,
   payslip, mood, clockOf, shiftMin, toMin, toHHMM,
@@ -26,7 +27,16 @@ const store = {
   get() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } },
   set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* 저장이 막힌 기기에서도 체험은 된다 */ } },
 };
-let saved = store.get(); saved.records ||= [];
+let saved = store.get();
+// 출근 기록은 모든 직업체험 앱이 함께 쓰는 곳(shared/workday.js)에 둔다. 예전 칸에 있던 기록은 한 번 옮긴다.
+if (saved.records?.length) {
+  try {
+    const old = saved.records.map((r) => ({ v: 1, app: 'career-day', date: r.date, job: { id: r.job, name: r.name, careernet: String(jobById(r.job)?.careernet || '') }, place: 'hospital', shift: null, pay: { total: r.pay }, ending: { name: r.mood, icon: null }, like: { label: r.like, type: r.likeType || null }, hard: { label: r.hard, type: null }, extra: { moved: true } }));
+    localStorage.setItem(RECORDS_KEY, JSON.stringify([...old, ...loadRecords()]));
+  } catch { /* 옮기지 못해도 체험은 된다 */ }
+  delete saved.records; store.set(saved);
+}
+let diary = loadRecords();
 const save = () => { saved.current = S && !S.closed ? S : null; store.set(saved); };
 
 // ── 3D 일터 ──
@@ -100,13 +110,13 @@ function title() {
   S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {};
   const w0 = ensureWorld('hospital'); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
   const cur = saved.current && jobById(saved.current.job) ? saved.current : null;
-  const been = new Set(saved.records.map((r) => r.job));
-  const total = saved.records.reduce((a, r) => a + r.pay, 0);
+  const been = new Set(diary.map((r) => r.job.id));
+  const total = walletTotal(diary);
   view(`
     <p class="eyebrow">직업인의 하루 · CAREER DAY</p>
     <h1>오늘,<br>출근합니다</h1>
     <p class="lead">한 직업인의 하루를 직접 판단하며 살아 봐요. 내 선택에 따라 오후가 달라지고, 퇴근하면 그날 일한 만큼 일당을 받아요.</p>
-    ${saved.records.length ? `<div class="bank"><span>지금까지 ${saved.records.length}번 출근했어요</span><b>🪙 ${manwon(total)}</b></div>` : ''}
+    ${diary.length ? `<div class="bank"><span>지금까지 ${diary.length}번 출근했어요</span><b>🪙 ${manwon(total)}</b></div>` : ''}
     ${cur ? `<button class="btn dark" id="resume">${esc(jobById(cur.job).name)}의 하루 이어 하기</button>` : ''}
     <button class="btn" id="draw">오늘의 직업 뽑기</button>
     <h3>직접 고르기 · ${esc(PLACES.hospital.name)}</h3>
@@ -311,7 +321,16 @@ function reflect() {
         <span class="fine" style="display:block">순간 하나로 나를 정할 수는 없어요. 여러 직업의 하루를 보내 보고, 흥미검사 결과와도 견주어 보세요.</span></div>
         <button class="btn" id="keep">출근 기록에 남기기</button>`;
       $('#keep').onclick = () => {
-        saved.records.push({ job: J.id, name: J.name, date: new Date().toISOString().slice(0, 10), pay: p.total, mood: m.name, like: moments[like].label, hard: moments[hard].label, likeType: moments[like].type });
+        const w = wageOf(J);
+        const rec = makeRecord({
+          app: 'career-day', place: J.place, job: { id: J.id, name: J.name, careernet: J.careernet },
+          annual: w.wage, wageYear: w.year, wageBasis: w.basis || w.name,
+          shift: J.shift, workedMin: p.worked, shiftMin: p.shift,
+          ending: { name: m.name, icon: m.icon },
+          like: { label: moments[like].label, type: moments[like].type }, hard: { label: moments[hard].label, type: moments[hard].type },
+        });
+        const errs = checkRecord(rec); if (errs.length) console.warn('출근 기록 약속 어긋남', errs);
+        diary = saveRecord(rec);
         saved.current = null; store.set(saved); sfx('fanfare'); world?.burst('star', 8); done();
       };
     } else out.innerHTML = '';
@@ -329,7 +348,7 @@ function reflect() {
 
 function done() {
   view(`<div class="badge"><div class="big">📒</div><h2>출근 기록에 남겼어요</h2><p>${esc(J.name)}의 하루 · 🪙 ${won(payslip(S, J, annual()).total)}</p></div>
-    <div class="bubble"><b class="jua">지금까지의 출근 기록</b><ol class="path">${saved.records.map((r) => `<li>${esc(r.name)} <span>· ${esc(r.mood)} · ${won(r.pay)} · 💛 ${esc(r.like)}</span></li>`).join('')}</ol></div>
+    <div class="bubble"><b class="jua">지금까지의 출근 기록</b><ol class="path">${diary.map((r) => `<li>${esc(r.job.name)} <span>· ${esc(r.ending.name)} · ${won(r.pay.total)} · 💛 ${esc(r.like.label)}</span></li>`).join('')}</ol></div>
     <button class="btn" id="again">같은 직업으로 다른 하루 보내기</button><button class="btn ghost" id="home">다른 직업 고르러 가기</button>`);
   on('#again', () => startJob(J)); on('#home', title);
 }

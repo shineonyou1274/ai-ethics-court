@@ -7,6 +7,7 @@
 npm install
 npm run dev     # 고치면서 보기
 npm test        # 모든 직업의 모든 길을 끝까지 돌려 보는 검사
+node ../shared/test.mjs   # 앱끼리 함께 지키는 약속 검사
 npm run build   # career-day.html 만들기
 ```
 
@@ -32,7 +33,10 @@ npm run build   # career-day.html 만들기
 - **밀린 시간**: 판단에 따라 일이 밀리면 시계가 늦어지고, 3D에 기다리는 줄이 생겨요.
 - **여파(ripple)**: 앞의 선택이 뒤 장면에서 다시 나타나요. 예: 간호사가 "다시 오겠다"고 약속하고 일이 밀리면, 오후에 그 말을 다시 들어요.
 
-## 일당 계산 (`src/pay.js`)
+## 일당 계산 (`shared/workday.js`)
+
+일당, 흥미 유형, 출근 기록은 다른 직업체험 앱(한 잔의 하루)과 함께 지키는 약속이라 저장소 맨 위 `shared/` 에 있어요. `src/pay.js` 는 그것을 다시 내보내기만 해요. 약속은 `shared/README.md` 를 보세요.
+
 
 - 커리어넷 직업정보의 평균 연봉(중앙값, 만 원)을 씀 → `src/data/careernet.js`
 - 시급 = 연봉 ÷ 12 ÷ 209시간, 기본급 = 시급 × 8시간

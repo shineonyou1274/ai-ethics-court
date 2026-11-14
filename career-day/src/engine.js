@@ -10,14 +10,7 @@ export const GAUGES = [
 ];
 
 // 홀랜드 흥미 유형. 장면마다 "어떤 종류의 일"이었는지 꼬리표를 단다.
-export const RIASEC = {
-  R: { name: '현실형', what: '손과 몸, 도구로 직접 해내는 일' },
-  I: { name: '탐구형', what: '까닭을 따지고 원인을 찾는 일' },
-  A: { name: '예술형', what: '새롭게 꾸미고 표현하는 일' },
-  S: { name: '사회형', what: '사람을 돕고 마음을 살피는 일' },
-  E: { name: '진취형', what: '앞장서서 이끌고 설득하는 일' },
-  C: { name: '관습형', what: '정확하게 확인하고 정리하는 일' },
-};
+export { RIASEC } from '../../shared/workday.js'; // 흥미 유형은 앱끼리 함께 쓰는 약속
 
 export const TIRED = 30; // 에너지가 이보다 낮으면 '다 쓰고 돌아가는 퇴근길'
 const clamp = (v) => Math.max(0, Math.min(100, Math.round(v)));
