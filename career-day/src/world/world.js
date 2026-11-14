@@ -2,6 +2,7 @@
 // 3D를 못 쓰는 기기에서는 null을 돌려주고, 화면은 글과 버튼만으로 그대로 돌아간다.
 import * as T from 'three';
 import { box, label, person, dispose, reduced } from './kit.js';
+import { makeCloseup } from './closeup.js';
 
 const BURST = { care: '🫶', team: '🤝', energy: '⚡', tired: '💤', coin: '🪙', star: '✨' };
 
@@ -32,10 +33,20 @@ export function createWorld(canvas, el, place) {
   const beacon = new T.Mesh(new T.RingGeometry(0.45, 0.55, 32), new T.MeshBasicMaterial({ color: '#db9273', transparent: true, opacity: 0.7, side: T.DoubleSide }));
   beacon.rotation.x = -Math.PI / 2; beacon.position.y = 0.05; scene.add(beacon);
 
-  let yaw = 0.58, targetYaw = 0.58, zoom = 1, targetZoom = 1, night = 0, targetNight = 0;
+  let yaw = 0.58, targetYaw = 0.58, zoom = 1, targetZoom = 1, night = 0, targetNight = 0, height = 23, targetHeight = 23;
   const focus = new T.Vector3(), targetFocus = new T.Vector3(0, 0, 1);
   let setGroup = null, setName = null, here = null, last = 0, visible = true;
   const crowd = []; const sprites = [];
+  // 가까이 보기(문질러 닦기, 집어 옮기기) 동안에는 병원 모형과 사람들을 감춘다
+  const close = makeCloseup({
+    scene, camera, canvas,
+    hideWorld(on) {
+      for (const o of architecture) o.visible = on ? false : !place.sets[setName];
+      if (setGroup) setGroup.visible = !on;
+      player.root.visible = !on; beacon.visible = !on; for (const p of crowd) p.root.visible = !on;
+    },
+    view({ focus: f, zoom: z, yaw: y, height: h = 23 }) { targetFocus.copy(f); targetZoom = z; targetYaw = y; targetHeight = h; focus.copy(f); zoom = z; yaw = y; height = h; }, // 바로 옮겨서, 끄는 도중 화면이 움직이지 않게
+  });
 
   function buildSet(name) {
     const isSet = !!place.sets[name];
@@ -62,8 +73,8 @@ export function createWorld(canvas, el, place) {
     requestAnimationFrame(animate);
     if (!visible || now - last < 32) return;
     const dt = Math.min(0.25, (now - last) / 1000); last = now; const t = now / 1000;
-    yaw += (targetYaw - yaw) * 0.08; zoom += (targetZoom - zoom) * 0.08; focus.lerp(targetFocus, 0.07); night += (targetNight - night) * 0.03;
-    camera.position.set(focus.x + Math.sin(yaw) * 24, 23 + focus.y, focus.z + Math.cos(yaw) * 24);
+    yaw += (targetYaw - yaw) * 0.08; zoom += (targetZoom - zoom) * 0.08; focus.lerp(targetFocus, 0.07); night += (targetNight - night) * 0.03; height += (targetHeight - height) * 0.08;
+    camera.position.set(focus.x + Math.sin(yaw) * 24, height + focus.y, focus.z + Math.cos(yaw) * 24);
     camera.lookAt(focus.x, focus.y, focus.z); camera.zoom = zoom; camera.updateProjectionMatrix();
     sun.color.setRGB(1, 1 - night * 0.22, 0.85 - night * 0.2); hemi.intensity = 2.4 - night * 0.75;
     player.update(t, false); for (const p of people) p.update(t, false); for (const p of crowd) p.update(t, false);
@@ -73,15 +84,25 @@ export function createWorld(canvas, el, place) {
       s.obj.position.y += dt * s.vy; s.obj.position.x += dt * s.vx; s.obj.material.opacity = Math.min(1, s.life * 1.5);
       if (s.life <= 0) { scene.remove(s.obj); s.obj.material.dispose(); sprites.splice(i, 1); }
     }
+    close.tick(dt, t);
     renderer.render(scene, camera);
   }
   requestAnimationFrame(animate);
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; last = performance.now(); });
 
   let drag = null;
-  canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, yaw: targetYaw }; canvas.setPointerCapture(e.pointerId); });
-  canvas.addEventListener('pointermove', (e) => { if (drag) targetYaw = Math.max(-1.1, Math.min(1.25, drag.yaw + (e.clientX - drag.x) * 0.004)); });
-  canvas.addEventListener('pointerup', () => { drag = null; }); canvas.addEventListener('pointercancel', () => { drag = null; });
+  canvas.addEventListener('pointerdown', (e) => {
+    if (drag) return;
+    canvas.setPointerCapture(e.pointerId);
+    if (close.active) { if (close.down(e)) { e.preventDefault(); drag = { id: e.pointerId, close: true }; } return; }
+    drag = { id: e.pointerId, x: e.clientX, yaw: targetYaw };
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!drag || drag.id !== e.pointerId) return;
+    if (drag.close) close.move(e); else targetYaw = Math.max(-1.1, Math.min(1.25, drag.yaw + (e.clientX - drag.x) * 0.004));
+  });
+  const release = (e, cancel) => { if (!drag || drag.id !== e.pointerId) return; if (drag.close) close.up(cancel); drag = null; };
+  canvas.addEventListener('pointerup', (e) => release(e, false)); canvas.addEventListener('pointercancel', (e) => release(e, true));
 
   const texCache = {};
   return {
@@ -96,6 +117,7 @@ export function createWorld(canvas, el, place) {
     },
     // 장면 바꾸기: 어느 방에서, 몇 시에. overview 면 일터 전체를 보여 준다.
     stage({ place: rid = 'outside', hour = 8, overview = false }) {
+      close.end(); targetHeight = 23; if (reduced) height = 23;
       targetNight = Math.max(0, (hour - 13) / 7);
       buildSet(overview ? null : rid); here = rid;
       const room = place.rooms.find((r) => r.id === rid), isSet = !!setGroup;
@@ -128,5 +150,9 @@ export function createWorld(canvas, el, place) {
       }
     },
     snapshot() { return canvas.toDataURL('image/png'); },
+    // 가까이 보기 시작. 돌려받은 handle.end() 로 끝내고 원래 장면으로 돌아간다.
+    closeup(name, on) { return close.start(name, on); },
+    closeEnd() { close.end(); },
+    closeProject(x, y, z) { return close.project(x, y, z); },
   };
 }

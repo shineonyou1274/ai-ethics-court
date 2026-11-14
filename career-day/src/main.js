@@ -148,7 +148,9 @@ function scene() {
   const head = `<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· ${S.i + 1} / ${J.scenes.length}</span></p><h2>${esc(sc.title)}</h2>`;
   const ripple = (S.notes || []).map((n) => `<div class="ripple"><b>앞선 선택이 이어져요</b>${esc(n.text)}${chips(n.d)}</div>`).join('');
   const body = `${ripple}<p class="lead">${esc(sc.body)}</p>`;
-  $('#app').classList.toggle('handsOn', sc.kind === 'hands');
+  unmount?.(); unmount = null;
+  $('#app').classList.toggle('handsOn', sc.kind === 'hands' && !sc.closeup);
+  $('#app').classList.toggle('closeOn', sc.kind === 'hands' && !!sc.closeup && !!world);
   ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
 }
 const goNext = () => { next(S, J); save(); scene(); };
@@ -234,6 +236,8 @@ function order(sc, head, body) {
 
 // 손으로 하는 장면: 놀이(src/hands/)를 붙이고, 끝나면 등급에 따른 결과를 보여 준다.
 // 마친 결과는 S.handsDone 에 남겨서, 새로 고쳐도 다시 하거나 두 번 반영되지 않게 한다.
+if (location.hash === '#test') window.__cd = { world: () => world }; // 실기 검사에서만 쓰는 손잡이
+let unmount = null; // 지금 붙어 있는 손 놀이를 떼어 내는 함수 (3D 가까이 보기를 끝낸다)
 function hands(sc, head, body) {
   view(`${head}${body}<div class="hands" id="hands"></div><div id="out"></div>`);
   const show = (r) => {
@@ -242,11 +246,11 @@ function hands(sc, head, body) {
     setTimeout(() => $('#nx')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250);
   };
   const before = S.handsDone?.[S.i];
-  if (before) { $('#hands').innerHTML = `<div class="handsDone">✓ ${esc(sc.grades[before.grade]?.moment || sc.moment)}</div>`; show(before); return; }
+  if (before) { $('#app').classList.remove('closeOn'); $('#hands').innerHTML = `<div class="handsDone">✓ ${esc(sc.grades[before.grade]?.moment || sc.moment)}</div>`; show(before); return; }
   // 폰에서는 안내를 읽을 틈을 준 뒤, 손으로 하는 곳이 화면 위쪽에 오게 내려 준다
   setTimeout(() => { const h = $('#hands'); if (h && h.getBoundingClientRect().bottom > window.innerHeight) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 1600);
-  HANDS[sc.game]($('#hands'), sc, {
-    sfx, act: (k) => world?.action(k),
+  unmount = HANDS[sc.game]($('#hands'), sc, {
+    sfx, act: (k) => world?.action(k), world,
     done: (grade, detail) => {
       const r = finishHands(S, J, grade, detail);
       S.handsDone = { ...S.handsDone, [S.i]: { grade, text: r.text, d: r.d, fact: r.fact } };

@@ -27,7 +27,7 @@ export function hospitalDay(job, p) {
         { label: '쉬면서 동료와 오전 이야기를 나눈다', fx: { energy: 11, team: 6 }, reply: '“아까 그 일, 저도 그랬어요.” 웃으며 나눈 이야기가 오후의 손발을 맞춰 줘요.', moment: '동료와 쉬며 이야기 나눈 순간' },
         { label: '15분만 쉬고 밀린 일을 하러 간다', when: (s) => s.delay > 0, fx: { energy: 2, delay: -15, breakWorked: 15 }, reply: '밀린 일을 조금 따라잡았어요. 대신 쉬지 못한 15분은 일한 시간으로 적혀요.', moment: '쉬는 시간을 줄여 일을 따라잡은 순간' },
       ] },
-    { kind: 'choice', at: after(half + 50), place: job.room, ...p.incident },
+    ...put('incident', { kind: 'choice', at: after(half + 50), place: job.room, ...p.incident }),
     { kind: 'pick', at: after(half + 120), place: p.pickPlace || job.room, ...p.pick },
     { kind: 'thanks', at: after(half * 2 - 40), place: p.firstPlace || job.room, title: '오늘 남은 한마디', body: '바쁜 하루 사이, 짧은 인사가 오래 남기도 해요.', speaker: `${job.person} 님`, lines: p.thanks },
     { kind: 'leave', at: job.shift.end, place: 'locker', title: '근무복을 벗고, 오늘을 접어요', body: '정해진 퇴근 시각이에요.' },

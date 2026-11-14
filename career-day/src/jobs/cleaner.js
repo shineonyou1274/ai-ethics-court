@@ -37,15 +37,28 @@ job.scenes = hospitalDay(job, {
       { label: '하던 시간에 하던 대로 한다', fx: { energy: 3 }, flag: 'usual', reply: '회의가 금방 끝났어요. 점심 무렵 로비는 여전히 붐빌 거예요.', moment: '늘 하던 대로 하기로 한 순간', type: 'C' },
     ],
   },
+  // 손으로 하는 일 — 3D 로비에서 안내판을 세우고 물기를 직접 닦는다
+  before: {
+    incident: [{
+      kind: 'hands', game: 'mop', closeup: true, atOff: 345, place: 'reception', title: '로비 바닥이 젖었어요',
+      body: '로비 천장에서 물이 새어 바닥에 흘러요. 방문자가 “여기 바닥이 미끄러워요!” 하고 외쳐요.',
+      moment: '안내판을 세우고 물기를 닦아 낸 순간', type: 'R',
+      fact: '젖은 바닥은 넘어지는 사고가 잦은 곳이에요. 닦기 전에 미끄럼 주의 안내판부터 세워 사람들이 피해 가게 해요.',
+      grades: {
+        safe: { fx: { care: 4, delay: 4, energy: -3 }, text: '안내판을 먼저 세우고 물기를 걷어 냈어요. 사람들이 안내판을 보고 돌아가요.' },
+        risky: { fx: { care: -3, team: -1, delay: 2, energy: -3 }, flag: 'noSign', moment: '안내판 없이 닦기 시작한 순간', text: '물기는 걷었지만, 안내판 없이 닦는 동안 지나가던 분이 미끄러질 뻔했어요.' },
+      },
+    }],
+  },
   incident: {
-    title: '계획대로만 흘러가진 않아요', body: '로비 천장에서 물이 새어 바닥에 흘러요.',
-    speaker: '방문자', speech: '“여기 바닥이 미끄러워요!”',
+    title: '계획대로만 흘러가진 않아요', body: '닦아 내도 천장에서 물이 계속 떨어져요. 어떻게 할까요?',
+    speaker: '방문자', speech: '“저기 또 떨어져요!”',
     ripple: [
       { if: (s) => s.flags.usual, text: '붐비는 시간에 작업까지 겹쳐 통행이 막혔어요.', fx: { delay: 8, care: -4 } },
       { if: (s) => s.flags.early, text: '로비를 미리 정리해 둬서 바로 손쓸 수 있어요.', fx: { delay: -5 } },
     ],
     options: [
-      { label: '바로 안내판을 세우고 내가 닦는다', fx: { care: 6, delay: 8, energy: -6 }, reply: '물기를 걷어 내자 사람들이 다시 지나다녀요. 팔이 뻐근해요.', moment: '직접 바닥을 닦아 낸 순간', type: 'R' },
+      { label: '양동이를 받쳐 두고, 물이 고일 때마다 내가 닦는다', fx: { care: 6, delay: 8, energy: -6 }, reply: '양동이에 물이 똑똑 떨어져요. 고일 때마다 닦느라 팔이 뻐근해요.', moment: '물이 고일 때마다 직접 닦아 낸 순간', type: 'R' },
       { label: '시설팀에 새는 곳을 알리고, 그동안 통행을 안내한다', fx: { team: 6, care: 3, delay: 6, energy: -2 }, reply: '시설팀이 천장을 고치러 왔어요. 고칠 때까지 길을 안내했어요.', moment: '시설팀과 힘을 모은 순간', type: 'C' },
       { label: '동료를 불러 한 명은 닦고 한 명은 안내한다', fx: { team: 4, care: 5, delay: 5, energy: -4 }, reply: '둘이 나눠 맡으니 금방 정리됐어요.', moment: '동료와 일을 나눈 순간', type: 'E' },
     ],
