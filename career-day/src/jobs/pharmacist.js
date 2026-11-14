@@ -26,6 +26,21 @@ job.scenes = hospitalDay(job, {
     steps: ['처방을 접수하기', '대상자 정보와 처방 내용 대조하기', '확인이 필요한 부분은 담당 의료진에게 묻기', '확인된 처방의 조제와 복약 안내 준비하기'],
     why: '누구의 처방인지, 맞는 처방인지 확인한 뒤에 준비해야 해요.', moment: '처방 확인 순서를 맞춘 순간', type: 'C',
   },
+  // 손으로 하는 일
+  after: {
+    order: [{
+      kind: 'hands', game: 'rxcheck', atOff: 110, place: 'pharmacy', title: '나가기 전에 한 번 더',
+      body: '가온 님에게 갈 약 봉투가 준비됐어요. 처방전과 한 줄씩 견주어 다른 곳이 없는지 확인해요. (약 이름은 모두 가상이에요)',
+      moment: '처방전과 약 봉투를 대조한 순간', type: 'C',
+      fact: '약이 환자에게 가기 전, 처방전과 준비된 약을 한 번 더 대조해요. 동료와 함께 확인하기도 해요.',
+      rx: [{ name: '모아정', times: '하루 2번', days: '5일' }, { name: '다솜캡슐', times: '하루 1번', days: '5일' }, { name: '하늘시럽', times: '하루 3번', days: '5일' }, { name: '포근연고', times: '하루 2번', days: '바르는 약' }],
+      bag: [{ name: '모아정', times: '하루 2번', days: '5일' }, { name: '다솜캡슐', times: '하루 2번', days: '5일' }, { name: '하늘시럽', times: '하루 3번', days: '7일' }, { name: '포근연고', times: '하루 2번', days: '바르는 약' }],
+      grades: {
+        sure: { fx: { care: 3, team: 2, delay: 4, energy: -2 }, text: '다른 곳을 정확히 짚었어요. 동료와 함께 바로잡아 봉투를 다시 준비했어요.' },
+        recheck: { fx: { care: 1, delay: 7, energy: -3 }, moment: '헷갈리며 끝까지 대조한 순간', text: '같은 칸을 다르다고 짚기도 했지만, 끝까지 대조해서 다른 곳을 찾았어요. 시간이 조금 더 들었어요.' },
+      },
+    }],
+  },
   team: {
     title: '혼자 하는 일이 아니니까', body: '확인이 필요한 처방이 하나 있어요.',
     speaker: '약제실 동료', speech: '“이 처방, 의료진에게 어떻게 물어볼까요?”',

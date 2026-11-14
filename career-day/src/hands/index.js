@@ -7,6 +7,9 @@ import { gown } from './gown.js';
 import { suture } from './suture.js';
 import { mop } from './mop.js';
 import { bedmake } from './bedmake.js';
+import { labtubes, xraytable, rehabtidy } from './tidy.js';
+import { rxcheck } from './rxcheck.js';
+import { paperwork } from './paperwork.js';
 
 // mop · bedmake 는 3D 가까이 보기(src/world/closeup.js)에서 직접 닦고 옮긴다. 장면에 closeup: true 를 적는다.
-export const HANDS = { scrub, band, gown, suture, mop, bedmake };
+export const HANDS = { scrub, band, gown, suture, mop, bedmake, labtubes, xraytable, rehabtidy, rxcheck, paperwork };

@@ -6,6 +6,8 @@
 //   알림.canRub(무늬 id)       지금 그 무늬를 문질러도 되는지 (false 면 안 지워지고 onBlocked 를 부른다)
 //   알림.onDrop(물건 id)       물건을 목표 자리에 놓았을 때. false 를 돌려주면 제자리로 돌아간다
 //   알림.onBlocked(무늬 id)    막힌 곳을 문질렀을 때
+//   알림.onMiss(물건 id, 칸 id) 칸(slots)이 있는 물건을 다른 칸에 놓았을 때. 물건은 제자리로 돌아간다
+// 칸(slots)이 있으면 끄는 동안 빈 칸 모두에 같은 원을 띄워서, 원만 보고는 정답을 알 수 없게 한다.
 import * as T from 'three';
 import { CLOSEUPS } from './closeups.js';
 import { dispose } from './kit.js';
@@ -46,13 +48,27 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
       }
       return { ...pt, dots, progress: 0 };
     });
+    const ringOf = (r, x, y, z) => {
+      const ring = new T.Mesh(new T.RingGeometry(r * 0.82, r, 40), new T.MeshBasicMaterial({ color: '#3f9d7d', transparent: true, opacity: 0.85, side: T.DoubleSide, depthWrite: false }));
+      ring.rotation.x = -Math.PI / 2; ring.position.set(x, y, z); ring.visible = false; ring.renderOrder = 3; g.add(ring); return ring;
+    };
+    const slots = (built.slots || []).map((sl) => ({ ...sl, ring: ringOf(sl.r, sl.at[0], sl.y + 0.01, sl.at[1]), filled: false }));
+    // 칸이 있는 물건은 칸 높이에서 끈다. 그래야 선반 위를 겨누면 물건도 선반 위로 따라간다.
+    for (const mv of built.movers || []) if (mv.slot) { const sl = slots.find((x) => x.id === mv.slot); mv.to = sl.at; mv.r = sl.r; mv.ringY = sl.y + 0.01; mv.dragY ??= sl.y; }
+    // 얇은 물건도 손가락으로 잡기 쉽게, 보이지 않는 넉넉한 잡는 상자를 붙인다
+    for (const mv of built.movers || []) {
+      mv.obj.updateMatrixWorld(true);
+      const bb = new T.Box3().setFromObject(mv.obj), size = bb.getSize(new T.Vector3()), mid = bb.getCenter(new T.Vector3()).sub(mv.obj.getWorldPosition(new T.Vector3()));
+      const hit = new T.Mesh(new T.BoxGeometry(Math.max(size.x, 0.5), Math.max(size.y, 0.35), Math.max(size.z, 0.5)), new T.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+      hit.position.copy(mid); mv.obj.add(hit);
+    }
     const movers = (built.movers || []).map((mv) => {
       const ring = new T.Mesh(new T.RingGeometry(mv.r * 0.82, mv.r, 40), new T.MeshBasicMaterial({ color: '#3f9d7d', transparent: true, opacity: 0.85, side: T.DoubleSide, depthWrite: false }));
       ring.rotation.x = -Math.PI / 2; ring.position.set(mv.to[0], mv.ringY ?? mv.y + 0.01, mv.to[1]); ring.visible = false; ring.renderOrder = 3; g.add(ring);
       mv.obj.position.set(mv.from[0], mv.y, mv.from[1]);
       return { ...mv, ring, placed: false };
     });
-    cur = { g, on, built, patches, movers, drag: null, t: 0, tool: built.tool || null };
+    cur = { g, on, built, patches, movers, slots, drag: null, t: 0, tool: built.tool || null };
     if (cur.tool) cur.tool.visible = false;
     hideWorld(true);
     view({ focus: ORIGIN.clone().add(new T.Vector3(...(built.focus || [0, 0.4, 0]))), zoom: built.zoom || 3.2, yaw: built.yaw ?? 0, height: built.height ?? 15 });
@@ -62,6 +78,7 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
 
   function put(m) {
     m.placed = true; m.ring.visible = false;
+    if (m.slot) { const sl = cur.slots.find((x) => x.id === m.slot); sl.filled = true; }
     m.obj.position.set(m.to[0], m.restY ?? m.y, m.to[1]);
     m.onPlaced?.(m.obj);
   }
@@ -96,10 +113,11 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
     const hit = ray.intersectObjects(free.map((m) => m.obj), true)[0];
     if (hit) {
       const m = free.find((x) => { let o = hit.object; while (o) { if (o === x.obj) return true; o = o.parent; } return false; });
-      cur.drag = { kind: 'move', m }; m.ring.visible = true; m.obj.position.y = m.y + (m.lift ?? 0.25);
+      cur.drag = { kind: 'move', m }; m.obj.position.y = (m.dragY ?? m.y) + (m.lift ?? 0.25);
+      if (m.slot) cur.slots.forEach((sl) => { sl.ring.visible = !sl.filled; }); else m.ring.visible = true;
     } else {
       const p = onPlane(cur.built.rubY ?? 0); if (!p) return true;
-      cur.drag = { kind: 'rub' }; if (cur.tool) { cur.tool.visible = true; cur.tool.position.set(p.x, cur.built.rubY ?? 0, p.z); } rubAt(p);
+      cur.drag = { kind: 'rub', last: p }; if (cur.tool) { cur.tool.visible = true; cur.tool.position.set(p.x, cur.built.rubY ?? 0, p.z); } rubAt(p);
     }
     return true;
   }
@@ -107,14 +125,22 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
     if (!cur?.drag) return;
     pointerRay(e);
     if (cur.drag.kind === 'move') {
-      const m = cur.drag.m, p = onPlane(m.y); if (!p) return;
-      m.obj.position.set(Math.max(-2.8, Math.min(2.8, p.x)), m.y + (m.lift ?? 0.25), Math.max(-2, Math.min(2, p.z)));
-      const ok = Math.hypot(p.x - m.to[0], p.z - m.to[1]) < m.r;
-      m.ring.material.color.set(ok ? '#2f8f6c' : '#3f9d7d'); m.ring.scale.setScalar(ok ? 1.15 : 1);
+      const m = cur.drag.m, p = onPlane(m.dragY ?? m.y); if (!p) return;
+      m.obj.position.set(Math.max(-2.8, Math.min(2.8, p.x)), (m.dragY ?? m.y) + (m.lift ?? 0.25), Math.max(-2, Math.min(2, p.z)));
+      if (m.slot) {
+        const near = slotNear(p);
+        for (const sl of cur.slots) { sl.ring.material.color.set(sl === near ? '#2f8f6c' : '#3f9d7d'); sl.ring.scale.setScalar(sl === near ? 1.15 : 1); }
+      } else {
+        const ok = Math.hypot(p.x - m.to[0], p.z - m.to[1]) < m.r;
+        m.ring.material.color.set(ok ? '#2f8f6c' : '#3f9d7d'); m.ring.scale.setScalar(ok ? 1.15 : 1);
+      }
     } else {
       const p = onPlane(cur.built.rubY ?? 0); if (!p) return;
       if (cur.tool) cur.tool.position.set(p.x, cur.built.rubY ?? 0, p.z);
-      rubAt(p);
+      // 빠르게 문질러도 지나간 길의 얼룩이 다 지워지게, 앞 점과 이 점 사이를 촘촘히 훑는다
+      const a = cur.drag.last || p, n = Math.max(1, Math.ceil(a.distanceTo(p) / 0.08));
+      for (let i = 1; i <= n; i++) rubAt(a.clone().lerp(p, i / n));
+      cur.drag.last = p;
     }
   }
   function up(cancel) {
@@ -123,9 +149,23 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
     if (cur.tool) cur.tool.visible = false;
     if (d.kind !== 'move') return;
     const m = d.m; m.ring.visible = false; m.ring.scale.setScalar(1);
-    const at = m.obj.position;
+    const at = m.obj.position, home = () => m.obj.position.set(m.from[0], m.y, m.from[1]);
+    if (m.slot) {
+      cur.slots.forEach((sl) => { sl.ring.visible = false; sl.ring.scale.setScalar(1); });
+      const sl = cancel ? null : slotNear(at);
+      if (!sl) return home();
+      if (sl.id !== m.slot) { home(); cur.on.onMiss?.(m.id, sl.id); return; }
+      if (cur.on.onDrop?.(m.id) !== false) put(m); else home();
+      return;
+    }
     if (!cancel && Math.hypot(at.x - m.to[0], at.z - m.to[1]) < m.r && cur.on.onDrop?.(m.id) !== false) put(m);
-    else m.obj.position.set(m.from[0], m.y, m.from[1]);
+    else home();
+  }
+
+  function slotNear(p) {
+    let best = null, bd = Infinity;
+    for (const sl of cur.slots) { if (sl.filled) continue; const d = Math.hypot(p.x - sl.at[0], p.z - sl.at[1]); if (d < sl.r && d < bd) { best = sl; bd = d; } }
+    return best;
   }
 
   function tick(dt, t) {
