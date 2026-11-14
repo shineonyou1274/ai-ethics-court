@@ -30,6 +30,8 @@ const sets = {
   locker: { title: '직원 탈의실', build(g) { for (const x of [-1.8, -0.9, 0, 0.9]) { cupboard(g, x, -1.8, 0.75, 1.6); box(g, x, 1.15, -1.55, 0.1, 0.2, 0.02, '#c4a27f'); } desk(g, -0.8, 0.5, 2.3, '#d3b794'); box(g, -1.5, 0.99, 0.5, 0.45, 0.4, 0.25, '#ca907b'); plant(g, 2, 1.5, 0.9); } },
   ward: { title: '병동', build(g) { bed(g, -0.6, -0.25); ball(g, -0.6, 1.12, -0.9, 0.22, '#edc7aa'); ball(g, -0.6, 1.2, -0.97, 0.22, '#66534a', [1, 0.6, 1]); chair(g, 1.4, -0.6, '#adc7d8'); desk(g, 1.7, -1.5, 0.8); plant(g, -2.1, 1.4, 0.8); } },
   meeting: { title: '함께 맞추는 하루', build(g) { cyl(g, 0, 0.78, -0.3, 1.3, 0.12, '#d7b999'); cyl(g, 0, 0.4, -0.3, 0.15, 0.7, '#dfd3c3'); for (const x of [-1.5, 1.5]) { chair(g, x, -0.4, '#b4c9d5', x > 0 ? -Math.PI / 2 : Math.PI / 2); box(g, x * 0.4, 0.86, -0.3, 0.4, 0.03, 0.3, '#fff9ee'); } plant(g, 2, -1.5, 0.9); } },
+  // dress: 이 방에 들어가면 내 캐릭터가 갈아입는 옷
+  theatre: { title: '수술팀의 시간', dress: { coat: '#a6c5d1', outfit: 'surgery' }, build(g) { bed(g, -0.5, 0); box(g, -0.5, 0.97, 0.2, 1.08, 0.11, 1.4, '#9dbfce'); ball(g, -0.5, 1.08, -0.65, 0.21, '#e9c4a8'); cyl(g, -1.8, 1.8, -1, 0.05, 3.6, '#b7c2c0'); box(g, -0.7, 3.5, -1, 2.2, 0.08, 0.08, '#b7c2c0'); cyl(g, 0.3, 3.38, -1, 0.5, 0.14, '#e5eadf'); for (const x of [-0.15, 0.25, 0.65]) ball(g, x, 3.29, -1, 0.1, '#fff5cc'); desk(g, 1.7, -1.5, 0.9); monitor(g, 1.7, -1.6); const staff = person({ coat: '#a6c5d1', seed: 1, outfit: 'surgery' }); staff.root.position.set(-1.5, 0, 0); staff.root.rotation.y = 1.2; g.add(staff.root); } },
   lounge: { title: '잠깐, 쉬어 가요', build(g) { for (const x of [-1, 0, 1]) chair(g, x, -1.1, '#d6b39b'); desk(g, 0, 0.2, 1.8); cyl(g, -0.4, 0.97, 0.2, 0.09, 0.2, '#c1d4dc'); cyl(g, 0.4, 0.97, 0.2, 0.09, 0.2, '#f1c6b4'); plant(g, -2, 1.5, 1.1); } },
 };
 

@@ -5,7 +5,7 @@ import { PLACES } from './places/index.js';
 import { createWorld } from './world/world.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
-import { MIN_WAGE, earnedSoFar, won, manwon } from './pay.js';
+import { MIN_WAGE, earnedSoFar, hourlyOf, won, manwon } from './pay.js';
 import {
   GAUGES, RIASEC, newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, thanksLine, leave, next,
   payslip, mood, clockOf, shiftMin, toMin, toHHMM,
@@ -73,8 +73,8 @@ function drawHud() {
   $('#money').textContent = `🪙 ${won(S.closed ? payslip(S, J, annual()).total : earnedSoFar(annual(), workedSoFar(), shiftMin(J)))}`;
 }
 
-// 밀린 일만큼 기다리는 사람. 쉬는 곳과 탈의실, 퇴근 뒤에는 따라오지 않는다.
-const waiting = () => (S.closed || ['lounge', 'locker'].includes(sceneOf(S, J).place) ? 0 : Math.ceil(S.delay / 8));
+// 밀린 일만큼 기다리는 사람. 쉬는 곳, 탈의실, 수술실, 퇴근 뒤에는 따라오지 않는다.
+const waiting = () => (S.closed || ['lounge', 'locker', 'theatre'].includes(sceneOf(S, J).place) ? 0 : Math.ceil(S.delay / 8));
 
 // 바뀐 값 꼬리표와 3D 반응
 function chips(d = {}) {
@@ -131,7 +131,8 @@ function scene() {
   const notes = enter(S, J); if (notes.length) S.notes = notes; else if (S.notesFor !== S.i) S.notes = [];
   S.notesFor = S.i; save();
   const lockerDone = S.i > idxOf((x) => x.place === 'locker' && x.kind === 'tasks');
-  if (world) { world.dress(J.look, lockerDone ? 'work' : 'casual'); world.stage({ place: sc.place, hour: clockOf(S, J, sc) / 60, overview: false }); world.crowd(waiting()); }
+  const setDress = PLACES[J.place].sets[sc.place]?.dress;
+  if (world) { world.dress(setDress ? { ...J.look, ...setDress } : J.look, lockerDone ? 'work' : 'casual'); world.stage({ place: sc.place, hour: clockOf(S, J, sc) / 60, overview: false }); world.crowd(waiting()); }
   drawHud();
   const head = `<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· ${S.i + 1} / ${J.scenes.length}</span></p><h2>${esc(sc.title)}</h2>`;
   const ripple = (S.notes || []).map((n) => `<div class="ripple"><b>앞선 선택이 이어져요</b>${esc(n.text)}${chips(n.d)}</div>`).join('');
@@ -141,7 +142,7 @@ function scene() {
 const goNext = () => { next(S, J); save(); scene(); };
 
 function reveal(sc, head) {
-  const w = wageOf(J), hourly = Math.round(w.wage * 10000 / 12 / 209 / 10) * 10;
+  const w = wageOf(J), { hourly } = hourlyOf(w.wage);
   view(`
     <div class="badge"><p class="eyebrow">${esc(PLACES[J.place].name)} · 오늘의 명찰</p><h2>${esc(J.name)}</h2><span class="tag">${esc(J.title)}</span>
       <p class="lead" style="margin-bottom:0">${esc(J.intro)}</p></div>
@@ -277,8 +278,9 @@ function slip() {
     </table></div>
     <div class="fact"><b>이 일당은 어떻게 나왔을까?</b>
       커리어넷에 실린 ${esc(w.basis || w.name)}의 평균 연봉(중앙값) <b>${manwon(w.wage * 10000)}</b>을 한 달 209시간으로 나눠 시급을 냈어요.
-      ${p.hourly >= MIN_WAGE.hourly ? `${MIN_WAGE.year}년 최저 시급 ${won(MIN_WAGE.hourly)}의 ${(p.hourly / MIN_WAGE.hourly).toFixed(1)}배예요.` : ''}
-      처음 일을 시작하면 이보다 적고, 경력과 일터에 따라 달라져요.</div>
+      ${p.floored ? `이렇게 계산하면 시급이 ${won(p.raw)}인데, ${MIN_WAGE.year}년 최저 시급 ${won(MIN_WAGE.hourly)}보다 낮아요. 최저임금보다 적게 주는 것은 법으로 막혀 있어서, 오늘 일당은 최저 시급으로 계산했어요. 자료가 조사된 뒤로 최저임금이 올랐기 때문이에요.`
+        : `${MIN_WAGE.year}년 최저 시급 ${won(MIN_WAGE.hourly)}의 ${(p.hourly / MIN_WAGE.hourly).toFixed(1)}배예요.`}
+      ${p.floored ? '' : '처음 일을 시작하면 이보다 적고, '}경력과 일터에 따라 달라져요.</div>
     <p class="fine">자료: 커리어넷 직업정보(${esc(w.from || '출처 표기 없음')}${w.year ? `, ${w.year}년 기준` : ''}). ${esc(J.careernetNote || '')} 직업마다 조사한 사람 수가 적어서, 직업끼리 순위를 매기는 데 쓰면 안 돼요.</p>
     <button class="btn" id="nx">퇴근길, 오늘을 돌아보기</button>`);
   on('#nx', () => { S.slipSeen = true; save(); reflect(); });

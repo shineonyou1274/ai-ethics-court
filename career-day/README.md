@@ -10,6 +10,10 @@ npm test        # 모든 직업의 모든 길을 끝까지 돌려 보는 검사
 npm run build   # career-day.html 만들기
 ```
 
+## 들어 있는 직업 (모아 병원)
+
+의사 · 간호사 · 임상병리사 · 방사선사 · 원무행정 직원 · 약사 · 물리치료사 · 환경미화 직원
+
 ## 하루의 구조
 
 | 장면 | 하는 일 |
@@ -34,6 +38,7 @@ npm run build   # career-day.html 만들기
 - 시급 = 연봉 ÷ 12 ÷ 209시간, 기본급 = 시급 × 8시간
 - 8시간을 넘겨 일하면 그 시간은 시급 × 1.5 (연장 근무 수당)
 - 쉬는 시간에 일한 시간도 일한 시간으로 셈
+- 자료로 계산한 시급이 올해 최저시급보다 낮으면(예: 청소원 2021년 자료) **최저시급**으로 계산하고, 명세서에 그 까닭을 밝힘
 - 모두 세금·보험료를 떼기 전(세전). 직업당 표본이 적어 **직업끼리 순위를 매기지 않음**
 
 자료를 새로 받으려면:
@@ -49,6 +54,8 @@ cd .. && python3 scripts/build_careernet.py scripts/jobs_raw.json
    - `careernet`: 커리어넷 직업 코드 (`src/data/careernet.js` 에서 이름으로 찾기)
    - `shift`: 출근·퇴근 시각, 쉬는 시간
    - 고민 넷(`first`, `team`, `incident` + 쉬는 시간은 틀에 있음), `order`, `pick`, `thanks`
+   - 커리어넷에 없는 직업은 가장 가까운 직업 코드를 쓰고 `careernetNote`로 밝히며, `works`(하는 일)를 직접 적는다
+   - 장면 장소를 바꾸려면 `firstPlace`, `orderPlace`, `pickPlace` (예: 의사의 수술 장면은 `theatre`)
 2. `src/jobs/index.js` 에 한 줄 더한다.
 3. `npm test` — 아래가 하나라도 걸리면 실패해요.
    - 한 장면 안에서 다른 보기보다 **모든 면에서 못한 보기**(함정)

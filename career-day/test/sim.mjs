@@ -74,7 +74,7 @@ for (const job of JOBS) {
   const pays = ends.map((e) => e.p.total), overs = ends.map((e) => e.p.overMin);
   const hourly = ends[0].p.hourly;
   if (hourly < MIN_WAGE.hourly) bad(`시급 ${hourly}원이 최저임금보다 낮음`);
-  console.log(`  길 ${ends.length.toLocaleString()}가지 · 시급 ${hourly.toLocaleString()}원 · 일당 ${Math.min(...pays).toLocaleString()}~${Math.max(...pays).toLocaleString()}원 · 연장 0~${Math.max(...overs)}분`);
+  console.log(`  길 ${ends.length.toLocaleString()}가지 · 시급 ${hourly.toLocaleString()}원${ends[0].p.floored ? ` (자료 시급 ${ends[0].p.raw.toLocaleString()}원 → 최저시급 적용)` : ''} · 일당 ${Math.min(...pays).toLocaleString()}~${Math.max(...pays).toLocaleString()}원 · 연장 0~${Math.max(...overs)}분`);
   for (const [k, v] of Object.entries(used.moods).sort((a, b) => b[1] - a[1])) console.log(`  ${(v / ends.length * 100).toFixed(1).padStart(5)}%  ${k}`);
   console.log(`  흥미 유형 ${[...used.types].sort().join('')}`);
   for (const k of ['care', 'team', 'energy']) { const v = ends.map((e) => e.s.g[k]); console.log(`  ${k} ${Math.min(...v)}~${Math.max(...v)}`); }

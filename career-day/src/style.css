@@ -86,7 +86,8 @@ h1:focus, h2:focus { outline: none; }
 .chip { background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 1px 11px; font-size: 15px; white-space: nowrap; }
 .chip.time { background: #f1eefa; border-color: #e1dbf1; }
 .fact { background: #eef6fb; border-radius: 16px; padding: 11px 14px; margin: 12px 0; font-size: 15.5px; }
-.fact b { font-family: "Jua", sans-serif; font-weight: 400; color: #3d7ea6; display: block; }
+.fact > b:first-child { font-family: "Jua", sans-serif; font-weight: 400; color: #3d7ea6; display: block; }
+.fact b { font-weight: 700; }
 .ripple { background: #fff1e8; border-left: 4px solid var(--coral); border-radius: 12px; padding: 9px 13px; margin: 0 0 12px; font-size: 15.5px; }
 .ripple b { font-family: "Jua", sans-serif; font-weight: 400; color: var(--coral-d); display: block; font-size: 14px; }
 .why { font-size: 14.5px; color: var(--soft); margin: 2px 0 0 44px; }

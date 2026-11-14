@@ -11,14 +11,21 @@ export function hourlyFromAnnual(annualMan) {
   return r10(annualMan * 10000 / 12 / MONTH_HOURS);
 }
 
+// 실제로 주는 시급: 자료로 계산한 값이 올해 최저시급보다 낮으면 최저시급을 준다.
+// (자료는 몇 년 전 조사라서 그사이 오른 최저임금보다 낮게 나올 수 있다. 최저임금보다 적게 주는 것은 법으로 막혀 있다.)
+export function hourlyOf(annualMan) {
+  const raw = hourlyFromAnnual(annualMan);
+  return { raw, hourly: Math.max(raw, MIN_WAGE.hourly), floored: raw < MIN_WAGE.hourly };
+}
+
 // workedMin: 오늘 실제로 일한 시간(분, 쉬는 시간 빼고). shiftMin: 약속된 근무 시간(분)
 export function salaryDay(annualMan, workedMin, shiftMin = 480) {
-  const hourly = hourlyFromAnnual(annualMan);
+  const { hourly, raw, floored } = hourlyOf(annualMan);
   const baseMin = Math.min(workedMin, shiftMin);
   const overMin = Math.max(0, workedMin - shiftMin);
   const base = r10(hourly * baseMin / 60);
   const overtime = r10(hourly * OVERTIME_RATE * overMin / 60);
-  return { hourly, base, overtime, overMin, total: base + overtime };
+  return { hourly, raw, floored, base, overtime, overMin, total: base + overtime };
 }
 
 // 일한 시간만큼 지금까지 번 돈 (하루 중간에 보여 주는 용도)
