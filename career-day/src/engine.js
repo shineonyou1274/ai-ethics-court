@@ -16,7 +16,7 @@ export const TIRED = 30; // 에너지가 이보다 낮으면 '다 쓰고 돌아�
 const clamp = (v) => Math.max(0, Math.min(100, Math.round(v)));
 export const toMin = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
 export const toHHMM = (min) => `${String(Math.floor(min / 60) % 24).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
-const DRAIN = { tasks: 3, records: 1, choice: 3, order: 3, pick: 3, thanks: 0, leave: 0, reveal: 0, rest: 0 };
+const DRAIN = { tasks: 3, records: 1, choice: 3, order: 3, pick: 3, hands: 2, thanks: 0, leave: 0, reveal: 0, rest: 0 };
 
 export function newDay(job) {
   return { job: job.id, i: 0, entered: -1, g: { care: 50, team: 50, energy: 75 }, delay: 0, breakWorked: 0, stayed: null, flags: {}, log: [], done: false };
@@ -74,6 +74,17 @@ export function finishOrder(s, job, mistakes) {
   const fx = merge(sc.cost || {}, mistakes ? { delay: 4 * mistakes, team: -2 * Math.min(mistakes, 3) } : { team: 3 });
   const d = apply(s, fx); remember(s, sc, sc.moment, sc.type, { mistakes });
   return { d };
+}
+
+// 손으로 하는 일: 화면의 놀이(src/hands/)가 결과를 등급 하나로 넘긴다. 등급마다 결과(fx)와 남는 표시(flag)가 장면에 적혀 있다.
+// 잘한 등급이 늘 이득만은 아니다. 꼼꼼할수록 시간이 들고, 서두르면 뒤에서 다시 돌아온다.
+export function finishHands(s, job, grade, detail = {}) {
+  const sc = sceneOf(s, job), g = sc.grades[grade];
+  if (!g) throw new Error(`${sc.title}: 없는 등급 ${grade}`);
+  const d = apply(s, merge(sc.cost || {}, g.fx || {}));
+  if (g.flag) s.flags[g.flag] = true;
+  remember(s, sc, g.moment || sc.moment, sc.type, { grade, ...detail });
+  return { d, text: g.text, fact: sc.fact };
 }
 
 // 골라 담기: 맞게 고른 것은 동료 호흡을 올리고, 잘못 고른 것은 내리고 확인 시간을 쓴다.

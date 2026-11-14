@@ -2,9 +2,10 @@
 // 치킨집에서 배운 것 — 함정 선택, 결과와 어긋난 문구, 한 번도 안 나오는 글을 미리 잡는다.
 import { readdirSync } from 'node:fs';
 import { JOBS } from '../src/jobs/index.js';
-import { newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, thanksLine, leave, next, payslip, mood, RIASEC, TIRED } from '../src/engine.js';
+import { toMin, newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, finishHands, thanksLine, leave, next, payslip, mood, RIASEC, TIRED } from '../src/engine.js';
 import { CAREERNET } from '../src/data/careernet.js';
 import { MIN_WAGE } from '../src/pay.js';
+import { HANDS } from '../src/hands/index.js';
 const MOOD_NAMES = ['다 쓰고 돌아가는 퇴근길', '이것저것 챙기느라 바빴던 하루', '사람 곁을 지킨 하루', '팀과 호흡을 맞춘 하루', '내 속도를 지킨 하루'];
 
 let fail = 0;
@@ -34,6 +35,15 @@ for (const job of JOBS) {
     }));
   });
 
+  // 손으로 하는 장면: 놀이가 있고, 등급이 둘 이상이며, 시각이 앞뒤 장면과 어긋나지 않는가
+  job.scenes.forEach((sc, i) => {
+    if (i && toMin(sc.at) < toMin(job.scenes[i - 1].at)) bad(`${i}번 장면 "${sc.title}" 시각 ${sc.at} 이 앞 장면보다 이름`);
+    if (sc.kind !== 'hands') return;
+    if (!HANDS[sc.game]) bad(`${i}번 장면 "${sc.title}": 없는 놀이 ${sc.game}`);
+    if (Object.keys(sc.grades || {}).length < 2) bad(`${i}번 장면 "${sc.title}": 등급이 둘 이상이어야 함`);
+    if (!sc.type || !sc.moment) bad(`${i}번 장면 "${sc.title}": moment 와 type 필요`);
+  });
+
   function walk(s) {
     const sc = sceneOf(s, job);
     const notes = enter(s, job);
@@ -41,6 +51,7 @@ for (const job of JOBS) {
     const go = (fn) => { const c = clone(s); fn(c); if (c.done) return end(c); next(c, job); walk(c); };
     if (sc.kind === 'choice') for (const o of optionsOf(s, sc)) go((c) => choose(c, job, o.idx));
     else if (sc.kind === 'order') for (const m of [0, 2]) go((c) => finishOrder(c, job, m));
+    else if (sc.kind === 'hands') for (const g of Object.keys(sc.grades)) go((c) => finishHands(c, job, g));
     else if (sc.kind === 'pick') {
       const ok = sc.items.map((it, i) => (it.ok ? i : -1)).filter((i) => i >= 0), no = sc.items.map((it, i) => (it.ok ? -1 : i)).filter((i) => i >= 0);
       for (const set of [ok, [ok[0], ok[1], no[0]], [ok[0], no[0], no[1]]]) go((c) => finishPick(c, job, set));

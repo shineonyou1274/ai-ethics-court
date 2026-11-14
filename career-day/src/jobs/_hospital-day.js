@@ -8,13 +8,17 @@ export function hospitalDay(job, p) {
   const at = (off) => toHHMM(s0 + off);
   const half = Math.round((toMin(job.shift.end) - s0 - br) / 2); // 쉬는 시간이 시작되는 때(근무의 한가운데)
   const after = (off) => at(off + br);
+  // 직업마다 손으로 하는 장면(kind: 'hands')을 끼워 넣을 수 있다. p.before.first 처럼 '어느 장면 앞'에 넣는다.
+  // 끼워 넣는 장면의 at 은 출근 시각에서 몇 분 뒤인지(atOff)로 적는다.
+  const put = (key, scene) => [...(p.before?.[key] || []).map(({ atOff, ...x }) => ({ ...x, at: at(atOff) })), scene];
   return [
     { kind: 'reveal', at: at(-20), place: 'outside', title: '오늘의 명찰을 받았어요', body: job.intro },
     { kind: 'tasks', at: at(-10), place: 'locker', title: '옷을 갈아입으면, 하루 시작', body: '직원 출입구를 지나 탈의실에 왔어요. 가방을 넣고 일할 준비를 해요.',
       tasks: [{ label: '사물함에 가방 넣기', result: '가방을 내려놓았어요.', act: 'work' }, { label: `${job.uniform} 입고 명찰 달기`, result: `${job.uniform} 차림으로 동료들에게 인사했어요.`, act: 'dress' }] },
     { kind: 'records', at: at(0), place: job.room, title: p.recordsTitle || '먼저, 오늘의 기록부터', body: '오늘 만날 사람과 해야 할 일을 한 장씩 펼쳐 봐요.', records: p.records, moment: '오늘의 기록을 읽은 순간', type: 'C' },
-    { kind: 'choice', at: at(25), place: p.firstPlace || job.room, ...p.first },
-    { kind: 'order', at: at(70), place: p.orderPlace || p.firstPlace || job.room, ...p.order },
+    ...put('first', { kind: 'choice', at: at(25), place: p.firstPlace || job.room, ...p.first }),
+    ...put('order', { kind: 'order', at: at(70), place: p.orderPlace || p.firstPlace || job.room, ...p.order }),
+    ...(p.after?.order || []).map(({ atOff, ...x }) => ({ ...x, at: at(atOff) })),
     { kind: 'choice', at: at(Math.round(half * 0.7)), place: 'meeting', ...p.team },
     { kind: 'choice', isBreak: true, at: at(half), place: 'lounge', title: '잠깐, 나도 숨을 고르기', body: `쉬는 시간 ${br}분. 내 힘을 돌보는 것도 하루의 일이에요.`,
       speaker: '동료', speech: '“먼저 쉬고 와요. 제가 자리 볼게요.”', fact: '근로기준법: 4시간 일하면 30분, 8시간 일하면 1시간 이상 쉬는 시간을 주어야 해요. 쉬는 시간에 일했다면 그건 일한 시간이에요.',

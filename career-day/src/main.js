@@ -1,14 +1,15 @@
-// 화면과 흐름: 직업 고르기 → 하루(장면 열한 개) → 일당 명세서 → 퇴근길 돌아보기 → 출근 기록
+// 화면과 흐름: 직업 고르기 → 하루(장면 열한 개 + 직업마다 손으로 하는 장면) → 일당 명세서 → 퇴근길 돌아보기 → 출근 기록
 import './style.css';
 import { JOBS, jobById } from './jobs/index.js';
 import { PLACES } from './places/index.js';
 import { createWorld } from './world/world.js';
+import { HANDS } from './hands/index.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
 import { MIN_WAGE, earnedSoFar, hourlyOf, won, manwon } from './pay.js';
 import { makeRecord, checkRecord, loadRecords, saveRecord, walletTotal, RECORDS_KEY } from '../../shared/workday.js';
 import {
-  GAUGES, RIASEC, newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, thanksLine, leave, next,
+  GAUGES, RIASEC, newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, finishHands, thanksLine, leave, next,
   payslip, mood, clockOf, shiftMin, toMin, toHHMM,
 } from './engine.js';
 
@@ -147,7 +148,8 @@ function scene() {
   const head = `<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· ${S.i + 1} / ${J.scenes.length}</span></p><h2>${esc(sc.title)}</h2>`;
   const ripple = (S.notes || []).map((n) => `<div class="ripple"><b>앞선 선택이 이어져요</b>${esc(n.text)}${chips(n.d)}</div>`).join('');
   const body = `${ripple}<p class="lead">${esc(sc.body)}</p>`;
-  ({ reveal, tasks, records, choice, order, pick, thanks, leave: leaving })[sc.kind](sc, head, body);
+  $('#app').classList.toggle('handsOn', sc.kind === 'hands');
+  ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
 }
 const goNext = () => { next(S, J); save(); scene(); };
 
@@ -227,6 +229,29 @@ function order(sc, head, body) {
       $('#out').innerHTML = `<div class="reply">${mistakes ? `순서를 ${mistakes}번 다시 생각했어요. 그만큼 시간이 조금 더 들었어요.` : '한 번에 맞췄어요!'} ${esc(sc.why)}</div>${chips(r.d)}<button class="btn" id="nx">다음 장면으로</button>`;
       $('#nx').addEventListener('click', goNext); $('#nx').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
+  });
+}
+
+// 손으로 하는 장면: 놀이(src/hands/)를 붙이고, 끝나면 등급에 따른 결과를 보여 준다.
+// 마친 결과는 S.handsDone 에 남겨서, 새로 고쳐도 다시 하거나 두 번 반영되지 않게 한다.
+function hands(sc, head, body) {
+  view(`${head}${body}<div class="hands" id="hands"></div><div id="out"></div>`);
+  const show = (r) => {
+    $('#out').innerHTML = `<div class="reply">${esc(r.text)}</div>${chips(r.d)}${r.fact ? `<div class="fact"><b>알아 두기</b>${esc(r.fact)}</div>` : ''}<button class="btn" id="nx">다음 장면으로</button>`;
+    $('#nx').addEventListener('click', goNext);
+    setTimeout(() => $('#nx')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250);
+  };
+  const before = S.handsDone?.[S.i];
+  if (before) { $('#hands').innerHTML = `<div class="handsDone">✓ ${esc(sc.grades[before.grade]?.moment || sc.moment)}</div>`; show(before); return; }
+  // 폰에서는 안내를 읽을 틈을 준 뒤, 손으로 하는 곳이 화면 위쪽에 오게 내려 준다
+  setTimeout(() => { const h = $('#hands'); if (h && h.getBoundingClientRect().bottom > window.innerHeight) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 1600);
+  HANDS[sc.game]($('#hands'), sc, {
+    sfx, act: (k) => world?.action(k),
+    done: (grade, detail) => {
+      const r = finishHands(S, J, grade, detail);
+      S.handsDone = { ...S.handsDone, [S.i]: { grade, text: r.text, d: r.d, fact: r.fact } };
+      save(); setTimeout(() => { react(r.d); show(r); }, 700);
+    },
   });
 }
 
