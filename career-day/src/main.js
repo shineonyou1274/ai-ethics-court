@@ -7,7 +7,7 @@ import { HANDS } from './hands/index.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
 import { MIN_WAGE, earnedSoFar, hourlyOf, won, manwon } from './pay.js';
-import { makeRecord, checkRecord, loadRecords, saveRecord, walletTotal, RECORDS_KEY } from '../../shared/workday.js';
+import { makeRecord, checkRecord, loadRecords, saveRecordSafe, walletTotal, RECORDS_KEY } from '../../shared/workday.js';
 import {
   GAUGES, RIASEC, newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, finishHands, thanksLine, leave, next,
   payslip, mood, clockOf, shiftMin, toMin, toHHMM,
@@ -359,7 +359,7 @@ function reflect() {
           like: { label: moments[like].label, type: moments[like].type }, hard: { label: moments[hard].label, type: moments[hard].type },
         });
         const errs = checkRecord(rec); if (errs.length) console.warn('출근 기록 약속 어긋남', errs);
-        diary = saveRecord(rec);
+        const res = saveRecordSafe(rec); diary = res.records; lastSaveFailed = !res.ok;
         saved.current = null; store.set(saved); sfx('fanfare'); world?.burst('star', 8); done();
       };
     } else out.innerHTML = '';
@@ -375,8 +375,9 @@ function reflect() {
   paint();
 }
 
+let lastSaveFailed = false;
 function done() {
-  view(`<div class="badge"><div class="big">📒</div><h2>출근 기록에 남겼어요</h2><p>${esc(J.name)}의 하루 · 🪙 ${won(payslip(S, J, annual()).total)}</p></div>
+  view(`<div class="badge"><div class="big">📒</div><h2>${lastSaveFailed ? '이 기기에 저장하지 못했어요' : '출근 기록에 남겼어요'}</h2>${lastSaveFailed ? '<p class="fine">저장 공간이 막혀 있거나 개인 정보 보호 모드일 수 있어요. 일당과 돌아보기는 화면에 남아 있어요.</p>' : ''}<p>${esc(J.name)}의 하루 · 🪙 ${won(payslip(S, J, annual()).total)}</p></div>
     <div class="bubble"><b class="jua">지금까지의 출근 기록</b><ol class="path">${diary.map((r) => `<li>${esc(r.job.name)} <span>· ${esc(r.ending.name)} · ${won(r.pay.total)} · 💛 ${esc(r.like.label)}</span></li>`).join('')}</ol></div>
     <button class="btn" id="again">같은 직업으로 다른 하루 보내기</button><button class="btn ghost" id="home">다른 직업 고르러 가기</button>`);
   on('#again', () => startJob(J)); on('#home', title);
