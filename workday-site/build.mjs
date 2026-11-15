@@ -1,4 +1,4 @@
-// 직업체험 사이트 묶기: 두 앱과 첫 화면을 public/ 에 모은다. Vercel 은 이 public/ 을 그대로 올린다.
+// 직업체험 사이트 묶기: 세 일터와 첫 화면을 public/ 에 모은다. Vercel 은 이 public/ 을 그대로 올린다.
 //   node workday-site/build.mjs          public/ 을 새로 만든다
 //   node workday-site/build.mjs --check  public/ 이 지금 소스와 같은지만 본다 (다르면 실패)
 //
@@ -22,12 +22,16 @@ const plan = [
   [join(root, 'career-day/career-day.html'), 'career-day/index.html'],
 ];
 for (const f of readdirSync(join(root, 'shared'))) if (/\.(js|css)$/.test(f)) plan.push([join(root, 'shared', f), `shared/${f}`]);
-(function walk(dir) {
-  for (const f of readdirSync(dir)) {
-    const p = join(dir, f);
-    if (statSync(p).isDirectory()) walk(p); else plan.push([p, `barista-day/${relative(join(root, 'barista-day/dist'), p)}`]);
-  }
-})(join(root, 'barista-day/dist'));
+for (const app of ['barista-day', 'fire-station']) {
+  const source = join(root, app, 'dist');
+  (function walk(dir) {
+    for (const f of readdirSync(dir)) {
+      const p = join(dir, f);
+      if (statSync(p).isDirectory()) walk(p);
+      else plan.push([p, `${app}/${relative(source, p)}`]);
+    }
+  })(source);
+}
 
 if (check) {
   const want = new Set(plan.map(([, to]) => to));

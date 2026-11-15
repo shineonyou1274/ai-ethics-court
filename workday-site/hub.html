@@ -38,6 +38,8 @@
   .chip.been { background: #e3f3eb; color: var(--mint-d); }
   .go { margin-top: 12px; display: inline-block; font-family: "Jua", sans-serif; color: #fff; background: var(--coral); padding: 8px 18px; border-radius: 14px; box-shadow: 0 4px 0 var(--coral-d); }
   .cafe .go { background: #2f6b55; box-shadow: 0 4px 0 #1f4a3a; }
+  .fire .go { background: #d2553f; box-shadow: 0 4px 0 #a93f2b; }
+  .place.fire .icon { background: #fdeeea; }
   .btn { display: block; width: 100%; text-align: center; text-decoration: none; padding: 13px 16px; border-radius: 16px; margin-top: 18px; font-size: 18px; color: var(--ink); background: #fff; border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); }
   .fine { color: var(--soft); font-size: 14px; margin: 14px 0 0; }
   .teacher { display: block; text-align: center; margin-top: 22px; color: var(--soft); font-size: 14.5px; text-underline-offset: 3px; }
@@ -62,6 +64,11 @@
       <div class="chips" id="cafeJobs"></div>
       <span class="go">카페로 출근하기 →</span>
     </a>
+    <a class="place fire" href="fire-station/">
+      <div class="top"><span class="icon" aria-hidden="true">🚒</span><div><b>함께 돌아오는 하루</b><small>소방서 · 준비와 현장 지원, 동료와 함께하는 하루</small></div></div>
+      <div class="chips" id="fireJobs"></div>
+      <span class="go">소방서로 출근하기 →</span>
+    </a>
   </div>
 
   <a class="btn" id="send" href="career-day/#send" hidden>선생님께 출근 기록 보내기</a>
@@ -71,6 +78,7 @@
 <script type="module">
   import { loadRecords, walletTotal, manwon } from './shared/workday.js';
   const HOSPITAL = [['doctor', '의사'], ['nurse', '간호사'], ['labtech', '임상병리사'], ['radiographer', '방사선사'], ['admin', '원무행정 직원'], ['pharmacist', '약사'], ['physio', '물리치료사'], ['cleaner', '환경미화 직원']];
+  const FIRE = [['firefighter', '소방관']];
   const CAFE = [['barista', '바리스타']];
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const records = loadRecords();
@@ -78,6 +86,7 @@
   const chips = (list) => list.map(([id, name]) => `<span class="chip ${been.has(id) ? 'been' : ''}">${been.has(id) ? '✓ ' : ''}${esc(name)}</span>`).join('');
   document.getElementById('hospitalJobs').innerHTML = chips(HOSPITAL);
   document.getElementById('cafeJobs').innerHTML = chips(CAFE);
+  document.getElementById('fireJobs').innerHTML = chips(FIRE);
   if (records.length) {
     document.getElementById('bank').innerHTML = `<div class="bank"><span>지금까지 ${records.length}번 출근했어요</span><b>🪙 ${esc(manwon(walletTotal(records)))}</b></div>`;
     document.getElementById('send').hidden = false;
