@@ -1,0 +1,5 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>QA fixture · 퇴근 화면</title><link rel="stylesheet" href="../dist/style.css"><div id="sheet"></div><script type="module">
+// Test fixture only: serve barista-day/ and visit tests/ending.html. Never linked from the app.
+import {Shift} from '../dist/shift.mjs';import {renderWorkdayEnd} from '../dist/career.mjs';
+const s=new Shift();s.phase='end';s.sales=13500;s.cost=2150;s.tips=600;s.wasted=Number(new URLSearchParams(location.search).get('remakes')||0);s.records=[{match:true},{match:false},{match:true}];renderWorkdayEnd(document.getElementById('sheet'),s);
+</script></html>

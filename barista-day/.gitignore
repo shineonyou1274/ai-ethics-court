@@ -1,3 +1,7 @@
 .DS_Store
 node_modules/
 .env*
+
+# This app ships static source directly; override the root dist/ exclusion.
+!dist/
+!dist/**
