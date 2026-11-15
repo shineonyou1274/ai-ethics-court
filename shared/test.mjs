@@ -1,6 +1,7 @@
 // 약속 검사: node shared/test.mjs
 // 1) 일당 계산이 약속대로인가  2) 예시 기록이 checkRecord 를 통과하는가  3) 앱 안의 복사본이 원본과 같은가
 import { readFileSync, existsSync } from 'node:fs';
+import { encodeRecords, decodeCodes, toCsv } from './collect.js';
 import { salaryDay, hourlyOf, makeRecord, checkRecord, MIN_WAGE, saveRecordSafe, loadRecords, careernetUrl } from './workday.js';
 
 let fail = 0;
@@ -38,12 +39,22 @@ ok(!blocked.ok && blocked.error, '저장이 막히면 ok: false 와 까닭');
 delete globalThis.localStorage;
 ok(careernetUrl('180') === 'https://www.career.go.kr/cloud/w/job/view?seq=180', '커리어넷 출처 주소');
 
+console.log('교사 기록 모으기');
+const code = encodeRecords([sample, { ...sample, id: 'b2', job: { id: 'nurse', name: '간호사', careernet: '354' } }], '3번 김하늘');
+ok(/^WD1\.[A-Za-z0-9_-]+\.[a-z0-9]{4}$/.test(code), '코드 모양 WD1.본문.검사');
+const back = decodeCodes(`카톡으로 받은 글\n${code}\n다른 말`);
+ok(back.students.length === 1 && back.students[0].name === '3번 김하늘' && back.students[0].records.length === 2, '붙여 넣은 글 속 코드를 찾아 풂 (한글 이름 포함)');
+ok(back.students[0].records[1].jobName === '간호사' && back.students[0].records[0].pay === sample.pay.total && back.students[0].records[0].likeType === 'R', '직업·일당·흥미 유형이 그대로');
+const broken = code.slice(0, 20) + (code[20] === 'A' ? 'B' : 'A') + code.slice(21);
+ok(decodeCodes(broken).errors.length === 1 && decodeCodes(broken).students.length === 0, '글자가 바뀐 코드는 오류로 알림');
+ok(!JSON.stringify(back).includes('13500'), '가게 매출 같은 다른 돈은 코드에 넣지 않음');
+ok(toCsv(back.students[0].records.map((r) => ({ ...r, name: '3번' }))).startsWith('\uFEFF"번호나 이름"'), 'CSV 머리줄');
+
 console.log('복사본');
-const original = readFileSync(new URL('./workday.js', import.meta.url), 'utf8');
-for (const copy of ['../barista-day/dist/shared/workday.js']) {
+for (const [file, copy] of [['workday.js', '../barista-day/dist/shared/workday.js'], ['collect.js', '../barista-day/dist/shared/collect.js']]) {
   const url = new URL(copy, import.meta.url);
   if (!existsSync(url)) { console.log(`  · ${copy} 아직 없음`); continue; }
-  ok(readFileSync(url, 'utf8') === original, `${copy} 가 원본과 같음`);
+  ok(readFileSync(url, 'utf8') === readFileSync(new URL('./' + file, import.meta.url), 'utf8'), `${copy} 가 원본과 같음`);
 }
 
 console.log(fail ? `\n✗ ${fail}개 실패` : '\n✓ 약속을 모두 지킴');

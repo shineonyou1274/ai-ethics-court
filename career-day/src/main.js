@@ -4,6 +4,7 @@ import { JOBS, jobById } from './jobs/index.js';
 import { PLACES } from './places/index.js';
 import { createWorld } from './world/world.js';
 import { HANDS } from './hands/index.js';
+import { sendView, teacherView } from './collect.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
 import { MIN_WAGE, earnedSoFar, hourlyOf, won, manwon } from './pay.js';
@@ -122,10 +123,21 @@ function title() {
     <button class="btn" id="draw">오늘의 직업 뽑기</button>
     <h3>직접 고르기 · ${esc(PLACES.hospital.name)}</h3>
     <div class="jobs">${JOBS.map((j) => `<button class="job ${been.has(j.id) ? 'been' : ''}" data-id="${j.id}"><b><i style="background:${j.color}"></i>${esc(j.name)}</b><small>${esc(j.title)}<br>${j.shift.start}–${j.shift.end}${been.has(j.id) ? ' · 다녀옴' : ''}</small></button>`).join('')}</div>
-    <p class="fine">일당은 커리어넷 직업정보의 평균 연봉(중앙값)으로 계산한 세전 금액이에요. 등장인물과 기록은 모두 가상이에요. 진행 기록은 이 기기에만 남아요.</p>`);
+    ${diary.length ? '<button class="btn ghost" id="send">선생님께 출근 기록 보내기</button>' : ''}
+    <p class="fine">일당은 커리어넷 직업정보의 평균 연봉(중앙값)으로 계산한 세전 금액이에요. 등장인물과 기록은 모두 가상이에요. 진행 기록은 이 기기에만 남아요.</p>
+    <button class="link" id="teacher">선생님용 · 출근 기록 모으기</button>`);
+  on('#send', () => openSend(title));
+  on('#teacher', openTeacher);
   on('#resume', () => { S = cur; J = jobById(S.job); begin(); });
   on('#draw', () => { const pool = JOBS.filter((j) => !been.has(j.id)); const list = pool.length ? pool : JOBS; startJob(list[Math.floor(Math.random() * list.length)]); });
   on('.job', (b) => startJob(jobById(b.dataset.id)));
+}
+
+// ── 교사 기록 모으기 (src/collect.js) ──
+function openSend(back) { sendView({ view, $, esc, records: diary, back }); }
+function openTeacher() {
+  $('#app').classList.add('teacher'); hud.hidden = true;
+  teacherView({ view, $, esc, back: () => { $('#app').classList.remove('teacher'); title(); } });
 }
 
 function startJob(job) { J = job; S = newDay(job); shown = {}; begin(); }
@@ -379,8 +391,8 @@ let lastSaveFailed = false;
 function done() {
   view(`<div class="badge"><div class="big">📒</div><h2>${lastSaveFailed ? '이 기기에 저장하지 못했어요' : '출근 기록에 남겼어요'}</h2>${lastSaveFailed ? '<p class="fine">저장 공간이 막혀 있거나 개인 정보 보호 모드일 수 있어요. 일당과 돌아보기는 화면에 남아 있어요.</p>' : ''}<p>${esc(J.name)}의 하루 · 🪙 ${won(payslip(S, J, annual()).total)}</p></div>
     <div class="bubble"><b class="jua">지금까지의 출근 기록</b><ol class="path">${diary.map((r) => `<li>${esc(r.job.name)} <span>· ${esc(r.ending.name)} · ${won(r.pay.total)} · 💛 ${esc(r.like.label)}</span></li>`).join('')}</ol></div>
-    <button class="btn" id="again">같은 직업으로 다른 하루 보내기</button><button class="btn ghost" id="home">다른 직업 고르러 가기</button>`);
-  on('#again', () => startJob(J)); on('#home', title);
+    <button class="btn" id="again">같은 직업으로 다른 하루 보내기</button><button class="btn ghost" id="home">다른 직업 고르러 가기</button><button class="btn ghost" id="send">선생님께 출근 기록 보내기</button>`);
+  on('#again', () => startJob(J)); on('#home', title); on('#send', () => openSend(done));
 }
 
 // ── 버튼들 ──

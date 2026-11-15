@@ -235,3 +235,26 @@ button.rxCell.shake, .tray.shake { animation: shake .35s; }
 .monitor small { color: #9fb6c4; font-size: 12px; }
 .monitor.locked { filter: blur(4px) grayscale(1); }
 .screenLock .btn { margin-top: 8px; font-size: 16px; padding: 11px 14px; }
+
+/* 교사 기록 모으기 */
+#app.teacher { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr); }
+#app.teacher #stage { display: none; }
+#app.teacher #panel { border: 0; }
+#app.teacher #panel > * { max-width: 920px; }
+.link { display: block; margin: 18px auto 0; color: var(--soft); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; font-family: inherit; }
+.field { display: grid; gap: 4px; margin-top: 10px; }
+.field input, #panel textarea { width: 100%; font: inherit; font-size: 17px; padding: 11px 13px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--ink); }
+.field input.need { border-color: var(--coral); }
+#panel textarea { font-size: 14px; font-family: ui-monospace, Menlo, monospace; resize: vertical; word-break: break-all; }
+.bubble.code textarea { margin: 8px 0 4px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
+.stats div { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 10px; text-align: center; }
+.stats b { display: block; font-family: "Jua", sans-serif; font-weight: 400; font-size: 28px; }
+.stats small { color: var(--soft); }
+.bar { display: grid; grid-template-columns: 7em 1fr 2.4em; align-items: center; gap: 8px; margin-top: 6px; font-size: 14.5px; }
+.bar i { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--mint-d) var(--w), var(--line) var(--w)); }
+.bar b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 400; }
+.roster { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+.roster th, .roster td { text-align: left; padding: 6px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.roster th { color: var(--soft); font-weight: 400; white-space: nowrap; }
+details.bubble { overflow-x: auto; } details summary { cursor: pointer; }
