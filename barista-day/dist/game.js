@@ -1,4 +1,4 @@
-import {renderWorkdayEnd, clockLabel} from './career.mjs?v=career15';
+import {renderWorkdayEnd, clockLabel} from './career.mjs?v=career16';
 import * as T from './vendor/three.module.min.js';
 import {Shift,orders} from './shift.mjs?v=career14';
 import {findPath} from './navigation.mjs';
