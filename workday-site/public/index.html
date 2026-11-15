@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f2e9">
+<meta name="color-scheme" content="light only">
+<meta name="description" content="여러 일터에 하루씩 출근해 직접 일하고, 퇴근하면 그날의 일당을 받는 진로 체험.">
+<title>오늘, 출근합니다</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23263c52'/%3E%3Crect x='18' y='16' width='28' height='36' rx='6' fill='%23f2cbb2'/%3E%3Crect x='24' y='10' width='16' height='10' rx='4' fill='%23dc795e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #f7f2e9; --card: #fffdf8; --ink: #263c52; --soft: #6f7875; --line: #e6ddcf; --coral: #dc795e; --coral-d: #b85f47; --mint: #8fcfb6; --mint-d: #3f9d7d; --green: #254c3e; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--paper); color: var(--ink); font: 17px/1.6 "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; word-break: keep-all; -webkit-text-size-adjust: 100%; }
+  h1, h2, b.j, .btn, .place b { font-family: "Jua", "Gowun Dodum", sans-serif; font-weight: 400; }
+  main { max-width: 640px; margin: 0 auto; padding: 28px 16px calc(36px + env(safe-area-inset-bottom)); }
+  .eyebrow { color: var(--coral-d); font-family: "Jua", sans-serif; margin: 0; }
+  h1 { font-size: 40px; line-height: 1.15; margin: 4px 0 10px; }
+  .lead { color: var(--soft); margin: 0 0 18px; }
+  .bank { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #fff6d8; border: 2px solid #f1dc9b; border-radius: 18px; padding: 12px 16px; margin-bottom: 18px; }
+  .bank b { font-family: "Jua", sans-serif; font-size: 22px; font-weight: 400; white-space: nowrap; }
+  .places { display: grid; gap: 14px; }
+  .place { display: block; text-decoration: none; color: inherit; background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: 0 5px 0 var(--line); transition: transform .08s, box-shadow .08s, border-color .15s; }
+  .place:hover { border-color: var(--mint); }
+  .place:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--line); }
+  .place .top { display: flex; align-items: center; gap: 12px; }
+  .place .icon { flex: none; width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; font-size: 30px; background: #eef4f7; }
+  .place.cafe .icon { background: #e6efe9; }
+  .place b { font-size: 23px; display: block; line-height: 1.2; }
+  .place small { color: var(--soft); font-size: 14.5px; }
+  .place p { margin: 10px 0 0; font-size: 15.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { font-size: 13.5px; padding: 2px 10px; border-radius: 999px; background: #f1ece2; color: var(--soft); }
+  .chip.been { background: #e3f3eb; color: var(--mint-d); }
+  .go { margin-top: 12px; display: inline-block; font-family: "Jua", sans-serif; color: #fff; background: var(--coral); padding: 8px 18px; border-radius: 14px; box-shadow: 0 4px 0 var(--coral-d); }
+  .cafe .go { background: var(--green); box-shadow: 0 4px 0 #173229; }
+  .btn { display: block; width: 100%; text-align: center; text-decoration: none; padding: 13px 16px; border-radius: 16px; margin-top: 18px; font-size: 18px; color: var(--ink); background: #fff; border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); }
+  .fine { color: var(--soft); font-size: 14px; margin: 14px 0 0; }
+  .teacher { display: block; text-align: center; margin-top: 22px; color: var(--soft); font-size: 14.5px; text-underline-offset: 3px; }
+  a:focus-visible { outline: 3px solid #589ac4; outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">직업인의 하루 · CAREER DAY</p>
+  <h1>오늘,<br>출근합니다</h1>
+  <p class="lead">여러 일터에 하루씩 출근해 직접 일해 봐요. 퇴근하면 그날 일한 만큼 일당을 받고, 마음에 남은 순간을 돌아봐요.</p>
+  <div id="bank"></div>
+
+  <div class="places">
+    <a class="place" href="career-day/">
+      <div class="top"><span class="icon" aria-hidden="true">🏥</span><div><b>모아 병원</b><small>여덟 직업 · 하루 판단과 손으로 하는 일</small></div></div>
+      <div class="chips" id="hospitalJobs"></div>
+      <span class="go">병원으로 출근하기 →</span>
+    </a>
+    <a class="place cafe" href="barista-day/">
+      <div class="top"><span class="icon" aria-hidden="true">☕</span><div><b>한 잔의 하루</b><small>카페 바리스타 · 3D 카페에서 직접 일하기</small></div></div>
+      <div class="chips" id="cafeJobs"></div>
+      <span class="go">카페로 출근하기 →</span>
+    </a>
+  </div>
+
+  <a class="btn" id="send" href="career-day/#send" hidden>선생님께 출근 기록 보내기</a>
+  <p class="fine">일당은 커리어넷 직업정보의 평균 연봉으로 계산한 세전 금액이에요. 직업끼리 순위를 매기는 숫자가 아니에요. 등장인물은 모두 가상이고, 출근 기록은 이 기기에만 남아요.</p>
+  <a class="teacher" href="career-day/#teacher">선생님용 · 출근 기록 모으기</a>
+</main>
+<script type="module">
+  import { loadRecords, walletTotal, manwon } from './shared/workday.js';
+  const HOSPITAL = [['doctor', '의사'], ['nurse', '간호사'], ['labtech', '임상병리사'], ['radiographer', '방사선사'], ['admin', '원무행정 직원'], ['pharmacist', '약사'], ['physio', '물리치료사'], ['cleaner', '환경미화 직원']];
+  const CAFE = [['barista', '바리스타']];
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const records = loadRecords();
+  const been = new Set(records.map((r) => r.job?.id));
+  const chips = (list) => list.map(([id, name]) => `<span class="chip ${been.has(id) ? 'been' : ''}">${been.has(id) ? '✓ ' : ''}${esc(name)}</span>`).join('');
+  document.getElementById('hospitalJobs').innerHTML = chips(HOSPITAL);
+  document.getElementById('cafeJobs').innerHTML = chips(CAFE);
+  if (records.length) {
+    document.getElementById('bank').innerHTML = `<div class="bank"><span>지금까지 ${records.length}번 출근했어요</span><b>🪙 ${esc(manwon(walletTotal(records)))}</b></div>`;
+    document.getElementById('send').hidden = false;
+  }
+</script>
+</body>
+</html>

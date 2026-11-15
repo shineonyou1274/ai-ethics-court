@@ -54,6 +54,8 @@ function ensureWorld(placeId) {
 
 // ── 지금 하는 하루 ──
 let S = null, J = null;
+// 함께 올린 사이트(/career-day/) 안에서 열렸으면 첫 화면으로 돌아가는 길을 보여 준다. 파일 하나로 열면 숨긴다.
+const inSite = /\/career-day\/(index\.html)?$/.test(location.pathname);
 const wageOf = (job) => CAREERNET[job.careernet];
 const annual = () => wageOf(J)?.wage || 0;
 const idxOf = (pred) => J.scenes.findIndex(pred);
@@ -125,7 +127,8 @@ function title() {
     <div class="jobs">${JOBS.map((j) => `<button class="job ${been.has(j.id) ? 'been' : ''}" data-id="${j.id}"><b><i style="background:${j.color}"></i>${esc(j.name)}</b><small>${esc(j.title)}<br>${j.shift.start}–${j.shift.end}${been.has(j.id) ? ' · 다녀옴' : ''}</small></button>`).join('')}</div>
     ${diary.length ? '<button class="btn ghost" id="send">선생님께 출근 기록 보내기</button>' : ''}
     <p class="fine">일당은 커리어넷 직업정보의 평균 연봉(중앙값)으로 계산한 세전 금액이에요. 등장인물과 기록은 모두 가상이에요. 진행 기록은 이 기기에만 남아요.</p>
-    <button class="link" id="teacher">선생님용 · 출근 기록 모으기</button>`);
+    <button class="link" id="teacher">선생님용 · 출근 기록 모으기</button>
+    ${inSite ? '<a class="link" href="../">← 다른 일터 고르기</a>' : ''}`);
   on('#send', () => openSend(title));
   on('#teacher', openTeacher);
   on('#resume', () => { S = cur; J = jobById(S.job); begin(); });
@@ -404,4 +407,7 @@ sb.addEventListener('click', () => { toggleSound(); paintSound(); startMusic(); 
 paintSound();
 panel.addEventListener('click', (e) => { if (e.target.closest('button')) { startMusic(); sfx('tap'); } });
 
+// 주소 끝으로 바로 들어오기: #teacher 는 교사 기록 모으기, #send 는 선생님께 보내기 (사이트 첫 화면의 단추가 쓴다)
 title();
+if (location.hash === '#teacher') openTeacher();
+else if (location.hash === '#send') openSend(title);

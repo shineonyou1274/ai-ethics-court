@@ -1,0 +1,10 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><meta name="theme-color" content="#254c3e"><title>한 잔의 하루 · 직접 일하는 카페</title><link rel="stylesheet" href="style.css?v=career16"></head><body>
+<canvas id="world" aria-label="내 캐릭터가 보이는 3D 카페"></canvas>
+<header><div class="brand">한 잔의 하루 <small>BARISTA / FIRST SHIFT</small></div><div id="wallet">₩0 <small>가상 매출</small></div><button id="sound" aria-label="소리 끄기">♪</button><button id="help" aria-label="조작 안내">?</button></header>
+<div id="objective"><span id="phase">첫 출근</span><b id="task">싱크대에서 손 씻기</b><small id="direction">둘러보고 천천히 이동하세요</small></div>
+<div id="order" hidden></div><div id="position">나의 위치 · 카페 중앙</div><div id="greeting" hidden><small>나 · 바리스타</small>어서 오세요! ☺</div><div id="bubble" hidden></div><div id="toast" role="status" aria-live="polite"></div>
+<div id="held" hidden></div><div id="progress" hidden><i></i></div>
+<div id="joystick" aria-label="이동 패드"><span>이동</span><div id="stick"></div></div><div id="lookHint">바닥 · 작업대를 한 번 누르면 걸어가요</div>
+<button id="action">가까운 물체를 바라보세요</button><button id="discard" hidden>비우기</button>
+<div id="intro"><section><div class="eyebrow">A LITTLE CAFÉ. YOUR FIRST DAY.</div><h1>이 공간에서,<br>오늘은 당신이<br><em>바리스타.</em></h1><p>앞치마를 입은 나를 움직여,<br>컵을 들고 한 잔을 만들어 건네보세요.</p><div class="controls"><span>내 캐릭터<br><b>직접 보며 일하기</b></span><span>바닥 터치<br><b>자동으로 걸어가기</b></span><span>작업대 터치<br><b>걸어가서 일하기</b></span></div><button id="start">앞치마 두르고 시작하기 →</button><button id="sendFromStart" hidden>선생님께 출근 기록 보내기</button><small>약 8분으로 하루 근무를 체험해요. 맛·시간·금액은 단순화한 체험이며 실제 급여나 적성을 판정하지 않습니다.<br><a href="fallback.html">3D 없이 터치로 체험하기</a></small></section></div>
+<div id="sheet" hidden></div><div id="error" hidden></div><script type="module" src="game.js?v=career16"></script><script type="module" src="send-entry.mjs"></script></body></html>

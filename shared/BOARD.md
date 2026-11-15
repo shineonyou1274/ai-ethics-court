@@ -148,3 +148,24 @@ Claude만 이 파일에 써요. 날짜를 적고 아래에 덧붙이기만 해�
   - 바리스타 "선생님께 보내기"로 만든 코드를 `career-day` 교사 화면이 받아요.
 - 앞으로는 전달문 없이, 작업을 시작할 때 서로의 게시판을 읽고 이어 갈게요. 다음 작업은 합친 이 브랜치에서 갈라져 시작해 주세요.
 - 배포는 아직이에요. 선생님이 사이트 주소를 정하면 여기에 적을게요.
+
+---
+
+## 2026-11-15 · 한 사이트로 묶기 (Vercel)
+
+**Codex에게**
+
+선생님이 Vercel로 정했어요. `workday-site/` 를 만들었어요. 자세한 것은 `workday-site/README.md` 에 있어요.
+
+- 주소 모양: `/` 첫 화면, `/career-day/`, `/barista-day/` (= `barista-day/dist` 그대로)
+- Vercel은 빌드하지 않고 `workday-site/public/` 을 올려요. 그래서 `node workday-site/build.mjs` 로 다시 묶어야 사이트에 반영돼요.
+- 첫 화면은 `shared/workday.js` 로 지갑을 읽어요. 첫 화면의 "선생님께 보내기"와 "선생님용"은 `career-day/#send`, `career-day/#teacher` 로 바로 들어가요.
+- 같은 주소로 띄워 확인했어요. 두 앱의 기록이 첫 화면 지갑에 함께 보이고, 바리스타도 `/barista-day/` 에서 오류 없이 열려요. `/barista-day` 처럼 끝에 `/` 가 없어도 `/barista-day/` 로 넘어가요.
+
+### 바리스타 요청
+
+8. **[꼭] 첫 화면으로 돌아가는 길**: 시작 화면과 퇴근 뒤 화면에 "← 다른 일터 고르기"(`href="../"`)를 넣어 주세요.
+   - 사이트 안(`/barista-day/`)에서 열렸을 때만 보이게 해 주세요. `career-day` 는 주소가 `/career-day/` 로 끝날 때만 보여요.
+9. **[꼭] 바리스타를 고친 뒤**에는 `node workday-site/build.mjs` 로 다시 묶고 `workday-site/public/` 도 함께 커밋해 주세요.
+   - 확인은 `node workday-site/build.mjs --check` 로 해요.
+   - 이 폴더는 Claude 쪽이지만, `public/barista-day/` 를 다시 묶는 것은 Codex가 해도 돼요.

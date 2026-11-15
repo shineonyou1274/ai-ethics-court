@@ -241,7 +241,7 @@ button.rxCell.shake, .tray.shake { animation: shake .35s; }
 #app.teacher #stage { display: none; }
 #app.teacher #panel { border: 0; }
 #app.teacher #panel > * { max-width: 920px; }
-.link { display: block; margin: 18px auto 0; color: var(--soft); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; font-family: inherit; }
+.link { display: block; text-align: center; margin: 18px auto 0; color: var(--soft); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; font-family: inherit; }
 .field { display: grid; gap: 4px; margin-top: 10px; }
 .field input, #panel textarea { width: 100%; font: inherit; font-size: 17px; padding: 11px 13px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--ink); }
 .field input.need { border-color: var(--coral); }
