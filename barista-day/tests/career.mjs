@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {Shift} from '../dist/shift.mjs';
+import {MOMENTS,workClock,recordFor,renderWorkdayEnd} from '../dist/career.mjs';
+import {checkRecord,loadRecords,walletTotal} from '../dist/shared/workday.js';
+const s=new Shift();assert.throws(()=>recordFor(s,MOMENTS[0],MOMENTS[1]));
+assert.equal(workClock(s).end,'08:30');s.phase='end';s.sales=13500;s.cost=2150;s.tips=600;
+const r=recordFor(s,MOMENTS[3],MOMENTS[5]);assert.deepEqual(checkRecord(r),[]);assert.equal(r.pay.total,95840);assert.equal(r.shift.end,'17:30');assert.ok(new Set(MOMENTS.map(m=>m.type)).size>=4);
+s.wasted=1;assert.equal(recordFor(s,MOMENTS[0],MOMENTS[1]).pay.total,100330);s.wasted=99;assert.equal(workClock(s).workedMin,600);assert.equal(workClock(s).end,'19:30');assert.deepEqual(checkRecord(recordFor(s,MOMENTS[0],MOMENTS[1])),[]);s.wasted=0;
+let raw=null;globalThis.localStorage={getItem:()=>raw,setItem:(_,v)=>raw=v};
+const els=new Map();const container={hidden:true,innerHTML:'',querySelector(sel){if(!els.has(sel))els.set(sel,{value:'',disabled:false,textContent:''});return els.get(sel)}};
+renderWorkdayEnd(container,s);const like=els.get('#likeMoment'),hard=els.get('#hardMoment'),save=els.get('#saveDay');like.value='0';hard.value='0';like.onchange();assert.equal(save.disabled,true);hard.value='1';hard.onchange();assert.equal(save.disabled,false);
+globalThis.localStorage.setItem=()=>{throw Error('blocked')};save.onclick();assert.match(els.get('#recordStatus').textContent,/저장하지 못/);assert.equal(save.disabled,false);
+globalThis.localStorage.setItem=(_,v)=>raw=v;save.onclick();save.onclick();assert.equal(loadRecords().length,1);assert.equal(walletTotal(),95840);renderWorkdayEnd(container,s);assert.equal(save.disabled,true);assert.equal(loadRecords().length,1);
+console.log('PASS: salary, overtime cap, clock, four interest types, invalid reflection, storage failure/retry, one record per shift, shop money excluded.');
