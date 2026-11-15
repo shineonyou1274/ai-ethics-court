@@ -4,7 +4,7 @@
 //
 // public/
 //   index.html                첫 화면 (hub.html)
-//   shared/*.js               공통 약속 (첫 화면이 지갑을 읽는 데 쓴다)
+//   shared/*.js, *.css        공통 약속과 디자인 (첫 화면이 지갑을 읽고 디자인을 쓴다)
 //   career-day/index.html     오늘, 출근합니다 (career-day/career-day.html, 빌드된 한 파일)
 //   barista-day/…             한 잔의 하루 (barista-day/dist 그대로)
 import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -21,7 +21,7 @@ const plan = [
   [join(here, 'hub.html'), 'index.html'],
   [join(root, 'career-day/career-day.html'), 'career-day/index.html'],
 ];
-for (const f of readdirSync(join(root, 'shared'))) if (f.endsWith('.js')) plan.push([join(root, 'shared', f), `shared/${f}`]);
+for (const f of readdirSync(join(root, 'shared'))) if (/\.(js|css)$/.test(f)) plan.push([join(root, 'shared', f), `shared/${f}`]);
 (function walk(dir) {
   for (const f of readdirSync(dir)) {
     const p = join(dir, f);

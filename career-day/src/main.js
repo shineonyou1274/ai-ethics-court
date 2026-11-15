@@ -1,4 +1,5 @@
 // 화면과 흐름: 직업 고르기 → 하루(장면 열한 개 + 직업마다 손으로 하는 장면) → 일당 명세서 → 퇴근길 돌아보기 → 출근 기록
+import '../../shared/design.css'; // 공통 디자인 토큰 (shared/DESIGN.md)
 import './style.css';
 import { JOBS, jobById } from './jobs/index.js';
 import { PLACES } from './places/index.js';
@@ -325,6 +326,7 @@ function slip() {
   view(`
     <p class="eyebrow">퇴근 · ${toHHMM(toMin(J.shift.end) + (S.stayed ? S.delay : 0))}</p>
     <h2>오늘의 일당 명세서</h2>
+    <p class="payBig">🪙 ${won(p.total)}<small>세금·보험료 떼기 전</small></p>
     <div class="bubble"><table class="slip">
       <tr><td>기본급<small>시급 ${won(p.hourly)} × ${Math.min(p.worked, p.shift) / 60}시간</small></td><td>${won(p.base)}</td></tr>
       ${p.overMin ? `<tr><td>연장 근무 수당<small>시급 × 1.5 × ${p.overMin}분${S.breakWorked ? ` (쉬는 시간에 일한 ${S.breakWorked}분 포함)` : ''}</small></td><td class="up">+${won(p.overtime)}</td></tr>` : ''}
@@ -394,7 +396,7 @@ let lastSaveFailed = false;
 function done() {
   view(`<div class="badge"><div class="big">📒</div><h2>${lastSaveFailed ? '이 기기에 저장하지 못했어요' : '출근 기록에 남겼어요'}</h2>${lastSaveFailed ? '<p class="fine">저장 공간이 막혀 있거나 개인 정보 보호 모드일 수 있어요. 일당과 돌아보기는 화면에 남아 있어요.</p>' : ''}<p>${esc(J.name)}의 하루 · 🪙 ${won(payslip(S, J, annual()).total)}</p></div>
     <div class="bubble"><b class="jua">지금까지의 출근 기록</b><ol class="path">${diary.map((r) => `<li>${esc(r.job.name)} <span>· ${esc(r.ending.name)} · ${won(r.pay.total)} · 💛 ${esc(r.like.label)}</span></li>`).join('')}</ol></div>
-    <button class="btn" id="again">같은 직업으로 다른 하루 보내기</button><button class="btn ghost" id="home">다른 직업 고르러 가기</button><button class="btn ghost" id="send">선생님께 출근 기록 보내기</button>`);
+    <button class="btn" id="again">같은 직업으로 다른 하루 보내기</button><button class="btn ghost" id="home">다른 직업 고르러 가기</button><button class="btn ghost" id="send">선생님께 출근 기록 보내기</button>${inSite ? '<a class="link" href="../">← 다른 일터 고르기</a>' : ''}`);
   on('#again', () => startJob(J)); on('#home', title); on('#send', () => openSend(done));
 }
 

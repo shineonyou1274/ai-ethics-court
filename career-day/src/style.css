@@ -258,3 +258,5 @@ button.rxCell.shake, .tray.shake { animation: shake .35s; }
 .roster th, .roster td { text-align: left; padding: 6px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .roster th { color: var(--soft); font-weight: 400; white-space: nowrap; }
 details.bubble { overflow-x: auto; } details summary { cursor: pointer; }
+.payBig { font-family: "Jua", sans-serif; font-size: 40px; line-height: 1.15; margin: 4px 0 12px; font-variant-numeric: tabular-nums; }
+.payBig small { display: block; font-family: "Gowun Dodum", sans-serif; font-size: 14px; color: var(--soft); }
