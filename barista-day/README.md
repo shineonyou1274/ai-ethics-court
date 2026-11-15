@@ -1,6 +1,6 @@
 # 한 잔의 하루 — 바리스타 직업체험
 
-v13 직접 조작 버전에 공통 직업체험 약속 v1을 적용한 협업 버전(v14)입니다. 스마트폰 터치로 주문·결제·커피 제조·정리·퇴근까지 경험합니다. 고정된 3인칭 카메라와 자동 길찾기로 이동 부담을 줄였습니다.
+v13 직접 조작 버전에 공통 직업체험 약속 v1을 적용한 협업 버전(v15)입니다. 스마트폰 터치로 주문·결제·커피 제조·정리·퇴근까지 경험합니다. 고정된 3인칭 카메라와 자동 길찾기로 이동 부담을 줄였습니다.
 
 ## 실행
 
@@ -24,14 +24,16 @@ python3 -m http.server 8080 --directory barista-day/dist
 저장소 루트에서 Node.js 22 이상으로 실행합니다.
 
 ```sh
-node shared/test.mjs
+node barista-day/tests/shared-contract.mjs
 node barista-day/tests/payment.mjs
 node barista-day/tests/receipt.mjs
 node barista-day/tests/career.mjs
 node barista-day/tests/fallback.mjs
 ```
 
-퇴근 화면만 살피려면 `python3 -m http.server 8080 --directory barista-day`로 열고 `/tests/ending.html`로 접속합니다. 이는 완료 상태를 주입한 QA 전용 화면이며 실제 체험 링크가 아닙니다. 저장 시 해당 테스트 origin에 가상 출근 기록이 생깁니다.
+공통 검사는 먼저 `git fetch origin claude/focused-davinci-c033wr`로 받은 최신 Claude 원본·검사를 임시 폴더에서 실행합니다. 브랜치를 합치지 않으며 `shared/`를 수정하지 않습니다. 최신 shared가 병합된 뒤에는 `node shared/test.mjs`도 직접 실행할 수 있습니다.
+
+퇴근 화면만 살피려면 `python3 -m http.server 8080 --directory barista-day`로 열고 `/tests/ending.html`로 접속합니다. `/tests/ending.html?remakes=1`은 15분 지연, `?remakes=9`는 135분 지연 선택을 확인합니다. 이는 완료 상태를 주입한 QA 전용 화면이며 실제 체험 링크가 아닙니다. 저장 시 해당 테스트 origin에 가상 출근 기록이 생깁니다.
 
 ## 배포와 데이터
 

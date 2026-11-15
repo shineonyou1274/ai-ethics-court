@@ -25,3 +25,25 @@ shared/README.md, shared/BOARD.md를 먼저 읽었습니다. 지정된 Claude �
 ### 검증
 
 shared/test.mjs와 barista-day/tests/{payment,receipt,career,fallback}.mjs 실행. 앱 브라우저에서 3D 초기화, 대체 모드 첫 작업, 퇴근 순간 선택과 저장 성공 확인. 자세한 검증 범위와 미검증 사항은 HANDOFF.md 참조.
+
+---
+
+## 2026-11-15 · Claude 답변 확인, v15 요청 다섯 개 반영
+
+Claude 브랜치 `1f99b00`의 shared/README.md와 shared/BOARD.md를 읽었습니다. 두 브랜치는 합치지 않았으며 변경은 barista-day/ 안에만 있습니다.
+
+1. 최신 shared/workday.js를 바이트 그대로 재복사했습니다. saveRecordSafe로 전환하고 저장 전후 길이 비교를 삭제했습니다. ok/duplicate 결과를 반영하며 실패 후 재시도에도 최초 기록 id를 유지합니다.
+2. endingFor()를 추가했습니다. 인계, 연장 완료/상한 초과 인계, 재제조, 취향 일치 전체/일부/없음으로 결말이 달라집니다. 화면과 ending.name은 같은 함수로 생성합니다. matchedDrinks도 extra에 기록합니다.
+3. 17:30에 밀린 시간이 있으면 먼저 선택 화면을 표시합니다. 남으면 최대 120분·1.5배 수당, 힘은 15분당 4 감소. 인계하면 정시 퇴근·연장 수당 없음·힘 유지. 넘긴 시간/힘/선택은 extra.handedOverMin/energy/departureChoice로 저장합니다. 선택 전에는 저장할 수 없습니다. 실제 플레이 시간이 아닌 업무 단계/재제조 기반의 체험 모델이라는 설명도 표시합니다.
+4. careernetUrl('180') 명세서 링크, 워크넷 2021년 음료조리사 기준, 표본 수가 적으므로 직업 순위를 매기지 않는다는 안내를 추가했습니다.
+5. select를 없애고 7개 순간의 터치 카드로 변경했습니다. 각 카드에서 💛 끌림 / 🪨 버거움을 고르고 선택 상태를 표시합니다. 같은 순간을 둘 다 고르면 저장을 막습니다.
+
+검증: tests/shared-contract.mjs, payment.mjs, receipt.mjs, career.mjs, fallback.mjs 모두 통과. 15/120/135분 지연의 두 선택, 연장 상한, 힘, 다양한 결말, 안전 저장 실패/재시도/중복을 검사했습니다. 390×844 앱 브라우저에서 연장 선택→100,330원 기록 저장과 카드 조작, 135분 인계→95,840원/17:30 및 출처 표시를 확인했습니다.
+
+### 병합 전 공통 검사 방법
+
+이 브랜치의 shared/는 최초 버전 그대로입니다(소유권 약속 준수). 최신 복사본과 비교하려면 먼저 fetch 후 `node barista-day/tests/shared-contract.mjs`를 실행해 주세요. 이 검사는 최신 Claude 원본·shared/test.mjs를 임시 폴더에서 실행하므로 공유 폴더를 고치거나 브랜치를 합치지 않습니다. 최신 shared가 병합되면 루트 `node shared/test.mjs`에서도 복사본이 일치합니다.
+
+같은 origin 배포 방향을 확인했습니다. 선생님이 호스팅/병합 시점을 정할 때까지 배포하지 않습니다. 교사 수집 방식 결정도 기다립니다.
+
+추가 참고: saveRecordSafe의 재읽기는 중간 변경 누락 위험을 줄이지만 localStorage 자체에 원자적 잠금이 없어 정확히 동시인 탭 쓰기까지 보장하지는 않습니다. 필요해지면 공유 저장 계층에서 조정하면 좋겠습니다.

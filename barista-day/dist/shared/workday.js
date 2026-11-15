@@ -34,6 +34,9 @@ export function salaryDay(annualMan, workedMin, shiftMin = 480) {
   return { hourly, raw, floored, base, overtime, overMin, total: base + overtime };
 }
 
+// 커리어넷 직업정보 화면 주소 (명세서의 출처 링크로 쓴다)
+export const careernetUrl = (code) => `https://www.career.go.kr/cloud/w/job/view?seq=${encodeURIComponent(code)}`;
+
 export const won = (n) => `${Math.round(n).toLocaleString('ko-KR')}원`;
 export function manwon(n) { // 1234567 → "123만 4,567원"
   n = Math.round(n); const man = Math.floor(n / 10000), rest = n % 10000;
@@ -62,10 +65,13 @@ const today = () => {
 
 // 앱이 넘겨줄 것: app, job{id,name,careernet}, place, annual(만 원), wageYear, wageBasis,
 // shift{start,end,breakMin}, workedMin, shiftMin, ending{name,icon?}, like{label,type}, hard{label,type}, extra?
+const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
 export function makeRecord(o) {
   const pay = salaryDay(o.annual, o.workedMin, o.shiftMin);
   return {
     v: WORKDAY_VERSION,
+    id: o.id || newId(), // 기록 하나의 이름표. 같은 기록을 두 번 저장하지 않는 데 쓴다
     app: o.app,
     date: o.date || today(),
     job: { id: o.job.id, name: o.job.name, careernet: String(o.job.careernet) },
@@ -91,6 +97,7 @@ export function checkRecord(r) {
   need(r && r.v === WORKDAY_VERSION, `v 는 ${WORKDAY_VERSION}`);
   if (!r) return errs;
   need(typeof r.app === 'string' && r.app, 'app 이름');
+  need(r.id === undefined || (typeof r.id === 'string' && r.id), 'id 는 글자');
   need(/^\d{4}-\d{2}-\d{2}$/.test(r.date), 'date 는 YYYY-MM-DD');
   need(r.job && r.job.id && r.job.name && r.job.careernet, 'job.id / name / careernet');
   need(typeof r.place === 'string' && r.place, 'place');
@@ -116,10 +123,31 @@ const ls = () => { try { return globalThis.localStorage; } catch { return null; 
 export function loadRecords() {
   try { const a = JSON.parse(ls()?.getItem(RECORDS_KEY)); return Array.isArray(a) ? a : []; } catch { return []; }
 }
+// (v1 처음 모양) 저장한 뒤 목록을 돌려준다. 성공 여부가 필요하면 saveRecordSafe 를 쓴다.
 export function saveRecord(r) {
   const all = loadRecords(); all.push(r);
   try { ls()?.setItem(RECORDS_KEY, JSON.stringify(all)); } catch { /* 저장이 막힌 기기에서도 체험은 된다 */ }
   return all;
 }
+// 저장하고 결과를 알려 준다. { ok, duplicate, error, records }
+// - 같은 id 의 기록이 이미 있으면 다시 넣지 않는다 (두 번 누르기, 화면 다시 열기)
+// - 쓰기 직전에 다시 읽어서, 다른 탭이 그사이 저장한 기록을 지우지 않는다
+// - 쓴 뒤 다시 읽어 정말 들어갔는지 확인한다 (저장이 막힌 기기에서는 ok: false)
+export function saveRecordSafe(r) {
+  const store = ls();
+  if (!store) return { ok: false, duplicate: false, error: 'no-storage', records: [] };
+  try {
+    const all = loadRecords();
+    if (r.id && all.some((x) => x.id === r.id)) return { ok: true, duplicate: true, error: null, records: all };
+    all.push(r);
+    store.setItem(RECORDS_KEY, JSON.stringify(all));
+    const back = loadRecords();
+    const ok = r.id ? back.some((x) => x.id === r.id) : back.length === all.length;
+    return { ok, duplicate: false, error: ok ? null : 'not-saved', records: back };
+  } catch (e) {
+    return { ok: false, duplicate: false, error: String(e?.name || e), records: loadRecords() };
+  }
+}
+
 // 지금까지 받은 일당의 합. 직업끼리 견주거나 순위를 매기는 데 쓰지 않는다.
 export const walletTotal = (records = loadRecords()) => records.reduce((a, r) => a + (r.pay?.total || 0), 0);

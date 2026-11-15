@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-const elements=new Map();function element(){return {children:[],textContent:'',value:'',hidden:false,append(e){this.children.push(e)},replaceChildren(){this.children=[]},setAttribute(){},setPointerCapture(){},querySelector(id){if(!elements.has(id))elements.set(id,element());return elements.get(id)}}}
+const elements=new Map();function element(){return {children:[],textContent:'',value:'',hidden:false,append(e){this.children.push(e)},replaceChildren(){this.children=[]},setAttribute(k,v){this[k]=v},setPointerCapture(){},querySelector(id){if(!elements.has(id))elements.set(id,element());return elements.get(id)}}}
 globalThis.document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id)},createElement:element};
 await import('../dist/fallback.mjs');const tasks=elements.get('tasks');let cashOrder=0,selected=false;
 for(let step=0;step<150;step++){

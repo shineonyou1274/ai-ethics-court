@@ -1,5 +1,5 @@
 import {Shift} from './shift.mjs';
-import {clockLabel,renderWorkdayEnd} from './career.mjs';
+import {clockLabel,renderWorkdayEnd} from './career.mjs?v=career15';
 const state=new Shift();state.accessibleMode=true;
 const tasks=document.getElementById('tasks'),status=document.getElementById('status');
 let amount=1,water=false;
