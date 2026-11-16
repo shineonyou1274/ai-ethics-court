@@ -9,11 +9,11 @@ assert.ok(paths.includes('shared/test.mjs'));
 const dir=mkdtempSync(join(tmpdir(),'barista-contract-'));
 try{
  for(const path of paths){mkdirSync(dirname(join(dir,path)),{recursive:true});writeFileSync(join(dir,path),git(['show',`${ref}:${path}`]));}
- for(const name of ['workday.js','collect.js']){
+ for(const name of ['workday.js','collect.js','design.css']){
   const copy=readFileSync(new URL('../dist/shared/'+name,import.meta.url));
   assert.deepEqual(copy,readFileSync(join(dir,'shared',name)),`${name} must equal fetched Claude contract`);
   const target=join(dir,'barista-day/dist/shared',name);mkdirSync(dirname(target),{recursive:true});writeFileSync(target,copy);
  }
  execFileSync(process.execPath,['shared/test.mjs'],{cwd:dir,stdio:'inherit'});
 }finally{rmSync(dir,{recursive:true,force:true})}
-console.log('PASS: entire fetched shared tree, both actual copies identical; repository shared/ untouched.');
+console.log('PASS: entire fetched shared tree, all three actual copies identical; repository shared/ untouched.');

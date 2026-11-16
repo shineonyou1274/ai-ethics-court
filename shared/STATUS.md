@@ -2,7 +2,7 @@
 
 > **일을 시작하기 전에 이 파일부터 읽어요.** 지금 상태를 한 장으로 적은 것이고, Claude가 늘 최신으로 고쳐 써요.
 > 자세한 사정과 주고받은 말은 게시판에 있어요: `shared/BOARD.md`(Claude) · `barista-day/BOARD.md`(Codex)
-> 마지막 고침: 2026-11-16 저녁 · 기준 커밋 `a3523fa` (`claude/focused-davinci-c033wr` = 지금 운영 주소로 바로 나가는 브랜치)
+> 마지막 고침: 2026-11-16 밤 · 통합 브랜치 `claude/integrate-fire` (운영 반영 전) · 운영 브랜치 `claude/focused-davinci-c033wr`
 
 ## 1. 무엇을 만들고 있나
 
@@ -10,27 +10,22 @@
 
 ## 2. 지금 있는 것
 
-| 일터 | 폴더 · 브랜치 | 맡은 쪽 | 상태 |
+| 일터 | 폴더 | 맡은 쪽 | 상태 |
 |---|---|---|---|
-| 모아 병원 (8직업) | `career-day/` · `claude/focused-davinci-c033wr` | Claude | 완성, 운영 중 |
-| 카페 바리스타 | `barista-day/` · `codex/barista-day`(v16) | Codex | 운영 중. 8~15번은 `codex/fire-station` 에서 고침(아직 안 합침), 16~19번 남음 |
-| 소방서 — Claude 판 | `career-day/` 안의 일터 `fire-station`, 직업 `firefighter` · `claude/confident-turing-yq0roj` | Claude(새 대화) | 만듦. 병원과 같은 엔진·명세서·돌아보기. 훈련장에서 3D로 불꽃 표적 끄기, 출동 현장은 판단. **아직 안 합침** |
-| 소방서 — Codex 판 | `fire-station/` (독립 앱) · `codex/fire-station` | Codex → Claude에 넘기려 함 | 만듦. 바닥 눌러 걸어 다니기, 차량 점검, 2D 손 보드. 첫 화면 연결까지 함. **아직 안 합침** |
-| 우주항공 (항공우주공학기술자) | `aerospace-day/` (예정) · Codex 브랜치 | Codex (선생님 결정) | 시작 전 |
+| 모아 병원 (8직업) | `career-day/` | Claude | 완성, 운영 중 |
+| 다솜 소방서 (소방관) | `career-day/` 안의 일터 `fire-station`, 직업 `firefighter` | Claude | **선생님 결정으로 이 판을 씀.** 불 끄기는 훈련장 장면 그대로. 통합 브랜치에 합침 |
+| 카페 바리스타 | `barista-day/` | Codex | 디자인 맞추기 8~15번 통합 브랜치에 합침. 16~19번 남음 |
+| 우주항공 (항공우주공학기술자) | `aerospace-day/` (예정) | Codex (선생님 결정) | 시작 전 |
 | 공통 약속 | `shared/` | Claude | 일당·기록·세션·교사 코드·디자인 |
-| 사이트 | `workday-site/` | Claude | 운영 주소 `project-o71se.vercel.app`. 첫 화면에는 아직 병원·카페만 |
+| 사이트 | `workday-site/` | Claude | 첫 화면 입구 셋(병원·소방서·카페), 도장 10칸 |
 
-> **같은 기록 칸**: 두 소방서 판 모두 `place: 'fire-station'`, `job.id: 'firefighter'`, 커리어넷 385로 맞춰 두어서, 어느 판으로 출근해도 도장 카드의 소방관 칸 하나에 찍혀요.
+- **Codex 판 소방서(`codex/fire-station` 의 `fire-station/`)는 쓰지 않아요.** 브랜치는 참고용으로 남겨요. 그 판의 좋은 점(바닥 눌러 걸어 다니기, 차량 점검)은 나중에 `career-day` 엔진으로 옮길 수 있어요.
+- 소방관 기록은 `place: 'fire-station'`, `job.id: 'firefighter'`, 커리어넷 385예요.
 
-### 선생님이 정할 것 (정해질 때까지 아무도 합치지 않아요)
+### 운영에 올리기 (선생님 승인 필요)
 
-1. **소방서는 어느 판을 사이트에 걸까?**
-   - 가) Claude 판(병원과 같은 엔진, 시리즈와 결이 같음). Codex 판의 좋은 점(걸어 다니기, 차량 점검)은 엔진으로 옮겨 오기 — **Claude 권장**
-   - 나) Codex 판(독립 앱, 3D에서 걸어 다니기)
-   - 다) 둘 다 걸기 — 같은 직업 칸이 두 입구로 갈라져 학생이 헷갈릴 수 있어요
-2. **출동 현장에서 직접 불을 끄는 장면이 필요할까?** 지금은 훈련장에서만 불꽃 표적을 끄고, 현장에서는 누구 곁에 설지 판단해요. 넣는다면 "단순화한 체험"이라고 밝혀요.
-3. **합치는 순서**: `claude/focused-davinci-c033wr` 가 운영 주소로 바로 나가요. 그래서 합치기 전에 미리보기로 먼저 확인해요. 권하는 순서는 이래요.
-   ① 소방서 판 결정 → ② 그 판과 Codex의 바리스타 8~15번을 함께 합침. `hub.html` 충돌은 Claude가 풀어요 → ③ 미리보기 주소에서 폰·PC 확인 → ④ 선생님 승인 뒤 운영에 반영
+- 통합 브랜치 `claude/integrate-fire` = 운영 브랜치 + 소방서(Claude 판) + 바리스타 8~15번. 검사가 모두 통과했고, 통합 사이트를 폰·PC로 확인했어요.
+- 선생님이 승인하면 운영 브랜치 `claude/focused-davinci-c033wr` 를 이 통합 브랜치로 앞당겨요. 그러면 운영 주소에 바로 반영돼요.
 
 ## 3. 꼭 읽을 문서
 
@@ -40,14 +35,19 @@
 
 ## 4. 남은 요청 (번호는 `shared/BOARD.md`의 번호)
 
-**Codex — 바리스타**
-- [x] 8~15 다른 일터 길, 다시 묶기, design.css, 글꼴, 위쪽 띠의 일당, 명찰, 한국어 머리말 — `codex/fire-station` 에서 고침(d21a7ad). **합치기 전**
-- [ ] 16 지갑·보내기는 `loadMine()` (세션 기능 7e9b724 뒤에 갈라져야 쓸 수 있어요)
+**Codex — 바리스타** (통합 브랜치에서 갈라져 시작)
+- [x] 8~15 — 통합 브랜치에 합침
+- [ ] 16 지갑·보내기는 `loadMine()`
 - [ ] 17 시작할 때 `needsWhoCheck()` → "누구의 기록인가요?"
 - [ ] 18 (바람) 지갑은 `walletSummary()` 모양
+- [ ] 19 `tests/shared-contract.mjs` 를 `origin/main` 기준으로(합치기 전에는 Claude 브랜치로 대신)
+
+**Codex — 우주항공**
+- [ ] `aerospace-day/` 새 앱. 현황판 §6, DESIGN.md §7 체크 목록. 브랜치 `codex/aerospace-day` (통합 브랜치에서 갈라져 시작)
 
 **Claude — 정리할 것**
-- [ ] 소방서 판이 정해지면 합치기(위 §2 "선생님이 정할 것" 3번 순서)
+- [x] 소방서 판 결정(Claude 판) → 통합 브랜치에 합침
+- [ ] 선생님 승인 뒤 운영 브랜치를 통합 브랜치로 앞당기기
 - [ ] Codex 요청: 새 폴더(`fire-station/`, `aerospace-day/`)와 그 게시판을 협업 약속에 등록, `shared/test.mjs` 복사본 검사에 더하기
 
 **선생님**

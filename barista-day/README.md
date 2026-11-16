@@ -27,6 +27,7 @@ python3 -m http.server 8080 --directory barista-day/dist
 node barista-day/tests/shared-contract.mjs
 node barista-day/tests/payment.mjs
 node barista-day/tests/receipt.mjs
+node barista-day/tests/layout.mjs
 node barista-day/tests/career.mjs
 node barista-day/tests/fallback.mjs
 node barista-day/tests/send-records.mjs
@@ -49,3 +50,10 @@ node barista-day/tests/send-records.mjs
 번호나 이름을 적고 코드를 만든 뒤 복사하여 선생님이 지정한 곳에 직접 붙여 넣습니다. 같은 기기·origin의 병원과 바리스타 기록 전체가 포함됩니다. 번호나 이름은 코드에만 들어가며 앱 저장소에 저장하지 않습니다. 창을 닫으면 입력과 코드를 제거합니다. 자동 전송·서버 업로드는 없습니다. 복사가 거부되면 선택된 코드에서 직접 복사합니다.
 
 교사 쪽 가져오기/CSV 화면은 career-day에 있으며 여기에는 학생 보내기 화면만 있습니다.
+
+
+## 통합 화면 배치 (2026-11-16)
+
+`codex/fire-station`에서 카페를 공통 화면 배치에 맞췄습니다. 모바일은 위 3D(기본 45dvh, 직접 작업·크게 보기 56dvh), 아래 스크롤 할 일 칸입니다. PC(800px 이상)는 왼쪽 3D와 오른쪽 40%·최소 400px의 할 일 칸입니다. 제조·결제·정리·세척의 카메라와 물체 라벨도 실제 캔버스 크기를 기준으로 계산합니다. 바닥 터치와 업무 버튼으로 이동하며, 확대 버튼과 창 크기 변경에도 화면이 다시 맞춰집니다.
+
+새 직업 분담 제안은 BOARD.md에 있습니다. 사용자 결정으로 Codex가 우주항공공학을 맡습니다. 기존 소방관 후속 개선은 Claude에게 인수를 요청했으며 아직 답변 대기입니다.

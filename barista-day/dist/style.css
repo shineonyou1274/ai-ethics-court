@@ -30,3 +30,52 @@ body.payOpen>header,body.payOpen>#objective,body.payOpen>#order,body.payOpen>#ac
 .career-end .moment-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.career-end .moment-card{padding:10px;border:1px solid #bac9bb;border-radius:12px;background:#fff}.moment-card>span{display:block;font-size:13px;line-height:1.45;min-height:38px}.moment-card>div{display:flex;gap:4px;margin-top:6px}.career-end .moment-card button{flex:1;min-width:0;min-height:44px;padding:6px 2px;font-size:12px;border:1px solid #9aaa9c;border-radius:8px;background:#f6f6ef;color:#294537}.career-end .moment-card button[aria-pressed=true]{background:#294f3e;color:white;border:2px solid #172f23}.career-end .departure-card{display:block;width:100%;text-align:left;padding:18px;margin:14px 0;background:#fff;border:2px solid #7e9987;border-radius:14px;color:#254c3e}.departure-card b,.departure-card span{display:block}.departure-card span{margin-top:8px;line-height:1.6}.ending-name{font-weight:700}.career-end a{color:#28543f;text-decoration:underline}@media(max-width:340px){.career-end .moment-grid{grid-template-columns:1fr}}
 /* Student export: top-layer dialog keeps the current shift/reflection intact. */
 .send-records{box-sizing:border-box;width:min(92vw,500px);max-height:90dvh;overflow:auto;padding:24px;border:0;border-radius:20px;background:#faf6e9;color:#254c3e;font:16px/1.55 system-ui}.send-records::backdrop{background:#172c26b8}.send-records h2{font-size:22px}.send-records label{display:block;font-weight:700;margin-top:16px}.send-records input,.send-records textarea{box-sizing:border-box;display:block;width:100%;font:16px/1.5 system-ui;border:1px solid #899f90;border-radius:8px;padding:10px;background:white;color:#203b2f}.send-records textarea{user-select:text;overflow-wrap:anywhere}.send-records button{min-height:48px;padding:12px 18px;margin:12px 8px 0 0;border:1px solid #789585;border-radius:10px;background:#28533e;color:white;font:inherit}.send-records ul{max-height:160px;overflow:auto;padding-left:24px}.send-records [hidden],#sendFromStart[hidden],#sendDay[hidden]{display:none!important}#intro #sendFromStart{font-size:14px;padding:12px;margin:10px 0;background:#e6eddf;color:#254c3e}
+
+/* Series design tokens; keep the existing direct 3D workspaces. */
+:root{--place:#2f6b55;--place-d:#254c3e;--green:var(--place);--cream:var(--wd-card);--ink:var(--wd-ink)}
+body{background:var(--wd-paper);color:var(--wd-ink);font-family:var(--wd-body)}
+h1,h2,h3,button,.daily-pay,.ledger b{font-family:var(--wd-title);font-weight:400}
+#intro{overflow:auto;background:var(--wd-paper);color:var(--wd-ink);padding:24px 16px;z-index:10}
+#intro section{margin:auto;width:100%;max-width:520px}#intro h1{font-size:38px;margin:12px 0;letter-spacing:0}#intro h1 em{color:var(--place)}
+#intro p,#intro small,.controls,.controls b,.sheet p,.sheet small{color:var(--wd-soft)}
+#intro .eyebrow,.career-end .eyebrow{color:var(--place)}
+.badge-info{font-size:14px;line-height:1.6}.badge-info ul{padding-left:20px;margin:0}.badge-info p{margin:8px 0}#intro .badge-info small{margin:0;font-size:12px}
+#intro .controls{margin:14px 0;gap:16px}#intro>section>small{font-size:12px}#intro p{font-size:14px;margin:10px 0}
+#start{background:var(--place);color:white}.home-link{display:block;padding:12px 0;min-height:44px;color:var(--place);font:16px var(--wd-title)}
+body>header{flex-wrap:wrap;gap:6px;left:16px;right:16px;top:10px}
+#workClock{font-size:14px}#wallet.wd-money{margin:0;font:14px var(--wd-title);padding:5px 10px;background:var(--wd-coin);border-radius:999px}
+body>header #sound,body>header #help{position:fixed;bottom:16px;right:16px}body>header #help{bottom:60px}
+.sheet,.send-records,.career-end .moment-card{background:var(--wd-card);color:var(--wd-ink)}
+.send-records,.send-records input,.send-records textarea{font-family:var(--wd-body)}
+.career-end .daily-pay{color:var(--wd-ink)}
+@media(max-height:740px){#intro{align-items:flex-start}}
+
+/* Shared split layout: canvas remains at viewport origin for projected touch targets. */
+body:has(#world){--scene-w:calc(100vw - max(40vw,400px));--scene-h:100dvh}
+#world{width:var(--scene-w);height:var(--scene-h);right:auto;bottom:auto}
+#taskPanel,.work-panel{position:fixed;left:var(--scene-w);right:0;top:0;bottom:0;padding:24px 16px;overflow-y:auto;overscroll-behavior:contain;background:var(--wd-paper);pointer-events:auto;color:var(--wd-ink)}
+#taskPanel #objective,#taskPanel #order,#taskPanel #held,#taskPanel #discard,#taskPanel #action,#taskPanel #lookHint{position:static;transform:none;max-width:none;width:100%;min-width:0;margin:0 0 16px;pointer-events:auto}
+#taskPanel #objective{background:var(--wd-card);padding:18px;border:2px solid var(--wd-line)}
+#taskPanel #order{background:var(--wd-card)}#taskPanel #lookHint{display:block;color:var(--wd-soft);text-shadow:none}
+#taskPanel #action{font:18px var(--wd-title);padding:18px}#taskPanel #held{display:block}
+body>header{right:auto;width:calc(var(--scene-w) - 32px)}
+#position{left:calc(var(--scene-w)/2);bottom:calc(100dvh - var(--scene-h) + 12px);font-size:10px}
+#joystick{display:none}#toast{top:65px;max-width:calc(var(--scene-w) - 24px);left:calc(var(--scene-w)/2)}
+body>header #sound{right:calc(100vw - var(--scene-w) + 12px);bottom:calc(100dvh - var(--scene-h) + 52px)}
+body>header #help{right:calc(100vw - var(--scene-w) + 12px);bottom:calc(100dvh - var(--scene-h) + 96px)}
+#expandScene{display:none}
+body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen) #taskPanel{display:none}
+:is(#bench,#cleanup,#washbench,#checkout) .work-panel>:is(header,.benchTop,.benchBottom,footer,#benchHint,#cleanHint,#washHint,#washTap,#payOrder,#payHint){position:static!important;inset:auto!important;transform:none!important;width:100%;margin:0 0 14px;padding:12px 0;background:transparent;pointer-events:auto}
+.work-panel header,.work-panel .benchTop{display:flex!important;flex-wrap:wrap;gap:8px;align-items:center}
+.work-panel h2{margin:8px 0!important;font-size:23px!important}.work-panel header small{display:none!important}
+:is(#cleanExit,#washExit,#payExit){position:static!important;margin-left:auto}
+.work-panel button{min-height:44px}.work-panel footer{border-top:1px solid var(--wd-line);border-radius:0!important}
+#benchCupView{right:calc(100vw - var(--scene-w) + 8px)}
+@media(max-width:799px){
+ body:has(#world){--scene-w:100vw;--scene-h:45dvh}
+ body:has(#world):is(.benchOpen,.cleanOpen,.washOpen,.payOpen,.sceneExpanded){--scene-h:56dvh}
+ #taskPanel,.work-panel{left:0;top:var(--scene-h);padding:16px;border-top:2px solid var(--wd-line)}
+ #expandScene{display:block;position:fixed;right:12px;top:calc(var(--scene-h) - 40px);font:13px var(--wd-title);padding:8px;border-radius:18px;background:var(--wd-card)}
+ body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen) #expandScene,body:has(#intro:not([hidden])) #expandScene{display:none}
+ .work-panel .benchTop small{display:none}#taskPanel #objective{margin-bottom:10px;padding:12px}#taskPanel #action{margin-bottom:10px}
+}
