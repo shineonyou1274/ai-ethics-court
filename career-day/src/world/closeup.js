@@ -43,8 +43,8 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
       for (const blob of pt.blobs) for (let i = 0; i < blob.n; i++) {
         const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * blob.r;
         const mesh = new T.Mesh(geo, m); mesh.rotation.x = -Math.PI / 2;
-        mesh.position.set(blob.x + Math.cos(a) * d, pt.y + 0.004 + i * 0.0002, blob.z + Math.sin(a) * d * (blob.squash || 1));
-        mesh.scale.setScalar(0.7 + rnd() * 0.6); mesh.renderOrder = 2; g.add(mesh); dots.push({ mesh, clean: false });
+        mesh.position.set(blob.x + Math.cos(a) * d, pt.y + 0.006 + i * 0.0002, blob.z + Math.sin(a) * d * (blob.squash || 1));
+        mesh.scale.setScalar(0.7 + rnd() * 0.6); mesh.renderOrder = 2; g.add(mesh); dots.push({ mesh, clean: false }); // 높이는 바닥 선보다 0.005 넘게 띄운다 (겹친 면이 지글거리지 않게)
       }
       return { ...pt, dots, progress: 0 };
     });
@@ -101,7 +101,7 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
       if (changed) {
         pt.progress = pt.dots.filter((d) => d.clean).length / pt.dots.length;
         if (pt.progress > 0.94) { pt.dots.forEach((d) => { if (!d.clean) { d.clean = true; d.fade = 1; } }); pt.progress = 1; }
-        cur.built.onRub?.(pt.id, pt.progress); // 무대도 알게 한다 (예: 불꽃이 지운 만큼 작아진다)
+        cur.built.onRub?.(pt.id, pt.progress, pt.dots); // 무대도 알게 한다 (예: 물이 닿은 자리의 불꽃만 작아진다)
         cur.on.onRub?.(pt.id, pt.progress);
       }
     }

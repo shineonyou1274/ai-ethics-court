@@ -4,6 +4,7 @@
 // 좌표는 무대 가운데가 (0, 0) 이고, 화면 아래쪽이 +z 예요.
 import * as T from 'three';
 import { box, cyl, ball, label, person, mat } from './kit.js';
+import { makeFire, makeEmberGlow, makeWater } from './fx.js';
 import { helmet, tank, lantern, hydrant, hoseRoll, nozzle, wrench, cone, RED, CREAM, STEEL, KHAKI, GLOW } from './firekit.js';
 
 function floor(g, w = 5.6, d = 4.2, c = '#efe7d8') {
@@ -53,18 +54,6 @@ function tag(g, text, x, y, z, w = 0.75, h = 0.36) {
 
 function cloth() {
   const c = new T.Group(); box(c, 0, 0.03, 0, 0.36, 0.05, 0.26, '#8fc6d8'); box(c, 0.05, 0.065, 0, 0.18, 0.02, 0.14, '#b6dbe6'); return c;
-}
-
-// 물줄기: 관창(from)에서 손가락이 가리키는 곳까지 이어진다. 문지르는 동안에만 보인다. tool 을 무대의 도구로 돌려준다.
-function waterJet(g, from) {
-  const jet = cyl(g, 0, 0, 0, 0.035, 1, '#a9d6ec'); jet.castShadow = false; jet.visible = false;
-  const tool = new T.Group(); for (let i = 0; i < 6; i++) ball(tool, Math.cos(i * 1.05) * 0.14, 0.05, Math.sin(i * 1.05) * 0.14, 0.07, '#cfe8f5'); ball(tool, 0, 0.08, 0, 0.1, '#e6f4fb'); g.add(tool);
-  const up = new T.Vector3(0, 1, 0), a = new T.Vector3(...from), d = new T.Vector3();
-  return { tool, tick() {
-    jet.visible = tool.visible; if (!jet.visible) return;
-    d.copy(tool.position).sub(a); const len = d.length() || 1;
-    jet.position.copy(a).addScaledVector(d, 0.5); jet.scale.set(1, len, 1); jet.quaternion.setFromUnitVectors(up, d.divideScalar(len));
-  } };
 }
 
 export const CLOSEUPS = {
@@ -249,7 +238,7 @@ export const CLOSEUPS = {
       const hose = hoseRoll(), noz = nozzle(), key = wrench(); g.add(hose, noz, key);
       const END = [-0.4, 1.0]; // 호스를 펴면 끝이 오는 곳 (관창을 끼우는 자리)
       const mate = person({ coat: KHAKI, seed: 3, hair: 1, outfit: 'turnout' }); mate.root.position.set(-1.3, 0, -1.6); mate.root.rotation.y = 0.5; g.add(mate.root);
-      const water = waterJet(g, [END[0] + 0.25, 0.3, END[1]]), tool = water.tool;
+      const water = makeWater(g, [END[0] + 0.25, 0.3, END[1]]), tool = water.pointer; // 소화전을 열기 전에는 물이 나오지 않는다
       return {
         rubY: 0.03, focus: [0, 0.3, 0.15], zoom: 3.9, tool,
         patches: [{ id: 'fire', y: 0.03, color: '#f08a3c', opacity: 0.9, dot: 0.12, reach: 0.28, blobs: [{ x: 0.9, z: -0.9, r: 0.42, n: 18 }, { x: 2.0, z: 0.45, r: 0.42, n: 18 }] }],
@@ -257,10 +246,10 @@ export const CLOSEUPS = {
           { id: 'hose', obj: hose, from: [0.3, 1.55], to: [-1.6, -0.75], r: 0.55, y: 0.03, lift: 0.3,
             onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-0.45, 0.07, -0.5], [0, 0.07, 0.2], [0.5, 0.07, 0.6], [0.8, 0.07, 1.4], [1.2, 0.07, 1.75]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); } },
           { id: 'nozzle', obj: noz, from: [1.3, 1.55], to: END, r: 0.5, y: 0.03, restY: 0.2, lift: 0.3 },
-          { id: 'valve', obj: key, from: [2.2, 1.55], to: [-2.2, -1.3], r: 0.5, y: 0.03, restY: 0.86, lift: 0.3 },
+          { id: 'valve', obj: key, from: [2.2, 1.55], to: [-2.2, -1.3], r: 0.5, y: 0.03, restY: 0.86, lift: 0.3, onPlaced() { water.setOn(true); } },
         ],
         tick(dt, t) {
-          mate.update(t, false); water.tick();
+          mate.update(t, false); water.tick(dt, t);
         },
       };
     },
@@ -302,17 +291,19 @@ export const CLOSEUPS = {
       const Y = 0.3, PX = 0.5, PZ = -0.5;
       box(g, PX, 0.14, PZ, 2.0, 0.28, 1.3, '#7a5c44'); for (const dx of [-0.66, 0, 0.66]) box(g, PX + dx, 0.285, PZ, 0.03, 0.01, 1.3, '#5f463a'); // 불이 붙은 상자·깔판 더미
       box(g, PX - 0.75, 0.2, PZ + 0.72, 0.4, 0.4, 0.3, '#b08a62'); box(g, PX + 0.8, 0.17, PZ + 0.75, 0.34, 0.34, 0.3, '#b08a62');
-      const flames = [[-0.65, 0, 0.5], [0.65, 0.05, 0.56], [0, -0.42, 0.4], [-0.3, 0.2, 0.34], [0.35, -0.2, 0.44]].map(([dx, dz, h], i) => { const f = cyl(g, PX + dx, Y + h / 2, PZ + dz, 0.2, h, i % 2 ? '#f2c94c' : '#f6a03c', 0.01); f.castShadow = false; f.userData = { h, k: i }; return f; });
-      const smoke = [0, 1, 2].map((i) => { const b = ball(g, PX, 1.2, PZ, 0.22, '#bdbab4'); b.castShadow = false; b.userData.k = i; return b; });
+      // 불꽃 자리 여섯: 왼쪽 셋, 오른쪽 셋. 물이 닿은 쪽부터 줄어든다.
+      const spots = [[-0.82, -0.05, 1], [-0.55, 0.12, 0.8], [-0.62, -0.25, 0.9], [0.5, -0.02, 0.85], [0.8, 0.1, 1], [0.68, -0.24, 0.8]].map(([dx, dz, sz]) => ({ x: PX + dx, y: Y, z: PZ + dz, s: sz }));
+      const fire = makeFire(g, spots, { smokeAt: [PX, 0.75, PZ] });
+      const glow = makeEmberGlow(g, PX, Y + 0.02, PZ + 0.25);
       const debris = new T.Group(); box(debris, 0, 0.13, 0, 0.5, 0.26, 0.5, '#4f423a'); box(debris, 0.06, 0.33, -0.03, 0.32, 0.14, 0.32, '#5f5048').rotation.y = 0.4; g.add(debris);
       const line = new T.Group(); for (const s of [-0.8, 0.8]) { box(line, s, 0.02, 0, 0.3, 0.04, 0.3, '#e98a4a'); cyl(line, s, 0.24, 0, 0.12, 0.42, '#f09a5a', 0.03); } box(line, 0, 0.36, 0, 1.6, 0.09, 0.02, '#f2c94c'); g.add(line);
       const hose = hoseRoll(); g.add(hose);
       const TO = [-1.35, 0.45];
-      const water = waterJet(g, [TO[0] + 0.4, 0.32, TO[1]]), tool = water.tool;
+      const water = makeWater(g, [TO[0] + 0.4, 0.32, TO[1]], { hot: (x, z) => fire.near(x, z), puddle: [PX, 0.03, PZ + 1.05] }), tool = water.pointer; // 호스를 끌어오기 전에는 물이 나오지 않는다
       const boss = person({ coat: KHAKI, seed: 1, hair: 2, outfit: 'turnout' }); boss.root.position.set(-1.7, 0, -1.0); boss.root.rotation.y = 0.9; g.add(boss.root);
       // 구경하는 사람들은 불을 가리지 않게 오른쪽에 선다. 처음에는 너무 가깝고, 안전선을 세우면 물러선다.
       const crowd = [[1.95, -0.35, '#c9b6d6', 5], [2.1, 0.5, '#a9c7b9', 6]].map(([x, z, c, s]) => { const p = person({ coat: c, seed: s, hair: s % 3 }); p.root.position.set(x, 0, z); p.root.rotation.y = -Math.PI / 2; g.add(p.root); return p; });
-      const left = { flame: 1, ember: 1 }; // 남은 불 (1 → 0)
+      glow.set(1); fire.setEmber(1);
       return {
         rubY: Y + 0.01, focus: [0, 0.4, 0.05], zoom: 3.9, tool,
         patches: [
@@ -322,16 +313,15 @@ export const CLOSEUPS = {
         movers: [
           { id: 'line', obj: line, from: [-1.55, 1.7], to: [1.95, 0.1], r: 0.65, y: 0.02, lift: 0.3, onPlaced(o) { o.rotation.y = Math.PI / 2; for (const p of crowd) p.root.position.x += 0.5; } },
           { id: 'hose', obj: hose, from: [-1.75, -0.2], to: TO, r: 0.6, y: 0.03, lift: 0.3,
-            onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-1.2, 0.07, -1.0], [-0.8, 0.07, -0.3], [-0.3, 0.07, 0.1], [0.05, 0.12, 0]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); const n = nozzle(); n.position.set(0.2, 0.12, 0); o.add(n); } },
-          { id: 'debris', obj: debris, from: [PX, PZ + 0.25], to: [0.5, 1.3], r: 0.6, y: Y, restY: 0.02, lift: 0.3 },
+            onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-1.2, 0.07, -1.0], [-0.8, 0.07, -0.3], [-0.3, 0.07, 0.1], [0.05, 0.12, 0]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); const n = nozzle(); n.position.set(0.2, 0.12, 0); o.add(n); water.setOn(true); } },
+          { id: 'debris', obj: debris, from: [PX, PZ + 0.25], to: [-0.6, 1.45], r: 0.6, y: Y, restY: 0.02, lift: 0.3, onPlaced() { glow.show(true); } },
         ],
-        onRub(id, v) { left[id] = 1 - v; },
-        tick(dt, t) {
-          water.tick(); boss.update(t, false); for (const p of crowd) p.update(t, false);
-          for (const f of flames) { const s = left.flame * (0.85 + Math.sin(t * 9 + f.userData.k * 1.7) * 0.15); f.visible = s > 0.04; f.scale.set(0.6 + s * 0.4, Math.max(s, 0.05), 0.6 + s * 0.4); f.position.y = Y + f.userData.h * Math.max(s, 0.05) / 2; }
-          const puff = left.flame > 0 ? 1 : left.ember > 0 ? 0.45 : 0; // 불씨가 남아 있으면 연기가 가늘게 계속 난다
-          for (const b of smoke) { const ph = (t * 0.35 + b.userData.k / 3) % 1; b.visible = puff > 0; b.position.set(PX + Math.sin(ph * 5 + b.userData.k) * 0.25, 0.7 + ph * 1.9, PZ - 0.2); b.scale.setScalar(puff * (0.6 + ph)); }
+        // 물이 닿아 지워진 만큼, 그 가까이의 불꽃만 줄어든다
+        onRub(id, v, dots) {
+          if (id === 'ember') { glow.set(1 - v); fire.setEmber(1 - v); return; }
+          spots.forEach((sp, i) => { const near = dots.filter((d) => Math.hypot(d.mesh.position.x - sp.x, d.mesh.position.z - sp.z) < 0.42); fire.set(i, v >= 1 || !near.length ? 0 : near.filter((d) => !d.clean).length / near.length); });
         },
+        tick(dt, t) { fire.tick(dt, t); glow.tick(dt, t); water.tick(dt, t); boss.update(t, false); for (const p of crowd) p.update(t, false); },
       };
     },
   },

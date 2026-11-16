@@ -2,6 +2,9 @@
 // 불 끄는 장면은 실제 진압을 아주 단순하게 줄인 체험이고, 화면에 그렇게 밝힌다. 판단은 시간, 소통, 팀과의 조율에 관한 것만 다룬다.
 import { fireStationDay } from './_firestation-day.js';
 
+// 불 끄는 장면 앞과 '알아 두기'에 그대로 넣는 안전 한 줄 (shared/CHECKLIST.md B1). 학생이 "불이 나면 내가 끈다"로 받아들이지 않게 한다.
+const SAFETY = '실제로 불이 나면 먼저 대피하고 119에 신고해요. 불을 끄는 건 훈련받은 소방관의 일이에요.';
+
 const job = {
   id: 'firefighter', name: '소방관', title: '119안전센터 낮 근무의 하루', place: 'fire-station', room: 'office',
   careernet: '385',
@@ -26,17 +29,23 @@ job.scenes = fireStationDay(job, {
         redo: { fx: { delay: 7, energy: -1 }, moment: '칸을 다시 확인해 장비를 실은 순간', text: '칸을 헷갈려 다시 실었어요. 장비는 제자리에 있지만 점검이 조금 길어졌어요.' },
       },
     }],
+    // 출동 벨: 방화복을 입고 차에 오른다. 불 끄는 장면에 들어가기 전에 안전 한 줄을 먼저 보여 준다. 앞선 정비 선택의 여파가 여기서 나타난다.
     // 손으로 하는 일 ③ 출동 현장(3D)에서 안전선을 세우고, 호스를 끌어와 불을 끄고, 속의 불씨까지 확인한다
     incident: [{
-      kind: 'hands', game: 'firefight', closeup: true, atOff: 338, place: 'scene', title: '출동! 골목에 불이 났어요',
-      body: '“나루 시장 옆 식당 뒤 골목, 쌓아 둔 상자에 불.” 벨이 울리고 몇 분 만에 도착했어요. 팀장이 안쪽을 살피는 동안, 나는 물줄기를 맡았어요.',
-      moment: '물줄기로 골목의 불을 끈 순간', type: 'R',
-      fact: '불꽃이 사라져도 속에 불씨가 남으면 다시 살아날 수 있어요. 그래서 탄 것을 헤쳐 속까지 확인해요. 이 장면은 실제 진압을 아주 단순하게 만든 체험이에요. 실제 현장에서는 여러 대원이 역할을 나눠 훨씬 많은 것을 살펴요.',
+      kind: 'tasks', atOff: 330, place: 'garage', title: '출동 벨이 울렸어요', cost: { energy: 3 }, // 옷 입고 차에 오르는 일로 힘이 더 빠지지는 않게 (장면에 들어올 때 빠지는 만큼 돌려준다)
+      body: '“나루 시장 옆 식당 뒤 골목, 쌓아 둔 상자에 불.” 하던 일을 멈추고 차고로 뛰어요.',
+      tasks: [{ label: '방화복을 입고 헬멧 쓰기', result: '방화복과 헬멧을 갖췄어요.', act: 'work' }, { label: '소방차에 올라 안전벨트 매기', result: '팀장이 무전으로 현장 상황을 듣는 동안, 차가 차고를 나서요.', act: 'work' }],
+      fact: SAFETY + ' 다음 장면은 소방관의 일을 아주 단순하게 만든 체험이에요.',
       ripple: [
         { if: (s) => s.flags.later, text: '점심 뒤로 미룬 호스를 급히 싣느라 출발이 늦었어요.', fx: { delay: 8, team: -4 } },
         { if: (s) => s.flags.ready, text: '정비를 마쳐 둔 덕에 벨이 울리자마자 나갔어요.', fx: { delay: -4 } },
         { if: (s) => s.flags.promise, text: '보람 님과 약속한 세 시가 다가오고 있어요.', fx: { care: -1 } },
       ],
+    }, {
+      kind: 'hands', game: 'firefight', closeup: true, atOff: 338, place: 'scene', title: '골목에 불이 났어요',
+      body: '몇 분 만에 도착했어요. 상자 더미에서 불꽃이 올라와요. 팀장이 안쪽을 살피는 동안, 나는 물줄기를 맡았어요.',
+      moment: '물줄기로 골목의 불을 끈 순간', type: 'R',
+      fact: SAFETY + ' 불꽃이 사라져도 속에 불씨가 남으면 다시 살아날 수 있어서, 소방관은 탄 것을 헤쳐 속까지 확인해요. 이 장면은 실제 진압을 아주 단순하게 만든 체험이에요.',
       grades: {
         out: { fx: { care: 4, team: 3, delay: 3 }, text: '사람들을 물러서게 하고, 불을 끄고, 속의 불씨까지 확인했어요. 다친 사람 없이 끝났어요.' },
         redo: { fx: { care: 1, delay: 8, energy: -1 }, moment: '순서를 바로잡아 골목의 불을 끈 순간', text: '순서가 한 번 엇갈려 팀장이 멈춰 세웠어요. 불은 껐지만 시간이 조금 더 들었어요.' },
@@ -65,7 +74,7 @@ job.scenes = fireStationDay(job, {
       kind: 'hands', game: 'hosedrill', closeup: true, atOff: 100, place: 'drill', title: '물줄기를 표적에',
       body: '훈련장 바닥에 불꽃 표시를 한 표적 둘이 놓여 있어요. 호스를 준비해 물줄기로 표시를 지워 보세요.',
       moment: '물줄기로 표적을 맞힌 순간', type: 'R',
-      fact: '물이 찬 호스는 무겁고 세게 흔들려요. 그래서 끝을 잡는 관창부터 끼우고 물을 보내요. 이 장면은 훈련을 단순하게 만든 체험이에요.',
+      fact: '물이 찬 호스는 무겁고 세게 흔들려요. 그래서 끝을 잡는 관창부터 끼우고 물을 보내요. 이 장면은 훈련을 단순하게 만든 체험이에요. ' + SAFETY,
       grades: {
         steady: { fx: { team: 3, energy: -1, delay: 3 }, text: '호스를 펴고, 관창을 끼우고, 소화전을 열었어요. 물줄기로 두 표적을 차례로 맞혔어요.' },
         redo: { fx: { delay: 7, energy: -2 }, moment: '순서를 바로잡아 물줄기를 보낸 순간', text: '순서가 한 번 엇갈려 다시 이었어요. 표적은 다 맞혔지만 시간이 조금 더 들었어요.' },

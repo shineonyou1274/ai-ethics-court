@@ -66,17 +66,21 @@ export function createWorld(canvas, el, place) {
     const w = el.clientWidth || 1, h = el.clientHeight || 1; renderer.setSize(w, h, false);
     const aspect = w / h; let halfW = 12.8; if (aspect < 0.9) halfW = 11.7; const halfH = halfW / aspect;
     camera.left = -halfW; camera.right = halfW; camera.top = halfH; camera.bottom = -halfH; camera.updateProjectionMatrix();
+    if (ready) { place3d(); renderer.render(scene, camera); } // 크기를 바꾸면 그림이 지워진다. 바로 다시 그려서 빈 화면이 보이지 않게 한다
   }
-  const ro = new ResizeObserver(resize); ro.observe(el); resize();
+  let ready = false; const ro = new ResizeObserver(resize); ro.observe(el); resize(); ready = true;
 
+  function place3d() {
+    camera.position.set(focus.x + Math.sin(yaw) * 24, height + focus.y, focus.z + Math.cos(yaw) * 24);
+    camera.lookAt(focus.x, focus.y, focus.z); camera.zoom = zoom; camera.updateProjectionMatrix();
+  }
   function animate(now) {
     if (dead) return;
     requestAnimationFrame(animate);
     if (!visible || now - last < 32) return;
     const dt = Math.min(0.25, (now - last) / 1000); last = now; const t = now / 1000;
     yaw += (targetYaw - yaw) * 0.08; zoom += (targetZoom - zoom) * 0.08; focus.lerp(targetFocus, 0.07); night += (targetNight - night) * 0.03; height += (targetHeight - height) * 0.08;
-    camera.position.set(focus.x + Math.sin(yaw) * 24, height + focus.y, focus.z + Math.cos(yaw) * 24);
-    camera.lookAt(focus.x, focus.y, focus.z); camera.zoom = zoom; camera.updateProjectionMatrix();
+    place3d();
     sun.color.setRGB(1, 1 - night * 0.22, 0.85 - night * 0.2); hemi.intensity = 2.4 - night * 0.75;
     player.update(t, false); for (const p of people) p.update(t, false); for (const p of crowd) p.update(t, false);
     beacon.position.x = player.root.position.x; beacon.position.z = player.root.position.z; beacon.scale.setScalar(1 + Math.sin(t * 2) * 0.08);
@@ -118,16 +122,20 @@ export function createWorld(canvas, el, place) {
     },
     // 장면 바꾸기: 어느 방에서, 몇 시에. overview 면 일터 전체를 보여 준다.
     stage({ place: rid = 'outside', hour = 8, overview = false }) {
-      close.end(); targetHeight = 23; if (reduced) height = 23;
+      // 무대가 다른 곳으로 바뀔 때(가까이 보기에서 나올 때, 따로 지은 방과 일터 사이를 오갈 때, 처음 띄울 때)는 카메라를 바로 옮긴다.
+      // 멀리 떨어진 두 곳 사이를 미끄러지면 그 사이의 빈 곳이 잠깐 화면에 보이기 때문이다. 같은 일터 안에서 방을 옮길 때만 부드럽게 움직인다.
+      const wasClose = close.active, wasSet = !!setGroup, first = here === null;
+      close.end(); targetHeight = 23;
       targetNight = Math.max(0, (hour - 13) / 7);
       buildSet(overview ? null : rid); here = rid;
       const room = place.rooms.find((r) => r.id === rid), isSet = !!setGroup;
       const dest = room ? new T.Vector3(room.x - 0.65, 0, room.z + 0.8) : isSet ? new T.Vector3(1, 0, 12) : new T.Vector3(...(hour >= 15 ? place.exit : place.start));
       targetFocus.copy(overview ? new T.Vector3(0, 0, 1) : isSet ? new T.Vector3(0, 1, 11) : new T.Vector3(dest.x * 0.85, 0.7, dest.z * 0.85));
       targetZoom = overview ? 1 : isSet ? 2.3 : 1.7; targetYaw = isSet ? 0.35 : 0.3;
-      if (reduced) { focus.copy(targetFocus); zoom = targetZoom; yaw = targetYaw; }
+      if (reduced || first || wasClose || wasSet !== isSet) { focus.copy(targetFocus); zoom = targetZoom; yaw = targetYaw; height = targetHeight; if (first) night = targetNight; }
       player.root.position.copy(dest); player.root.rotation.y = 0.15;
       this.crowd(crowd.length);
+      place3d(); renderer.render(scene, camera); // 바꾼 그 자리에서 바로 한 번 그린다 (다음 차례까지 앞 장면이나 빈 화면이 남지 않게)
     },
     action(kind) { player.act(kind); },
     // 반응 효과: 내 캐릭터 머리 위로 그림 글자가 떠오른다.

@@ -243,7 +243,7 @@ function reveal(sc, head) {
 function tasks(sc, head, body) {
   const done = new Set();
   view(`${head}${body}${sc.tasks.map((t, i) => `<button class="choice" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(t.label)}</span></button><p class="why" id="r${i}" hidden>${esc(t.result)}</p>`).join('')}
-    <button class="btn" id="nx" disabled>다음 장면으로</button>`);
+    ${sc.fact ? `<div class="fact"><b>알아 두기</b>${esc(sc.fact)}</div>` : ''}<button class="btn" id="nx" disabled>다음 장면으로</button>`);
   on('.choice', (b) => {
     const i = +b.dataset.i; if (done.has(i)) return; done.add(i);
     b.classList.add('done'); b.querySelector('.n').textContent = '✓'; $(`#r${i}`).hidden = false;
@@ -302,7 +302,9 @@ function order(sc, head, body) {
 
 // 손으로 하는 장면: 놀이(src/hands/)를 붙이고, 끝나면 등급에 따른 결과를 보여 준다.
 // 마친 결과는 S.handsDone 에 남겨서, 새로 고쳐도 다시 하거나 두 번 반영되지 않게 한다.
-if (location.hash === '#test') window.__cd = { world: () => world }; // 실기 검사에서만 쓰는 손잡이
+// 실기 검사에서만 쓰는 손잡이. 주소 끝 #test 또는 검사 도구가 넣어 둔 표시(cd-test)가 있을 때만 연다.
+let testing = location.hash === '#test'; try { testing ||= !!sessionStorage.getItem('cd-test'); } catch { /* 저장이 막힌 기기 */ }
+if (testing) window.__cd = { world: () => world };
 let unmount = null; // 지금 붙어 있는 손 놀이를 떼어 내는 함수 (3D 가까이 보기를 끝낸다)
 function hands(sc, head, body) {
   view(`${head}${body}<div class="hands" id="hands"></div><div id="out"></div>`);
