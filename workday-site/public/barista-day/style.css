@@ -79,3 +79,5 @@ body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen) #taskPanel{display:none}
  body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen) #expandScene,body:has(#intro:not([hidden])) #expandScene{display:none}
  .work-panel .benchTop small{display:none}#taskPanel #objective{margin-bottom:10px;padding:12px}#taskPanel #action{margin-bottom:10px}
 }
+
+#newPerson{display:block;width:100%;padding:12px;margin:12px 0;background:var(--wd-card);border:1px solid var(--wd-line);border-radius:12px;color:var(--wd-ink)}#startWallet{font-size:14px}#startWallet small{font-size:12px}

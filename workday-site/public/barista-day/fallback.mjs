@@ -1,6 +1,7 @@
+import {currentSession} from './shared/workday.js';
 import {Shift} from './shift.mjs';
 import {hudClock,earnedLabel,renderWorkdayEnd} from './career.mjs?v=design17';
-const state=new Shift();state.accessibleMode=true;
+const state=new Shift();state.accessibleMode=true;state.workdaySession=currentSession().id;
 const tasks=document.getElementById('tasks'),status=document.getElementById('status');
 let amount=1,water=false;
 function button(label,fn){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{fn();render()};tasks.append(b)}
