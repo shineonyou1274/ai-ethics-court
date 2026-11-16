@@ -55,6 +55,18 @@ function cloth() {
   const c = new T.Group(); box(c, 0, 0.03, 0, 0.36, 0.05, 0.26, '#8fc6d8'); box(c, 0.05, 0.065, 0, 0.18, 0.02, 0.14, '#b6dbe6'); return c;
 }
 
+// 물줄기: 관창(from)에서 손가락이 가리키는 곳까지 이어진다. 문지르는 동안에만 보인다. tool 을 무대의 도구로 돌려준다.
+function waterJet(g, from) {
+  const jet = cyl(g, 0, 0, 0, 0.035, 1, '#a9d6ec'); jet.castShadow = false; jet.visible = false;
+  const tool = new T.Group(); for (let i = 0; i < 6; i++) ball(tool, Math.cos(i * 1.05) * 0.14, 0.05, Math.sin(i * 1.05) * 0.14, 0.07, '#cfe8f5'); ball(tool, 0, 0.08, 0, 0.1, '#e6f4fb'); g.add(tool);
+  const up = new T.Vector3(0, 1, 0), a = new T.Vector3(...from), d = new T.Vector3();
+  return { tool, tick() {
+    jet.visible = tool.visible; if (!jet.visible) return;
+    d.copy(tool.position).sub(a); const len = d.length() || 1;
+    jet.position.copy(a).addScaledVector(d, 0.5); jet.scale.set(1, len, 1); jet.quaternion.setFromUnitVectors(up, d.divideScalar(len));
+  } };
+}
+
 export const CLOSEUPS = {
   // 환경미화 직원: 로비 천장에서 샌 물. 안내판을 세우고 대걸레로 물기를 걷어 낸다.
   spill: {
@@ -237,10 +249,7 @@ export const CLOSEUPS = {
       const hose = hoseRoll(), noz = nozzle(), key = wrench(); g.add(hose, noz, key);
       const END = [-0.4, 1.0]; // 호스를 펴면 끝이 오는 곳 (관창을 끼우는 자리)
       const mate = person({ coat: KHAKI, seed: 3, hair: 1, outfit: 'turnout' }); mate.root.position.set(-1.3, 0, -1.6); mate.root.rotation.y = 0.5; g.add(mate.root);
-      // 물줄기: 관창에서 손가락이 가리키는 곳까지. 문지르는 동안에만 보인다.
-      const jet = cyl(g, 0, 0, 0, 0.035, 1, '#a9d6ec'); jet.castShadow = false; jet.visible = false;
-      const tool = new T.Group(); for (let i = 0; i < 6; i++) ball(tool, Math.cos(i * 1.05) * 0.14, 0.05, Math.sin(i * 1.05) * 0.14, 0.07, '#cfe8f5'); ball(tool, 0, 0.08, 0, 0.1, '#e6f4fb'); g.add(tool);
-      const up = new T.Vector3(0, 1, 0), a = new T.Vector3(END[0] + 0.25, 0.3, END[1]), d = new T.Vector3();
+      const water = waterJet(g, [END[0] + 0.25, 0.3, END[1]]), tool = water.tool;
       return {
         rubY: 0.03, focus: [0, 0.3, 0.15], zoom: 3.9, tool,
         patches: [{ id: 'fire', y: 0.03, color: '#f08a3c', opacity: 0.9, dot: 0.12, reach: 0.28, blobs: [{ x: 0.9, z: -0.9, r: 0.42, n: 18 }, { x: 2.0, z: 0.45, r: 0.42, n: 18 }] }],
@@ -251,10 +260,7 @@ export const CLOSEUPS = {
           { id: 'valve', obj: key, from: [2.2, 1.55], to: [-2.2, -1.3], r: 0.5, y: 0.03, restY: 0.86, lift: 0.3 },
         ],
         tick(dt, t) {
-          mate.update(t, false);
-          jet.visible = tool.visible; if (!jet.visible) return;
-          d.copy(tool.position).sub(a); const len = d.length() || 1;
-          jet.position.copy(a).addScaledVector(d, 0.5); jet.scale.set(1, len, 1); jet.quaternion.setFromUnitVectors(up, d.divideScalar(len));
+          mate.update(t, false); water.tick();
         },
       };
     },
@@ -282,6 +288,50 @@ export const CLOSEUPS = {
           { id: 'used', obj: used, from: L, to: R2, r: 0.55, y: 0.63, restY: 0.52, lift: 0.3 },
           { id: 'fresh', obj: fresh, from: R, to: L, r: 0.6, y: 0.52, restY: 0.63, lift: 0.3 },
         ],
+      };
+    },
+  },
+  // 소방관 ④ 출동 현장: 식당 뒤 골목의 상자 더미에 붙은 불. 안전선 → 호스 → 물줄기 → 탄 상자 걷기 → 속의 불씨까지.
+  // 실제 진압을 아주 단순하게 줄인 무대다. 불꽃은 지운 만큼 작아진다.
+  firescene: {
+    build(g) {
+      floor(g, 5.8, 4.2, '#e2ded6');
+      label(g, '식당 뒤 골목', -0.1, 2.05, -2.03, 1.6, 0.38);
+      box(g, -1.0, 1.0, -2.02, 0.9, 2.0, 0.06, '#c9a77a'); ball(g, -0.7, 1.0, -1.97, 0.05, '#8f8a80'); // 식당 뒷문
+      box(g, -2.45, 0.75, -1.35, 0.9, 1.5, 1.3, RED); box(g, -2.45, 0.5, -1.35, 0.92, 0.12, 1.32, CREAM); // 골목 어귀에 댄 소방차
+      const Y = 0.3, PX = 0.5, PZ = -0.5;
+      box(g, PX, 0.14, PZ, 2.0, 0.28, 1.3, '#7a5c44'); for (const dx of [-0.66, 0, 0.66]) box(g, PX + dx, 0.285, PZ, 0.03, 0.01, 1.3, '#5f463a'); // 불이 붙은 상자·깔판 더미
+      box(g, PX - 0.75, 0.2, PZ + 0.72, 0.4, 0.4, 0.3, '#b08a62'); box(g, PX + 0.8, 0.17, PZ + 0.75, 0.34, 0.34, 0.3, '#b08a62');
+      const flames = [[-0.65, 0, 0.5], [0.65, 0.05, 0.56], [0, -0.42, 0.4], [-0.3, 0.2, 0.34], [0.35, -0.2, 0.44]].map(([dx, dz, h], i) => { const f = cyl(g, PX + dx, Y + h / 2, PZ + dz, 0.2, h, i % 2 ? '#f2c94c' : '#f6a03c', 0.01); f.castShadow = false; f.userData = { h, k: i }; return f; });
+      const smoke = [0, 1, 2].map((i) => { const b = ball(g, PX, 1.2, PZ, 0.22, '#bdbab4'); b.castShadow = false; b.userData.k = i; return b; });
+      const debris = new T.Group(); box(debris, 0, 0.13, 0, 0.5, 0.26, 0.5, '#4f423a'); box(debris, 0.06, 0.33, -0.03, 0.32, 0.14, 0.32, '#5f5048').rotation.y = 0.4; g.add(debris);
+      const line = new T.Group(); for (const s of [-0.8, 0.8]) { box(line, s, 0.02, 0, 0.3, 0.04, 0.3, '#e98a4a'); cyl(line, s, 0.24, 0, 0.12, 0.42, '#f09a5a', 0.03); } box(line, 0, 0.36, 0, 1.6, 0.09, 0.02, '#f2c94c'); g.add(line);
+      const hose = hoseRoll(); g.add(hose);
+      const TO = [-1.35, 0.45];
+      const water = waterJet(g, [TO[0] + 0.4, 0.32, TO[1]]), tool = water.tool;
+      const boss = person({ coat: KHAKI, seed: 1, hair: 2, outfit: 'turnout' }); boss.root.position.set(-1.7, 0, -1.0); boss.root.rotation.y = 0.9; g.add(boss.root);
+      // 구경하는 사람들은 불을 가리지 않게 오른쪽에 선다. 처음에는 너무 가깝고, 안전선을 세우면 물러선다.
+      const crowd = [[1.95, -0.35, '#c9b6d6', 5], [2.1, 0.5, '#a9c7b9', 6]].map(([x, z, c, s]) => { const p = person({ coat: c, seed: s, hair: s % 3 }); p.root.position.set(x, 0, z); p.root.rotation.y = -Math.PI / 2; g.add(p.root); return p; });
+      const left = { flame: 1, ember: 1 }; // 남은 불 (1 → 0)
+      return {
+        rubY: Y + 0.01, focus: [0, 0.4, 0.05], zoom: 3.9, tool,
+        patches: [
+          { id: 'flame', y: Y + 0.005, color: '#f08a3c', opacity: 0.9, dot: 0.12, reach: 0.28, blobs: [{ x: PX - 0.65, z: PZ, r: 0.3, n: 18 }, { x: PX + 0.65, z: PZ, r: 0.3, n: 18 }] }, // 가운데의 탄 상자(집는 물건)와 겹치지 않게 양옆에 둔다
+          { id: 'ember', y: Y + 0.005, color: '#e2513a', opacity: 0.95, dot: 0.09, reach: 0.26, blobs: [{ x: PX, z: PZ + 0.25, r: 0.2, n: 12 }] },
+        ],
+        movers: [
+          { id: 'line', obj: line, from: [-1.55, 1.7], to: [1.95, 0.1], r: 0.65, y: 0.02, lift: 0.3, onPlaced(o) { o.rotation.y = Math.PI / 2; for (const p of crowd) p.root.position.x += 0.5; } },
+          { id: 'hose', obj: hose, from: [-1.75, -0.2], to: TO, r: 0.6, y: 0.03, lift: 0.3,
+            onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-1.2, 0.07, -1.0], [-0.8, 0.07, -0.3], [-0.3, 0.07, 0.1], [0.05, 0.12, 0]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); const n = nozzle(); n.position.set(0.2, 0.12, 0); o.add(n); } },
+          { id: 'debris', obj: debris, from: [PX, PZ + 0.25], to: [0.5, 1.3], r: 0.6, y: Y, restY: 0.02, lift: 0.3 },
+        ],
+        onRub(id, v) { left[id] = 1 - v; },
+        tick(dt, t) {
+          water.tick(); boss.update(t, false); for (const p of crowd) p.update(t, false);
+          for (const f of flames) { const s = left.flame * (0.85 + Math.sin(t * 9 + f.userData.k * 1.7) * 0.15); f.visible = s > 0.04; f.scale.set(0.6 + s * 0.4, Math.max(s, 0.05), 0.6 + s * 0.4); f.position.y = Y + f.userData.h * Math.max(s, 0.05) / 2; }
+          const puff = left.flame > 0 ? 1 : left.ember > 0 ? 0.45 : 0; // 불씨가 남아 있으면 연기가 가늘게 계속 난다
+          for (const b of smoke) { const ph = (t * 0.35 + b.userData.k / 3) % 1; b.visible = puff > 0; b.position.set(PX + Math.sin(ph * 5 + b.userData.k) * 0.25, 0.7 + ph * 1.9, PZ - 0.2); b.scale.setScalar(puff * (0.6 + ph)); }
+        },
       };
     },
   },

@@ -141,3 +141,23 @@ export const washdown = tidy({
   },
   good: 'ready', bad: 'redo',
 });
+
+export const firefight = tidy({
+  stage: 'firescene', title: '골목의 불', hint: '위쪽 3D 화면에서 직접 해요. 장비는 끌어서 초록 원에 놓고, 물이 나오면 불 위를 손가락으로 문질러요.',
+  start: '상자 더미에 불이 붙었어요. 구경하는 분들이 가까이 서 있어요. 무엇부터 할까요?',
+  items: [
+    { id: 'line', label: '안전선을 세워 사람들을 물러서게 하기', kind: 'move', done: '안전선을 세웠어요. 사람들이 뒤로 물러섰어요. 이제 호스를 끌어와요.' },
+    { id: 'hose', label: '소방차에서 호스 끌어오기', kind: 'move', done: '호스를 폈어요. 불 위를 문질러 물줄기를 보내요.' },
+    { id: 'flame', label: '물줄기로 불 끄기', kind: 'rub', done: '불꽃이 사라졌어요. 그런데 연기가 아직 가늘게 나요.' },
+    { id: 'debris', label: '탄 상자를 옆으로 걷어 내기', kind: 'move', done: '탄 상자를 걷어 내니 속에 빨간 불씨가 남아 있어요.' },
+    { id: 'ember', label: '속에 남은 불씨까지 끄기', kind: 'rub', done: '속의 불씨까지 껐어요. 연기가 멎었어요.' },
+  ],
+  order: ['line', 'hose', 'flame', 'debris', 'ember'],
+  early: {
+    hose: '잠깐! 구경하는 분들이 너무 가까워요. 안전선부터 세워요.',
+    flame: '아직 물이 없어요. 안전선을 세우고 호스를 끌어와요.',
+    debris: '아직 불꽃이 있어요. 불부터 끄고 걷어 내요.',
+    ember: '불씨가 탄 상자 밑에 가려져 있어요. 상자를 먼저 걷어 내요.',
+  },
+  good: 'out', bad: 'redo',
+});

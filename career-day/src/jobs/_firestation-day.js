@@ -16,7 +16,7 @@ export function fireStationDay(job, p) {
     { kind: 'reveal', at: at(-20), place: 'outside', title: '오늘의 명찰을 받았어요', body: job.intro },
     { kind: 'tasks', at: at(-10), place: 'locker', title: '옷을 갈아입으면, 하루 시작', body: '직원 출입구를 지나 대원 탈의실에 왔어요. 밤 근무 팀이 아직 자리를 지키고 있어요.',
       tasks: [{ label: '사물함에 가방 넣기', result: '가방을 내려놓았어요.', act: 'work' }, { label: `${job.uniform} 입고 명찰 달기`, result: `${job.uniform} 차림으로 밤 근무 팀과 인사를 나눴어요.`, act: 'dress' }] },
-    { kind: 'records', at: at(0), place: job.room, title: p.recordsTitle || '먼저, 교대 기록부터', body: '밤사이 있었던 일과 오늘 할 일을 한 장씩 펼쳐 봐요.', records: p.records, moment: '교대 기록을 읽은 순간', type: 'C' },
+    { kind: 'records', at: at(0), place: job.room, title: p.recordsTitle || '먼저, 교대 기록부터', body: '밤사이 있었던 일과 오늘 할 일을 한 장씩 펼쳐 봐요.', records: p.records }, // 돌아보기의 순간으로 세지 않는다. 손으로 하는 장면이 넷이라, 순간을 여덟 안으로 모은다 (shared/README.md §2)
     ...wrap('first', { kind: 'choice', at: at(40), place: p.firstPlace || job.room, ...p.first }),
     ...wrap('order', { kind: 'order', at: at(85), place: p.orderPlace || job.room, ...p.order }),
     { kind: 'choice', at: at(Math.round(half * 0.7)), place: 'meeting', ...p.team },

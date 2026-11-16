@@ -101,6 +101,7 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
       if (changed) {
         pt.progress = pt.dots.filter((d) => d.clean).length / pt.dots.length;
         if (pt.progress > 0.94) { pt.dots.forEach((d) => { if (!d.clean) { d.clean = true; d.fade = 1; } }); pt.progress = 1; }
+        cur.built.onRub?.(pt.id, pt.progress); // 무대도 알게 한다 (예: 불꽃이 지운 만큼 작아진다)
         cur.on.onRub?.(pt.id, pt.progress);
       }
     }
