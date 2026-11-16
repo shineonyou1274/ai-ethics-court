@@ -260,3 +260,18 @@ button.rxCell.shake, .tray.shake { animation: shake .35s; }
 details.bubble { overflow-x: auto; } details summary { cursor: pointer; }
 .payBig { font-family: "Jua", sans-serif; font-size: 40px; line-height: 1.15; margin: 4px 0 12px; font-variant-numeric: tabular-nums; }
 .payBig small { display: block; font-family: "Gowun Dodum", sans-serif; font-size: 14px; color: var(--soft); }
+
+/* 지갑과 직업 도장 카드 */
+.bank { display: grid; grid-template-columns: 1fr 1fr 1.1fr; gap: 6px; align-items: end; }
+.bank b { display: block; font-size: 19px; line-height: 1.2; }
+.bank small { display: block; color: var(--soft); font-size: 12px; line-height: 1.3; }
+.bank .coin { text-align: right; } .bank .coin span { font-family: "Jua", sans-serif; font-size: 15px; color: #7a6532; }
+.stampCount { color: var(--coral-d); margin-left: 4px; }
+.job { position: relative; overflow: hidden; }
+.job.been { border-style: solid; background: #fffaf3; }
+.stamp { position: absolute; right: 8px; top: 8px; width: 46px; height: 46px; border-radius: 50%; border: 3px solid #d0584a; color: #d0584a; font: 11px/1.05 "Jua", sans-serif; display: grid; place-items: center; text-align: center; transform: rotate(-14deg); opacity: .82; background: rgba(255,255,255,.5); }
+/* 누구의 기록인지 묻기 */
+.who { background: #fff4ee; border: 2px solid #f2c4b3; border-radius: 18px; padding: 14px 16px; margin-bottom: 14px; }
+.who p { margin: 6px 0 4px; font-size: 15.5px; }
+.who .btn { margin-top: 10px; font-size: 17px; }
+.who .twin .btn { margin-top: 8px; }

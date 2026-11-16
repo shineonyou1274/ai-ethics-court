@@ -72,6 +72,7 @@ export function makeRecord(o) {
   return {
     v: WORKDAY_VERSION,
     id: o.id || newId(), // 기록 하나의 이름표. 같은 기록을 두 번 저장하지 않는 데 쓴다
+    session: o.session || currentSession().id, // 이 기기에서 지금 출근하는 사람 (기기를 함께 쓸 때 기록을 나눈다)
     app: o.app,
     date: o.date || today(),
     job: { id: o.job.id, name: o.job.name, careernet: String(o.job.careernet) },
@@ -98,6 +99,7 @@ export function checkRecord(r) {
   if (!r) return errs;
   need(typeof r.app === 'string' && r.app, 'app 이름');
   need(r.id === undefined || (typeof r.id === 'string' && r.id), 'id 는 글자');
+  need(r.session === undefined || (typeof r.session === 'string' && r.session), 'session 은 글자');
   need(/^\d{4}-\d{2}-\d{2}$/.test(r.date), 'date 는 YYYY-MM-DD');
   need(r.job && r.job.id && r.job.name && r.job.careernet, 'job.id / name / careernet');
   need(typeof r.place === 'string' && r.place, 'place');
@@ -150,4 +152,56 @@ export function saveRecordSafe(r) {
 }
 
 // 지금까지 받은 일당의 합. 직업끼리 견주거나 순위를 매기는 데 쓰지 않는다.
+// 기본은 이 기기의 모든 기록(v1 처음 약속 그대로). 기기를 함께 쓰는 화면에서는 walletTotal(loadMine()) 또는 walletSummary() 를 쓴다.
 export const walletTotal = (records = loadRecords()) => records.reduce((a, r) => a + (r.pay?.total || 0), 0);
+
+// ── 기기를 함께 쓸 때: 지금 출근하는 사람(세션) ─────────────────
+// 학교 태블릿처럼 여러 학생이 한 기기를 쓰면, 앞사람의 기록이 섞이지 않게 사람마다 세션을 나눈다.
+// - 기록은 저장할 때 지금 세션의 id 를 단다(makeRecord).
+// - 지갑, 도장, 선생님께 보내기는 지금 세션의 기록(loadMine)만 쓴다.
+// - 앞사람 기록은 지우지 않고 숨긴다. 원하면 이 기기의 기록을 모두 지울 수 있다.
+export const SESSION_KEY = 'workday-session-v1';
+
+export function currentSession() {
+  const store = ls();
+  try { const s = JSON.parse(store?.getItem(SESSION_KEY)); if (s?.id) return s; } catch { /* 아래에서 새로 만든다 */ }
+  // 처음: 세션을 만들고, 세션 표시가 없던 예전 기록은 이 사람의 것으로 본다
+  const s = { id: newId(), since: today(), checked: null };
+  try {
+    store?.setItem(SESSION_KEY, JSON.stringify(s));
+    const all = loadRecords();
+    if (all.some((r) => !r.session)) store?.setItem(RECORDS_KEY, JSON.stringify(all.map((r) => (r.session ? r : { ...r, session: s.id }))));
+  } catch { /* 저장이 막혀도 체험은 된다 */ }
+  return s;
+}
+
+// 지금 출근하는 사람의 기록만
+export const loadMine = () => { const id = currentSession().id; return loadRecords().filter((r) => r.session === id); };
+
+// 오늘 이 기기에서 "누구의 기록인지" 아직 묻지 않았으면 true (앞사람 기록이 남아 있을 때만 묻는다)
+export function needsWhoCheck() {
+  const s = currentSession();
+  return s.checked !== today() && loadMine().length > 0;
+}
+// "내 기록이에요, 이어서 할게요"
+export function keepSession() {
+  const s = { ...currentSession(), checked: today() };
+  try { ls()?.setItem(SESSION_KEY, JSON.stringify(s)); } catch { /* 무시 */ }
+  return s;
+}
+// "새로 출근하는 사람이에요". wipe 가 true 면 이 기기의 출근 기록을 모두 지운다.
+export function startNewSession({ wipe = false } = {}) {
+  const s = { id: newId(), since: today(), checked: today() };
+  try {
+    ls()?.setItem(SESSION_KEY, JSON.stringify(s));
+    if (wipe) ls()?.setItem(RECORDS_KEY, '[]');
+  } catch { /* 무시 */ }
+  return s;
+}
+
+// 도장 카드와 지갑에 쓰는 요약: 다녀온 직업, 일한 시간, 받은 일당
+export function walletSummary(records = loadMine()) {
+  const jobs = [...new Set(records.map((r) => r.job?.id).filter(Boolean))];
+  const minutes = records.reduce((a, r) => a + (r.pay?.workedMin || 0), 0);
+  return { days: records.length, jobs, minutes, total: walletTotal(records) };
+}

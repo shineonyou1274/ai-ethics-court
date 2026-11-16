@@ -9,7 +9,7 @@ import { sendView, teacherView } from './collect.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
 import { MIN_WAGE, earnedSoFar, hourlyOf, won, manwon } from './pay.js';
-import { makeRecord, checkRecord, loadRecords, saveRecordSafe, walletTotal, RECORDS_KEY } from '../../shared/workday.js';
+import { makeRecord, checkRecord, loadRecords, loadMine, saveRecordSafe, walletSummary, needsWhoCheck, keepSession, startNewSession, RECORDS_KEY } from '../../shared/workday.js';
 import {
   GAUGES, RIASEC, newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, finishHands, thanksLine, leave, next,
   payslip, mood, clockOf, shiftMin, toMin, toHHMM,
@@ -39,7 +39,7 @@ if (saved.records?.length) {
   } catch { /* 옮기지 못해도 체험은 된다 */ }
   delete saved.records; store.set(saved);
 }
-let diary = loadRecords();
+let diary = loadMine(); // 지금 이 기기에서 출근하는 사람의 기록만 (기기를 함께 쓸 때 앞사람 기록은 숨김)
 const save = () => { saved.current = S && !S.closed ? S : null; store.set(saved); };
 
 // ── 3D 일터 ──
@@ -115,26 +115,62 @@ function title() {
   S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {};
   const w0 = ensureWorld('hospital'); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
   const cur = saved.current && jobById(saved.current.job) ? saved.current : null;
+  diary = loadMine();
   const been = new Set(diary.map((r) => r.job.id));
-  const total = walletTotal(diary);
+  const sum = walletSummary(diary);
+  const stamped = JOBS.filter((j) => been.has(j.id)).length;
+  const ask = needsWhoCheck();
   view(`
+    ${ask ? whoCheck() : ''}
     <p class="eyebrow">직업인의 하루 · CAREER DAY</p>
     <h1>오늘,<br>출근합니다</h1>
     <p class="lead">한 직업인의 하루를 직접 판단하며 살아 봐요. 내 선택에 따라 오후가 달라지고, 퇴근하면 그날 일한 만큼 일당을 받아요.</p>
-    ${diary.length ? `<div class="bank"><span>지금까지 ${diary.length}번 출근했어요</span><b>🪙 ${manwon(total)}</b></div>` : ''}
-    ${cur ? `<button class="btn dark" id="resume">${esc(jobById(cur.job).name)}의 하루 이어 하기</button>` : ''}
+    ${diary.length ? wallet(sum) : ''}
+    ${cur && !ask ? `<button class="btn dark" id="resume">${esc(jobById(cur.job).name)}의 하루 이어 하기</button>` : ''}
     <button class="btn" id="draw">오늘의 직업 뽑기</button>
-    <h3>직접 고르기 · ${esc(PLACES.hospital.name)}</h3>
-    <div class="jobs">${JOBS.map((j) => `<button class="job ${been.has(j.id) ? 'been' : ''}" data-id="${j.id}"><b><i style="background:${j.color}"></i>${esc(j.name)}</b><small>${esc(j.title)}<br>${j.shift.start}–${j.shift.end}${been.has(j.id) ? ' · 다녀옴' : ''}</small></button>`).join('')}</div>
+    <h3>직업 도장 카드 · ${esc(PLACES.hospital.name)} <span class="stampCount">${stamped} / ${JOBS.length}</span></h3>
+    <div class="jobs">${JOBS.map((j) => `<button class="job ${been.has(j.id) ? 'been' : ''}" data-id="${j.id}"><b><i style="background:${j.color}"></i>${esc(j.name)}</b><small>${esc(j.title)}<br>${j.shift.start}–${j.shift.end}</small>${been.has(j.id) ? '<span class="stamp" aria-label="다녀옴">출근<br>완료</span>' : ''}</button>`).join('')}</div>
+    <p class="fine">${stamped < JOBS.length ? `아직 가 보지 않은 일터가 ${JOBS.length - stamped}곳 있어요. 평소라면 고르지 않았을 직업일수록 새로 알게 되는 게 많아요.` : '모아 병원의 여덟 일터에 모두 출근했어요!'}</p>
     ${diary.length ? '<button class="btn ghost" id="send">선생님께 출근 기록 보내기</button>' : ''}
     <p class="fine">일당은 커리어넷 직업정보의 평균 연봉(중앙값)으로 계산한 세전 금액이에요. 등장인물과 기록은 모두 가상이에요. 진행 기록은 이 기기에만 남아요.</p>
     <button class="link" id="teacher">선생님용 · 출근 기록 모으기</button>
+    ${!ask ? '<button class="link" id="newPerson">다른 사람이 쓰던 기기인가요? 새로 출근하기</button>' : ''}
     ${inSite ? '<a class="link" href="../">← 다른 일터 고르기</a>' : ''}`);
+  bindWho();
   on('#send', () => openSend(title));
   on('#teacher', openTeacher);
   on('#resume', () => { S = cur; J = jobById(S.job); begin(); });
   on('#draw', () => { const pool = JOBS.filter((j) => !been.has(j.id)); const list = pool.length ? pool : JOBS; startJob(list[Math.floor(Math.random() * list.length)]); });
   on('.job', (b) => startJob(jobById(b.dataset.id)));
+}
+
+// 지갑: 다녀온 직업과 일한 시간을 앞에, 일당 합계는 작게 (금액으로 직업을 줄 세우지 않게)
+function wallet(sum) {
+  const h = Math.floor(sum.minutes / 60), m = sum.minutes % 60;
+  return `<div class="bank"><div><b>🔖 ${sum.jobs.length}곳</b><small>다녀온 직업</small></div><div><b>⏱ ${h}시간${m ? ` ${m}분` : ''}</b><small>${sum.days}번 출근해 일한 시간</small></div><div class="coin"><span>🪙 ${manwon(sum.total)}</span><small>받은 일당 (세전)</small></div></div>`;
+}
+
+// ── 기기를 함께 쓸 때: 누구의 기록인지 묻기 (shared/workday.js 의 세션) ──
+function whoCheck(step = 1) {
+  if (step === 2) return `<div class="who"><b class="jua">새로 출근하는 사람이에요</b>
+    <p>앞사람의 출근 기록은 어떻게 할까요?</p>
+    <button class="btn" id="whoHide">앞사람 기록은 남겨 두고 숨기기</button>
+    <button class="btn ghost" id="whoWipe">이 기기의 출근 기록 모두 지우기</button>
+    <p class="fine">지우면 되돌릴 수 없어요. 선생님께 아직 보내지 않은 기록도 함께 사라져요.</p>
+    <button class="link" id="whoBack">← 돌아가기</button></div>`;
+  const n = loadMine().length;
+  return `<div class="who"><b class="jua">이 기기에 출근 기록 ${n}개가 있어요</b>
+    <p>누구의 기록인가요? 학교 기기를 여럿이 함께 쓰면 앞사람 기록이 남아 있을 수 있어요.</p>
+    <div class="twin"><button class="btn" id="whoMine">내 기록이에요</button><button class="btn ghost" id="whoNew">새로 출근하는 사람이에요</button></div></div>`;
+}
+function bindWho() {
+  const fresh = (wipe) => { startNewSession({ wipe }); saved.current = null; store.set(saved); diary = loadMine(); sfx('pop'); title(); };
+  on('#whoMine', () => { keepSession(); title(); });
+  on('#whoNew', () => { panel.querySelector('.who').outerHTML = whoCheck(2); bindWho(); });
+  on('#newPerson', () => { const v = panel.querySelector('.view'); v.insertAdjacentHTML('afterbegin', whoCheck(2)); v.querySelector('#newPerson')?.remove(); bindWho(); panel.scrollTop = 0; });
+  on('#whoHide', () => fresh(false));
+  on('#whoWipe', () => { if (confirm('이 기기의 출근 기록을 모두 지울까요? 되돌릴 수 없어요.')) fresh(true); });
+  on('#whoBack', title);
 }
 
 // ── 교사 기록 모으기 (src/collect.js) ──
@@ -376,7 +412,7 @@ function reflect() {
           like: { label: moments[like].label, type: moments[like].type }, hard: { label: moments[hard].label, type: moments[hard].type },
         });
         const errs = checkRecord(rec); if (errs.length) console.warn('출근 기록 약속 어긋남', errs);
-        const res = saveRecordSafe(rec); diary = res.records; lastSaveFailed = !res.ok;
+        const res = saveRecordSafe(rec); diary = loadMine(); lastSaveFailed = !res.ok;
         saved.current = null; store.set(saved); sfx('fanfare'); world?.burst('star', 8); done();
       };
     } else out.innerHTML = '';
