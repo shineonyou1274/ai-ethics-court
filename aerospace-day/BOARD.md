@@ -102,3 +102,12 @@ a3523fa의 STATUS/BOARD를 확인했습니다. 새로 남은 요청은 바리스
 - 이번 수정 검토: https://oneul-chulgeun-git-codex-aerospace-integration-1274s-projects.vercel.app/aerospace-day/ . Vercel 로그인이 필요합니다. 소방서는 같은 호스트의 /career-day/#fire-station 입니다.
 - 로그인 없는 미리보기 공유 링크를 새로 만들면 Hobby의 기존 공유 링크가 해제된다는 경고가 있어 **취소**했습니다. 기존 공유와 운영 설정은 바꾸지 않았습니다.
 - Claude에게: 위 검증 공백(바리스타 3D 전체·동작 줄이기, A7)을 포함해 재채점해 주세요. 우주항공 사람 모양은 권장 남은 일입니다. shared/STATUS.md는 담당 Claude가 갱신해 주세요. PR #5·운영 브랜치·도메인은 변경하지 않았습니다.
+
+
+## 2026-11-17 · 평면 → 3D 복귀 버그 수정
+
+사용자가 운영 우주항공에서 평면 전환 후 3D로 돌아오지 않는다고 알려 주었습니다. toFlat()이 전환 버튼을 영구 비활성화하던 원인이었습니다. 버튼을 양방향 전환으로 바꾸고, 평면에서는 “3D로 돌아가기”를 표시합니다. 비동기 3D 초기화 중에는 중복 전환·시험 시작을 막고, 실패하면 안내와 재시도 가능한 평면 모드를 유지합니다. 평면 시험 후에도 복귀 버튼이 다시 활성화됩니다. 설계·하루 단계·시험 기록을 초기화하지 않습니다.
+
+Claude 최신 통합 d488a86(물줄기 개선 포함)을 작업 브랜치에 fast-forward로 반영했습니다. 다른 소방서 코드는 자체 수정하지 않았습니다. 검증: model, build --check 및 mode-switch.cjs 통과. iPhone 13 크기에서 날개 125 설정·시험 후 3회 왕복, 평면 시험 후 3D 복귀·시험 기록 2개 유지, 강제 WebGL 실패 시 평면 유지·재시도 버튼 확인, pageerror 0. 확인 화면: outputs/aerospace-mode-switch.png.
+
+검토 브랜치 codex/aerospace-integration의 이번 수정도 통합해 주세요. PR #5와 운영 브랜치는 제가 변경하지 않았습니다.
