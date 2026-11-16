@@ -23,6 +23,15 @@ export function workClock(state) {
   const endMin=510+workedMin+breakMin;
   return {start:'08:30',end:hhmm(endMin),breakMin,workedMin,shiftMin:480};
 }
+export function inWorkdaySite(path = globalThis.location?.pathname || '') {
+  return /\/barista-day\/(?:index\.html|fallback\.html)?$/.test(path);
+}
+export function earnedLabel(state) {
+  return `🪙 오늘 번 일당 ${won(salaryDay(3004,workClock(state).workedMin,480).total)}`;
+}
+export function hudClock(state) {
+  return `바리스타 · ${workClock(state).end}${state.wasted && !state.departureChoice ? ` · ${state.wasted*15}분 밀림` : ''}`;
+}
 export function clockLabel(state) {
   const c=workClock(state);
   return `${c.end} · ${{prep:'오픈 준비',serve:`영업 ${state.index}/3`,close:'마감',end:'퇴근'}[state.phase]}`;
@@ -69,15 +78,15 @@ export function renderWorkdayEnd(container,state) {
   const clock=workClock(state),pay=salaryDay(3004,clock.workedMin,480);
   let session=sessions.get(state);if(!session){session={saved:false,record:null,like:null,hard:null};sessions.set(state,session)}
   container.hidden=false;
-  container.innerHTML=`<section class="sheet career-end"><div class="eyebrow">MY FIRST SHIFT</div>
+  container.innerHTML=`<section class="sheet career-end"><div class="eyebrow">퇴근 · ${clock.end}</div>
     <p class="ending-name">${endingFor(state).icon} ${endingFor(state).name}</p><h2>오늘의 일당 <small>세전 · 체험 금액</small></h2><strong class="daily-pay">${won(pay.total)}</strong>
     <p>08:30–${clock.end} · 휴식 60분 · 근무 ${clock.workedMin}분${state.wasted>0?`<br>인계 ${departureInfo(state).handedOverMin}분 · 남은 힘 ${departureInfo(state).energy}/100`:''}</p>
-    <div class="ledger"><div><span>8시간 기본급</span><b>${won(pay.base)}</b></div><div><span>연장 ${pay.overMin}분</span><b>${won(pay.overtime)}</b></div></div>
+    <div class="ledger"><div><span>8시간 기본급</span><b>${won(pay.base)}</b></div>${pay.overMin?`<div><span>연장 ${pay.overMin}분</span><b>${won(pay.overtime)}</b></div>`:''}</div>
     <details><summary>시간과 일당은 어떻게 계산했나요?</summary><p>커리어넷 직업 코드 180, 음료조리사 평균 연봉(중앙값) 3,004만 원(원출처: 워크넷, 2021년, 음료조리사 기준)을 사용해요. <a href="${careernetUrl('180')}" target="_blank" rel="noopener noreferrer">커리어넷 직업정보에서 출처 보기 ↗</a> 직업마다 조사한 사람 수가 적어 직업끼리 순위를 매기지 않아요. 연봉 ÷ 12 ÷ 209시간을 10원 단위로 반올림한 시급 ${won(pay.hourly)} × 근무 시간으로 계산해요. 연장은 시급의 1.5배, 최대 120분이에요. ${pay.floored?'자료 시급이 2026년 최저시급보다 낮아 최저시급을 적용했어요.':''}</p><p>업무를 마칠 때 체험 시계가 진행하고 정오 휴식 60분은 자동으로 반영해요. 다시 만든 음료마다 15분이 더 걸린 것으로 표현해요. 120분을 넘긴 지연은 다음 근무자에게 넘겨요. 실제로 화면을 보는 시간이나 실제 급여가 아닙니다.</p></details>
     <details><summary>오늘 내가 만든 가게 매출 · 가게 기록</summary><p>매출 ${won(state.sales)} / 재료비 ${won(state.cost)}<br>손님 만족 표시 ${state.tips}점 (기존 가상 팁)<br>만든 음료 ${state.records.length}잔 · 다시 만들기 ${state.wasted}회</p><small>팁은 일당에 더하지 않아요. 우리나라 카페는 대부분 팁을 받지 않아 만족 표시로만 남겨요. 맛과 재료비는 단순화한 체험입니다.</small></details>
     <h3>퇴근길, 마음에 남은 순간</h3><p>일곱 순간 중 💛 끌린 순간과 🪨 버거운 순간을 하나씩 눌러주세요.</p><div class="moment-grid">${MOMENTS.map((m,i)=>`<div class="moment-card"><span>${m.label}</span><div><button id="like-${i}" aria-label="끌린 순간: ${m.label}" aria-pressed="false">💛 끌림</button><button id="hard-${i}" aria-label="버거운 순간: ${m.label}" aria-pressed="false">🪨 버거움</button></div></div>`).join('')}</div>
     <p id="interestResponse" aria-live="polite"></p><small>순간 하나로 나를 정할 수는 없어요. 여러 직업을 해 보고 흥미검사와도 견주어 보세요. 적성 판정이나 직업 추천이 아닙니다.</small>
-    <button id="saveDay" class="primary" disabled>출근 기록 저장하기</button><p id="recordStatus" role="status"></p><button id="sendDay" hidden>선생님께 출근 기록 보내기</button><button id="again">다시 출근하기</button></section>`;
+    <button id="saveDay" class="primary" disabled>출근 기록 저장하기</button><p id="recordStatus" role="status"></p><button id="sendDay" hidden>선생님께 출근 기록 보내기</button><button id="again">다시 출근하기</button>${inWorkdaySite()?'<a class="home-link" href="../">← 다른 일터 고르기</a>':''}</section>`;
   const find=id=>container.querySelector('#'+id),save=find('saveDay'),status=find('recordStatus');
   function update(){
     const a=MOMENTS[session.like],b=MOMENTS[session.hard];

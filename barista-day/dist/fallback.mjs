@@ -1,5 +1,5 @@
 import {Shift} from './shift.mjs';
-import {clockLabel,renderWorkdayEnd} from './career.mjs?v=career16';
+import {hudClock,earnedLabel,renderWorkdayEnd} from './career.mjs?v=design17';
 const state=new Shift();state.accessibleMode=true;
 const tasks=document.getElementById('tasks'),status=document.getElementById('status');
 let amount=1,water=false;
@@ -8,7 +8,7 @@ function act(id){const result=state.act(id);status.textContent=result.msg;return
 function rub(label,onMove){const area=document.createElement('div');area.id='rub';area.textContent=label+' · 손가락으로 좌우로 문질러요';let last=null;area.onpointerdown=e=>{area.setPointerCapture(e.pointerId);last={x:e.clientX,y:e.clientY}};area.onpointermove=e=>{if(!last)return;const d=Math.hypot(e.clientX-last.x,e.clientY-last.y);last={x:e.clientX,y:e.clientY};if(onMove(d))render()};area.onpointerup=area.onpointercancel=()=>last=null;tasks.append(area)}
 const scrub=new Map();
 function render(){
- tasks.replaceChildren();document.getElementById('clock').textContent=clockLabel(state);
+ tasks.replaceChildren();document.getElementById('clock').textContent=hudClock(state);document.getElementById('earned').textContent=earnedLabel(state);
  if(state.phase==='end'){renderWorkdayEnd(document.getElementById('sheet'),state);return}
  const [id,label]=state.objective();
  if(state.tables.includes('occupied')){button('손님이 한 모금 마시기',()=>{const i=state.tables.indexOf('occupied');status.textContent=state.records[i].reaction;state.leaveTable(i)});if(id==='customer'&&!state.order)return}
