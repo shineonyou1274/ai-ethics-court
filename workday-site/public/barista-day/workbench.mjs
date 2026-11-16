@@ -1,3 +1,4 @@
+import {reducedMotion} from './motion.mjs';
 import * as T from './vendor/three.module.min.js';
 import {tasteProfile} from './taste.mjs';
 export class Workbench{
@@ -41,7 +42,7 @@ export class Workbench{
  }
  update(dt){if(!this.active)return;let s=this.state;this.anchor('benchGrind',new T.Vector3(-1.95,.65,-.25));this.anchor('benchExtract',new T.Vector3(-.35,1.16,-.1));this.anchor('benchMilk',new T.Vector3(1.25,1.05,-.65));this.anchor('benchOat',new T.Vector3(1.95,.75,-.65));this.anchor('benchSteam',new T.Vector3(.5,.6,0));this.anchor('benchCupTag',this.cup.position.clone().add(new T.Vector3(0,-.05,.4)));this.anchor('benchPitcherTag',this.vessel.position.clone().add(new T.Vector3(0,-.06,.5)));
  this.stream.visible=false;let progress=this.amount,label=!s.cup?'컵을 직접 놓아주세요':s.cup==='빈 컵'?(s.ground?'추출 준비 완료':'분쇄 준비 완료'):'컵을 채워주세요';
- if(this.hold){this.hold.elapsed+=dt;let needed=this.hold.kind==='grind'?1.3:1.8;progress=this.hold.elapsed/needed;label=this.hold.kind==='grind'?'원두 분쇄 중':'우유 스티밍 중';if(this.hold.kind==='grind')this.grinder.rotation.z=Math.sin(performance.now()*.08)*.01;if(progress>=1){let kind=this.hold.kind;this.hold=null;this.grinder.rotation.z=0;if(kind==='grind')this.commit('grinder');else{this.heated=true;this.renderUI()}this.sound(800,.1)}}
+ if(this.hold){this.hold.elapsed+=dt;let needed=this.hold.kind==='grind'?1.3:1.8;progress=this.hold.elapsed/needed;label=this.hold.kind==='grind'?'원두 분쇄 중':'우유 스티밍 중';if(this.hold.kind==='grind')this.grinder.rotation.z=reducedMotion()?0:Math.sin(performance.now()*.08)*.01;if(progress>=1){let kind=this.hold.kind;this.hold=null;this.grinder.rotation.z=0;if(kind==='grind')this.commit('grinder');else{this.heated=true;this.renderUI()}this.sound(800,.1)}}
  if(this.extracting){this.extracting+=dt;progress=this.extracting/2;label='에스프레소 추출 중';this.liquid.visible=true;this.liquid.position.y=.19+Math.min(1,progress)*.09;this.stream.visible=true;this.stream.position.set(-.4,.68,.43);this.stream.scale.set(1,.5,1);this.stream.material.color.set(0x6e4322);if(progress>=1){this.extracting=0;this.commit('machine');this.sound(650,.1)}}
  if(this.drag?.kind==='pour'&&this.pouring&&s.cup==='에스프레소'){this.amount=Math.min(1.55,this.amount+dt*.24);progress=this.amount/1.55;label=s.milk?'우유 붓기':'물 붓기';this.stream.visible=true;this.stream.position.set(this.target.x,1.12,this.target.z);this.stream.scale.set(1,.7,1);this.stream.material.color.set(s.milk?0xfff2cd:0x9ad5e2);if(this.amount>=1.55){this.pouring=false;this.vessel.rotation.z=0;this.message('컵이 가득 찼어요. 이 양으로 완성하거나 싱크대에서 비울 수 있어요.')}}
  const extracting=this.extracting>0,hasCoffee=extracting||!!s.cup&&s.cup!=='빈 컵',milk=!!s.milk||!!s.recipe?.milk;

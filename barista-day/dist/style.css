@@ -81,3 +81,7 @@ body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen) #taskPanel{display:none}
 }
 
 #newPerson{display:block;width:100%;padding:12px;margin:12px 0;background:var(--wd-card);border:1px solid var(--wd-line);border-radius:12px;color:var(--wd-ink)}#startWallet{font-size:14px}#startWallet small{font-size:12px}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+#washTap{background:#2f6b55;color:#fffdf8} #benchHint{color:#263c52}

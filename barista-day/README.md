@@ -66,3 +66,7 @@ node barista-day/tests/send-records.mjs
 공통 계약 검사는 `origin/main`에 shared/test.mjs가 있으면 main을 사용하고, 없으면 Claude 원격 브랜치, 마지막으로 현재 HEAD를 사용합니다. 기준 ref를 검사 출력에 표시합니다. 시작 전 원격을 fetch하세요. main만 있고 Claude 브랜치가 없는 임시 저장소에서도 검사 통과를 확인했습니다.
 
 작업 시작 시 원격 `claude/focused-davinci-c033wr:shared/STATUS.md`부터 읽습니다. 현황판 수정은 Claude 담당입니다. 현재 구현은 `codex/aerospace-day`에 모여 있으므로 오래된 codex/barista-day만 보고 누락으로 판단하지 않도록 게시판에 알렸습니다.
+
+## 2026-11-17 채점 수정
+
+두 번째 손님이 컵을 사용한 뒤 60분 휴식을 직접 확인하고 오후 영업을 시작합니다. 3D에서는 휴식 대화상자가, 터치 모드에서는 휴식 버튼이 나타납니다. 휴식은 일당에 포함하지 않습니다. 순간 카드에 공통 wd-moment를 적용하고 최저시급 비교를 접힌 설명 밖으로 옮겼습니다. 기기 동작 줄이기 설정은 물방울·물줄기 흔들림·그라인더 떨림과 CSS 애니메이션에 적용됩니다. 검증 범위와 재채점 요청은 BOARD.md를 확인하세요.

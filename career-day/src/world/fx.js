@@ -8,7 +8,7 @@ import { reduced } from './kit.js';
 
 export const FX_MAX = reduced
   ? { sparks: 0, smoke: 3, drops: 0, splash: 0, steam: 0, wet: 20 }
-  : { sparks: 16, smoke: 9, drops: 30, splash: 14, steam: 7, wet: 26 };
+  : { sparks: 16, smoke: 9, drops: 48, splash: 24, steam: 7, wet: 26 };
 
 // 느리게 이어지는 물결 (-1 ~ 1). k 를 달리하면 서로 엇갈린다.
 const wave = (t, k, speed = 1) => Math.sin(t * 1.7 * speed + k * 2.3) * 0.6 + Math.sin(t * 2.9 * speed + k * 1.1) * 0.4;
@@ -117,6 +117,12 @@ export function makeWater(g, from, { hot = () => 0, puddle = null, wetY = null }
   const wet = Array.from({ length: FX_MAX.wet }, (_, i) => { const m = new T.Mesh(wetGeo, basic('#56788f', 0)); m.rotation.x = -Math.PI / 2; m.visible = false; m.renderOrder = 1; g.add(m); return { m, age: -1, out: 0, k: i }; });
   // 동작 줄이기: 입자 대신 가만히 있는 물줄기 한 줄
   const beam = new T.Mesh(new T.CylinderGeometry(0.035, 0.035, 1, 8), basic('#a9d6ec', 0.9)); beam.visible = false; g.add(beam);
+  // A continuous tapered jet fills the gaps between drops. Fixed pool, no camera shake or flashing.
+  const jet = Array.from({length: reduced ? 0 : 12}, () => {
+    const m = new T.Mesh(new T.CylinderGeometry(0.8, 1, 1, 8), basic('#b8e0ef', 0.52));
+    m.visible=false;m.renderOrder=5;g.add(m);return m;
+  });
+  const start=new T.Vector3(),end=new T.Vector3(),tangent=new T.Vector3();
   let pud = null; if (puddle) { pud = new T.Mesh(new T.CircleGeometry(1, 28), basic('#6f93aa', 0.24)); pud.rotation.x = -Math.PI / 2; pud.position.set(puddle[0], puddle[1], puddle[2]); pud.scale.set(0.01, 0.01, 1); pud.renderOrder = 1; g.add(pud); }
   let on = false, emit = 0, n = 0, used = 0, steamK = 0; const lastWet = new T.Vector3(99, 0, 99);
   const hit = (p) => {
@@ -134,6 +140,16 @@ export function makeWater(g, from, { hot = () => 0, puddle = null, wetY = null }
     setOn(v) { on = v; },
     tick(dt, t) {
       const active = on && pointer.visible; b.copy(pointer.position);
+      jet.forEach((m,i)=>{
+        m.visible=active;if(!active)return;
+        const u=i/jet.length,v=(i+1)/jet.length;
+        start.lerpVectors(a,b,u);end.lerpVectors(a,b,v);
+        start.y+=Math.sin(u*Math.PI)*.18;end.y+=Math.sin(v*Math.PI)*.18;
+        tangent.copy(end).sub(start);const len=tangent.length();
+        m.position.copy(start).add(end).multiplyScalar(.5);
+        const width=.028+u*.035;m.scale.set(width,len+.012,width);
+        if(len>0)m.quaternion.setFromUnitVectors(up,tangent.divideScalar(len));
+      });
       steamK += dt * 6;
       for (const w of wet) { if (w.age < 0) continue; w.age += dt; if (w.out) w.out += dt; const f = w.out ? Math.max(0, 1 - (w.out - 1) / 0.8) : 1; w.m.material.opacity = WET * Math.min(1, w.age / 0.25) * f; if (w.out && f <= 0) { w.age = -1; w.out = 0; w.m.visible = false; } }
       if (active) used += dt;
@@ -143,14 +159,14 @@ export function makeWater(g, from, { hot = () => 0, puddle = null, wetY = null }
         d.copy(b).sub(a); const len = d.length() || 1; beam.position.copy(a).addScaledVector(d, 0.5); beam.scale.set(1, len, 1); beam.quaternion.setFromUnitVectors(up, d.divideScalar(len));
         emit += dt; if (emit > 0.12) { emit = 0; hit(b); } return;
       }
-      if (active) emit += dt * 70;
+      if (active) emit += dt * 130;
       for (const p of drops) {
         if (p.u >= 1) {
           if (!active || emit < 1) { p.m.visible = false; continue; } emit -= 1; n++;
           p.u = 0; p.to.set(b.x + Math.sin(n * 1.3) * 0.07, b.y, b.z + Math.cos(n * 2.1) * 0.07); p.m.visible = true; p.s = 0.042 + ((n * 5) % 7) / 300;
         }
-        p.u = Math.min(1, p.u + dt / 0.3);
-        p.m.position.lerpVectors(a, p.to, p.u); p.m.position.y += Math.sin(p.u * Math.PI) * 0.32; p.m.scale.setScalar(p.s);
+        p.u = Math.min(1, p.u + dt / 0.22);
+        p.m.position.lerpVectors(a, p.to, p.u); p.m.position.y += Math.sin(p.u * Math.PI) * 0.18; d.copy(p.to).sub(a).normalize();p.m.quaternion.setFromUnitVectors(up,d);p.m.scale.set(p.s*.65,p.s*2.4,p.s*.65);
         if (p.u >= 1) { p.m.visible = false; hit(p.to); }
       }
       if (!active) emit = 0;
