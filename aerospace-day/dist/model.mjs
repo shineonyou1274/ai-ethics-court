@@ -1,0 +1,18 @@
+import {salaryDay,makeRecord,checkRecord} from './shared/workday.js';
+export const JOB={id:'aerospace-engineer',name:'항공우주공학기술자',careernet:'151',annual:5450,year:2021,basis:'항공공학기술자'};
+export const MOMENTS=[{label:'날개 모양을 살펴 설계한 순간',type:'A'},{label:'배터리 위치와 균형을 검토한 순간',type:'R'},{label:'같은 조건에서 결과를 비교한 순간',type:'I'},{label:'동료와 시험 계획을 정한 순간',type:'E'},{label:'다른 바람에서 다시 확인한 순간',type:'I'},{label:'동료에게 결과를 설명한 순간',type:'S'},{label:'다음 팀을 위해 시험 기록을 남긴 순간',type:'C'}];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+export function normalize(d){return {span:clamp(Number(d.span)||100,70,150),angle:clamp(Number(d.angle)||0,-4,18),balance:clamp(Number(d.balance)||0,-40,40)}}
+// Dimensionless teaching model, not aircraft engineering or a flight predictor.
+export function simulate(input,wind=0){const d=normalize(input),stall=Math.max(0,d.angle-11);const lift=Math.round(clamp(35+d.span*.31+d.angle*3-stall*7-wind*3,0,100));const drag=Math.round(clamp(15+(d.span-70)*.34+Math.abs(d.angle)*1.5+stall*3,0,100));const stability=Math.round(clamp(97-Math.abs(d.balance)*1.7-stall*4-wind*(6+d.span*.025),0,100));const reach=Math.round(clamp(lift*.5+stability*.6-drag*.35,0,100));return {...d,wind,lift,drag,stability,reach}}
+export class Day{
+ constructor(){this.stage=0;this.design={span:90,angle:14,balance:24};this.tests=[];this.plan=null;this.rested=null;this.report=null;this.leave=null;this.energy=85;this.record=null}
+ get delay(){return Math.max(0,(this.tests.length-3)*15+(this.plan==='quick'?15:0))}
+ get overtime(){return this.leave==='stay'?Math.min(120,this.delay):0}
+ get worked(){return 480+this.overtime}
+ get pay(){return salaryDay(JOB.annual,this.worked,480)}
+ get ending(){if(this.leave==='handover'&&this.delay)return '다음 시험을 동료에게 이어 준 하루';if(this.tests.at(-1)?.stability<60)return '흔들림의 원인을 다음 질문으로 남긴 하루';if(this.tests.length>3)return '다시 설계하고 시험하며 배운 하루';return '조건을 바꿔 설계의 차이를 확인한 하루'}
+ test(wind){if(![2,4].includes(this.stage)||this.tests.length>=(this.stage===2?7:8))return null;const result=simulate(this.design,wind);const entry={...result,stage:this.stage,n:this.tests.length+1};this.tests.push(entry);this.energy=Math.max(0,this.energy-4);return entry}
+ next(choice){const n=this.stage;if(n===1){if(!['compare','quick'].includes(choice))return false;this.plan=choice}if(n===2&&this.tests.filter(t=>t.stage===2).length<2)return false;if(n===3){if(!['rest','talk'].includes(choice))return false;this.rested=choice;this.energy=Math.min(100,this.energy+(choice==='rest'?15:8))}if(n===4&&!this.tests.some(t=>t.stage===4))return false;if(n===5){if(!['limits','best'].includes(choice))return false;this.report=choice}if(n===6){if(!['stay','handover'].includes(choice))return false;this.leave=choice;this.energy=Math.max(0,this.energy-Math.ceil(this.overtime/15)*4)}if(n>=7)return false;this.stage++;return true}
+ make(like,hard){if(this.stage!==7||like===hard||!MOMENTS[like]||!MOMENTS[hard])throw Error('하루를 마치고 서로 다른 순간을 골라요.');this.record ||=makeRecord({app:'aerospace-day',place:'design-lab',job:JOB,annual:JOB.annual,wageYear:JOB.year,wageBasis:JOB.basis,shift:{start:'09:00',end:`${18+Math.floor(this.overtime/60)}:${String(this.overtime%60).padStart(2,'0')}`,breakMin:60},workedMin:this.worked,shiftMin:480,ending:{name:this.ending,icon:'✈️'},like:MOMENTS[like],hard:MOMENTS[hard],extra:{trials:this.tests.length,handedOverMin:this.delay-this.overtime,energy:this.energy,report:this.report}});const errors=checkRecord(this.record);if(errors.length)throw Error(errors.join(', '));return this.record}
+}

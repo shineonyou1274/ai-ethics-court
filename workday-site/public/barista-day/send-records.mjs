@@ -1,13 +1,13 @@
-import {loadRecords} from './shared/workday.js?v=20261115';
+import {loadMine,currentSession} from './shared/workday.js?v=20261115';
 import {encodeRecords} from './shared/collect.js';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // Name/code exist only in this temporary dialog. No storage writes or requests.
 export function openSendDialog(){
- const records=loadRecords(),dialog=document.createElement('dialog');
+ const owner=currentSession().id,records=loadMine(),dialog=document.createElement('dialog');
  dialog.className='send-records';dialog.setAttribute('aria-labelledby','sendTitle');
  dialog.innerHTML=`<h2 id="sendTitle">선생님께 출근 기록 보내기</h2>${records.length?`
- <p>이 기기의 출근 기록 ${records.length}개를 함께 보내요. 같은 지갑의 다른 직업 기록도 포함돼요.</p>
+ <p>지금 사람의 출근 기록 ${records.length}개를 함께 보내요. 같은 지갑의 다른 직업 기록도 포함돼요.</p>
  <ul>${records.map(r=>`<li>${esc(r.job?.name)} · ${esc(r.date)}</li>`).join('')}</ul>
  <label for="sendName">번호나 이름</label><input id="sendName" maxlength="20" autocomplete="off" placeholder="예: 12번 또는 선생님이 정한 별명" required>
  <p>번호나 이름은 코드에 포함되며, 이 앱의 기기 저장소에는 남기지 않아요. 코드를 만들거나 복사해도 자동 전송되지 않아요.</p>
@@ -22,10 +22,12 @@ export function openSendDialog(){
   const name=find('sendName'),code=find('recordCode'),area=find('codeArea');
   name.oninput=()=>{area.hidden=true;code.value='';status.textContent=''};
   find('makeCode').onclick=()=>{
+   if(currentSession().id!==owner){area.hidden=true;code.value='';status.textContent='출근하는 사람이 바뀌었어요. 창을 닫고 다시 열어주세요.';return}
    if(!name.value.trim()){status.textContent='번호나 이름을 먼저 적어주세요.';name.focus();return}
-   code.value=encodeRecords(records,name.value.trim());area.hidden=false;status.textContent='코드를 만들었어요. 복사해서 선생님께 전달해 주세요.';
+   code.value=encodeRecords(loadMine(),name.value.trim());area.hidden=false;status.textContent='코드를 만들었어요. 복사해서 선생님께 전달해 주세요.';
   };
   find('copyCode').onclick=async()=>{
+   if(currentSession().id!==owner){code.value='';area.hidden=true;status.textContent='출근하는 사람이 바뀌었어요. 창을 다시 열어주세요.';return}
    if(!code.value)return;
    try{await navigator.clipboard.writeText(code.value);status.textContent='복사했어요. 선생님이 알려 준 곳에 붙여 넣어주세요.'}
    catch{code.focus();code.select();status.textContent='자동 복사가 안 돼요. 선택된 코드를 길게 눌러 직접 복사해 주세요.'}
