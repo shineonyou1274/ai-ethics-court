@@ -56,6 +56,16 @@ function cloth() {
   const c = new T.Group(); box(c, 0, 0.03, 0, 0.36, 0.05, 0.26, '#8fc6d8'); box(c, 0.05, 0.065, 0, 0.18, 0.02, 0.14, '#b6dbe6'); return c;
 }
 
+// 물을 쏘는 나: 방화복 차림으로 서서 관창을 손 높이로 든다. 물이 나오기 전에는 보이지 않는다.
+//   tip 은 관창 끝(물이 나가는 곳), kick 은 쏘는 동안 반동으로 떨릴 것들.
+function hoseHolder(g, x, z) {
+  const root = new T.Group(); root.visible = false; g.add(root);
+  const me = person({ coat: KHAKI, seed: 2, hair: 0, outfit: 'turnout' }); me.root.position.set(x, 0, z); me.root.rotation.y = Math.PI / 2; root.add(me.root);
+  const noz = nozzle(); noz.scale.setScalar(1.25); noz.position.set(x + 0.4, 0.92, z + 0.12); root.add(noz);
+  const up = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[x - 0.25, 0.07, z + 0.3], [x - 0.05, 0.3, z + 0.28], [x + 0.12, 0.8, z + 0.16], [x + 0.2, 1.04, z + 0.12]].map((v) => new T.Vector3(...v))), 16, 0.06, 6, false), mat('#e8dfc8')); up.castShadow = true; root.add(up);
+  return { root, me, tip: [x + 0.68, 1.05, z + 0.12], kick: [noz, me.root], show() { root.visible = true; } };
+}
+
 export const CLOSEUPS = {
   // 환경미화 직원: 로비 천장에서 샌 물. 안내판을 세우고 대걸레로 물기를 걷어 낸다.
   spill: {
@@ -238,7 +248,8 @@ export const CLOSEUPS = {
       const hose = hoseRoll(), noz = nozzle(), key = wrench(); g.add(hose, noz, key);
       const END = [-0.4, 1.0]; // 호스를 펴면 끝이 오는 곳 (관창을 끼우는 자리)
       const mate = person({ coat: KHAKI, seed: 3, hair: 1, outfit: 'turnout' }); mate.root.position.set(-1.3, 0, -1.6); mate.root.rotation.y = 0.5; g.add(mate.root);
-      const water = makeWater(g, [END[0] + 0.25, 0.3, END[1]]), tool = water.pointer; // 소화전을 열기 전에는 물이 나오지 않는다
+      const me = hoseHolder(g, END[0] - 0.15, END[1]);
+      const water = makeWater(g, me.tip, { kick: me.kick }), tool = water.pointer; // 소화전을 열기 전에는 물이 나오지 않는다
       return {
         rubY: 0.03, focus: [0, 0.3, 0.15], zoom: 3.9, tool,
         patches: [{ id: 'fire', y: 0.03, color: '#f08a3c', opacity: 0.9, dot: 0.1, reach: 0.16, blobs: [{ x: 0.9, z: -0.9, r: 0.42, n: 30 }, { x: 2.0, z: 0.45, r: 0.42, n: 30 }] }], // 물이 지나간 길만 조금씩 지워지게 닿는 폭을 좁히고 점을 늘린다
@@ -246,10 +257,11 @@ export const CLOSEUPS = {
           { id: 'hose', obj: hose, from: [0.3, 1.55], to: [-1.6, -0.75], r: 0.55, y: 0.03, lift: 0.3,
             onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-0.45, 0.07, -0.5], [0, 0.07, 0.2], [0.5, 0.07, 0.6], [0.8, 0.07, 1.4], [1.2, 0.07, 1.75]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); } },
           { id: 'nozzle', obj: noz, from: [1.3, 1.55], to: END, r: 0.5, y: 0.03, restY: 0.2, lift: 0.3 },
-          { id: 'valve', obj: key, from: [2.2, 1.55], to: [-2.2, -1.3], r: 0.5, y: 0.03, restY: 0.86, lift: 0.3, onPlaced() { water.setOn(true); } },
+          { id: 'valve', obj: key, from: [2.2, 1.55], to: [-2.2, -1.3], r: 0.5, y: 0.03, restY: 0.86, lift: 0.3, onPlaced() { noz.visible = false; me.show(); water.setOn(true); } }, // 물이 들어오면 관창을 들고 선다
         ],
+        stop() { water.stop(); },
         tick(dt, t) {
-          mate.update(t, false); water.tick(dt, t);
+          mate.update(t, false); if (tool.visible) me.me.act('hold'); me.me.update(t, false); water.tick(dt, t);
         },
       };
     },
@@ -300,8 +312,10 @@ export const CLOSEUPS = {
       const line = new T.Group(); for (const s of [-0.8, 0.8]) { box(line, s, 0.02, 0, 0.3, 0.04, 0.3, '#e98a4a'); cyl(line, s, 0.24, 0, 0.12, 0.42, '#f09a5a', 0.03); } box(line, 0, 0.36, 0, 1.6, 0.09, 0.02, '#f2c94c'); g.add(line);
       const hose = hoseRoll(); g.add(hose);
       const TO = [-1.35, 0.45];
-      const water = makeWater(g, [TO[0] + 0.4, 0.32, TO[1]], { hot: (x, z) => fire.near(x, z), puddle: [PX, 0.03, PZ + 1.05], wetY: (x, z) => (Math.abs(x - PX) < 1.0 && Math.abs(z - PZ) < 0.65 ? Y : 0.024) }), tool = water.pointer; // 호스를 끌어오기 전에는 물이 나오지 않는다. 젖은 자국은 더미 위면 더미 높이에, 밖이면 바닥에 둔다
-      const boss = person({ coat: KHAKI, seed: 1, hair: 2, outfit: 'turnout' }); boss.root.position.set(-1.7, 0, -1.0); boss.root.rotation.y = 0.9; g.add(boss.root);
+      const me = hoseHolder(g, TO[0] - 0.1, TO[1]);
+      const water = makeWater(g, me.tip, { kick: me.kick, hot: (x, z) => fire.near(x, z), puddle: [PX, 0.03, PZ + 1.05], wetY: (x, z) => (Math.abs(x - PX) < 1.0 && Math.abs(z - PZ) < 0.65 ? Y : 0.024) }), tool = water.pointer; // 호스를 끌어오기 전에는 물이 나오지 않는다. 젖은 자국은 더미 위면 더미 높이에, 밖이면 바닥에 둔다
+      // 팀장은 뒷문 곁에서 안쪽을 살핀다 (물을 쏘는 나와 겹쳐 보이지 않게)
+      const boss = person({ coat: KHAKI, seed: 1, hair: 2, outfit: 'turnout' }); boss.root.position.set(-0.35, 0, -1.55); boss.root.rotation.y = 0.5; g.add(boss.root);
       // 구경하는 사람들은 불을 가리지 않게 오른쪽에 선다. 처음에는 너무 가깝고, 안전선을 세우면 물러선다.
       const crowd = [[1.95, -0.35, '#c9b6d6', 5], [2.1, 0.5, '#a9c7b9', 6]].map(([x, z, c, s]) => { const p = person({ coat: c, seed: s, hair: s % 3 }); p.root.position.set(x, 0, z); p.root.rotation.y = -Math.PI / 2; g.add(p.root); return p; });
       glow.set(1); fire.setEmber(1);
@@ -314,7 +328,7 @@ export const CLOSEUPS = {
         movers: [
           { id: 'line', obj: line, from: [-1.55, 1.7], to: [1.95, 0.1], r: 0.65, y: 0.02, lift: 0.3, onPlaced(o) { o.rotation.y = Math.PI / 2; for (const p of crowd) p.root.position.x += 0.5; } },
           { id: 'hose', obj: hose, from: [-1.75, -0.2], to: TO, r: 0.6, y: 0.03, lift: 0.3,
-            onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-1.2, 0.07, -1.0], [-0.8, 0.07, -0.3], [-0.3, 0.07, 0.1], [0.05, 0.12, 0]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); const n = nozzle(); n.position.set(0.2, 0.12, 0); o.add(n); water.setOn(true); } },
+            onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-1.2, 0.07, -1.0], [-0.8, 0.07, -0.3], [-0.45, 0.07, 0.25], [-0.35, 0.07, 0.3]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); me.show(); water.setOn(true); } }, // 호스를 끌어오면 관창을 들고 선다
           { id: 'debris', obj: debris, from: [PX, PZ + 0.25], to: [-0.6, 1.45], r: 0.6, y: Y, restY: 0.02, lift: 0.3, onPlaced() { glow.show(true); } },
         ],
         // 물이 닿아 지워진 만큼, 그 가까이의 불꽃만 줄어든다
@@ -322,7 +336,8 @@ export const CLOSEUPS = {
           if (id === 'ember') { glow.set(1 - v); fire.setEmber(1 - v); return; }
           spots.forEach((sp, i) => { const near = dots.filter((d) => Math.hypot(d.mesh.position.x - sp.x, d.mesh.position.z - sp.z) < 0.42); fire.set(i, v >= 1 || !near.length ? 0 : near.filter((d) => !d.clean).length / near.length); });
         },
-        tick(dt, t) { fire.tick(dt, t); glow.tick(dt, t); water.tick(dt, t); pile.material.color.lerpColors(CHAR, WOOD, 0.35 + 0.65 * fire.level()); boss.update(t, false); for (const p of crowd) p.update(t, false); },
+        stop() { water.stop(); },
+        tick(dt, t) { fire.tick(dt, t); glow.tick(dt, t); if (tool.visible) me.me.act('hold'); me.me.update(t, false); water.tick(dt, t); pile.material.color.lerpColors(CHAR, WOOD, 0.35 + 0.65 * fire.level()); boss.update(t, false); for (const p of crowd) p.update(t, false); },
       };
     },
   },

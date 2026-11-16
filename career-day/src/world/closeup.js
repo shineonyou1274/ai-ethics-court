@@ -86,6 +86,7 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
 
   function end() {
     if (!cur) return;
+    cur.built.stop?.(); // 무대가 따로 켜 둔 것(물 소리 등)을 끈다
     scene.remove(cur.g); dispose(cur.g); cur = null;
     hideWorld(false); canvas.style.touchAction = '';
   }

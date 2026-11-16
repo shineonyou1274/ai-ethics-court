@@ -5,10 +5,11 @@
 //   - 기기 설정이 '동작 줄이기'면 흔들림과 입자를 멈추거나 줄인다. 그래도 불이 줄고 물이 닿는 것은 보인다.
 import * as T from 'three';
 import { reduced } from './kit.js';
+import { spraySound } from '../audio.js';
 
 export const FX_MAX = reduced
   ? { sparks: 0, smoke: 3, drops: 0, splash: 0, steam: 0, wet: 20 }
-  : { sparks: 16, smoke: 9, drops: 48, splash: 24, steam: 7, wet: 26 };
+  : { sparks: 16, smoke: 9, drops: 48, splash: 24, steam: 10, wet: 26 };
 
 // 느리게 이어지는 물결 (-1 ~ 1). k 를 달리하면 서로 엇갈린다.
 const wave = (t, k, speed = 1) => Math.sin(t * 1.7 * speed + k * 2.3) * 0.6 + Math.sin(t * 2.9 * speed + k * 1.1) * 0.4;
@@ -100,78 +101,122 @@ export function makeEmberGlow(g, x, y, z, r = 0.34) {
   return { show(v) { shown = v; }, set(v) { lvl = v; }, tick(dt, t) { m.material.opacity = shown ? lvl * (0.34 + (reduced ? 0 : Math.sin(t * 2.1) * 0.1)) : 0; } };
 }
 
-// 물: 관창(from)에서 손가락이 가리키는 곳(pointer)까지 물방울이 포물선으로 날아가고, 닿는 곳에서 튄다.
+// 물: 소방 호스에서 압력 있게 뻗는 물줄기.
+//   - 관창(from)에서 손가락이 가리키는 곳(pointer)까지. 나갈 때는 곧고, 멀어질수록 조금 퍼지며 떨어진다.
+//   - 가운데는 거의 흰 진한 심, 바깥은 옅은 물안개. 그 위로 흰 물살이 빠르게 흘러 '쏘는' 느낌을 낸다.
+//   - 닿는 곳에서는 거품이 일고, 앞쪽으로 부채꼴 물보라가 튀고, 물안개(불이 남은 곳이면 큰 김)가 피어오른다.
+//   - 젖은 자국이 남고, puddle 을 주면 그 자리에 물이 고여 앞으로 번져 흐른다.
 //   pointer 는 무대의 tool 로 넘긴다. 가까이 보기가 문지르는 동안 보이게 하고 자리를 옮겨 준다(모양은 없다).
 //   setOn(true) 를 부르기 전에는 물이 나오지 않는다(호스를 잇기 전).
-//   hot(x, z) 가 0보다 크면 닿는 곳에서 김이 피어오른다. puddle 을 주면 그 자리에 물이 고인다.
+//   hot(x, z) 가 0보다 크면 닿는 곳에서 김이 크게 피어오르고 '치익' 소리가 난다.
 //   wetY 는 젖은 자국을 둘 높이. 숫자나 (x, z) => 높이. 주지 않으면 물이 닿은 높이에 둔다.
-export function makeWater(g, from, { hot = () => 0, puddle = null, wetY = null } = {}) {
+//   kick 에 물건을 넣으면 쏘는 동안 반동으로 살짝 떨린다(카메라는 흔들지 않는다).
+//   동작 줄이기에서는 가만히 있는 물줄기 한 줄만 보인다.
+const SEG = 12; // 물줄기를 잇는 토막 수 (심과 물안개가 한 벌씩)
+export function makeWater(g, from, { hot = () => 0, puddle = null, wetY = null, kick = [] } = {}) {
   const pointer = new T.Group(); g.add(pointer);
-  const a = new T.Vector3(...from), b = new T.Vector3(), up = new T.Vector3(0, 1, 0), d = new T.Vector3();
-  const dropMat = basic('#8fc9ea', 0.95), sprayMat = basic('#e3f3fb', 0.9);
-  const drops = Array.from({ length: FX_MAX.drops }, () => { const m = new T.Mesh(BALL, dropMat); m.visible = false; m.renderOrder = 6; g.add(m); return { m, u: 1, to: new T.Vector3() }; });
-  const splash = Array.from({ length: FX_MAX.splash }, () => { const m = new T.Mesh(BALL, sprayMat); m.visible = false; m.renderOrder = 6; g.add(m); return { m, life: 0, v: new T.Vector3() }; });
-  const steam = Array.from({ length: FX_MAX.steam }, () => { const m = new T.Mesh(BALL, basic('#ffffff', 0)); m.visible = false; m.renderOrder = 5; g.add(m); return { m, life: 0 }; });
+  const a = new T.Vector3(...from), b = new T.Vector3(), up = new T.Vector3(0, 1, 0), d = new T.Vector3(), q = new T.Vector3(), q2 = new T.Vector3(), dirH = new T.Vector3(1, 0, 0);
+  const TUBE = new T.CylinderGeometry(1, 1, 1, 10);
+  const mk = (geo, mat, order, n) => Array.from({ length: n }, () => { const m = new T.Mesh(geo, mat); m.visible = false; m.renderOrder = order; g.add(m); return m; });
+  const core = mk(TUBE, basic('#f7fcff', 0.96), 6, reduced ? 1 : SEG); // 진한 심
+  const mist = mk(TUBE, basic('#bfe3f5', 0.3), 5, reduced ? 1 : SEG); // 바깥 물안개
+  const streakMat = basic('#ffffff', 0.9), sprayMat = basic('#eef8fd', 0.92);
+  const drops = mk(BALL, streakMat, 7, FX_MAX.drops).map((m, i) => ({ m, u: 1, k: i })); // 물줄기 겉을 따라 흐르는 흰 물살
+  const splash = mk(BALL, sprayMat, 7, FX_MAX.splash).map((m) => ({ m, life: 0, v: new T.Vector3() })); // 부채꼴 물보라
+  const steam = Array.from({ length: FX_MAX.steam }, () => { const m = new T.Mesh(BALL, basic('#ffffff', 0)); m.visible = false; m.renderOrder = 5; g.add(m); return { m, life: 0 }; }); // 물안개와 김
+  const foam = new T.Mesh(BALL, basic('#ffffff', 0.78)); foam.visible = false; foam.renderOrder = 7; g.add(foam); // 닿는 곳의 거품
+  const ring = new T.Mesh(new T.RingGeometry(0.6, 1, 28), basic('#e3f3fb', 0.42)); ring.rotation.x = -Math.PI / 2; ring.visible = false; ring.renderOrder = 2; g.add(ring);
   // 젖은 자국: 하나씩 따로 옅어진다. 자리가 모자라면 가장 오래된 것을 서서히 지우고, 빈 자리가 난 뒤에 새로 만든다(갑자기 사라지지 않게).
-  const wetGeo = new T.CircleGeometry(0.17, 16), WET = 0.2, yOf = typeof wetY === 'function' ? wetY : (x, z, y) => wetY ?? y;
+  const wetGeo = new T.CircleGeometry(0.23, 18), WET = 0.22, yOf = typeof wetY === 'function' ? wetY : (x, z, y) => wetY ?? y;
   const wet = Array.from({ length: FX_MAX.wet }, (_, i) => { const m = new T.Mesh(wetGeo, basic('#56788f', 0)); m.rotation.x = -Math.PI / 2; m.visible = false; m.renderOrder = 1; g.add(m); return { m, age: -1, out: 0, k: i }; });
-  // 동작 줄이기: 입자 대신 가만히 있는 물줄기 한 줄
-  const beam = new T.Mesh(new T.CylinderGeometry(0.035, 0.035, 1, 8), basic('#a9d6ec', 0.9)); beam.visible = false; g.add(beam);
-  // A continuous tapered jet fills the gaps between drops. Fixed pool, no camera shake or flashing.
-  const jet = Array.from({length: reduced ? 0 : 12}, () => {
-    const m = new T.Mesh(new T.CylinderGeometry(0.8, 1, 1, 8), basic('#b8e0ef', 0.52));
-    m.visible=false;m.renderOrder=5;g.add(m);return m;
-  });
-  const start=new T.Vector3(),end=new T.Vector3(),tangent=new T.Vector3();
-  let pud = null; if (puddle) { pud = new T.Mesh(new T.CircleGeometry(1, 28), basic('#6f93aa', 0.24)); pud.rotation.x = -Math.PI / 2; pud.position.set(puddle[0], puddle[1], puddle[2]); pud.scale.set(0.01, 0.01, 1); pud.renderOrder = 1; g.add(pud); }
-  let on = false, emit = 0, n = 0, used = 0, steamK = 0; const lastWet = new T.Vector3(99, 0, 99);
-  const hit = (p) => {
-    for (let k = 0; k < 2; k++) { const s = splash.find((x) => x.life <= 0); if (!s) break; n++; s.life = 0.34; s.m.position.copy(p); s.m.visible = true; s.v.set(Math.sin(n * 2.4) * 0.9, 1.1 + ((n * 7) % 10) / 14, Math.cos(n * 1.9) * 0.6); }
-    if (Math.hypot(p.x - lastWet.x, p.z - lastWet.z) > 0.13 && wet.length) {
-      const free = wet.find((w) => w.age < 0);
-      if (free) { free.age = 0; free.out = 0; free.m.position.set(p.x, yOf(p.x, p.z, p.y) + 0.006 + free.k * 0.0003, p.z); free.m.visible = true; lastWet.copy(p); }
-      else { const old = wet.reduce((a, w) => (w.out ? a : !a || w.age > a.age ? w : a), null); if (old) old.out = 1; } // 가장 오래된 자국부터 서서히 지운다
-    }
-    const h = hot(p.x, p.z);
-    if (h > 0.05 && steamK >= 1) { const s = steam.find((x) => x.life <= 0); if (s) { steamK = 0; s.life = s.max = 1.0; s.m.position.set(p.x, p.y + 0.1, p.z); s.m.visible = true; s.h = h; } }
+  // 고인 물과, 거기서 앞으로 번져 흐르는 물길 셋
+  let pud = null; const runs = [];
+  if (puddle) {
+    const pm = basic('#6f93aa', 0.26), circle = new T.CircleGeometry(1, 28);
+    pud = new T.Mesh(circle, pm); pud.rotation.x = -Math.PI / 2; pud.position.set(puddle[0], puddle[1], puddle[2]); pud.scale.set(0.01, 0.01, 1); pud.renderOrder = 1; g.add(pud);
+    for (const [dx, len] of [[-0.55, 0.55], [0.1, 0.8], [0.62, 0.45]]) { const m = new T.Mesh(circle, pm); m.rotation.x = -Math.PI / 2; m.renderOrder = 1; m.visible = false; g.add(m); runs.push({ m, dx, len }); }
+  }
+  const base = kick.map((o) => o.position.clone());
+  let on = false, emit = 0, fan = 0, n = 0, used = 0, steamK = 0, heat = 0, sound = -1; const lastWet = new T.Vector3(99, 0, 99);
+
+  // 물줄기 위의 한 점 (u: 0 관창 → 1 닿는 곳). 처음에는 곧게 나가고 끝으로 갈수록 떨어진다.
+  const at = (u, out) => { out.lerpVectors(a, b, u); out.y = a.y + (b.y - a.y) * Math.pow(u, 1.9) + Math.sin(u * Math.PI) * 0.1; return out; };
+  const radius = (u) => 0.048 + 0.05 * u; // 심의 굵기. 멀어질수록 퍼진다
+  const place = (m, u0, u1, r) => { at(u0, q); at(u1, q2); d.copy(q2).sub(q); const len = d.length() || 0.001; m.position.copy(q).add(q2).multiplyScalar(0.5); m.scale.set(r, len * 1.06, r); m.quaternion.setFromUnitVectors(up, d.divideScalar(len)); m.visible = true; };
+  const wetAt = (p) => {
+    if (Math.hypot(p.x - lastWet.x, p.z - lastWet.z) < 0.14 || !wet.length) return;
+    const free = wet.find((w) => w.age < 0);
+    if (free) { free.age = 0; free.out = 0; free.m.position.set(p.x, yOf(p.x, p.z, p.y) + 0.006 + free.k * 0.0003, p.z); free.m.visible = true; lastWet.copy(p); }
+    else { const old = wet.reduce((x, w) => (w.out ? x : !x || w.age > x.age ? w : x), null); if (old) old.out = 1; } // 가장 오래된 자국부터 서서히 지운다
   };
+  const quiet = () => { if (sound !== 0) { sound = 0; spraySound(0, 0); } };
+  const hideJet = () => { for (const m of core) m.visible = false; for (const m of mist) m.visible = false; foam.visible = false; ring.visible = false; };
+
   return {
     pointer,
     setOn(v) { on = v; },
+    stop() { quiet(); },
     tick(dt, t) {
       const active = on && pointer.visible; b.copy(pointer.position);
-      jet.forEach((m,i)=>{
-        m.visible=active;if(!active)return;
-        const u=i/jet.length,v=(i+1)/jet.length;
-        start.lerpVectors(a,b,u);end.lerpVectors(a,b,v);
-        start.y+=Math.sin(u*Math.PI)*.18;end.y+=Math.sin(v*Math.PI)*.18;
-        tangent.copy(end).sub(start);const len=tangent.length();
-        m.position.copy(start).add(end).multiplyScalar(.5);
-        const width=.028+u*.035;m.scale.set(width,len+.012,width);
-        if(len>0)m.quaternion.setFromUnitVectors(up,tangent.divideScalar(len));
-      });
-      steamK += dt * 6;
+      steamK += dt;
       for (const w of wet) { if (w.age < 0) continue; w.age += dt; if (w.out) w.out += dt; const f = w.out ? Math.max(0, 1 - (w.out - 1) / 0.8) : 1; w.m.material.opacity = WET * Math.min(1, w.age / 0.25) * f; if (w.out && f <= 0) { w.age = -1; w.out = 0; w.m.visible = false; } }
       if (active) used += dt;
-      if (pud) { const s = Math.min(1, used / 5); pud.scale.set(0.01 + s * 1.15, 0.01 + s * 0.5, 1); }
-      if (reduced) {
-        beam.visible = active; if (!active) return;
-        d.copy(b).sub(a); const len = d.length() || 1; beam.position.copy(a).addScaledVector(d, 0.5); beam.scale.set(1, len, 1); beam.quaternion.setFromUnitVectors(up, d.divideScalar(len));
-        emit += dt; if (emit > 0.12) { emit = 0; hit(b); } return;
+      if (pud) {
+        const s = Math.min(1, used / 3.5); pud.scale.set(0.01 + s * 1.2, 0.01 + s * 0.5, 1);
+        // 고인 물이 넘치면 가장자리에서 이어져 앞으로 흘러내린다
+        const f = Math.max(0, Math.min(1, (used - 1.2) / 5));
+        for (const r of runs) { r.m.visible = f > 0.02; r.m.scale.set(0.13 + f * 0.05, 0.02 + f * r.len * 0.5, 1); r.m.position.set(puddle[0] + r.dx, puddle[1] + 0.001, puddle[2] + 0.22 + f * r.len * 0.5); }
       }
-      if (active) emit += dt * 130;
+      if (!active) { quiet(); hideJet(); kick.forEach((o, i) => o.position.copy(base[i])); }
+      else {
+        heat += (hot(b.x, b.z) - heat) * Math.min(1, dt * 6);
+        const lv = heat > 0.05 ? 1 : 0; if (sound !== 1 + lv) { sound = 1 + lv; spraySound(1, lv); }
+        dirH.set(b.x - a.x, 0, b.z - a.z); if (dirH.lengthSq() < 1e-4) dirH.set(1, 0, 0); dirH.normalize();
+      }
+      if (reduced) { // 가만히 있는 물줄기 한 줄
+        if (active) { place(mist[0], 0, 1, 0.1); place(core[0], 0, 1, 0.055); emit += dt; if (emit > 0.12) { emit = 0; wetAt(b); } }
+        return;
+      }
+      if (active) {
+        for (let i = 0; i < SEG; i++) {
+          const u0 = i / SEG, u1 = (i + 1) / SEG, um = (u0 + u1) / 2, r = radius(um) * (1 + Math.sin(t * 19 - um * 9) * 0.05);
+          place(core[i], u0, u1, r); place(mist[i], u0, u1, r * 1.9 + 0.015);
+        }
+        // 닿는 곳: 거품과 퍼지는 물 테
+        foam.visible = true; foam.position.copy(b); foam.position.y += 0.05; foam.scale.setScalar(0.17 + Math.sin(t * 13) * 0.02);
+        ring.visible = true; ring.position.set(b.x, b.y + 0.012, b.z); ring.scale.setScalar(0.3 + ((t * 2.2) % 1) * 0.16);
+        wetAt(b);
+        // 반동: 관창과 잡은 사람이 물 쏘는 반대쪽으로 아주 조금 떨린다
+        const kx = Math.sin(t * 37) * 0.011 + Math.sin(t * 59) * 0.007;
+        kick.forEach((o, i) => o.position.copy(base[i]).addScaledVector(dirH, -(0.02 + kx) * (i ? 0.45 : 1)));
+        emit += dt * 150; fan += dt * 48;
+      }
+      // 물줄기 겉을 따라 흐르는 흰 물살
       for (const p of drops) {
         if (p.u >= 1) {
           if (!active || emit < 1) { p.m.visible = false; continue; } emit -= 1; n++;
-          p.u = 0; p.to.set(b.x + Math.sin(n * 1.3) * 0.07, b.y, b.z + Math.cos(n * 2.1) * 0.07); p.m.visible = true; p.s = 0.042 + ((n * 5) % 7) / 300;
+          p.u = 0; p.ph = n * 2.4; p.s = 0.02 + ((n * 5) % 7) / 500; p.m.visible = true;
         }
-        p.u = Math.min(1, p.u + dt / 0.22);
-        p.m.position.lerpVectors(a, p.to, p.u); p.m.position.y += Math.sin(p.u * Math.PI) * 0.18; d.copy(p.to).sub(a).normalize();p.m.quaternion.setFromUnitVectors(up,d);p.m.scale.set(p.s*.65,p.s*2.4,p.s*.65);
-        if (p.u >= 1) { p.m.visible = false; hit(p.to); }
+        if (!active) { p.u = 1; p.m.visible = false; continue; }
+        p.u = Math.min(1, p.u + dt / 0.19);
+        at(p.u, q); at(Math.min(1, p.u + 0.03), q2); d.copy(q2).sub(q); const len = d.length() || 0.001; d.divideScalar(len);
+        const r = radius(p.u) * 1.25; q.x += Math.sin(p.ph) * r * 0.5; q.y += Math.cos(p.ph) * r; q.z += Math.sin(p.ph * 1.7) * r * 0.5;
+        p.m.position.copy(q); p.m.quaternion.setFromUnitVectors(up, d); p.m.scale.set(p.s, p.s * 5.5, p.s);
+        if (p.u >= 1) p.m.visible = false;
       }
-      if (!active) emit = 0;
-      for (const s of splash) { if (s.life <= 0) continue; s.life -= dt; s.v.y -= 6 * dt; s.m.position.addScaledVector(s.v, dt); s.m.scale.setScalar(0.036 * Math.max(0.2, s.life / 0.34)); if (s.life <= 0) s.m.visible = false; }
-      for (const s of steam) { if (s.life <= 0) continue; s.life -= dt; const k = 1 - s.life / s.max; s.m.position.y += dt * 0.75; s.m.scale.setScalar(0.07 + k * 0.16); s.m.material.opacity = 0.5 * Math.min(1, s.h * 2) * Math.sin(Math.min(1, k * 1.1) * Math.PI); if (s.life <= 0) s.m.visible = false; }
+      if (!active) emit = fan = 0;
+      // 부채꼴 물보라: 물이 날아온 쪽의 앞으로, 좌우 70도 안에서 튄다
+      for (const s of splash) {
+        if (s.life <= 0) {
+          if (!active || fan < 1) continue; fan -= 1; n++;
+          const th = Math.sin(n * 2.1) * 1.2, sp = 0.7 + ((n * 7) % 10) / 9, c = Math.cos(th), sn = Math.sin(th);
+          s.v.set((dirH.x * c - dirH.z * sn) * sp, 1.5 + ((n * 3) % 10) / 7, (dirH.z * c + dirH.x * sn) * sp); s.life = s.max = 0.48; s.m.position.copy(b); s.m.visible = true;
+        }
+        s.life -= dt; s.v.y -= 7 * dt; s.m.position.addScaledVector(s.v, dt); s.m.scale.setScalar(0.022 + 0.04 * Math.max(0, s.life / s.max)); if (s.life <= 0) s.m.visible = false;
+      }
+      // 물안개와 김: 불이 남은 곳에 닿으면 크고 짙게
+      if (active && steamK >= (heat > 0.05 ? 0.12 : 0.3)) { const s = steam.find((x) => x.life <= 0); if (s) { steamK = 0; n++; s.h = heat > 0.05 ? 1 : 0.38; s.life = s.max = s.h === 1 ? 1.25 : 0.8; s.m.position.set(b.x + Math.sin(n * 1.9) * 0.14, b.y + 0.12, b.z + Math.cos(n * 2.7) * 0.1); s.m.visible = true; } }
+      for (const s of steam) { if (s.life <= 0) continue; s.life -= dt; const k = 1 - s.life / s.max; s.m.position.y += dt * (0.55 + s.h * 0.45); s.m.scale.setScalar(0.1 + k * (0.16 + s.h * 0.3)); s.m.material.opacity = 0.62 * s.h * Math.sin(Math.min(1, k * 1.1) * Math.PI); if (s.life <= 0) s.m.visible = false; }
     },
   };
 }

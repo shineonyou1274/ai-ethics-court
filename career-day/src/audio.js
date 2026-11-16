@@ -55,4 +55,21 @@ export function toggleSound() {
   if (ready()) master.gain.setTargetAtTime(on ? 1 : 0, ctx.currentTime, 0.05);
   return on;
 }
+// 물 쏘는 소리: 걸러 낸 잡음. level 0~1 은 '쏴아'의 크기, hiss 0~1 은 불에 닿을 때의 '치익'. 소리 끄기(♪)를 따른다(모두 master 를 거친다).
+let spray = null;
+export function spraySound(level, hiss = 0) {
+  if (!spray) {
+    if (!level || !on || !ready()) return; // 꺼 둔 채로는 만들지도 않는다
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), d = buf.getChannelData(0); let x = 1234567;
+    for (let i = 0; i < d.length; i++) { x = (x * 1103515245 + 12345) & 0x7fffffff; d[i] = x / 0x3fffffff - 1; }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const band = ctx.createBiquadFilter(); band.type = 'bandpass'; band.frequency.value = 1300; band.Q.value = 0.5;
+    const high = ctx.createBiquadFilter(); high.type = 'highpass'; high.frequency.value = 5200;
+    const g = ctx.createGain(), h = ctx.createGain(); g.gain.value = 0; h.gain.value = 0;
+    src.connect(band); band.connect(g); g.connect(master); src.connect(high); high.connect(h); h.connect(master); src.start();
+    spray = { g, h };
+  }
+  if (!ctx) return;
+  spray.g.gain.setTargetAtTime(level * 0.11, ctx.currentTime, 0.07); spray.h.gain.setTargetAtTime(level * hiss * 0.07, ctx.currentTime, 0.1);
+}
 document.addEventListener('visibilitychange', () => { if (ctx) (document.hidden ? ctx.suspend() : ctx.resume()); });
