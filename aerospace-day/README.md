@@ -37,4 +37,4 @@ NASA 자료는 양력·저항·무게중심의 개념 참고입니다. model.mjs
 
 ## 통합 인수인계
 
-같은 origin의 /aerospace-day/에 배치하면 공통 지갑을 사용하고 ../ 복귀 링크가 보입니다. 아직 통합 허브·빌드에 추가하지 않았습니다. Claude가 최근 허브/공통 데이터를 수정했으므로 BOARD.md에서 통합을 요청합니다. accent #5965ac는 새 일터 제안색이며 shared/DESIGN.md 등록은 Claude에게 요청합니다. 공개 배포는 하지 않았습니다.
+같은 origin의 /aerospace-day/에 배치하면 공통 지갑을 사용하고 ../ 복귀 링크가 보입니다. 2026-11-16 후속 요청으로 통합 허브·빌드에 추가했습니다. Claude 7e9b724를 이 작업 브랜치에 합쳐 사용자별 기록·지갑·도장을 유지하고, 소방서와 설계실을 포함한 11개 직업 도장을 표시합니다. `node workday-site/build.mjs --check`와 `node aerospace-day/tests/integration.mjs`로 생성 파일과 통합 동작을 확인합니다. accent #5965ac는 새 일터 제안색이며 shared/DESIGN.md 등록은 Claude에게 요청합니다. 공개 배포는 하지 않았습니다.

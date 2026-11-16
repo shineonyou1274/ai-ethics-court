@@ -2,7 +2,7 @@
 // 1) 일당 계산이 약속대로인가  2) 예시 기록이 checkRecord 를 통과하는가  3) 앱 안의 복사본이 원본과 같은가
 import { readFileSync, existsSync } from 'node:fs';
 import { encodeRecords, decodeCodes, toCsv } from './collect.js';
-import { salaryDay, hourlyOf, makeRecord, checkRecord, MIN_WAGE, saveRecordSafe, loadRecords, careernetUrl } from './workday.js';
+import { salaryDay, hourlyOf, makeRecord, checkRecord, MIN_WAGE, saveRecordSafe, loadRecords, careernetUrl, currentSession, loadMine, startNewSession, keepSession, needsWhoCheck, walletSummary } from './workday.js';
 
 let fail = 0;
 const ok = (cond, msg) => { console.log(`${cond ? '  ✓' : '  ✗'} ${msg}`); if (!cond) fail++; };
@@ -38,6 +38,27 @@ const blocked = saveRecordSafe(makeRecord({ app: 'x', place: 'cafe', job: sample
 ok(!blocked.ok && blocked.error, '저장이 막히면 ok: false 와 까닭');
 delete globalThis.localStorage;
 ok(careernetUrl('180') === 'https://www.career.go.kr/cloud/w/job/view?seq=180', '커리어넷 출처 주소');
+
+console.log('기기를 함께 쓸 때');
+{
+  const mem2 = {}; globalThis.localStorage = { getItem: (k) => mem2[k] ?? null, setItem: (k, v) => { mem2[k] = String(v); } };
+  mem2['workday-records-v1'] = JSON.stringify([{ ...sample, id: 'old', session: undefined }]);
+  const s1 = currentSession();
+  ok(loadMine().length === 1, '세션이 없던 예전 기록은 처음 사람의 것으로 봄');
+  ok(needsWhoCheck() === true, '앞사람 기록이 남아 있으면 누구인지 물음');
+  keepSession(); ok(needsWhoCheck() === false, "'이어서 하기'를 고르면 오늘은 다시 묻지 않음");
+  const mine = makeRecord({ ...sample, annual: 3004, workedMin: 500, shiftMin: 480, id: undefined, session: undefined });
+  ok(mine.session === s1.id, '새 기록에 지금 세션이 붙음');
+  saveRecordSafe(mine);
+  startNewSession();
+  ok(loadMine().length === 0 && loadRecords().length === 2, '새로 출근하는 사람: 앞사람 기록은 남기고 숨김');
+  saveRecordSafe(makeRecord({ ...sample, annual: 3004, workedMin: 480, shiftMin: 480, id: undefined, session: undefined }));
+  const sum = walletSummary();
+  ok(sum.days === 1 && sum.minutes === 480 && sum.jobs.length === 1, '지갑 요약은 지금 사람 것만 (일한 시간, 다녀온 직업)');
+  startNewSession({ wipe: true });
+  ok(loadRecords().length === 0, '모두 지우고 시작하면 이 기기의 기록이 비워짐');
+  delete globalThis.localStorage;
+}
 
 console.log('교사 기록 모으기');
 const code = encodeRecords([sample, { ...sample, id: 'b2', job: { id: 'nurse', name: '간호사', careernet: '354' } }], '3번 김하늘');
