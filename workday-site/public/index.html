@@ -38,7 +38,7 @@
   .book { background: var(--card); border: 2px solid var(--line); border-radius: 20px; padding: 12px 16px 14px; margin-top: 22px; }
   .book h2 { font-size: 18px; margin: 0; display: flex; justify-content: space-between; align-items: baseline; }
   .book h2 span { color: var(--coral-d); }
-  .bank { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 2px; font-size: 15px; color: var(--soft); }
+  .bank { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font-size: 15px; color: var(--soft); }
   .bank b { font-family: "Jua", sans-serif; font-weight: 400; color: var(--ink); }
   .bank .coin { background: #fff6d8; border: 1.5px solid #f1dc9b; border-radius: 10px; padding: 0 8px; color: #7a6532; }
   .stampRow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
@@ -76,7 +76,7 @@
     <a class="place aero" href="aerospace-day/"><span class="icon" aria-hidden="true">🚀</span><b>우주항공 연구소</b><small>항공우주공학기술자</small><span class="go">출근 →</span></a>
   </div>
 
-  <section class="book stampCard" id="stamps" aria-label="내 출근 수첩"></section>
+  <section class="book" aria-label="내 출근 수첩"><div class="stampCard" id="stamps"></div><div id="bank"></div></section>
   <a class="btn" id="send" href="career-day/#send" hidden>선생님께 출근 기록 보내기</a>
 
   <p class="fine">일당은 커리어넷 평균 연봉으로 계산한 세전 금액이고, 직업 순위가 아니에요. 등장인물은 가상이고, 기록은 이 기기에만 남아요.</p>
@@ -113,9 +113,9 @@
     const h = Math.floor(sum.minutes / 60), m = sum.minutes % 60;
     const n = ALL.filter(([id]) => been.has(id)).length;
     $('stamps').innerHTML = `<h2 class="j">직업 도장 <span>${n} / ${ALL.length}</span></h2>
-      ${records.length ? `<div class="bank" id="bank"><span>⏱ <b>${h}시간${m ? ` ${m}분` : ''}</b> 일함</span><span class="coin">🪙 <b>${esc(manwon(sum.total))}</b> 받음</span></div>` : ''}
-      <div class="stampRow">${ALL.map(([id, name, icon]) => `<span class="stamp ${been.has(id) ? 'on' : ''}" role="img" aria-label="${esc(name)}${been.has(id) ? ' 출근 완료' : ''}" title="${esc(name)}"><span aria-hidden="true">${icon}</span></span>`).join('')}</div>
+      <div class="stampRow">${ALL.map(([id, name, icon]) => `<span class="stamp slot ${been.has(id) ? 'on' : ''}" role="img" aria-label="${esc(name)}${been.has(id) ? ' 출근 완료' : ''}" title="${esc(name)}"><span aria-hidden="true">${icon}</span></span>`).join('')}</div>
       <p>${n === 0 ? '출근할 때마다 도장이 하나씩 찍혀요.' : n < ALL.length ? `아직 가 보지 않은 직업이 ${ALL.length - n}개 있어요.` : '모든 직업에 출근했어요! 가장 끌렸던 순간을 떠올려 봐요.'}</p>`;
+    $('bank').innerHTML = records.length ? `<div class="bank"><span>⏱ <b>${h}시간${m ? ` ${m}분` : ''}</b> 일함</span><span class="coin">🪙 <b>${esc(manwon(sum.total))}</b> 받음</span></div>` : '';
     $('send').hidden = !records.length;
     $('newPerson').hidden = needsWhoCheck();
     bindWho();
