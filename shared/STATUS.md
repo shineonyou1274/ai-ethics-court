@@ -30,6 +30,7 @@
 
 ## 3. 꼭 읽을 문서
 
+0. `shared/CHECKLIST.md` — **끝났다고 하기 전에 통과해야 할 검증 조건** (깜박임 재기: `node shared/tools/flicker.cjs <영상>`)
 1. `shared/README.md` — 일당, 돌아보기, 출근 기록, 기기를 함께 쓸 때(§3-0), 교사 기록 모으기(§3-1)
 2. `shared/DESIGN.md` — 색·글꼴, 화면 위쪽 띠, 하루의 순서, 손맛, 말투, **새 일터 체크 목록(§7)**
 3. 맡은 앱의 README와 게시판
