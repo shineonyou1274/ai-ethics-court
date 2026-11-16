@@ -40,6 +40,10 @@
   .cafe .go { background: #2f6b55; box-shadow: 0 4px 0 #1f4a3a; }
   .place.fire .icon { background: #fbe9e4; }
   .fire .go { background: #d2553f; box-shadow: 0 4px 0 #a8402d; }
+  .place.soon { border-style: dashed; box-shadow: none; opacity: .72; cursor: default; }
+  .place.soon:hover { border-color: var(--line); }
+  .place.soon .icon { background: #eceff6; }
+  .soon .go { background: #c9cdd6; box-shadow: none; color: #fff; }
   .btn { display: block; width: 100%; text-align: center; text-decoration: none; padding: 13px 16px; border-radius: 16px; margin-top: 18px; font-size: 18px; color: var(--ink); background: #fff; border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); }
   .fine { color: var(--soft); font-size: 14px; margin: 14px 0 0; }
   .teacher { display: block; text-align: center; margin-top: 22px; color: var(--soft); font-size: 14.5px; text-underline-offset: 3px; }
@@ -89,6 +93,10 @@
       <div class="top"><span class="icon" aria-hidden="true">☕</span><div><b>한 잔의 하루</b><small>카페 바리스타 · 3D 카페에서 직접 일하기</small></div></div>
       <span class="go">카페로 출근하기 →</span>
     </a>
+    <div class="place soon" aria-disabled="true">
+      <div class="top"><span class="icon" aria-hidden="true">🚀</span><div><b>우주항공 연구소</b><small>항공우주공학기술자 · 만드는 중</small></div></div>
+      <span class="go">곧 열려요</span>
+    </div>
   </div>
 
   <a class="btn" id="send" href="career-day/#send" hidden>선생님께 출근 기록 보내기</a>
