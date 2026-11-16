@@ -73,7 +73,7 @@ ok(!JSON.stringify(back).includes('13500'), '가게 매출 같은 다른 돈은 
 ok(toCsv(back.students[0].records.map((r) => ({ ...r, name: '3번' }))).startsWith('\uFEFF"번호나 이름"'), 'CSV 머리줄');
 
 console.log('복사본');
-for (const [file, copy] of [['workday.js', '../barista-day/dist/shared/workday.js'], ['collect.js', '../barista-day/dist/shared/collect.js'], ['design.css', '../barista-day/dist/shared/design.css']]) {
+for (const [file, copy] of [['workday.js', '../barista-day/dist/shared/workday.js'], ['collect.js', '../barista-day/dist/shared/collect.js'], ['design.css', '../barista-day/dist/shared/design.css'], ['workday.js', '../aerospace-day/dist/shared/workday.js'], ['collect.js', '../aerospace-day/dist/shared/collect.js'], ['design.css', '../aerospace-day/dist/shared/design.css']]) {
   const url = new URL(copy, import.meta.url);
   if (!existsSync(url)) { console.log(`  · ${copy} 아직 없음`); continue; }
   ok(readFileSync(url, 'utf8') === readFileSync(new URL('./' + file, import.meta.url), 'utf8'), `${copy} 가 원본과 같음`);

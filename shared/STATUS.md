@@ -2,7 +2,7 @@
 
 > **일을 시작하기 전에 이 파일부터 읽어요.** 지금 상태를 한 장으로 적은 것이고, Claude가 늘 최신으로 고쳐 써요.
 > 자세한 사정과 주고받은 말은 게시판에 있어요: `shared/BOARD.md`(Claude) · `barista-day/BOARD.md`(Codex)
-> 마지막 고침: 2026-11-16 밤 · 운영 브랜치 `claude/focused-davinci-c033wr` (통합 브랜치 `claude/integrate-fire` 를 승인받아 운영에 반영함)
+> 마지막 고침: 2026-11-16 밤 · 운영 브랜치 `claude/focused-davinci-c033wr` = `8ca8da7` · 통합 브랜치 `claude/integrate-fire` 에 우주항공·바리스타 16~19 합침(**운영 반영 승인 대기**)
 
 ## 1. 무엇을 만들고 있나
 
@@ -14,10 +14,10 @@
 |---|---|---|---|
 | 모아 병원 (8직업) | `career-day/` | Claude | 완성, 운영 중 |
 | 다솜 소방서 (소방관) | `career-day/` 안의 일터 `fire-station`, 직업 `firefighter` | Claude | **선생님 결정으로 이 판을 씀.** 불 끄기는 훈련장 장면 그대로. 통합 브랜치에 합침 |
-| 카페 바리스타 | `barista-day/` | Codex | 디자인 맞추기 8~15번 통합 브랜치에 합침. 16~19번 남음 |
-| 우주항공 (항공우주공학기술자) | `aerospace-day/` (예정) | Codex (선생님 결정) | 시작 전 |
+| 카페 바리스타 | `barista-day/` | Codex | 8~15번 운영 중. 16~19번(기기 함께 쓰기, main 기준 검사) 통합 브랜치에 합침 |
+| 온빛 항공우주 설계실 (항공우주공학기술자) | `aerospace-day/` (게시판 `aerospace-day/BOARD.md`) | Codex | 만듦. 설계·시험·바람 영향, 세션·보내기. 통합 브랜치에 합침. 일터 색 `#5965ac` |
 | 공통 약속 | `shared/` | Claude | 일당·기록·세션·교사 코드·디자인 |
-| 사이트 | `workday-site/` | Claude | 운영 중. 첫 화면 입구 넷(병원·소방서·카페 + 우주항공 '곧 열려요'), 도장 10칸 |
+| 사이트 | `workday-site/` | Claude | 운영 중(입구 셋 + 우주항공 '곧 열려요'). 통합 브랜치는 입구 넷, 도장 11칸 |
 
 - **Codex 판 소방서(`codex/fire-station` 의 `fire-station/`)는 쓰지 않아요.** 브랜치는 참고용으로 남겨요. 그 판의 좋은 점(바닥 눌러 걸어 다니기, 차량 점검)은 나중에 `career-day` 엔진으로 옮길 수 있어요.
 - 소방관 기록은 `place: 'fire-station'`, `job.id: 'firefighter'`, 커리어넷 385예요.
@@ -38,18 +38,18 @@
 
 **Codex — 바리스타** (통합 브랜치에서 갈라져 시작)
 - [x] 8~15 — 통합 브랜치에 합침
-- [ ] 16 지갑·보내기는 `loadMine()`
-- [ ] 17 시작할 때 `needsWhoCheck()` → "누구의 기록인가요?"
-- [ ] 18 (바람) 지갑은 `walletSummary()` 모양
-- [ ] 19 `tests/shared-contract.mjs` 를 `origin/main` 기준으로(합치기 전에는 Claude 브랜치로 대신)
+- [x] 16~19 — 통합 브랜치에 합침(`codex/aerospace-integration`)
 
 **Codex — 우주항공**
-- [ ] `aerospace-day/` 새 앱. 현황판 §6, DESIGN.md §7 체크 목록. 브랜치 `codex/aerospace-day` (통합 브랜치에서 갈라져 시작)
+- [x] `aerospace-day/` 새 앱 — 통합 브랜치에 합침
+- [ ] (바람) 사람 모양을 `career-day/src/world/kit.js` 의 `person()` 에 맞추기(DESIGN.md §1)
 
 **Claude — 정리할 것**
 - [x] 소방서 판 결정(Claude 판) → 통합 브랜치에 합침
 - [x] 선생님 승인 뒤 운영 브랜치를 통합 브랜치로 앞당기기
-- [ ] 우주항공 앱이 생기면 첫 화면 링크·도장 칸·`build.mjs` 묶기·복사본 검사에 더하기
+- [x] 우주항공 첫 화면 링크·도장 칸·묶기(Codex가 함), 복사본 검사 등록(Claude)
+- [ ] 선생님 승인 뒤 운영 브랜치를 통합 브랜치로 앞당기기 (우주항공 + 바리스타 16~19)
+- [ ] 소방서 새 대화의 `f57b89d`(출동 현장 직접 불 끄기)는 선생님 결정('불 끄기는 지금대로')과 달라 **합치지 않음** — 선생님 확인 필요
 - [ ] Codex 요청: 새 폴더(`fire-station/`, `aerospace-day/`)와 그 게시판을 협업 약속에 등록, `shared/test.mjs` 복사본 검사에 더하기
 
 **선생님**
