@@ -68,7 +68,7 @@ export function cupboard(p, x, z, w = 1.3, h = 1.8) {
   }
 }
 
-// 사람 한 명. outfit: casual · white(가운) · scrub(치료복) · surgery · vest(조끼 근무복)
+// 사람 한 명. outfit: casual · white(가운) · scrub(치료복) · surgery · vest(조끼 근무복) · fire(소방 활동복) · turnout(방화복과 헬멧)
 export function person({ coat = '#b7ccdc', hair = 0, seed = 0, outfit = 'casual' } = {}) {
   const root = new T.Group(), body = new T.Group(); root.add(body);
   const skin = seed % 3 === 0 ? '#cba68c' : seed % 3 === 1 ? '#e6bfa1' : '#f1d4b7';
@@ -108,6 +108,10 @@ export function person({ coat = '#b7ccdc', hair = 0, seed = 0, outfit = 'casual'
     const a = box(apparel, -0.055, 1.45, 0.19, 0.12, 0.035, 0.025, '#f6ede0'); a.rotation.z = -0.7;
     const b = box(apparel, 0.055, 1.45, 0.19, 0.12, 0.035, 0.025, '#f6ede0'); b.rotation.z = 0.7;
     box(apparel, -0.16, 1.12, 0.2, 0.16, 0.16, 0.025, '#a2b6be');
+  } else if (outfit === 'fire' || outfit === 'turnout') {
+    // 소방관: fire 는 활동복, turnout 은 방화복. 둘 다 눈에 잘 띄는 반사띠를 두른다.
+    for (const y of outfit === 'turnout' ? [1.0, 1.32] : [1.02]) box(apparel, 0, y, 0.185, 0.5, 0.05, 0.04, '#f6e58a');
+    if (outfit === 'turnout') for (const side of [-1, 1]) box(apparel, side * 0.36, 1.0, 0.02, 0.2, 0.05, 0.2, '#f6e58a');
   } else if (outfit === 'vest') {
     for (const side of [-1, 1]) box(apparel, side * 0.16, 1.18, 0.18, 0.21, 0.54, 0.045, '#d7c19e');
     box(apparel, 0, 1.2, 0.21, 0.025, 0.5, 0.025, '#f2eddf');
@@ -116,6 +120,7 @@ export function person({ coat = '#b7ccdc', hair = 0, seed = 0, outfit = 'casual'
     for (const y of [1.4, 1.27, 1.14]) ball(apparel, 0, y, 0.22, 0.015, '#f8eee0');
   }
   if (outfit === 'surgery') { ball(head, 0, 0.17, -0.015, 0.3, '#a7c9d6', [1, 0.65, 1]); box(head, 0, -0.08, 0.247, 0.29, 0.15, 0.04, '#d3e6e9'); }
+  if (outfit === 'turnout') { ball(head, 0, 0.15, -0.01, 0.31, '#f2c94c', [1, 0.66, 1.05]); cyl(head, 0, 0.07, 0, 0.36, 0.03, '#e0b63c'); box(head, 0, 0.2, 0.27, 0.12, 0.1, 0.03, '#d2553f'); }
   if (outfit !== 'casual') { box(apparel, 0.18, 1.24, 0.25, 0.12, 0.18, 0.025, '#fffdf5'); box(apparel, 0.18, 1.29, 0.27, 0.09, 0.035, 0.008, '#df9c80'); }
   const clipboard = new T.Group(); body.add(clipboard);
   box(clipboard, -0.38, 1.05, 0.33, 0.3, 0.38, 0.035, '#b59674'); box(clipboard, -0.38, 1.07, 0.355, 0.25, 0.29, 0.01, '#fffaf0');

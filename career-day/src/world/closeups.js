@@ -4,6 +4,7 @@
 // 좌표는 무대 가운데가 (0, 0) 이고, 화면 아래쪽이 +z 예요.
 import * as T from 'three';
 import { box, cyl, ball, label, person, mat } from './kit.js';
+import { helmet, tank, lantern, hydrant, hoseRoll, nozzle, wrench, cone, RED, CREAM, STEEL, KHAKI, GLOW } from './firekit.js';
 
 function floor(g, w = 5.6, d = 4.2, c = '#efe7d8') {
   box(g, 0, -0.1, 0, w + 0.3, 0.2, d + 0.3, '#d5c7b2'); box(g, 0, 0.005, 0, w, 0.02, d, c);
@@ -197,6 +198,89 @@ export const CLOSEUPS = {
           { id: 'ball', obj: ball2, from: [0.6, 1.25], slot: 'ball', y: 0.02, restY: SY + 0.1, lift: 0.3 },
           { id: 'band', obj: bandG, from: [1.4, 1.35], slot: 'band', y: 0.02, restY: SY + 0.1, lift: 0.3 },
           { id: 'bell', obj: bell, from: [2.2, 1.25], slot: 'bell', y: 0.02, restY: SY + 0.1, lift: 0.3 },
+        ],
+      };
+    },
+  },
+  // 소방관 ① 교대 점검: 바닥에 내려 둔 장비를 소방차 장비함의 제자리 칸에 싣고, 차고 바닥의 물기를 닦는다.
+  gearcheck: {
+    build(g) {
+      floor(g, 5.8, 4.2, '#e6e3dc');
+      label(g, '차고 · 1호차', 1.9, 2.35, -2.03, 1.5, 0.38);
+      const SY = 0.62, SZ = -1.0, at = { helmet: -1.5, tank: 0, lantern: 1.5 };
+      box(g, 0, 1.3, -1.66, 5.0, 1.5, 0.75, RED); box(g, 0, 0.62, -1.66, 5.02, 0.12, 0.77, CREAM); // 소방차 옆면
+      box(g, 0, SY / 2, SZ, 4.7, SY, 0.62, STEEL); box(g, 0, SY - 0.01, SZ, 4.8, 0.04, 0.68, '#d8d3c8'); // 열어 둔 장비함 선반
+      for (const x of [-0.75, 0.75]) box(g, x, SY + 0.18, SZ, 0.05, 0.36, 0.6, '#a39e94');
+      for (const x of Object.values(at)) box(g, x, SY + 0.015, SZ, 0.8, 0.02, 0.46, '#8f8a80');
+      for (const x of Object.values(at)) { box(g, x, 1.22, -1.27, 1.3, 0.95, 0.03, '#b8493a'); box(g, x, 1.74, -1.25, 1.3, 0.1, 0.05, CREAM); } // 올려 둔 장비함 문
+      tag(g, '헬멧', at.helmet, SY + 0.72, SZ - 0.08, 1.05, 0.48); tag(g, '공기호흡기', at.tank, SY + 0.72, SZ - 0.08, 1.3, 0.48); tag(g, '랜턴', at.lantern, SY + 0.72, SZ - 0.08, 1.05, 0.48);
+      box(g, 0.2, 0.012, 1.3, 4.6, 0.02, 0.9, '#cfd6d8'); // 점검하려고 장비를 내려 둔 깔개
+      const things = { helmet: helmet(), tank: tank(), lantern: lantern() };
+      for (const o of Object.values(things)) g.add(o);
+      const tool = mop(); g.add(tool);
+      return {
+        rubY: 0.03, focus: [0, 0.45, 0.2], zoom: 3.9, tool,
+        slots: Object.entries(at).map(([id, x]) => ({ id, at: [x, SZ], y: SY + 0.04, r: 0.4 })),
+        patches: [{ id: 'floor', y: 0.02, color: '#9fd0ea', opacity: 0.7, dot: 0.12, reach: 0.3, blobs: [{ x: -0.5, z: 0.1, r: 0.5, n: 22, squash: 0.7 }, { x: 1.0, z: 0.3, r: 0.3, n: 10 }] }],
+        movers: [['helmet', 1.7, 1.25], ['tank', -1.6, 1.3], ['lantern', 0.1, 1.4]].map(([id, x, z]) => ({ id, obj: things[id], from: [x, z], slot: id, y: 0.03, restY: SY + 0.02, lift: 0.3 })),
+      };
+    },
+  },
+  // 소방관 ② 방수 훈련: 호스를 펴고, 관창을 끼우고, 소화전을 연 뒤에야 물이 나온다. 물줄기로 바닥 표적의 불꽃 표시를 지운다.
+  drill: {
+    build(g) {
+      floor(g, 5.8, 4.2, '#e4e2da');
+      label(g, '훈련장', 1.9, 2.0, -2.03, 1.1, 0.38);
+      hydrant(g, -2.2, -1.3); cone(g, -2.6, 0.2); cone(g, -2.6, 1.7);
+      for (const [x, z] of [[0.9, -0.9], [2.0, 0.45]]) { cyl(g, x, 0.012, z, 0.62, 0.02, '#5b5f66'); cyl(g, x, 0.016, z, 0.5, 0.02, '#6d727a'); }
+      box(g, 1.2, 0.012, 1.55, 2.6, 0.02, 0.7, '#cfd6d8'); // 장비를 내려 둔 깔개
+      const hose = hoseRoll(), noz = nozzle(), key = wrench(); g.add(hose, noz, key);
+      const END = [-0.4, 1.0]; // 호스를 펴면 끝이 오는 곳 (관창을 끼우는 자리)
+      const mate = person({ coat: KHAKI, seed: 3, hair: 1, outfit: 'turnout' }); mate.root.position.set(-1.3, 0, -1.6); mate.root.rotation.y = 0.5; g.add(mate.root);
+      // 물줄기: 관창에서 손가락이 가리키는 곳까지. 문지르는 동안에만 보인다.
+      const jet = cyl(g, 0, 0, 0, 0.035, 1, '#a9d6ec'); jet.castShadow = false; jet.visible = false;
+      const tool = new T.Group(); for (let i = 0; i < 6; i++) ball(tool, Math.cos(i * 1.05) * 0.14, 0.05, Math.sin(i * 1.05) * 0.14, 0.07, '#cfe8f5'); ball(tool, 0, 0.08, 0, 0.1, '#e6f4fb'); g.add(tool);
+      const up = new T.Vector3(0, 1, 0), a = new T.Vector3(END[0] + 0.25, 0.3, END[1]), d = new T.Vector3();
+      return {
+        rubY: 0.03, focus: [0, 0.3, 0.15], zoom: 3.9, tool,
+        patches: [{ id: 'fire', y: 0.03, color: '#f08a3c', opacity: 0.9, dot: 0.12, reach: 0.28, blobs: [{ x: 0.9, z: -0.9, r: 0.42, n: 18 }, { x: 2.0, z: 0.45, r: 0.42, n: 18 }] }],
+        movers: [
+          { id: 'hose', obj: hose, from: [0.3, 1.55], to: [-1.6, -0.75], r: 0.55, y: 0.03, lift: 0.3,
+            onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-0.45, 0.07, -0.5], [0, 0.07, 0.2], [0.5, 0.07, 0.6], [0.8, 0.07, 1.4], [1.2, 0.07, 1.75]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); } },
+          { id: 'nozzle', obj: noz, from: [1.3, 1.55], to: END, r: 0.5, y: 0.03, restY: 0.2, lift: 0.3 },
+          { id: 'valve', obj: key, from: [2.2, 1.55], to: [-2.2, -1.3], r: 0.5, y: 0.03, restY: 0.86, lift: 0.3 },
+        ],
+        tick(dt, t) {
+          mate.update(t, false);
+          jet.visible = tool.visible; if (!jet.visible) return;
+          d.copy(tool.position).sub(a); const len = d.length() || 1;
+          jet.position.copy(a).addScaledVector(d, 0.5); jet.scale.set(1, len, 1); jet.quaternion.setFromUnitVectors(up, d.divideScalar(len));
+        },
+      };
+    },
+  },
+  // 소방관 ③ 출동에서 돌아와: 방화복의 그을음을 닦고, 다 쓴 공기통을 충전대로 보내고, 채운 공기통을 차에 싣는다.
+  washdown: {
+    build(g) {
+      floor(g, 5.8, 4.2, '#e6e3dc');
+      label(g, '차고 · 세척대', 0, 2.0, -2.03, 1.6, 0.38);
+      const Y = 0.8;
+      box(g, 0, Y / 2, 0.3, 2.5, Y, 1.25, '#c9d3d6'); box(g, 0, Y - 0.02, 0.3, 2.6, 0.05, 1.35, '#e9eff0'); // 세척대
+      box(g, 0, Y + 0.035, 0.3, 1.5, 0.06, 1.0, KHAKI); for (const z of [0.0, 0.6]) box(g, 0, Y + 0.068, z, 1.5, 0.008, 0.07, GLOW); // 펼쳐 둔 방화복
+      for (const s of [-1, 1]) { const arm = box(g, s * 0.95, Y + 0.035, 0.05, 0.6, 0.06, 0.3, KHAKI); arm.rotation.y = s * 0.5; }
+      cyl(g, -1.0, Y + 0.1, 0.75, 0.13, 0.2, '#8fc6d8'); // 물통
+      const L = [-2.25, -0.85], R = [2.3, -0.85], R2 = [2.3, 0.75];
+      box(g, L[0], 0.3, L[1], 1.1, 0.6, 1.1, RED); box(g, L[0], 0.61, L[1], 1.14, 0.04, 1.14, CREAM); tag(g, '1호차', L[0], 1.5, L[1] - 0.45); // 소방차 뒤 발판
+      box(g, 2.3, 0.25, -0.05, 0.95, 0.5, 2.5, STEEL); box(g, 2.72, 0.75, -0.05, 0.08, 1.0, 2.5, '#a39e94'); tag(g, '충전대', 2.3, 1.45, -1.3); // 공기 충전대
+      for (const p of [R, R2]) box(g, p[0], 0.51, p[1], 0.6, 0.02, 0.6, '#8f8a80');
+      const used = tank('#d0584a'), fresh = tank('#4fa36b'); g.add(used, fresh);
+      const tool = cloth(); g.add(tool);
+      return {
+        rubY: Y + 0.075, focus: [0, 0.55, 0.3], zoom: 3.9, tool,
+        patches: [{ id: 'soot', y: Y + 0.072, color: '#4a443c', opacity: 0.7, dot: 0.1, reach: 0.26, blobs: [{ x: -0.4, z: 0.15, r: 0.3, n: 15 }, { x: 0.35, z: 0.5, r: 0.28, n: 13 }, { x: 0.3, z: -0.05, r: 0.18, n: 7 }, { x: -0.3, z: 0.6, r: 0.16, n: 6 }] }],
+        movers: [
+          { id: 'used', obj: used, from: L, to: R2, r: 0.55, y: 0.63, restY: 0.52, lift: 0.3 },
+          { id: 'fresh', obj: fresh, from: R, to: L, r: 0.6, y: 0.52, restY: 0.63, lift: 0.3 },
         ],
       };
     },

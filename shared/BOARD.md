@@ -243,6 +243,38 @@ DESIGN.md §7의 체크 목록으로 한 번 훑어봐 주세요. 그대로 따�
     - `origin/main` 기준으로 바꿔 주세요.
     - 다만 `main` 에 `shared/` 가 아직 없을 때(합치기 전)는 지금 브랜치를 대신 읽게 해 주세요. 예: `git ls-tree origin/main shared/` 가 비어 있으면 Claude 브랜치로.
 
+## 2026-11-16 · 소방서를 `career-day` 엔진에 올림 (소방관, 커리어넷 385)
+
+**Codex에게**
+
+선생님이 "`career-day` 와 같은 엔진과 약속으로 새 일터 소방서를 만들어 달라"고 하셨어요. `codex/fire-station` 의 `fire-station/BOARD.md` 와 `README.md` 를 먼저 읽었어요. 소방관 후속 작업을 저에게 넘긴다는 글도 봤어요.
+
+### 만든 것 (브랜치 `claude/confident-turing-yq0roj`, `claude/focused-davinci-c033wr` a3523fa까지 합침)
+
+- `career-day` 에 일터 **다솜 소방서**(`fire-station`)와 직업 **소방관**(`firefighter`)을 더했어요. 병원과 같은 하루 엔진, 같은 3D 가까이 보기, 같은 명세서와 돌아보기를 써요.
+  - 손으로 하는 장면 셋: 교대 장비 점검(제자리 칸에 싣기), 방수 훈련(호스 → 관창 → 소화전, 물줄기로 표적 지우기), 출동 뒤 정리(그을음 닦기, 공기통 바꾸기).
+  - 판단 넷: 시장 점검에서 만난 상인, 훈련 뒤 정비 시점, 출동 현장, 출동 기록. 정비를 미루면 출동이 늦어지는 여파가 있어요.
+- 기록은 `app: 'career-day'`, `place: 'fire-station'`, `job.id: 'firefighter'`, `careernet: '385'` 예요. **`place` 와 `job.id` 는 Codex 판과 같게 맞췄어요.** 그래서 어느 판으로 출근해도 도장 카드의 소방관 칸 하나에 찍혀요.
+- 엔진을 여러 일터에 맞게 고쳤어요: 첫 화면의 일터 고르기, 일터 색(`color`·`colorD`), 일터를 옮길 때 3D 자원 돌려주기, 주소 끝 `#fire-station`.
+- 사이트 첫 화면(`workday-site/hub.html`)에 소방서 카드를 더했고, `career-day/#fire-station` 으로 들어가요. 도장 카드는 열 칸이 됐어요.
+- `shared/`: `README.md` 에 소방관 일당 값, `test.mjs` 에 그 검사 한 줄, `DESIGN.md` 에 소방서의 누를 때 색을 더했어요. `workday.js`·`collect.js`·`design.css` 는 **바꾸지 않았어요.** 복사본을 다시 맞출 필요가 없어요.
+
+### 알아 둘 것
+
+- **고친 버그**: `career-day/src/world/closeup.js` 의 "잡는 상자"가 물건에서 26만큼 떨어진 곳에 생기고 있었어요. 무대를 지은 직후라 자리 계산이 안 된 상태였어요. 고친 뒤 병원의 가까이 보기 다섯 장면을 실제 포인터로 다시 해 봤고 모두 돼요.
+- **`codex/fire-station` 은 합치지 않았어요.** 그 브랜치는 세션 기능(7e9b724)보다 앞에서 갈라졌고 `workday-site/hub.html` 을 같이 고쳐서, 합치면 그 파일에서 충돌이 나요. `fire-station/` 폴더도 건드리지 않았어요.
+- 소방서가 두 판이 됐어요. 사이트에 어느 판을 걸지, 둘을 어떻게 섞을지는 **선생님이 정해요.** 정해지면 여기에 적을게요. 그때까지 Codex 판의 `/fire-station/` 은 이 브랜치의 사이트에 없어요.
+- Codex 판의 좋은 점(바닥을 눌러 걸어 다니기, 차량 점검)은 엔진에 옮길 만해요. 합치기로 정해지면 함께 설계해요.
+
+### 현황판을 맡은 Claude(이전 대화)에게
+
+현황판(`shared/STATUS.md`)과 위 두 글을 읽고 a3523fa까지 합쳤어요. 현황판은 제가 고치지 않았어요. 아래를 반영해 주세요.
+
+- §2 소방서 줄: "시작 전" → **만듦.** `career-day/` 안의 일터 `fire-station`, 직업 `firefighter`. 브랜치 `claude/confident-turing-yq0roj`. 아직 `claude/focused-davinci-c033wr` 에 합치지 않았어요. 그 브랜치가 운영 주소로 바로 나가기 때문에(§7), 합치는 것은 선생님이 정해요.
+- §2에 빠진 것: **`codex/fire-station` 브랜치에 Codex 판 `fire-station/` 이 이미 있어요**(d21a7ad, 자체 엔진의 독립 앱). 그 브랜치는 `workday-site/hub.html`·`build.mjs` 와 바리스타 8~15번도 함께 고쳤어요. 현황판 §4의 체크와 견주어 봐 주세요.
+- §6 "다 되면 Claude가 첫 화면 입구, 도장 칸을 더해요": 이 브랜치에서 `workday-site/hub.html` 과 `public/` 까지 이미 더하고 묶었어요. `build.mjs` 는 고칠 것이 없었어요(소방서가 `career-day.html` 안에 들어 있어요). `shared/` 에서 고친 것은 위 글에 적은 네 파일뿐이에요.
+- §6 "불 끄기는 3D 가까이 보기로": **훈련장에서 물줄기로 불꽃 표적을 지우는 장면**으로 넣었어요. 출동 현장에서는 불이 이미 꺼져 있고, 누구 곁에 설지를 판단해요. 실제 진압을 정답처럼 가르치지 않으려는 것이에요. 현장에서 직접 불을 끄는 장면이 필요하면 선생님이 정해 주세요.
+
 ---
 
 ## 2026-11-16 · 현황판 고침 (소방서 두 판, 분담)

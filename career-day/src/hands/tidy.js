@@ -90,3 +90,54 @@ export const rehabtidy = tidy({
   miss: (id) => `앗, 그 자리가 아니에요. ${THING[id]} ${SHELF[id]}에 놓아요. 정리대의 이름표를 봐요.`,
   good: 'neat', bad: 'redo',
 });
+
+// ── 소방관 ──
+const GEAR = { helmet: '헬멧은', tank: '공기호흡기는', lantern: '랜턴은' };
+const GEARSLOT = { helmet: '헬멧', tank: '공기호흡기', lantern: '랜턴' };
+
+export const gearcheck = tidy({
+  stage: 'gearcheck', title: '교대 점검', hint: '위쪽 3D 화면에서 직접 해요. 장비는 끌어서 차의 제자리 칸에 싣고, 바닥 물기는 손가락으로 문질러요.',
+  start: '깔개 위의 장비를 잡아, 이름표가 같은 칸에 실어요.',
+  items: [
+    { id: 'helmet', label: '헬멧을 제자리 칸에', kind: 'move' },
+    { id: 'tank', label: '공기호흡기를 제자리 칸에', kind: 'move' },
+    { id: 'lantern', label: '랜턴을 제자리 칸에', kind: 'move' },
+    { id: 'floor', label: '차고 바닥의 물기 닦기', kind: 'rub', done: '바닥 물기를 닦았어요. 뛰어나가도 미끄럽지 않아요.' },
+  ],
+  miss: (id) => `앗, 그 칸이 아니에요. ${GEAR[id]} '${GEARSLOT[id]}' 칸에 실어요. 칸 위의 이름표를 봐요.`,
+  good: 'neat', bad: 'redo',
+});
+
+export const hosedrill = tidy({
+  stage: 'drill', title: '방수 훈련', hint: '위쪽 3D 화면에서 직접 해요. 장비는 끌어서 초록 원에 놓고, 물이 나오면 표적 위를 손가락으로 문질러요.',
+  start: '깔개 위의 장비로 물을 보낼 준비를 해요. 무엇부터 할까요?',
+  items: [
+    { id: 'hose', label: '말아 둔 호스를 소화전 옆에 펴기', kind: 'move', done: '호스를 폈어요. 이제 끝에 관창을 끼워요.' },
+    { id: 'nozzle', label: '호스 끝에 관창 끼우기', kind: 'move', done: '관창을 끼웠어요. 이제 소화전을 열 수 있어요.' },
+    { id: 'valve', label: '손잡이로 소화전 열기', kind: 'move', done: '물이 들어와요! 표적 위를 문질러 물줄기를 보내요.' },
+    { id: 'fire', label: '물줄기로 표적의 불꽃 표시 지우기', kind: 'rub', done: '두 표적의 불꽃 표시를 모두 지웠어요.' },
+  ],
+  order: ['hose', 'nozzle', 'valve', 'fire'],
+  early: {
+    nozzle: '호스부터 펴요. 관창을 끼울 호스 끝이 아직 없어요.',
+    valve: '잠깐! 관창부터 끼워요. 물이 먼저 들어오면 호스 끝이 크게 흔들려 위험해요.',
+    fire: '아직 물이 나오지 않아요. 호스, 관창, 소화전 순서로 준비해요.',
+  },
+  good: 'steady', bad: 'redo',
+});
+
+export const washdown = tidy({
+  stage: 'washdown', title: '다음 출동 준비', hint: '위쪽 3D 화면에서 직접 해요. 그을음은 손가락으로 문지르고, 공기통은 끌어서 옮겨요.',
+  start: '세척대에 방화복을 펼쳤어요. 무엇부터 할까요?',
+  items: [
+    { id: 'soot', label: '방화복의 그을음 닦기', kind: 'rub', done: '그을음을 닦아 냈어요. 이제 공기통을 바꿔요.' },
+    { id: 'used', label: '다 쓴 공기통(빨간 띠)을 충전대로', kind: 'move', done: '다 쓴 통을 충전대에 올렸어요. 차에 자리가 비었어요.' },
+    { id: 'fresh', label: '채운 공기통(초록 띠)을 차에 싣기', kind: 'move', done: '채운 통을 실었어요.' },
+  ],
+  order: ['soot', 'used', 'fresh'],
+  early: {
+    used: '잠깐! 그을음부터 닦아요. 묻은 채로 만지면 차와 충전대까지 번져요.',
+    fresh: '다 쓴 통을 먼저 내려야 채운 통을 실을 자리가 나요.',
+  },
+  good: 'ready', bad: 'redo',
+});

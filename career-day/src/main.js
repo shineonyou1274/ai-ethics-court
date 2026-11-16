@@ -46,15 +46,18 @@ const save = () => { saved.current = S && !S.closed ? S : null; store.set(saved)
 let world = null, worldPlace = null;
 function ensureWorld(placeId) {
   if (worldPlace === placeId) return world;
+  world?.destroy(); world = null;
   const old = $('#gl'), canvas = old.cloneNode(false); old.replaceWith(canvas);
-  worldPlace = placeId;
+  worldPlace = placeId; $('.fallback')?.remove();
   try { world = createWorld(canvas, $('#stage'), PLACES[placeId]); } catch (e) { console.error(e); world = null; }
-  if (!world) { canvas.classList.add('off'); if (!$('.fallback')) $('#stage').insertAdjacentHTML('afterbegin', '<div class="fallback"><div><b>🏥</b>이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</div></div>'); }
+  if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${PLACES[placeId].icon}</b>이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</div></div>`); }
   return world;
 }
 
 // ── 지금 하는 하루 ──
 let S = null, J = null;
+// 첫 화면에서 보고 있는 일터. 주소 끝에 #fire-station 처럼 일터 이름이 오면 그 일터부터 보여 준다 (사이트 첫 화면의 단추가 쓴다).
+let focusPlace = PLACES[location.hash.slice(1)] ? location.hash.slice(1) : PLACES[saved.place] ? saved.place : 'hospital';
 // 함께 올린 사이트(/career-day/) 안에서 열렸으면 첫 화면으로 돌아가는 길을 보여 준다. 파일 하나로 열면 숨긴다.
 const inSite = /\/career-day\/(index\.html)?$/.test(location.pathname);
 const wageOf = (job) => CAREERNET[job.careernet];
@@ -88,8 +91,8 @@ function drawHud() {
   $('#money').textContent = `🪙 ${won(S.closed ? payslip(S, J, annual()).total : earnedSoFar(annual(), workedSoFar(), shiftMin(J)))}`;
 }
 
-// 밀린 일만큼 기다리는 사람. 쉬는 곳, 탈의실, 수술실, 퇴근 뒤에는 따라오지 않는다.
-const waiting = () => (S.closed || ['lounge', 'locker', 'theatre'].includes(sceneOf(S, J).place) ? 0 : Math.ceil(S.delay / 8));
+// 밀린 일만큼 기다리는 사람. 쉬는 곳, 탈의실처럼 일터가 정한 조용한 곳(quiet)과 퇴근 뒤에는 따라오지 않는다.
+const waiting = () => (S.closed || PLACES[J.place].quiet.includes(sceneOf(S, J).place) ? 0 : Math.ceil(S.delay / 8));
 
 // 바뀐 값 꼬리표와 3D 반응
 function chips(d = {}) {
@@ -113,12 +116,14 @@ function react(d = {}) {
 // ── 시작 화면 ──
 function title() {
   S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {};
-  const w0 = ensureWorld('hospital'); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
+  const P = PLACES[focusPlace]; paintPlace(P);
+  const w0 = ensureWorld(P.id); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
   const cur = saved.current && jobById(saved.current.job) ? saved.current : null;
   diary = loadMine();
   const been = new Set(diary.map((r) => r.job.id));
   const sum = walletSummary(diary);
-  const stamped = JOBS.filter((j) => been.has(j.id)).length;
+  const here = JOBS.filter((j) => j.place === P.id), stamped = here.filter((j) => been.has(j.id)).length;
+  const left = JOBS.filter((j) => !been.has(j.id)).length;
   const ask = needsWhoCheck();
   view(`
     ${ask ? whoCheck() : ''}
@@ -128,9 +133,10 @@ function title() {
     ${diary.length ? wallet(sum) : ''}
     ${cur && !ask ? `<button class="btn dark" id="resume">${esc(jobById(cur.job).name)}의 하루 이어 하기</button>` : ''}
     <button class="btn" id="draw">오늘의 직업 뽑기</button>
-    <h3>직업 도장 카드 · ${esc(PLACES.hospital.name)} <span class="stampCount">${stamped} / ${JOBS.length}</span></h3>
-    <div class="jobs">${JOBS.map((j) => `<button class="job ${been.has(j.id) ? 'been' : ''}" data-id="${j.id}"><b><i style="background:${j.color}"></i>${esc(j.name)}</b><small>${esc(j.title)}<br>${j.shift.start}–${j.shift.end}</small>${been.has(j.id) ? '<span class="stamp" aria-label="다녀옴">출근<br>완료</span>' : ''}</button>`).join('')}</div>
-    <p class="fine">${stamped < JOBS.length ? `아직 가 보지 않은 일터가 ${JOBS.length - stamped}곳 있어요. 평소라면 고르지 않았을 직업일수록 새로 알게 되는 게 많아요.` : '모아 병원의 여덟 일터에 모두 출근했어요!'}</p>
+    <div class="placeTabs" role="group" aria-label="일터 고르기">${Object.values(PLACES).map((p) => `<button class="placeTab ${p.id === P.id ? 'on' : ''}" data-place="${p.id}" aria-pressed="${p.id === P.id}"><span aria-hidden="true">${p.icon}</span> ${esc(p.name)}</button>`).join('')}</div>
+    <h3>직업 도장 카드 · ${esc(P.name)} <span class="stampCount">${stamped} / ${here.length}</span></h3>
+    <div class="jobs">${here.map((j) => `<button class="job ${been.has(j.id) ? 'been' : ''}" data-id="${j.id}"><b><i style="background:${j.color}"></i>${esc(j.name)}</b><small>${esc(j.title)}<br>${j.shift.start}–${j.shift.end}</small>${been.has(j.id) ? '<span class="stamp" aria-label="다녀옴">출근<br>완료</span>' : ''}</button>`).join('')}</div>
+    <p class="fine">${left ? `아직 해 보지 않은 직업이 ${left}개 있어요. 평소라면 고르지 않았을 직업일수록 새로 알게 되는 게 많아요.` : '모든 직업의 하루를 보냈어요! 가장 끌렸던 순간을 다시 떠올려 봐요.'}</p>
     ${diary.length ? '<button class="btn ghost" id="send">선생님께 출근 기록 보내기</button>' : ''}
     <p class="fine">일당은 커리어넷 직업정보의 평균 연봉(중앙값)으로 계산한 세전 금액이에요. 등장인물과 기록은 모두 가상이에요. 진행 기록은 이 기기에만 남아요.</p>
     <button class="link" id="teacher">선생님용 · 출근 기록 모으기</button>
@@ -142,6 +148,13 @@ function title() {
   on('#resume', () => { S = cur; J = jobById(S.job); begin(); });
   on('#draw', () => { const pool = JOBS.filter((j) => !been.has(j.id)); const list = pool.length ? pool : JOBS; startJob(list[Math.floor(Math.random() * list.length)]); });
   on('.job', (b) => startJob(jobById(b.dataset.id)));
+  on('.placeTab', (b) => { if (b.dataset.place === focusPlace) return; focusPlace = b.dataset.place; saved.place = focusPlace; store.set(saved); title(); });
+}
+
+// 일터 색: 큰 버튼과 작은 머리글에만 쓴다 (shared/DESIGN.md §1). 바탕은 칠하지 않는다.
+function paintPlace(p) {
+  const r = document.documentElement.style;
+  r.setProperty('--coral', p.color); r.setProperty('--coral-d', p.colorD); r.setProperty('--place', p.color); r.setProperty('--place-d', p.colorD);
 }
 
 // 지갑: 다녀온 직업과 일한 시간을 앞에, 일당 합계는 작게 (금액으로 직업을 줄 세우지 않게)
@@ -183,6 +196,7 @@ function openTeacher() {
 function startJob(job) { J = job; S = newDay(job); shown = {}; begin(); }
 function begin() {
   document.documentElement.style.setProperty('--role', J.color);
+  focusPlace = J.place; paintPlace(PLACES[J.place]);
   ensureWorld(J.place); $('#gauges').innerHTML = ''; shown = {};
   if (S.closed) return S.slipSeen ? reflect() : slip();
   scene();
@@ -445,7 +459,7 @@ sb.addEventListener('click', () => { toggleSound(); paintSound(); startMusic(); 
 paintSound();
 panel.addEventListener('click', (e) => { if (e.target.closest('button')) { startMusic(); sfx('tap'); } });
 
-// 주소 끝으로 바로 들어오기: #teacher 는 교사 기록 모으기, #send 는 선생님께 보내기 (사이트 첫 화면의 단추가 쓴다)
+// 주소 끝으로 바로 들어오기: #teacher 는 교사 기록 모으기, #send 는 선생님께 보내기, #fire-station 같은 일터 이름은 그 일터의 첫 화면 (사이트 첫 화면의 단추가 쓴다)
 title();
 if (location.hash === '#teacher') openTeacher();
 else if (location.hash === '#send') openSend(title);

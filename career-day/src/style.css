@@ -275,3 +275,8 @@ details.bubble { overflow-x: auto; } details summary { cursor: pointer; }
 .who p { margin: 6px 0 4px; font-size: 15.5px; }
 .who .btn { margin-top: 10px; font-size: 17px; }
 .who .twin .btn { margin-top: 8px; }
+
+/* 첫 화면의 일터 고르기 (일터가 둘 이상일 때) */
+.placeTabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.placeTab { flex: 1 1 140px; padding: 10px 12px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); font: 18px "Jua", "Gowun Dodum", sans-serif; color: var(--ink); }
+.placeTab.on { border-color: var(--coral); box-shadow: 0 4px 0 var(--coral-d); background: #fff6f0; }
