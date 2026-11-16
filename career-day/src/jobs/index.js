@@ -8,6 +8,7 @@ import admin from './admin.js';
 import pharmacist from './pharmacist.js';
 import physio from './physio.js';
 import cleaner from './cleaner.js';
+import firefighter from './firefighter.js';
 
-export const JOBS = [doctor, nurse, labtech, radiographer, admin, pharmacist, physio, cleaner];
+export const JOBS = [doctor, nurse, labtech, radiographer, admin, pharmacist, physio, cleaner, firefighter];
 export const jobById = (id) => JOBS.find((j) => j.id === id);

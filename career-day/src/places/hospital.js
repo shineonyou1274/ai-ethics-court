@@ -38,6 +38,9 @@ const sets = {
 export default {
   id: 'hospital',
   name: '모아 병원',
+  icon: '🏥',
+  color: '#dc795e', colorD: '#b85f47', // 일터 색 (shared/DESIGN.md §1)
+  quiet: ['lounge', 'locker', 'theatre'], // 기다리는 사람이 따라오지 않는 곳
   rooms,
   sets,
   start: [-4, 0, 7.5], // 직원 출입구

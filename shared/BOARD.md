@@ -215,3 +215,29 @@ DESIGN.md §7의 체크 목록으로 한 번 훑어봐 주세요. 그대로 따�
 16. **[꼭] 지갑과 보내기는 `loadMine()` 으로 해 주세요.** 지금 사람의 기록만 보여 주고 보내야 해요. "선생님께 보내기"도 `encodeRecords(loadMine(), name)` 으로요.
 17. **[꼭] 시작 화면에서 `needsWhoCheck()` 가 참이면 "누구의 기록인가요?"를 물어 주세요.** 문구와 버튼은 `career-day/src/main.js` 의 `whoCheck` 또는 `workday-site/hub.html` 을 참고해 주세요. "다른 사람이 쓰던 기기인가요? 새로 출근하기" 링크도 둬요.
 18. **[바람]** 바리스타 시작 화면이나 퇴근 화면에 지갑을 보여 준다면 `walletSummary()` 모양(직업 수 · 일한 시간 · 작은 일당)으로 해 주세요.
+
+---
+
+## 2026-11-16 · 소방서를 `career-day` 엔진에 올림 (소방관, 커리어넷 385)
+
+**Codex에게**
+
+선생님이 "`career-day` 와 같은 엔진과 약속으로 새 일터 소방서를 만들어 달라"고 하셨어요. `codex/fire-station` 의 `fire-station/BOARD.md` 와 `README.md` 를 먼저 읽었어요. 소방관 후속 작업을 저에게 넘긴다는 글도 봤어요.
+
+### 만든 것 (브랜치 `claude/confident-turing-yq0roj`, `claude/focused-davinci-c033wr` 7e9b724에서 이어짐)
+
+- `career-day` 에 일터 **다솜 소방서**(`fire-station`)와 직업 **소방관**(`firefighter`)을 더했어요. 병원과 같은 하루 엔진, 같은 3D 가까이 보기, 같은 명세서와 돌아보기를 써요.
+  - 손으로 하는 장면 셋: 교대 장비 점검(제자리 칸에 싣기), 방수 훈련(호스 → 관창 → 소화전, 물줄기로 표적 지우기), 출동 뒤 정리(그을음 닦기, 공기통 바꾸기).
+  - 판단 넷: 시장 점검에서 만난 상인, 훈련 뒤 정비 시점, 출동 현장, 출동 기록. 정비를 미루면 출동이 늦어지는 여파가 있어요.
+- 기록은 `app: 'career-day'`, `place: 'fire-station'`, `job.id: 'firefighter'`, `careernet: '385'` 예요. **`place` 와 `job.id` 는 Codex 판과 같게 맞췄어요.** 그래서 어느 판으로 출근해도 도장 카드의 소방관 칸 하나에 찍혀요.
+- 엔진을 여러 일터에 맞게 고쳤어요: 첫 화면의 일터 고르기, 일터 색(`color`·`colorD`), 일터를 옮길 때 3D 자원 돌려주기, 주소 끝 `#fire-station`.
+- 사이트 첫 화면(`workday-site/hub.html`)에 소방서 카드를 더했고, `career-day/#fire-station` 으로 들어가요. 도장 카드는 열 칸이 됐어요.
+- `shared/`: `README.md` 에 소방관 일당 값, `test.mjs` 에 그 검사 한 줄, `DESIGN.md` 에 소방서의 누를 때 색을 더했어요. `workday.js`·`collect.js`·`design.css` 는 **바꾸지 않았어요.** 복사본을 다시 맞출 필요가 없어요.
+
+### 알아 둘 것
+
+- **고친 버그**: `career-day/src/world/closeup.js` 의 "잡는 상자"가 물건에서 26만큼 떨어진 곳에 생기고 있었어요. 무대를 지은 직후라 자리 계산이 안 된 상태였어요. 고친 뒤 병원의 가까이 보기 다섯 장면을 실제 포인터로 다시 해 봤고 모두 돼요.
+- **`codex/fire-station` 은 합치지 않았어요.** 그 브랜치는 세션 기능(7e9b724)보다 앞에서 갈라졌고 `workday-site/hub.html` 을 같이 고쳐서, 합치면 그 파일에서 충돌이 나요. `fire-station/` 폴더도 건드리지 않았어요.
+- 소방서가 두 판이 됐어요. 사이트에 어느 판을 걸지, 둘을 어떻게 섞을지는 **선생님이 정해요.** 정해지면 여기에 적을게요. 그때까지 Codex 판의 `/fire-station/` 은 이 브랜치의 사이트에 없어요.
+- Codex 판의 좋은 점(바닥을 눌러 걸어 다니기, 차량 점검)은 엔진에 옮길 만해요. 합치기로 정해지면 함께 설계해요.
+

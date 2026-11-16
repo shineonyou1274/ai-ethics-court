@@ -56,6 +56,7 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
     // 칸이 있는 물건은 칸 높이에서 끈다. 그래야 선반 위를 겨누면 물건도 선반 위로 따라간다.
     for (const mv of built.movers || []) if (mv.slot) { const sl = slots.find((x) => x.id === mv.slot); mv.to = sl.at; mv.r = sl.r; mv.ringY = sl.y + 0.01; mv.dragY ??= sl.y; }
     // 얇은 물건도 손가락으로 잡기 쉽게, 보이지 않는 넉넉한 잡는 상자를 붙인다
+    g.updateMatrixWorld(true); // 무대를 방금 지어서 아직 한 번도 그리지 않았다. 자리부터 계산해 두어야 상자가 물건 위에 생긴다
     for (const mv of built.movers || []) {
       mv.obj.updateMatrixWorld(true);
       const bb = new T.Box3().setFromObject(mv.obj), size = bb.getSize(new T.Vector3()), mid = bb.getCenter(new T.Vector3()).sub(mv.obj.getWorldPosition(new T.Vector3()));

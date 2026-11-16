@@ -12,6 +12,7 @@ ok(salaryDay(3004, 480).hourly === 11980, '바리스타(커리어넷 180, 3,004�
 ok(salaryDay(3004, 480).total === 95840, '바리스타 8시간 기본급 95,840원');
 ok(salaryDay(3004, 510).overtime === Math.round(11980 * 1.5 * 0.5 / 10) * 10, '30분 연장은 1.5배');
 ok(hourlyOf(2200).hourly === MIN_WAGE.hourly && hourlyOf(2200).floored, '자료 시급이 최저시급보다 낮으면 최저시급');
+ok(salaryDay(4000, 480).hourly === 15950 && salaryDay(4000, 480).total === 127600, '소방관(커리어넷 385, 4,000만 원) 시급 15,950원, 8시간 기본급 127,600원');
 
 console.log('예시 기록');
 const sample = makeRecord({

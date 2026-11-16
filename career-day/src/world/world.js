@@ -30,12 +30,12 @@ export function createWorld(canvas, el, place) {
   const { people } = place.build(scene);
   const architecture = scene.children.filter((o) => !o.isLight);
   let player = person({ coat: '#e0a58b', seed: 2 }); player.root.position.set(...place.start); scene.add(player.root);
-  const beacon = new T.Mesh(new T.RingGeometry(0.45, 0.55, 32), new T.MeshBasicMaterial({ color: '#db9273', transparent: true, opacity: 0.7, side: T.DoubleSide }));
+  const beacon = new T.Mesh(new T.RingGeometry(0.45, 0.55, 32), new T.MeshBasicMaterial({ color: place.color || '#db9273', transparent: true, opacity: 0.7, side: T.DoubleSide })); // 내 자리 표시는 일터 색
   beacon.rotation.x = -Math.PI / 2; beacon.position.y = 0.05; scene.add(beacon);
 
   let yaw = 0.58, targetYaw = 0.58, zoom = 1, targetZoom = 1, night = 0, targetNight = 0, height = 23, targetHeight = 23;
   const focus = new T.Vector3(), targetFocus = new T.Vector3(0, 0, 1);
-  let setGroup = null, setName = null, here = null, last = 0, visible = true;
+  let setGroup = null, setName = null, here = null, last = 0, visible = true, dead = false;
   const crowd = []; const sprites = [];
   // 가까이 보기(문질러 닦기, 집어 옮기기) 동안에는 병원 모형과 사람들을 감춘다
   const close = makeCloseup({
@@ -67,9 +67,10 @@ export function createWorld(canvas, el, place) {
     const aspect = w / h; let halfW = 12.8; if (aspect < 0.9) halfW = 11.7; const halfH = halfW / aspect;
     camera.left = -halfW; camera.right = halfW; camera.top = halfH; camera.bottom = -halfH; camera.updateProjectionMatrix();
   }
-  new ResizeObserver(resize).observe(el); resize();
+  const ro = new ResizeObserver(resize); ro.observe(el); resize();
 
   function animate(now) {
+    if (dead) return;
     requestAnimationFrame(animate);
     if (!visible || now - last < 32) return;
     const dt = Math.min(0.25, (now - last) / 1000); last = now; const t = now / 1000;
@@ -154,5 +155,7 @@ export function createWorld(canvas, el, place) {
     closeup(name, on) { return close.start(name, on); },
     closeEnd() { close.end(); },
     closeProject(x, y, z) { return close.project(x, y, z); },
+    // 다른 일터로 옮길 때: 그리기를 멈추고 3D 자원을 돌려준다 (일터마다 무대를 새로 짓기 때문)
+    destroy() { dead = true; close.end(); ro.disconnect(); dispose(scene); renderer.dispose(); renderer.forceContextLoss?.(); },
   };
 }
