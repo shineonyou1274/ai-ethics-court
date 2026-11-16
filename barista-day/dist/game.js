@@ -1,3 +1,4 @@
+import {currentSession} from './shared/workday.js';
 import {renderWorkdayEnd, clockLabel, earnedLabel, hudClock} from './career.mjs?v=split18';
 import * as T from './vendor/three.module.min.js';
 import {Shift,orders} from './shift.mjs?v=career14';
@@ -9,6 +10,7 @@ import {Workbench} from './workbench.mjs?v=reuse11';
 import {addFace,animateSip} from './customer-animation.mjs';
 const productionIds=new Set(['cup','grinder','machine','water','milk','oat','steam']);
 const $=id=>document.getElementById(id),money=n=>'₩'+n.toLocaleString('ko-KR'),state=new Shift();
+state.workdaySession=currentSession().id;
 let renderer;try{renderer=new T.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});}catch(e){$('error').hidden=false;location.replace('./fallback.html');throw e}
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize($('world').clientWidth,$('world').clientHeight,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.3;
 const scene=new T.Scene();scene.background=new T.Color('#cddbd4');scene.fog=new T.Fog('#d9d3bd',18,36);const camera=new T.OrthographicCamera(-10,10,12,-12,.1,80);scene.add(camera);camera.position.set(0,19,17);camera.lookAt(0,0,-.3);let yaw=0,pitch=0;
