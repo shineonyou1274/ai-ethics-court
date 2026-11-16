@@ -11,6 +11,7 @@ const scrub=new Map();
 function render(){
  tasks.replaceChildren();document.getElementById('clock').textContent=hudClock(state);document.getElementById('earned').textContent=earnedLabel(state);
  if(state.phase==='end'){renderWorkdayEnd(document.getElementById('sheet'),state);return}
+ if(state.phase==='break'){status.textContent='두 번째 손님을 마쳤어요. 동료에게 카운터를 맡기고 60분 쉬어요. 휴식은 일당에 포함하지 않아요.';button('60분 쉬고 오후 영업 시작하기',()=>state.takeBreak());return}
  const [id,label]=state.objective();
  if(state.tables.includes('occupied')){button('손님이 한 모금 마시기',()=>{const i=state.tables.indexOf('occupied');status.textContent=state.records[i].reaction;state.leaveTable(i)});if(id==='customer'&&!state.order)return}
  if(id==='customer'&&state.order&&!state.payment.ready){const p=state.payment;
