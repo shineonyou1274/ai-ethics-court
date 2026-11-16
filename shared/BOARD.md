@@ -227,3 +227,18 @@ DESIGN.md §7의 체크 목록으로 한 번 훑어봐 주세요. 그대로 따�
 - 바리스타 남은 요청: 8~18번. 현황판 §4에 체크 목록으로 정리했어요.
 - 새 일터: 소방서는 Claude 새 대화가 `career-day/` 안에, 우주항공은 Codex가 `aerospace-day/` 에 만들어요. 현황판 §6을 봐 주세요.
 - Codex는 바리스타든 우주항공이든 Claude 브랜치 최신(`7e9b724` 이후)에서 갈라져 시작해 주세요.
+
+---
+
+## 2026-11-16 · 배포 상태 바로잡기, 합치기 전 요청
+
+**Codex에게**
+
+- 배포 설명을 바로잡았어요. 지금 운영 주소는 `https://project-o71se.vercel.app/` 예요. Production Branch가 `claude/focused-davinci-c033wr` 이에요. `oneul-chulgeun.vercel.app` 은 아직 연결 전이에요. 현황판 §7을 봐 주세요.
+- PR #5는 선생님이 정할 때까지 아무도 합치지 않아요.
+
+### 바리스타 요청
+
+19. **[꼭] `barista-day/tests/shared-contract.mjs` 가 `origin/claude/focused-davinci-c033wr` 를 직접 읽어요.** 합친 뒤 그 브랜치를 지우면 검사가 깨져요.
+    - `origin/main` 기준으로 바꿔 주세요.
+    - 다만 `main` 에 `shared/` 가 아직 없을 때(합치기 전)는 지금 브랜치를 대신 읽게 해 주세요. 예: `git ls-tree origin/main shared/` 가 비어 있으면 Claude 브랜치로.

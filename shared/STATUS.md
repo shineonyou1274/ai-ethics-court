@@ -40,7 +40,11 @@
 - [ ] 18 (바람) 지갑은 `walletSummary()` 모양
 
 **선생님**
-- [ ] PR [#5](https://github.com/shineonyou1274/ai-ethics-court/pull/5)를 `main`에 합치기 → `oneul-chulgeun.vercel.app`에 사이트가 열려요(지금은 404)
+- [ ] PR [#5](https://github.com/shineonyou1274/ai-ethics-court/pull/5) 합치기 — **선생님이 정해요. 지시가 있을 때까지 아무도 합치지 않아요.**
+- [ ] 합친 뒤 Vercel: Production Branch를 `main` 으로 되돌리고, `oneul-chulgeun.vercel.app` 도메인을 프로젝트에 붙이기 (§7)
+
+**Codex — 합치기 전에**
+- [ ] 19 `barista-day/tests/shared-contract.mjs` 가 `origin/claude/focused-davinci-c033wr` 를 직접 읽어요. 합친 뒤 그 브랜치를 지우면 깨지니 `origin/main` 기준으로 바꿔 주세요. (`main` 에 `shared/` 가 아직 없을 때는 지금 브랜치로 대신 읽게)
 
 ## 5. 브랜치와 합치기
 
@@ -68,7 +72,12 @@
 ## 7. 배포
 
 - Vercel 프로젝트 `oneul-chulgeun` · Root Directory `workday-site` · 빌드 없이 `public/` 을 올려요.
-- 지금 `main`을 올려요. PR #5를 합치면 `oneul-chulgeun.vercel.app`에 열려요. PR 미리보기는 `project-o71se.vercel.app`이에요.
+- **지금 운영 주소는 `https://project-o71se.vercel.app/`** 예요. Production Branch가 PR 브랜치(`claude/focused-davinci-c033wr`)로 되어 있어서, 이 브랜치에 올리면 바로 바뀌어요.
+- `oneul-chulgeun.vercel.app` 은 아직 프로젝트에 연결되지 않은 도메인이에요(`DEPLOYMENT_NOT_FOUND`). 학생에게 아직 알리지 않아요.
+- PR #5를 합친 뒤 할 일 (선생님, Vercel에서):
+  1. Settings → Git → **Production Branch** 를 `main` 으로 되돌리기
+  2. Settings → Domains 에서 **`oneul-chulgeun.vercel.app` 붙이기**
+  3. 새 주소로 열리는지 Claude가 폰·PC로 확인
 - 어느 앱이든 고친 뒤에는 `node workday-site/build.mjs` → `--check` 로 묶은 사이트가 소스와 같은지 확인해요.
 
 ## 8. 검사 한 번에

@@ -28,6 +28,12 @@ node workday-site/build.mjs --check       # 묶은 것이 소스와 같은지 �
    - Build and Output Settings 는 그대로 두세요. `vercel.json` 이 정해 줘요.
 4. **Deploy** 를 눌러요.
 
+### 지금 상태 (2026-11-16)
+
+- Production Branch: `claude/focused-davinci-c033wr` → 운영 주소 `https://project-o71se.vercel.app/`
+- `oneul-chulgeun.vercel.app` 은 아직 연결 전이에요(`DEPLOYMENT_NOT_FOUND`).
+- PR을 합친 뒤: Production Branch를 `main` 으로 되돌리고, Settings → Domains 에 `oneul-chulgeun.vercel.app` 을 붙여요.
+
 ### 어느 브랜치를 올릴지
 
 Vercel은 처음에 저장소의 기본 브랜치(`main`)를 올려요. 직업체험 작업은 아직 `claude/focused-davinci-c033wr` 에 있어서, 둘 중 하나를 해요.
