@@ -49,7 +49,7 @@ function ensureWorld(placeId) {
   world?.destroy(); world = null;
   const old = $('#gl'), canvas = old.cloneNode(false); old.replaceWith(canvas);
   worldPlace = placeId; $('.fallback')?.remove();
-  try { world = createWorld(canvas, $('#stage'), PLACES[placeId]); } catch (e) { console.error(e); world = null; }
+  try { world = createWorld(canvas, $('#stage'), PLACES[placeId]); } catch (e) { console.warn('3D 일터를 띄우지 못해 글과 버튼으로 진행해요.', e); world = null; }
   if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${PLACES[placeId].icon}</b>이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</div></div>`); }
   return world;
 }
@@ -217,6 +217,7 @@ function scene() {
   unmount?.(); unmount = null;
   $('#app').classList.toggle('handsOn', sc.kind === 'hands' && !sc.closeup);
   $('#app').classList.toggle('closeOn', sc.kind === 'hands' && !!sc.closeup && !!world);
+  world?.resize(); // 3D 칸의 크기를 먼저 정한 뒤 장면을 그린다 (작게 그렸다가 커지지 않게)
   ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
 }
 const goNext = () => { next(S, J); save(); scene(); };

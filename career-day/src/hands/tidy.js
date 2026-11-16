@@ -25,7 +25,7 @@ export function tidy(def) {
       ui.msg(mistakes ? '다시 바로잡아 모두 마쳤어요.' : '모두 마쳤어요. 다음 사람이 바로 쓸 수 있어요.');
       done(mistakes ? def.bad : def.good, { mistakes });
     };
-    const complete = (id) => { if (!left.has(id)) return; left.delete(id); ui.done(id); sfx('pop'); act('work'); if (item(id).done) ui.msg(item(id).done); finish(); };
+    const complete = (id) => { if (!left.has(id)) return; left.delete(id); ui.done(id); sfx('pop'); act('work'); if (item(id).done) { ui.msg(item(id).done); warned = Date.now() + 1500; } finish(); }; // 마친 안내를 읽을 틈을 준다. 3초 동안은 '아직 안 돼요' 안내가 덮지 않는다
     const early = (id, count) => {
       if (count) { mistakes++; sfx('bad'); }
       if (count || Date.now() - warned > 1500) { warned = Date.now(); ui.msg(def.early?.[id] || '먼저 해야 할 일이 있어요.', true); }

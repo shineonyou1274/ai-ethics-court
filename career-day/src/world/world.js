@@ -111,6 +111,7 @@ export function createWorld(canvas, el, place) {
 
   const texCache = {};
   return {
+    resize, // 칸 크기가 바뀐 직후 바로 맞춰 그릴 때 (보통은 저절로 맞춘다)
     rotate(d) { targetYaw = Math.max(-1.1, Math.min(1.25, targetYaw + d * 0.25)); },
     zoom(d) { targetZoom = Math.max(0.75, Math.min(2.6, targetZoom + d * 0.15)); },
     // 내 캐릭터 옷 바꾸기. dress: casual 이면 사복, 아니면 직업의 근무복

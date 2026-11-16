@@ -233,7 +233,7 @@ export const CLOSEUPS = {
       floor(g, 5.8, 4.2, '#e4e2da');
       label(g, '훈련장', 1.9, 2.0, -2.03, 1.1, 0.38);
       hydrant(g, -2.2, -1.3); cone(g, -2.6, 0.2); cone(g, -2.6, 1.7);
-      for (const [x, z] of [[0.9, -0.9], [2.0, 0.45]]) { cyl(g, x, 0.012, z, 0.62, 0.02, '#5b5f66'); cyl(g, x, 0.016, z, 0.5, 0.02, '#6d727a'); }
+      for (const [x, z] of [[0.9, -0.9], [2.0, 0.45]]) { cyl(g, x, 0.012, z, 0.62, 0.02, '#5b5f66'); cyl(g, x, 0.02, z, 0.5, 0.02, '#6d727a'); } // 두 원판의 윗면은 0.008 차이 (겹쳐 지글거리지 않게)
       box(g, 1.2, 0.012, 1.55, 2.6, 0.02, 0.7, '#cfd6d8'); // 장비를 내려 둔 깔개
       const hose = hoseRoll(), noz = nozzle(), key = wrench(); g.add(hose, noz, key);
       const END = [-0.4, 1.0]; // 호스를 펴면 끝이 오는 곳 (관창을 끼우는 자리)
@@ -241,7 +241,7 @@ export const CLOSEUPS = {
       const water = makeWater(g, [END[0] + 0.25, 0.3, END[1]]), tool = water.pointer; // 소화전을 열기 전에는 물이 나오지 않는다
       return {
         rubY: 0.03, focus: [0, 0.3, 0.15], zoom: 3.9, tool,
-        patches: [{ id: 'fire', y: 0.03, color: '#f08a3c', opacity: 0.9, dot: 0.12, reach: 0.28, blobs: [{ x: 0.9, z: -0.9, r: 0.42, n: 18 }, { x: 2.0, z: 0.45, r: 0.42, n: 18 }] }],
+        patches: [{ id: 'fire', y: 0.03, color: '#f08a3c', opacity: 0.9, dot: 0.1, reach: 0.16, blobs: [{ x: 0.9, z: -0.9, r: 0.42, n: 30 }, { x: 2.0, z: 0.45, r: 0.42, n: 30 }] }], // 물이 지나간 길만 조금씩 지워지게 닿는 폭을 좁히고 점을 늘린다
         movers: [
           { id: 'hose', obj: hose, from: [0.3, 1.55], to: [-1.6, -0.75], r: 0.55, y: 0.03, lift: 0.3,
             onPlaced(o) { o.clear(); const t = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([[-0.45, 0.07, -0.5], [0, 0.07, 0.2], [0.5, 0.07, 0.6], [0.8, 0.07, 1.4], [1.2, 0.07, 1.75]].map((v) => new T.Vector3(...v))), 30, 0.065, 6, false), mat('#e8dfc8')); t.castShadow = true; o.add(t); } },
@@ -289,7 +289,8 @@ export const CLOSEUPS = {
       box(g, -1.0, 1.0, -2.02, 0.9, 2.0, 0.06, '#c9a77a'); ball(g, -0.7, 1.0, -1.97, 0.05, '#8f8a80'); // 식당 뒷문
       box(g, -2.45, 0.75, -1.35, 0.9, 1.5, 1.3, RED); box(g, -2.45, 0.5, -1.35, 0.92, 0.12, 1.32, CREAM); // 골목 어귀에 댄 소방차
       const Y = 0.3, PX = 0.5, PZ = -0.5;
-      box(g, PX, 0.14, PZ, 2.0, 0.28, 1.3, '#7a5c44'); for (const dx of [-0.66, 0, 0.66]) box(g, PX + dx, 0.285, PZ, 0.03, 0.01, 1.3, '#5f463a'); // 불이 붙은 상자·깔판 더미
+      const pile = box(g, PX, 0.14, PZ, 2.0, 0.28, 1.3, '#7a5c44'); pile.material = pile.material.clone(); const WOOD = new T.Color('#7a5c44'), CHAR = new T.Color('#463a34'); // 불을 끌수록 그을린 색이 드러난다
+      for (const dx of [-0.66, 0, 0.66]) box(g, PX + dx, 0.285, PZ, 0.03, 0.01, 1.3, '#5f463a'); // 불이 붙은 상자·깔판 더미
       box(g, PX - 0.75, 0.2, PZ + 0.72, 0.4, 0.4, 0.3, '#b08a62'); box(g, PX + 0.8, 0.17, PZ + 0.75, 0.34, 0.34, 0.3, '#b08a62');
       // 불꽃 자리 여섯: 왼쪽 셋, 오른쪽 셋. 물이 닿은 쪽부터 줄어든다.
       const spots = [[-0.82, -0.05, 1], [-0.55, 0.12, 0.8], [-0.62, -0.25, 0.9], [0.5, -0.02, 0.85], [0.8, 0.1, 1], [0.68, -0.24, 0.8]].map(([dx, dz, sz]) => ({ x: PX + dx, y: Y, z: PZ + dz, s: sz }));
@@ -299,7 +300,7 @@ export const CLOSEUPS = {
       const line = new T.Group(); for (const s of [-0.8, 0.8]) { box(line, s, 0.02, 0, 0.3, 0.04, 0.3, '#e98a4a'); cyl(line, s, 0.24, 0, 0.12, 0.42, '#f09a5a', 0.03); } box(line, 0, 0.36, 0, 1.6, 0.09, 0.02, '#f2c94c'); g.add(line);
       const hose = hoseRoll(); g.add(hose);
       const TO = [-1.35, 0.45];
-      const water = makeWater(g, [TO[0] + 0.4, 0.32, TO[1]], { hot: (x, z) => fire.near(x, z), puddle: [PX, 0.03, PZ + 1.05] }), tool = water.pointer; // 호스를 끌어오기 전에는 물이 나오지 않는다
+      const water = makeWater(g, [TO[0] + 0.4, 0.32, TO[1]], { hot: (x, z) => fire.near(x, z), puddle: [PX, 0.03, PZ + 1.05], wetY: (x, z) => (Math.abs(x - PX) < 1.0 && Math.abs(z - PZ) < 0.65 ? Y : 0.024) }), tool = water.pointer; // 호스를 끌어오기 전에는 물이 나오지 않는다. 젖은 자국은 더미 위면 더미 높이에, 밖이면 바닥에 둔다
       const boss = person({ coat: KHAKI, seed: 1, hair: 2, outfit: 'turnout' }); boss.root.position.set(-1.7, 0, -1.0); boss.root.rotation.y = 0.9; g.add(boss.root);
       // 구경하는 사람들은 불을 가리지 않게 오른쪽에 선다. 처음에는 너무 가깝고, 안전선을 세우면 물러선다.
       const crowd = [[1.95, -0.35, '#c9b6d6', 5], [2.1, 0.5, '#a9c7b9', 6]].map(([x, z, c, s]) => { const p = person({ coat: c, seed: s, hair: s % 3 }); p.root.position.set(x, 0, z); p.root.rotation.y = -Math.PI / 2; g.add(p.root); return p; });
@@ -307,8 +308,8 @@ export const CLOSEUPS = {
       return {
         rubY: Y + 0.01, focus: [0, 0.4, 0.05], zoom: 3.9, tool,
         patches: [
-          { id: 'flame', y: Y + 0.005, color: '#f08a3c', opacity: 0.9, dot: 0.12, reach: 0.28, blobs: [{ x: PX - 0.65, z: PZ, r: 0.3, n: 18 }, { x: PX + 0.65, z: PZ, r: 0.3, n: 18 }] }, // 가운데의 탄 상자(집는 물건)와 겹치지 않게 양옆에 둔다
-          { id: 'ember', y: Y + 0.005, color: '#e2513a', opacity: 0.95, dot: 0.09, reach: 0.26, blobs: [{ x: PX, z: PZ + 0.25, r: 0.2, n: 12 }] },
+          { id: 'flame', y: Y + 0.005, color: '#f08a3c', opacity: 0.9, dot: 0.1, reach: 0.16, blobs: [{ x: PX - 0.65, z: PZ, r: 0.32, n: 30 }, { x: PX + 0.65, z: PZ, r: 0.32, n: 30 }] }, // 닿는 폭을 좁혀, 물을 뿌린 길을 따라 조금씩 줄어든다. // 가운데의 탄 상자(집는 물건)와 겹치지 않게 양옆에 둔다
+          { id: 'ember', y: Y + 0.005, color: '#e2513a', opacity: 0.95, dot: 0.08, reach: 0.15, blobs: [{ x: PX, z: PZ + 0.25, r: 0.2, n: 18 }] },
         ],
         movers: [
           { id: 'line', obj: line, from: [-1.55, 1.7], to: [1.95, 0.1], r: 0.65, y: 0.02, lift: 0.3, onPlaced(o) { o.rotation.y = Math.PI / 2; for (const p of crowd) p.root.position.x += 0.5; } },
@@ -321,7 +322,7 @@ export const CLOSEUPS = {
           if (id === 'ember') { glow.set(1 - v); fire.setEmber(1 - v); return; }
           spots.forEach((sp, i) => { const near = dots.filter((d) => Math.hypot(d.mesh.position.x - sp.x, d.mesh.position.z - sp.z) < 0.42); fire.set(i, v >= 1 || !near.length ? 0 : near.filter((d) => !d.clean).length / near.length); });
         },
-        tick(dt, t) { fire.tick(dt, t); glow.tick(dt, t); water.tick(dt, t); boss.update(t, false); for (const p of crowd) p.update(t, false); },
+        tick(dt, t) { fire.tick(dt, t); glow.tick(dt, t); water.tick(dt, t); pile.material.color.lerpColors(CHAR, WOOD, 0.35 + 0.65 * fire.level()); boss.update(t, false); for (const p of crowd) p.update(t, false); },
       };
     },
   },

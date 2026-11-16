@@ -104,6 +104,7 @@ export function makeEmberGlow(g, x, y, z, r = 0.34) {
 //   pointer 는 무대의 tool 로 넘긴다. 가까이 보기가 문지르는 동안 보이게 하고 자리를 옮겨 준다(모양은 없다).
 //   setOn(true) 를 부르기 전에는 물이 나오지 않는다(호스를 잇기 전).
 //   hot(x, z) 가 0보다 크면 닿는 곳에서 김이 피어오른다. puddle 을 주면 그 자리에 물이 고인다.
+//   wetY 는 젖은 자국을 둘 높이. 숫자나 (x, z) => 높이. 주지 않으면 물이 닿은 높이에 둔다.
 export function makeWater(g, from, { hot = () => 0, puddle = null, wetY = null } = {}) {
   const pointer = new T.Group(); g.add(pointer);
   const a = new T.Vector3(...from), b = new T.Vector3(), up = new T.Vector3(0, 1, 0), d = new T.Vector3();
@@ -111,15 +112,20 @@ export function makeWater(g, from, { hot = () => 0, puddle = null, wetY = null }
   const drops = Array.from({ length: FX_MAX.drops }, () => { const m = new T.Mesh(BALL, dropMat); m.visible = false; m.renderOrder = 6; g.add(m); return { m, u: 1, to: new T.Vector3() }; });
   const splash = Array.from({ length: FX_MAX.splash }, () => { const m = new T.Mesh(BALL, sprayMat); m.visible = false; m.renderOrder = 6; g.add(m); return { m, life: 0, v: new T.Vector3() }; });
   const steam = Array.from({ length: FX_MAX.steam }, () => { const m = new T.Mesh(BALL, basic('#ffffff', 0)); m.visible = false; m.renderOrder = 5; g.add(m); return { m, life: 0 }; });
-  const wetGeo = new T.CircleGeometry(0.17, 16), wetMat = basic('#56788f', 0.2);
-  const wet = Array.from({ length: FX_MAX.wet }, () => { const m = new T.Mesh(wetGeo, wetMat); m.rotation.x = -Math.PI / 2; m.visible = false; m.renderOrder = 1; g.add(m); return m; });
+  // 젖은 자국: 하나씩 따로 옅어진다. 자리가 모자라면 가장 오래된 것을 서서히 지우고, 빈 자리가 난 뒤에 새로 만든다(갑자기 사라지지 않게).
+  const wetGeo = new T.CircleGeometry(0.17, 16), WET = 0.2, yOf = typeof wetY === 'function' ? wetY : (x, z, y) => wetY ?? y;
+  const wet = Array.from({ length: FX_MAX.wet }, (_, i) => { const m = new T.Mesh(wetGeo, basic('#56788f', 0)); m.rotation.x = -Math.PI / 2; m.visible = false; m.renderOrder = 1; g.add(m); return { m, age: -1, out: 0, k: i }; });
   // 동작 줄이기: 입자 대신 가만히 있는 물줄기 한 줄
   const beam = new T.Mesh(new T.CylinderGeometry(0.035, 0.035, 1, 8), basic('#a9d6ec', 0.9)); beam.visible = false; g.add(beam);
   let pud = null; if (puddle) { pud = new T.Mesh(new T.CircleGeometry(1, 28), basic('#6f93aa', 0.24)); pud.rotation.x = -Math.PI / 2; pud.position.set(puddle[0], puddle[1], puddle[2]); pud.scale.set(0.01, 0.01, 1); pud.renderOrder = 1; g.add(pud); }
-  let on = false, emit = 0, n = 0, wi = 0, used = 0, steamK = 0; const lastWet = new T.Vector3(99, 0, 99);
+  let on = false, emit = 0, n = 0, used = 0, steamK = 0; const lastWet = new T.Vector3(99, 0, 99);
   const hit = (p) => {
     for (let k = 0; k < 2; k++) { const s = splash.find((x) => x.life <= 0); if (!s) break; n++; s.life = 0.34; s.m.position.copy(p); s.m.visible = true; s.v.set(Math.sin(n * 2.4) * 0.9, 1.1 + ((n * 7) % 10) / 14, Math.cos(n * 1.9) * 0.6); }
-    if (Math.hypot(p.x - lastWet.x, p.z - lastWet.z) > 0.13 && wet.length) { const m = wet[wi++ % wet.length]; m.position.set(p.x, (wetY ?? p.y) + 0.006 + (wi % 5) * 0.0004, p.z); m.visible = true; lastWet.copy(p); }
+    if (Math.hypot(p.x - lastWet.x, p.z - lastWet.z) > 0.13 && wet.length) {
+      const free = wet.find((w) => w.age < 0);
+      if (free) { free.age = 0; free.out = 0; free.m.position.set(p.x, yOf(p.x, p.z, p.y) + 0.006 + free.k * 0.0003, p.z); free.m.visible = true; lastWet.copy(p); }
+      else { const old = wet.reduce((a, w) => (w.out ? a : !a || w.age > a.age ? w : a), null); if (old) old.out = 1; } // 가장 오래된 자국부터 서서히 지운다
+    }
     const h = hot(p.x, p.z);
     if (h > 0.05 && steamK >= 1) { const s = steam.find((x) => x.life <= 0); if (s) { steamK = 0; s.life = s.max = 1.0; s.m.position.set(p.x, p.y + 0.1, p.z); s.m.visible = true; s.h = h; } }
   };
@@ -129,6 +135,7 @@ export function makeWater(g, from, { hot = () => 0, puddle = null, wetY = null }
     tick(dt, t) {
       const active = on && pointer.visible; b.copy(pointer.position);
       steamK += dt * 6;
+      for (const w of wet) { if (w.age < 0) continue; w.age += dt; if (w.out) w.out += dt; const f = w.out ? Math.max(0, 1 - (w.out - 1) / 0.8) : 1; w.m.material.opacity = WET * Math.min(1, w.age / 0.25) * f; if (w.out && f <= 0) { w.age = -1; w.out = 0; w.m.visible = false; } }
       if (active) used += dt;
       if (pud) { const s = Math.min(1, used / 5); pud.scale.set(0.01 + s * 1.15, 0.01 + s * 0.5, 1); }
       if (reduced) {
