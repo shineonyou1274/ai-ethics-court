@@ -2,8 +2,12 @@
 import {execFileSync} from 'node:child_process';
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';import {join,dirname} from 'node:path';import assert from 'node:assert/strict';
-const root=new URL('../../',import.meta.url),ref='origin/claude/focused-davinci-c033wr';
+const root=new URL('../../',import.meta.url);
 const git=args=>execFileSync('git',args,{cwd:root});
+const hasShared=ref=>{try{return git(['ls-tree','--name-only',ref,'--','shared/test.mjs']).toString().trim()!==''}catch{return false}};
+const ref=hasShared('origin/main')?'origin/main':hasShared('origin/claude/focused-davinci-c033wr')?'origin/claude/focused-davinci-c033wr':'HEAD';
+assert.ok(hasShared(ref),'No shared contract found in origin/main, Claude or HEAD');
+console.log('Contract source: '+ref);
 const paths=git(['ls-tree','-r','--name-only','-z',ref,'--','shared/']).toString().split('\0').filter(Boolean);
 assert.ok(paths.includes('shared/test.mjs'));
 const dir=mkdtempSync(join(tmpdir(),'barista-contract-'));

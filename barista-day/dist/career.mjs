@@ -1,5 +1,5 @@
 import {openSendDialog} from './send-records.mjs';
-import {salaryDay, RIASEC, makeRecord, checkRecord, saveRecordSafe, careernetUrl, walletTotal, won} from './shared/workday.js?v=20261115';
+import {salaryDay, RIASEC, makeRecord, checkRecord, saveRecordSafe, careernetUrl, walletSummary, loadMine, currentSession, won} from './shared/workday.js?v=20261115';
 
 export const MOMENTS = [
   {label:'OPEN 간판을 뒤집고 하루를 연 순간',type:'E'},
@@ -57,6 +57,7 @@ export function endingFor(state) {
   return {name:'손님 반응에서 다음 한 잔을 배운 하루',icon:'📝'};
 }
 export function recordFor(state, like, hard) {
+  if(state.workdaySession && state.workdaySession!==currentSession().id)throw new Error('출근하는 사람이 바뀌었어요. 새로 출근한 뒤 기록을 남겨주세요.');
   if(state.phase!=='end') throw new Error('마감을 끝낸 뒤 기록할 수 있어요.');
   if(state.wasted>0&&!state.departureChoice)throw new Error('퇴근 방법을 먼저 골라주세요.');
   const clock=workClock(state);
@@ -86,7 +87,7 @@ export function renderWorkdayEnd(container,state) {
     <details><summary>오늘 내가 만든 가게 매출 · 가게 기록</summary><p>매출 ${won(state.sales)} / 재료비 ${won(state.cost)}<br>손님 만족 표시 ${state.tips}점 (기존 가상 팁)<br>만든 음료 ${state.records.length}잔 · 다시 만들기 ${state.wasted}회</p><small>팁은 일당에 더하지 않아요. 우리나라 카페는 대부분 팁을 받지 않아 만족 표시로만 남겨요. 맛과 재료비는 단순화한 체험입니다.</small></details>
     <h3>퇴근길, 마음에 남은 순간</h3><p>일곱 순간 중 💛 끌린 순간과 🪨 버거운 순간을 하나씩 눌러주세요.</p><div class="moment-grid">${MOMENTS.map((m,i)=>`<div class="moment-card"><span>${m.label}</span><div><button id="like-${i}" aria-label="끌린 순간: ${m.label}" aria-pressed="false">💛 끌림</button><button id="hard-${i}" aria-label="버거운 순간: ${m.label}" aria-pressed="false">🪨 버거움</button></div></div>`).join('')}</div>
     <p id="interestResponse" aria-live="polite"></p><small>순간 하나로 나를 정할 수는 없어요. 여러 직업을 해 보고 흥미검사와도 견주어 보세요. 적성 판정이나 직업 추천이 아닙니다.</small>
-    <button id="saveDay" class="primary" disabled>출근 기록 저장하기</button><p id="recordStatus" role="status"></p><button id="sendDay" hidden>선생님께 출근 기록 보내기</button><button id="again">다시 출근하기</button>${inWorkdaySite()?'<a class="home-link" href="../">← 다른 일터 고르기</a>':''}</section>`;
+    <button id="saveDay" class="primary" disabled>출근 기록 저장하기</button><p id="recordStatus" role="status"></p><small id="savedWalletMoney"></small><button id="sendDay" hidden>선생님께 출근 기록 보내기</button><button id="again">다시 출근하기</button>${inWorkdaySite()?'<a class="home-link" href="../">← 다른 일터 고르기</a>':''}</section>`;
   const find=id=>container.querySelector('#'+id),save=find('saveDay'),status=find('recordStatus');
   function update(){
     const a=MOMENTS[session.like],b=MOMENTS[session.hard];
@@ -103,12 +104,17 @@ export function renderWorkdayEnd(container,state) {
   };
   save.onclick=()=>{
     if(session.saved||save.disabled)return;
-    session.record ||= recordFor(state,MOMENTS[session.like],MOMENTS[session.hard]);
+    try {
+      if(state.workdaySession && state.workdaySession!==currentSession().id)throw new Error('출근하는 사람이 바뀌었어요. 새로 출근해주세요.');
+      session.record ||= recordFor(state,MOMENTS[session.like],MOMENTS[session.hard]);
+    } catch(e) {status.textContent=e.message;return}
     const errors=checkRecord(session.record);if(errors.length){status.textContent=errors.join(' / ');return}
     const result=saveRecordSafe(session.record);
     if(!result.ok){update();status.textContent='이 기기의 저장 공간이 막혀 기록을 저장하지 못했어요. 저장을 허용한 뒤 다시 눌러주세요.';return}
     session.saved=true;update();
-    status.textContent=`${result.duplicate?'이미 저장된 출근 기록이에요.':'출근 기록을 저장했어요.'} 이 브라우저의 누적 일당 ${won(walletTotal(result.records))}.`;
+    const w=walletSummary(loadMine());
+    status.textContent=`${result.duplicate?'이미 저장된 출근 기록이에요.':'출근 기록을 저장했어요.'} 🔖 다녀온 직업 ${w.jobs.length}개 · ⏱ 일한 시간 ${Math.floor(w.minutes/60)}시간 ${w.minutes%60}분`;
+    find('savedWalletMoney').textContent='🪙 받은 일당 '+won(w.total);
   };
   update();if(session.saved)status.textContent='이 하루의 기록은 이미 저장했어요.';
   find('sendDay').onclick=openSendDialog;

@@ -22,12 +22,10 @@ const plan = [
   [join(root, 'career-day/career-day.html'), 'career-day/index.html'],
 ];
 for (const f of readdirSync(join(root, 'shared'))) if (/\.(js|css)$/.test(f)) plan.push([join(root, 'shared', f), `shared/${f}`]);
-(function walk(dir) {
-  for (const f of readdirSync(dir)) {
-    const p = join(dir, f);
-    if (statSync(p).isDirectory()) walk(p); else plan.push([p, `barista-day/${relative(join(root, 'barista-day/dist'), p)}`]);
-  }
-})(join(root, 'barista-day/dist'));
+for (const app of ['barista-day','aerospace-day']) {
+ const source=join(root,app,'dist');
+ (function walk(dir){for(const f of readdirSync(dir)){const p=join(dir,f);if(statSync(p).isDirectory())walk(p);else plan.push([p,`${app}/${relative(source,p)}`]);}})(source);
+}
 
 if (check) {
   const want = new Set(plan.map(([, to]) => to));
