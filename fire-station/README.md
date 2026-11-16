@@ -25,9 +25,13 @@ Node.js 22 이상:
 ```sh
 node fire-station/tests/day.mjs
 node fire-station/tests/hands.mjs
+node fire-station/tests/integration.mjs
+node workday-site/build.mjs --check
 ```
 
 32가지 선택 조합의 끝까지 진행, 재진입 방지, 근무 시간·급여·연장 상한, 흥미 유형, 기록/교사 코드 호환성, 실제 문지름·드래그 취소·빈 움직임을 검사합니다. 2026-11-16 모바일 앱 브라우저에서 하루 전체를 실제 터치로 완료하고 기록 저장/보내기 진입까지 확인했습니다. PC 가로 배치와 평면 모드 시작도 확인했습니다. 힘 중복 차감 수정 후 관련 자동 검사를 재실행했습니다.
+
+통합 검사는 실제 허브 스크립트를 가상 DOM에서 실행해 세 일터의 지갑 합산, 출근 표시, pageshow/storage 갱신, 빈 기록 상태, 교사 코드 호환성을 확인합니다. 모바일 브라우저에서도 통합 첫 화면 → 소방서 → 첫 화면 왕복과 빈 기록일 때 보내기 버튼 숨김을 확인했습니다.
 
 ## 자료와 공통 계약
 

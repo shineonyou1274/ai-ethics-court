@@ -14,6 +14,7 @@
 <style>
   :root { --paper: #f7f2e9; --card: #fffdf8; --ink: #263c52; --soft: #6f7875; --line: #e6ddcf; --coral: #dc795e; --coral-d: #b85f47; --mint: #8fcfb6; --mint-d: #3f9d7d; --green: #254c3e; }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html, body { margin: 0; }
   body { background: var(--paper); color: var(--ink); font: 17px/1.6 "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; word-break: keep-all; -webkit-text-size-adjust: 100%; }
   h1, h2, b.j, .btn, .place b { font-family: "Jua", "Gowun Dodum", sans-serif; font-weight: 400; }
@@ -81,16 +82,21 @@
   const FIRE = [['firefighter', '소방관']];
   const CAFE = [['barista', '바리스타']];
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const records = loadRecords();
-  const been = new Set(records.map((r) => r.job?.id));
-  const chips = (list) => list.map(([id, name]) => `<span class="chip ${been.has(id) ? 'been' : ''}">${been.has(id) ? '✓ ' : ''}${esc(name)}</span>`).join('');
-  document.getElementById('hospitalJobs').innerHTML = chips(HOSPITAL);
-  document.getElementById('cafeJobs').innerHTML = chips(CAFE);
-  document.getElementById('fireJobs').innerHTML = chips(FIRE);
-  if (records.length) {
-    document.getElementById('bank').innerHTML = `<div class="bank"><span>지금까지 ${records.length}번 출근했어요</span><b>🪙 ${esc(manwon(walletTotal(records)))}</b></div>`;
-    document.getElementById('send').hidden = false;
+  function refreshRecords() {
+    const records = loadRecords();
+    const been = new Set(records.map((r) => r.job?.id));
+    const chips = (list) => list.map(([id, name]) => `<span class="chip ${been.has(id) ? 'been' : ''}">${been.has(id) ? '✓ ' : ''}${esc(name)}</span>`).join('');
+    document.getElementById('hospitalJobs').innerHTML = chips(HOSPITAL);
+    document.getElementById('cafeJobs').innerHTML = chips(CAFE);
+    document.getElementById('fireJobs').innerHTML = chips(FIRE);
+    document.getElementById('send').hidden = !records.length;
+    document.getElementById('bank').innerHTML = records.length
+      ? `<div class="bank"><span>지금까지 ${records.length}번 출근했어요</span><b>🪙 ${esc(manwon(walletTotal(records)))}</b></div>`
+      : '';
   }
+  refreshRecords();
+  addEventListener('pageshow', refreshRecords);
+  addEventListener('storage', refreshRecords);
 </script>
 </body>
 </html>
