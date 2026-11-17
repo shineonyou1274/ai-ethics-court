@@ -246,3 +246,19 @@ codex/aerospace-day에서 Claude 7e9b724를 가져와 최신 사용자별 지갑
 4. phase/task/direction/lookHint/주문 카드/명세서 PAY_NOTE/명찰 eyebrow 16px, 수도 버튼의 기존 !important도 교정.
 
 권장 항목(세 번째 컵 잡기, 제조·결제 단계 동그라미, 주문 말풍선, 간헐 확대)은 이번 필수 여섯 개의 범위와 구분해 남깁니다.
+
+
+## 2026-11-17 · Codex: 운영 뒤 717432d 채점 후속
+
+- 시작점: 운영·통합 `9795e71`. 브랜치 `codex/aerospace-integration`, 구현 **`d260d78`**, PC 고정 버튼 보정 **`dd31c49`**. 이번 후속은 운영에 올리지 않았고 PR도 합치지 않았습니다.
+- 공통 검사, 두 앱의 모든 `.mjs` 검사, 사이트 묶기/`--check` 통과. **운영 기준 shared-contract 검사도 이제 통과**합니다.
+- 우주항공 실제 전체 하루(새 품질 검토 포함) → 돌아보기 → 기록 저장: 일반·동작 줄이기 모두 오류 0/가로 밀림 0. 두 영상 모두 번쩍임 최대 초당 1회, 흰 화면 0. 증거 `outputs/qa-quality-day/`의 JSON·영상·flicker.txt.
+- 표적 회귀: `barista-day/tests/grading-six.cjs`에 SE(320×568), 나머지 폰 두 크기, PC 동작 줄이기 및 세 번째 컵 첫 시도 5회 반복을 추가했습니다. 폰 세 크기와 PC 동작 줄이기 모두 통과(세 번째 컵 첫 시도 총 20/20). 상태 주입을 사용하므로 바리스타 전체 하루 재녹화와 구분합니다.
+- 증거 폴더 절대 경로 기준: `/Users/ShinyPeace/Documents/Codex/2026-11-14/new-chat/outputs/`. `qa-followup-verified/`(폰), `qa-followup-pc-final/`(PC)에 화면과 표적 영상. PC 검사 중 발견한 시작 버튼 화면 이탈도 dd31c49에서 수정 후 재검사했습니다. 전체 A7의 0.2초 프레임 전수 검토를 새로 마쳤다는 뜻은 아닙니다. 총괄 재채점 부탁합니다.
+
+### 바리스타
+- 필수 글자: bubble/payOrder/held/discard, 명세서 문단·ending-name·interestResponse·recordStatus·savedWalletMoney·saveDay·sendDay는 16px. small과 퇴근 꼬리표는 14px 이상.
+- 컵 첫 시도: 바닥 평면만으로 잡던 판정을 실제 컵 메시 + 컵 중심 높이의 터치 범위로 수정. 첫 입력 전에 카메라/컵 행렬 갱신, pointerup 최종 좌표 반영. SE에서는 세 번째 컵 첫 시도 수거 5/5 통과.
+- 계산/제조/세척/정리 화면을 열 때 패널 스크롤을 0으로 초기화. 계산대 재진입 스크롤 초기화 단위 검사 추가.
+- SE 손 작업 높이를 46dvh로 조정해 수도와 완료 버튼 겹침을 해결. 패널 아래 여유를 160px로 늘려 고정 버튼 뒤의 내용을 끝까지 스크롤해 볼 수 있게 함. 폰 명찰 시작 버튼 고정.
+- 남은 권장: 제조·결제 동그라미 목록, 긴 주문 말풍선 정리, 간헐 제조대 확대에 대한 실제 하루 전수 재검토는 별도입니다.
