@@ -45,7 +45,8 @@ export function createWorld(canvas, el, place) {
       if (setGroup) setGroup.visible = !on;
       player.root.visible = !on; beacon.visible = !on; for (const p of crowd) p.root.visible = !on;
     },
-    view({ focus: f, zoom: z, yaw: y, height: h = 23 }) { targetFocus.copy(f); targetZoom = z; targetYaw = y; targetHeight = h; focus.copy(f); zoom = z; yaw = y; height = h; }, // 바로 옮겨서, 끄는 도중 화면이 움직이지 않게
+    // 가까이 보기 무대를 칸에 맞춰 바로 옮긴다 (끄는 도중 화면이 움직이지 않게)
+    view(frame) { applyFit(frame, true); },
   });
 
   function buildSet(name) {
@@ -62,10 +63,36 @@ export function createWorld(canvas, el, place) {
     place.sets[name].build(g);
   }
 
+  // 무대를 칸에 꽉 차게 맞춘다 (shared/DESIGN.md §2-1). frame = { cx, cz, w, d, top, yaw, tilt: [가장 낮은 각, 가장 높은 각] }
+  //   가로는 무대의 폭에, 세로는 위쪽 띠(일당) 아래부터 칸 바닥까지에 맞춘다.
+  //   칸이 세로로 길어 아래가 비면, 정해 준 범위 안에서 카메라를 더 위에서 내려다보게 해 바닥이 세로를 채우게 한다.
+  let lastFit = null;
+  function fit(frame) {
+    const { cx = 0, cz = 0, w, d, top, yaw: y = 0, tilt = [0.76, 0.76] } = frame;
+    const H = el.clientHeight || 1, halfW = camera.right, halfH = camera.top;
+    const box = el.getBoundingClientRect(), hud = el.querySelector('#hud'), ctrl = el.querySelector('.ctrl')?.getBoundingClientRect();
+    let hudPx = hud && !hud.hidden ? hud.getBoundingClientRect().bottom - box.top + 6 : 0;
+    if (ctrl && ctrl.height && ctrl.top - box.top < H / 2) hudPx = Math.max(hudPx, ctrl.bottom - box.top + 6); // 둥근 버튼이 위쪽에 올라와 있으면 그 아래부터 쓴다
+    const free = 1 - Math.min(0.34, Math.max(0, hudPx / H)); // 위쪽 띠를 뺀 세로 몫
+    const we = w * Math.cos(y) + d * Math.abs(Math.sin(y)), de = d * Math.cos(y) + w * Math.abs(Math.sin(y)); // 돌려 본 무대의 가로와 깊이
+    const zoomW = halfW / (we / 2 + 0.12);
+    const span = (e) => de * Math.sin(e) + top * Math.cos(e) + 0.2, zoomH = (e) => 2 * halfH * free / span(e);
+    let e = tilt[0]; while (e < tilt[1] && zoomH(e) > zoomW) e = Math.min(tilt[1], e + 0.035);
+    const z = Math.min(zoomW, zoomH(e)), shown = 2 * halfH / z;
+    const back = (top * Math.cos(e) / 2 + (1 - free) * shown / 2) / Math.sin(e); // 무대가 위쪽 띠 아래 가운데에 오도록 보는 곳을 뒤로 민다
+    return { focus: new T.Vector3(cx - Math.sin(y) * back, 0, cz - Math.cos(y) * back), zoom: z, yaw: y, height: 24 * Math.tan(e) };
+  }
+  function applyFit(frame, snap) {
+    lastFit = frame; const f = fit(frame);
+    targetFocus.copy(f.focus); targetZoom = f.zoom; targetYaw = f.yaw; targetHeight = f.height;
+    if (snap) { focus.copy(f.focus); zoom = f.zoom; yaw = f.yaw; height = f.height; }
+  }
+
   function resize() {
     const w = el.clientWidth || 1, h = el.clientHeight || 1; renderer.setSize(w, h, false);
     const aspect = w / h; let halfW = 12.8; if (aspect < 0.9) halfW = 11.7; const halfH = halfW / aspect;
     camera.left = -halfW; camera.right = halfW; camera.top = halfH; camera.bottom = -halfH; camera.updateProjectionMatrix();
+    if (ready && lastFit) applyFit(lastFit, true); // 칸 크기가 바뀌면 무대도 다시 맞춘다
     if (ready) { place3d(); renderer.render(scene, camera); } // 크기를 바꾸면 그림이 지워진다. 바로 다시 그려서 빈 화면이 보이지 않게 한다
   }
   let ready = false; const ro = new ResizeObserver(resize); ro.observe(el); resize(); ready = true;
@@ -132,7 +159,10 @@ export function createWorld(canvas, el, place) {
       const room = place.rooms.find((r) => r.id === rid), isSet = !!setGroup;
       const dest = room ? new T.Vector3(room.x - 0.65, 0, room.z + 0.8) : isSet ? new T.Vector3(1, 0, 12) : new T.Vector3(...(hour >= 15 ? place.exit : place.start));
       targetFocus.copy(overview ? new T.Vector3(0, 0, 1) : isSet ? new T.Vector3(0, 1, 11) : new T.Vector3(dest.x * 0.85, 0.7, dest.z * 0.85));
-      targetZoom = overview ? 1 : isSet ? 2.3 : 1.7; targetYaw = isSet ? 0.35 : 0.3;
+      targetZoom = overview ? 1 : isSet ? 2.3 : 1.7; targetYaw = isSet ? 0.35 : 0.3; lastFit = null;
+      // 일터 전체와 따로 지은 방은 칸에 꽉 차게 맞춘다. 일터 안의 방은 그 방 쪽으로 다가가 보여 준다(맞추지 않는다).
+      if (overview) applyFit({ cx: 0, cz: 0.6, w: 18.4, d: 13.6, top: 3, yaw: targetYaw }, false);
+      else if (isSet) applyFit({ cx: 0, cz: 11, w: 6.1, d: 5, top: 2.5, yaw: 0.35 }, false);
       if (reduced || first || wasClose || wasSet !== isSet) { focus.copy(targetFocus); zoom = targetZoom; yaw = targetYaw; height = targetHeight; if (first) night = targetNight; }
       player.root.position.copy(dest); player.root.rotation.y = 0.15;
       this.crowd(crowd.length);

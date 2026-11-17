@@ -72,7 +72,9 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
     cur = { g, on, built, patches, movers, slots, drag: null, t: 0, tool: built.tool || null };
     if (cur.tool) cur.tool.visible = false;
     hideWorld(true);
-    view({ focus: ORIGIN.clone().add(new T.Vector3(...(built.focus || [0, 0.4, 0]))), zoom: built.zoom || 3.2, yaw: built.yaw ?? 0, height: built.height ?? 15 });
+    // 무대(가로 5.8 × 깊이 4.2)를 칸에 꽉 차게 맞춘다. 무대가 frame 을 주면 그 크기로 맞춘다.
+    // 칸이 세로로 길면(폰) 카메라가 더 위에서 내려다봐서, 바닥이 칸의 세로를 채운다.
+    view({ cx: ORIGIN.x, cz: ORIGIN.z, w: 5.8, d: 4.2, top: 1.4, yaw: 0, tilt: [0.56, 0.9], ...(built.frame || {}) });
     canvas.style.touchAction = 'none';
     return { end, place: (id) => { const m = movers.find((x) => x.id === id); if (m) put(m); } };
   }
