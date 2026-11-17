@@ -39,3 +39,4 @@ button{font-size:16px}#panel{min-height:0}
  body.testing #speech{display:none}body.testing .design-tabs{margin:2px 0}
  .action-dock{padding:4px 12px}.action-dock .wd-btn{margin:0;min-height:48px}
 }
+@media(min-width:800px){.action-dock{position:fixed;right:0;bottom:0;width:max(40vw,400px);z-index:10;display:flex;gap:8px;padding:8px 16px;background:var(--wd-paper);border-top:1px solid var(--wd-line)}.action-dock .wd-btn{flex:1;margin:0}#panel:has(.action-dock){padding-bottom:150px}}
