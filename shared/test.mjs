@@ -2,7 +2,7 @@
 // 1) 일당 계산이 약속대로인가  2) 예시 기록이 checkRecord 를 통과하는가  3) 앱 안의 복사본이 원본과 같은가
 import { readFileSync, existsSync } from 'node:fs';
 import { encodeRecords, decodeCodes, toCsv } from './collect.js';
-import { salaryDay, hourlyOf, makeRecord, checkRecord, MIN_WAGE, saveRecordSafe, loadRecords, careernetUrl, currentSession, loadMine, startNewSession, keepSession, needsWhoCheck, walletSummary } from './workday.js';
+import { PAY_NOTE, salaryDay, hourlyOf, makeRecord, checkRecord, MIN_WAGE, saveRecordSafe, loadRecords, careernetUrl, currentSession, loadMine, startNewSession, keepSession, needsWhoCheck, walletSummary } from './workday.js';
 
 let fail = 0;
 const ok = (cond, msg) => { console.log(`${cond ? '  ✓' : '  ✗'} ${msg}`); if (!cond) fail++; };
@@ -38,6 +38,7 @@ globalThis.localStorage = { getItem: () => null, setItem: () => { throw new Erro
 const blocked = saveRecordSafe(makeRecord({ app: 'x', place: 'cafe', job: sample.job, annual: 3004, shift: sample.shift, workedMin: 480, shiftMin: 480, ending: sample.ending, like: sample.like, hard: sample.hard }));
 ok(!blocked.ok && blocked.error, '저장이 막히면 ok: false 와 까닭');
 delete globalThis.localStorage;
+ok(PAY_NOTE.includes('평균 연봉') && PAY_NOTE.includes('한 일의 양이 아니라'), '명세서 한 줄(PAY_NOTE)');
 ok(careernetUrl('180') === 'https://www.career.go.kr/cloud/w/job/view?seq=180', '커리어넷 출처 주소');
 
 console.log('기기를 함께 쓸 때');
