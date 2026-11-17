@@ -22,6 +22,7 @@ h1, h2, h3, p { margin: 0; }
 }
 .fallback { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--soft); padding: 20px; }
 .fallback b { display: block; font-size: 60px; }
+.fallback .short { display: none; }
 
 /* 위쪽 지표 */
 #hud { position: absolute; inset: 10px 10px auto 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; pointer-events: none; }
@@ -297,7 +298,9 @@ details.bubble { overflow-x: auto; } details summary { cursor: pointer; }
 .todoNow .now small { margin-left: auto; font-family: "Jua", sans-serif; font-size: 18px; color: var(--mint-d); font-variant-numeric: tabular-nums; }
 .todoNow[hidden] { display: none; }
 /* 누르면 펼쳐진다는 것이 보이게, 화살표를 둥근 단추 모양으로 크게 */
-.todoNow .more { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--sun); color: var(--ink); font-size: 18px; line-height: 1; transition: transform .15s; }
+.todoNow .more { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--sun); transition: transform .15s; }
+/* 화살표는 글자가 아니라 선으로 그린다 (글꼴에 따라 점처럼 작게 보이지 않게) */
+.todoNow .more::before { content: ""; width: 10px; height: 10px; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); border-radius: 1px; transform: translateY(-3px) rotate(45deg); }
 .todoNow.open .more { transform: rotate(180deg); }
 .todoNow.all { background: #eef7f2; border-color: var(--mint); box-shadow: 0 3px 0 var(--mint); }
 .todo[hidden] { display: none; }
@@ -354,7 +357,10 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   #app.pickOn #money { flex: none; padding: 1px 8px; }
   /* 3D를 못 쓰는 기기: 위 칸에는 안내 그림 하나뿐이라, 칸을 줄여 버튼이 위로 올라오게 한다 */
   #app.flat, #app.flat.closeOn, #app.flat.pickOn, #app.flat.handsOn { grid-template-rows: 20dvh minmax(0, 1fr); }
-  #app.flat .fallback { padding: 44px 12px 6px; font-size: 14px; }
+  /* 위 칸이 낮아서 긴 안내는 ♪ 단추에 가린다. 짧은 글로 바꾸고 단추 자리를 비워 둔다 */
+  #app.flat .fallback { padding: 44px 66px 6px 12px; font-size: 16px; }
+  #app.flat .fallback .long { display: none; }
+  #app.flat .fallback .short { display: inline; }
   #app.flat .fallback b { display: inline; font-size: 26px; margin-right: 6px; }
   #app.flat .fallback br { display: none; }
   #app.flat #zoomBtn { display: none; }

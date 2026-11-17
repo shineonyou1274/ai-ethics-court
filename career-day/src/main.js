@@ -51,7 +51,7 @@ function ensureWorld(placeId) {
   worldPlace = placeId; $('.fallback')?.remove();
   try { world = createWorld(canvas, $('#stage'), PLACES[placeId]); } catch (e) { console.warn('3D 일터를 띄우지 못해 글과 버튼으로 진행해요.', e); world = null; }
   $('#app').classList.toggle('flat', !world); // 3D가 없으면 폰에서 위 칸을 줄여 버튼이 밀리지 않게 한다
-  if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${PLACES[placeId].icon}</b>이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</div></div>`); }
+  if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${PLACES[placeId].icon}</b><span class="long">이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</span><span class="short">3D 없이 글과 버튼으로 해요.</span></div></div>`); }
   return world;
 }
 

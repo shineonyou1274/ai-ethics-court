@@ -14,7 +14,7 @@ export function checklist(el, { title, hint, items }) {
     <p class="handsMsg" id="cuMsg" role="status"></p>
     <button type="button" class="todoNow" id="cuNow" aria-expanded="false" aria-controls="cuList">
       <span class="dots" aria-hidden="true">${items.map((it) => `<i data-id="${it.id}"></i>`).join('')}</span>
-      <span class="now"><b id="cuLabel"></b><small id="cuPct"></small></span><span class="more" aria-hidden="true">▾</span>
+      <span class="now"><b id="cuLabel"></b><small id="cuPct"></small></span><span class="more" aria-hidden="true"></span>
     </button>
     <ol class="todo" id="cuList" hidden>${items.map((it) => `<li data-id="${it.id}"><i></i><span>${esc(it.label)}</span><small></small></li>`).join('')}</ol>
     <div id="cuFallback"></div>`;
@@ -42,7 +42,7 @@ export function checklist(el, { title, hint, items }) {
     // 3D를 못 쓰는 기기: 할 일을 버튼으로 하나씩 한다
     fallback(buttons) {
       const box = el.querySelector('#cuFallback');
-      box.innerHTML = `<p class="fine">이 기기에서는 3D 대신 버튼으로 해요.</p>${buttons.map((b) => `<button class="choice" data-id="${b.id}"><span class="n">✋</span><span>${esc(b.label)}</span></button>`).join('')}`;
+      box.innerHTML = `${buttons.map((b) => `<button class="choice" data-id="${b.id}"><span class="n">✋</span><span>${esc(b.label)}</span></button>`).join('')}`;
       box.querySelectorAll('.choice').forEach((x) => x.addEventListener('click', () => { const b = buttons.find((y) => y.id === x.dataset.id); if (b.run() !== false) { x.disabled = true; x.classList.add('done'); } }));
       // 버튼이 곧 할 일 목록이라 접은 목록 줄은 감춘다(지금 할 일을 보여 주면 순서의 답이 드러난다). 안내 글도 버튼에 맞게 바꾼다.
       now.hidden = true; list.hidden = true;
