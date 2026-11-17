@@ -115,7 +115,7 @@ function react(d = {}) {
 
 // ── 시작 화면 ──
 function title() {
-  S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {};
+  S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {}; $('#app').classList.remove('pickOn', 'closeOn', 'handsOn');
   const P = PLACES[focusPlace]; paintPlace(P);
   const w0 = ensureWorld(P.id); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
   const cur = saved.current && jobById(saved.current.job) ? saved.current : null;
@@ -218,6 +218,8 @@ function scene() {
   unmount?.(); unmount = null;
   $('#app').classList.toggle('handsOn', sc.kind === 'hands' && !sc.closeup);
   $('#app').classList.toggle('closeOn', sc.kind === 'hands' && !!sc.closeup && !!world);
+  $('#app').classList.toggle('pickOn', sc.kind === 'choice'); // 폰 세로의 판단 장면: 3D 칸을 줄여 보기가 모두 한 화면에 들어오게 한다 (shared/DESIGN.md §2-1)
+  $('#app').style.removeProperty('--pick');
   world?.resize(); // 3D 칸의 크기를 먼저 정한 뒤 장면을 그린다 (작게 그렸다가 커지지 않게)
   ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
 }
@@ -272,6 +274,7 @@ function choice(sc, head, body) {
   view(`${head}${body}<div class="speech"><small>${esc(sc.speaker)}</small>${esc(sc.speech)}</div>
     <div id="opts">${opts.map((o, n) => `<button class="choice" data-i="${o.idx}"><span class="n">${n + 1}</span><span>${esc(o.label)}</span></button>`).join('')}</div>
     <div id="out"></div>`);
+  fitPick();
   on('.choice', (b) => {
     const r = choose(S, J, +b.dataset.i);
     panel.querySelectorAll('.choice').forEach((x) => { x.disabled = true; if (x !== b) x.style.display = 'none'; });
@@ -280,6 +283,16 @@ function choice(sc, head, body) {
     react(r.d); save();
     $('#nx').addEventListener('click', goNext); $('#nx').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
+}
+
+// 폰 세로의 판단 장면: 3D 칸을 34dvh 로 줄여도 보기가 다 들어오지 않으면, 모자란 만큼만 더 줄인다(20dvh 까지). 문단은 줄이지 않는다.
+// 내용의 높이는 .view 의 offsetHeight 로 잰다(나타나는 움직임의 영향을 받지 않는다).
+function fitPick() {
+  const app = $('#app'), v = panel.querySelector('.view'); if (!v || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return; // 가로 화면(PC)은 그대로
+  const cs = getComputedStyle(panel), over = v.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) - panel.clientHeight;
+  if (over <= 0) return;
+  app.style.setProperty('--pick', `${Math.max(20, 34 - Math.ceil((over + 4) / (window.innerHeight / 100)))}dvh`);
+  world?.resize(); // 칸 크기를 먼저 정하고 그 자리에서 다시 그린다
 }
 
 // 순서 맞추기: 정답 순서와 다르게 섞어 보여 준다
