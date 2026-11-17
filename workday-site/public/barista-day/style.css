@@ -104,3 +104,21 @@ body>header #sound,body>header #help{pointer-events:auto}
 body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen)>header{display:flex!important;z-index:35}
 .benchControl,#benchMeter span,#benchVolume,#benchFlavor,#benchPreference,#payTotals,#payCoins button,#payExit{font-size:16px!important}
 .benchLabel,#washRack,#washShelf,#payGuest,#payTarget{display:none}
+
+/* 2026-11-17 grading fixes: separate scene, materials and primary actions. */
+.material-controls{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}
+#bench .material-controls .benchControl{position:static!important;inset:auto!important;transform:none!important;flex:1;white-space:normal;min-width:110px;font-size:16px!important;margin:0}
+#benchCupView{pointer-events:none}
+#washbench .work-panel #washTap{background:#2f6b55!important;color:#fffdf8!important;border-radius:12px;padding:10px!important;font-size:16px!important}
+#phase,#task,#direction,#lookHint,#order,#order *,#intro .eyebrow,.pay-note{font-size:16px!important;line-height:1.5}
+#taskPanel #lookHint{font-size:16px!important}
+.barista-action-dock{pointer-events:auto;background:var(--wd-paper);padding:8px 16px;display:flex;gap:8px}
+.barista-action-dock:has(>button:not([hidden])){border-top:1px solid var(--wd-line)}
+.barista-action-dock>button{position:static!important;inset:auto!important;transform:none!important;flex:1;width:auto!important;min-width:0!important;margin:0!important;min-height:48px;font-size:16px!important;white-space:normal}
+@media(max-width:799px){
+ .barista-action-dock{position:fixed;bottom:0;left:0;right:0;z-index:40;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+ .barista-action-dock:not(:has(>button:not([hidden]))){display:none}
+ #taskPanel,.work-panel{padding-bottom:100px}
+ #taskPanel .barista-action-dock #action{margin:0;padding:12px}
+}
+@media(min-width:800px){body>section>.barista-action-dock{position:fixed;left:var(--scene-w);right:0;bottom:0;z-index:40}.work-panel{padding-bottom:100px}}
