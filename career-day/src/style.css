@@ -321,6 +321,15 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   /* 3D 가까이 보기에서는 놀이 이름이 장면 제목과 겹치는 말이라 폰에서는 감춘다 (할 일이 스크롤 없이 보이게) */
   #app.closeOn .handsHead b { display: none; }
   #app.closeOn #panel { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+  /* 판단(고르기) 장면: 3D 칸을 줄여 보기 셋이 스크롤 없이 보이게 한다. 문단은 줄이지 않는다. 칸은 바로 바꾼다(작게 그렸다 커지지 않게) */
+  #app.pickOn { grid-template-rows: var(--pick, 34dvh) minmax(0, 1fr); transition: none; }
+  /* 앞선 선택 카드는 짧게: 머리말을 본문과 한 줄에 잇는다 */
+  #app.pickOn .ripple b { display: inline; margin-right: 6px; font-size: 16px; }
+  #app.pickOn .ripple .chips { margin: 4px 0 0; }
+  #app.pickOn .ripple { padding: 5px 12px; margin: 0 0 6px; }
+  /* 시각은 위쪽 띠에 이미 있다. 판단 장면에서는 제목 위 작은 줄을 감춰 보기 자리를 번다 */
+  #app.pickOn .view > .eyebrow { display: none; }
+  #app.pickOn #panel { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
   #app.closeOn .hands { margin: 0; }
   /* 폰의 가까이 보기: 3D가 칸 아래까지 차서, 오른쪽 아래의 둥근 버튼이 집어야 할 물건을 가린다. 이 장면 동안만 버튼을 위쪽 띠 아래 오른쪽으로 올린다. */
   /* 칸은 이미 커져 있으므로 '크게 보기' 버튼은 감춘다. */
