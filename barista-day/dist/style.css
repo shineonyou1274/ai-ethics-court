@@ -85,3 +85,22 @@ body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen) #taskPanel{display:none}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 #washTap{background:#2f6b55;color:#fffdf8} #benchHint{color:#263c52}
+
+/* Readable instructions, with optional context collapsed during direct work. */
+#intro p,#intro small,#intro .badge-info small,#intro>section>small,#intro .controls,#intro .controls b,#startWallet,#startWallet small,.badge-info,.fine,.work-panel p,.work-panel small,.work-panel button,.moment-card>span,.career-end .moment-card button{font-size:16px}
+body.onBreak #action,body.onBreak #discard{display:none!important}
+#taskPanel #position,#taskPanel #toast{position:static;transform:none;max-width:100%;font-size:16px;margin:8px 0;color:var(--wd-ink);background:transparent;text-shadow:none}
+.work-details{margin:6px 0}.work-details summary{min-height:44px;font-size:16px;padding:8px 0;cursor:pointer}
+.work-panel>:is(#benchHint,#cleanHint,#washHint,#payHint){font-size:18px!important;margin:0 0 8px!important;padding:4px 0!important}
+.work-panel footer p{display:none}.work-panel footer{margin:4px 0!important;padding:4px 0!important}
+#cleanTray,#payChange,#payReceipt{display:none}#workClock,#wallet.wd-money{font-size:16px}
+/* HUD has a dedicated strip on the work side, outside the 3D canvas. */
+body>header{left:var(--scene-w);right:0;top:0;width:auto;padding:8px 16px;margin:0;background:var(--wd-paper);z-index:8;pointer-events:none}
+body>header #sound,body>header #help{pointer-events:auto}
+#taskPanel,.work-panel{padding-top:100px}
+@media(max-width:799px){body>header{left:0;top:var(--scene-h);right:0}#taskPanel,.work-panel{padding-top:92px}.work-panel h2{font-size:20px!important}}
+
+.step-list summary{min-height:44px;cursor:pointer;font-size:22px}.step-dot{color:var(--wd-soft)}.step-dot.done{color:#2f8f6c}.step-list li{font-size:16px}
+body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen)>header{display:flex!important;z-index:35}
+.benchControl,#benchMeter span,#benchVolume,#benchFlavor,#benchPreference,#payTotals,#payCoins button,#payExit{font-size:16px!important}
+.benchLabel,#washRack,#washShelf,#payGuest,#payTarget{display:none}

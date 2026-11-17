@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {Shift} from '../dist/shift.mjs';
-import {MOMENTS,inWorkdaySite,earnedLabel,hudClock,workClock,recordFor,renderWorkdayEnd,endingFor,chooseDeparture,departureInfo} from '../dist/career.mjs';
-import {checkRecord,loadRecords,walletTotal,saveRecordSafe,careernetUrl} from '../dist/shared/workday.js';
+import {MOMENTS,inWorkdaySite,earnedLabel,hudClock,clockLabel,workClock,recordFor,renderWorkdayEnd,endingFor,chooseDeparture,departureInfo} from '../dist/career.mjs';
+import {checkRecord,loadRecords,walletTotal,saveRecordSafe,careernetUrl,PAY_NOTE} from '../dist/shared/workday.js';
 const s=new Shift();assert.throws(()=>recordFor(s,MOMENTS[0],MOMENTS[1]));
 assert.equal(workClock(s).end,'08:30');s.phase='end';s.sales=13500;s.cost=2150;s.tips=600;
 const r=recordFor(s,MOMENTS[3],MOMENTS[5]);assert.deepEqual(checkRecord(r),[]);assert.equal(r.pay.total,95840);assert.equal(r.shift.end,'17:30');assert.ok(new Set(MOMENTS.map(m=>m.type)).size>=4);assert.ok(r.id);
@@ -15,17 +15,19 @@ assert.equal(chooseDeparture(s,'stay'),false);
 s.records=[{match:true},{match:true},{match:true}];assert.match(endingFor(s).name,/모든/);s.records[1].match=false;assert.match(endingFor(s).name,/서로 다른/);s.records=[];assert.match(endingFor(s).name,/다음 한 잔/);
 let raw=null;globalThis.localStorage={getItem:k=>k==='workday-session-v1'?JSON.stringify({id:'test-person'}):raw,setItem:(_,v)=>raw=v};
 const els=new Map();const container={hidden:true,innerHTML:'',querySelector(sel){if(!els.has(sel))els.set(sel,{value:'',disabled:false,textContent:'',setAttribute(k,v){this[k]=v}});return els.get(sel)}};
-renderWorkdayEnd(container,s);assert.ok(container.innerHTML.includes(careernetUrl('180')));assert.ok(!container.innerHTML.includes('<select'));assert.ok(!container.innerHTML.includes('남은 힘'));assert.equal(els.get('#sendDay').hidden,true);const save=els.get('#saveDay');els.get('#like-0').onclick();els.get('#hard-0').onclick();assert.equal(save.disabled,true);els.get('#hard-1').onclick();assert.equal(save.disabled,false);assert.equal(els.get('#hard-1')['aria-pressed'],'true');
+renderWorkdayEnd(container,s);assert.ok(container.innerHTML.includes(PAY_NOTE));assert.ok(container.innerHTML.includes(careernetUrl('180')));assert.ok(!container.innerHTML.includes('<select'));assert.ok(!container.innerHTML.includes('남은 힘'));assert.equal(els.get('#sendDay').hidden,true);const save=els.get('#saveDay');els.get('#like-0').onclick();els.get('#hard-0').onclick();assert.equal(save.disabled,true);els.get('#hard-1').onclick();assert.equal(save.disabled,false);assert.equal(els.get('#hard-1')['aria-pressed'],'true');
 globalThis.localStorage.setItem=()=>{throw Error('blocked')};save.onclick();assert.match(els.get('#recordStatus').textContent,/저장하지 못/);assert.equal(save.disabled,false);
 // Write succeeds but verification fails once; retry must retain the same record id.
 let failRead=false;globalThis.localStorage.setItem=(_,v)=>{raw=v;failRead=true};globalThis.localStorage.getItem=k=>{if(k==='workday-session-v1')return JSON.stringify({id:'test-person'});if(failRead){failRead=false;throw Error('transient')}return raw};save.onclick();assert.equal(save.disabled,false);const firstId=JSON.parse(raw)[0].id;
-globalThis.localStorage.setItem=(_,v)=>raw=v;save.onclick();save.onclick();assert.equal(loadRecords().length,1);assert.equal(loadRecords()[0].id,firstId);assert.equal(walletTotal(),95840);assert.equal(els.get('#sendDay').hidden,false);assert.equal(saveRecordSafe(loadRecords()[0]).duplicate,true);renderWorkdayEnd(container,s);assert.equal(save.disabled,true);assert.equal(loadRecords().length,1);
+globalThis.localStorage.setItem=(_,v)=>raw=v;save.onclick();save.onclick();assert.equal(loadRecords().length,1);assert.equal(loadRecords()[0].id,firstId);assert.equal(walletTotal(),95840);assert.equal(els.get('#sendDay').hidden,false);assert.equal(saveRecordSafe(loadRecords()[0]).duplicate,true);renderWorkdayEnd(container,s);assert.ok(container.innerHTML.includes(PAY_NOTE));assert.equal(save.disabled,true);assert.equal(loadRecords().length,1);
 const late=new Shift();late.phase='end';late.wasted=1;renderWorkdayEnd(container,late);assert.match(container.innerHTML,/남아서 마치기/);assert.ok(!container.innerHTML.includes('id="saveDay"'));els.get('#handOver').onclick();assert.equal(departureInfo(late).handedOverMin,15);assert.match(container.innerHTML,/95,840원/);
 console.log('PASS: departure branches/cap/energy, varied endings, source link/cards, safe save failure/retry with stable ID and no duplicate.');
 
 for(const path of ['/barista-day/','/barista-day/index.html','/barista-day/fallback.html'])assert.equal(inWorkdaySite(path),true);
 for(const path of ['/','/index.html','/dist/','/barista-day-extra/'])assert.equal(inWorkdaySite(path),false);
 const hud=new Shift();assert.match(earnedLabel(hud),/0원/);hud.washed=true;assert.match(earnedLabel(hud),/3,000원/);hud.sales=999999;assert.ok(!earnedLabel(hud).includes('999'));hud.wasted=2;assert.match(hudClock(hud),/30분 밀림/);
-globalThis.location={pathname:'/barista-day/'};renderWorkdayEnd(container,s);assert.match(container.innerHTML,/href="\.\.\/"/);assert.ok(!container.innerHTML.includes('연장 0분'));
-globalThis.location={pathname:'/'};renderWorkdayEnd(container,s);assert.ok(!container.innerHTML.includes('href="../"'));
+globalThis.location={pathname:'/barista-day/'};renderWorkdayEnd(container,s);assert.ok(container.innerHTML.includes(PAY_NOTE));assert.match(container.innerHTML,/href="\.\.\/"/);assert.ok(!container.innerHTML.includes('연장 0분'));
+globalThis.location={pathname:'/'};renderWorkdayEnd(container,s);assert.ok(container.innerHTML.includes(PAY_NOTE));assert.ok(!container.innerHTML.includes('href="../"'));
 console.log('PASS: contextual home link, earned wages independent of sales, delay HUD and no empty overtime row.');
+
+const resting=new Shift();resting.phase='break';assert.match(clockLabel(resting),/쉬는 시간/);assert.doesNotMatch(clockLabel(resting),/undefined/);
