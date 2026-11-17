@@ -14,6 +14,9 @@ function emojiTexture(ch) {
 }
 
 export function createWorld(canvas, el, place) {
+  // 3D를 못 쓰는 기기인지 먼저 조용히 확인한다 (그대로 만들면 three 가 콘솔에 오류를 남긴다)
+  const probe = document.createElement('canvas');
+  if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) return null;
   let renderer;
   try { renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true }); }
   catch (e) { return null; }
@@ -161,7 +164,8 @@ export function createWorld(canvas, el, place) {
       targetFocus.copy(overview ? new T.Vector3(0, 0, 1) : isSet ? new T.Vector3(0, 1, 11) : new T.Vector3(dest.x * 0.85, 0.7, dest.z * 0.85));
       targetZoom = overview ? 1 : isSet ? 2.3 : 1.7; targetYaw = isSet ? 0.35 : 0.3; lastFit = null;
       // 일터 전체와 따로 지은 방은 칸에 꽉 차게 맞춘다. 일터 안의 방은 그 방 쪽으로 다가가 보여 준다(맞추지 않는다).
-      if (overview) applyFit({ cx: 0, cz: 0.6, w: 18.4, d: 13.6, top: 3, yaw: targetYaw }, false);
+      // 출입구 앞(명찰, 명세서, 돌아보기)도 일터 전체를 칸에 맞춰 보여 준다. 한쪽 구석으로 다가가면 칸 아래가 빈다.
+      if (overview || (!room && !isSet)) applyFit({ cx: 0, cz: 0.6, w: 18.4, d: 13.6, top: 3, yaw: targetYaw }, false);
       else if (isSet) applyFit({ cx: 0, cz: 11, w: 6.1, d: 5, top: 2.5, yaw: 0.35 }, false);
       if (reduced || first || wasClose || wasSet !== isSet) { focus.copy(targetFocus); zoom = targetZoom; yaw = targetYaw; height = targetHeight; if (first) night = targetNight; }
       player.root.position.copy(dest); player.root.rotation.y = 0.15;

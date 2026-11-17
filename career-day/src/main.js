@@ -50,6 +50,7 @@ function ensureWorld(placeId) {
   const old = $('#gl'), canvas = old.cloneNode(false); old.replaceWith(canvas);
   worldPlace = placeId; $('.fallback')?.remove();
   try { world = createWorld(canvas, $('#stage'), PLACES[placeId]); } catch (e) { console.warn('3D 일터를 띄우지 못해 글과 버튼으로 진행해요.', e); world = null; }
+  $('#app').classList.toggle('flat', !world); // 3D가 없으면 폰에서 위 칸을 줄여 버튼이 밀리지 않게 한다
   if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${PLACES[placeId].icon}</b>이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</div></div>`); }
   return world;
 }
@@ -74,8 +75,8 @@ let shown = {};
 function drawHud() {
   hud.hidden = false;
   const sc = sceneOf(S, J);
-  $('#clock').innerHTML = S.closed ? `${esc(J.name)} · 퇴근 ${toHHMM(toMin(J.shift.end) + (S.stayed ? S.delay : 0))}`
-    : `${esc(J.name)} · ${toHHMM(clockOf(S, J, sc))}${S.delay > 0 && sc.kind !== 'reveal' ? `<small>${S.delay}분 밀림</small>` : ''}`;
+  $('#clock').innerHTML = S.closed ? `<i>${esc(J.name)} · </i><span>퇴근 ${toHHMM(toMin(J.shift.end) + (S.stayed ? S.delay : 0))}</span>`
+    : `<i>${esc(J.name)} · </i><span>${toHHMM(clockOf(S, J, sc))}</span>${S.delay > 0 && sc.kind !== 'reveal' ? `<small>${S.delay}분 밀림</small>` : ''}`;
   const box = $('#gauges');
   if (!box.children.length) box.innerHTML = GAUGES.map((g) => `<div class="gauge" data-k="${g.k}"><small>${g.icon}<span class="nm"> ${g.name}</span></small><b></b><i><u style="background:${g.color}"></u></i></div>`).join('');
   for (const g of GAUGES) {
@@ -213,16 +214,18 @@ function scene() {
   if (world) { world.dress(setDress ? { ...J.look, ...setDress } : J.look, lockerDone ? 'work' : 'casual'); world.stage({ place: sc.place, hour: clockOf(S, J, sc) / 60, overview: false }); world.crowd(waiting()); }
   drawHud();
   const head = `<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· ${S.i + 1} / ${J.scenes.length}</span></p><h2>${esc(sc.title)}</h2>`;
-  const ripple = (S.notes || []).map((n) => `<div class="ripple"><b>앞선 선택이 이어져요</b>${esc(n.text)}${chips(n.d)}</div>`).join('');
+  const ripple = rippleCards();
   const body = `${ripple}<p class="lead">${esc(sc.body)}</p>`;
   unmount?.(); unmount = null;
   $('#app').classList.toggle('handsOn', sc.kind === 'hands' && !sc.closeup);
   $('#app').classList.toggle('closeOn', sc.kind === 'hands' && !!sc.closeup && !!world);
-  $('#app').classList.toggle('pickOn', sc.kind === 'choice'); // 폰 세로의 판단 장면: 3D 칸을 줄여 보기가 모두 한 화면에 들어오게 한다 (shared/DESIGN.md §2-1)
+  $('#app').classList.toggle('pickOn', ['choice', 'order', 'pick', 'leave'].includes(sc.kind)); // 폰 세로의 판단 장면: 3D 칸을 줄여 보기가 모두 한 화면에 들어오게 한다 (shared/DESIGN.md §2-1)
   $('#app').style.removeProperty('--pick');
   world?.resize(); // 3D 칸의 크기를 먼저 정한 뒤 장면을 그린다 (작게 그렸다가 커지지 않게)
   ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
 }
+// 앞선 선택이 남긴 여파 카드. 보통은 펼쳐져 있고, 폰의 고르기 장면에서 자리가 모자랄 때만 접힌다(누르면 펼쳐진다).
+const rippleCards = () => (S.notes || []).map((n) => `<details class="ripple" open><summary>앞선 선택이 이어져요</summary>${esc(n.text)}${chips(n.d)}</details>`).join('');
 const goNext = () => { next(S, J); save(); scene(); };
 
 function reveal(sc, head) {
@@ -285,14 +288,18 @@ function choice(sc, head, body) {
   });
 }
 
-// 폰 세로의 판단 장면: 3D 칸을 34dvh 로 줄여도 보기가 다 들어오지 않으면, 모자란 만큼만 더 줄인다(20dvh 까지). 문단은 줄이지 않는다.
+// 폰 세로의 고르는 장면(판단, 순서 맞추기, 골라 담기, 퇴근 고르기): 3D 칸을 34dvh 로 줄여도 보기가 다 들어오지 않으면
+//   ① 모자란 만큼만 더 줄이고(26dvh 까지. 그 아래로는 3D가 위쪽 띠에 가려 보이지 않는다)
+//   ② 그래도 넘치면 앞선 선택 카드를 접는다(누르면 펼쳐진다). 문단은 줄이지 않는다.
 // 내용의 높이는 .view 의 offsetHeight 로 잰다(나타나는 움직임의 영향을 받지 않는다).
 function fitPick() {
-  const app = $('#app'), v = panel.querySelector('.view'); if (!v || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return; // 가로 화면(PC)은 그대로
-  const cs = getComputedStyle(panel), over = v.offsetHeight + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) - panel.clientHeight;
-  if (over <= 0) return;
-  app.style.setProperty('--pick', `${Math.max(20, 34 - Math.ceil((over + 4) / (window.innerHeight / 100)))}dvh`);
-  world?.resize(); // 칸 크기를 먼저 정하고 그 자리에서 다시 그린다
+  const app = $('#app'), v = panel.querySelector('.view'); if (!v || !app.classList.contains('pickOn') || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return;
+  const cs = getComputedStyle(panel), pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+  const over = () => v.offsetHeight + pad - panel.clientHeight;
+  if (over() <= 0) return;
+  app.style.setProperty('--pick', `${Math.max(26, 34 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
+  if (over() > 0) v.querySelectorAll('details.ripple').forEach((d) => { d.open = false; });
+  world?.resize();
 }
 
 // 순서 맞추기: 정답 순서와 다르게 섞어 보여 준다
@@ -303,6 +310,7 @@ function order(sc, head, body) {
   let pos = 0, mistakes = 0;
   view(`${head}${body}<p class="fine">먼저 할 일부터 차례로 눌러 보세요.</p>
     ${shuffled.map((i) => `<button class="choice" data-i="${i}"><span class="n">?</span><span>${esc(sc.steps[i])}</span></button>`).join('')}<div id="out"></div>`);
+  fitPick();
   on('.choice', (b) => {
     const i = +b.dataset.i; if (b.classList.contains('done')) return;
     if (i !== pos) { mistakes++; b.classList.remove('bad'); void b.offsetWidth; b.classList.add('bad'); sfx('bad'); return; }
@@ -325,7 +333,7 @@ function hands(sc, head, body) {
   // 손으로 하는 장면에서는 3D와 할 일이 먼저 보이게, 장면 설명은 "상황 다시 보기"로 접어 둔다 (shared/DESIGN.md §2-1)
   const wide = typeof matchMedia === 'function' && matchMedia('(min-aspect-ratio: 11/10)').matches; // PC에서는 자리가 넉넉해 펼쳐 둔다
   const again = `<details class="again"${wide ? ' open' : ''}><summary>상황 다시 보기</summary><p class="lead">${esc(sc.body)}</p></details>`;
-  const ripples = (S.notes || []).map((n) => `<div class="ripple"><b>앞선 선택이 이어져요</b>${esc(n.text)}${chips(n.d)}</div>`).join('');
+  const ripples = rippleCards();
   view(`${head}${ripples}${again}<div class="hands" id="hands"></div><div id="out"></div>`);
   const show = (r) => {
     $('#out').innerHTML = `<div class="reply">${esc(r.text)}</div>${chips(r.d)}${r.fact ? `<div class="fact"><b>알아 두기</b>${esc(r.fact)}</div>` : ''}<button class="btn" id="nx">다음 장면으로</button>`;
@@ -350,6 +358,7 @@ function pick(sc, head, body) {
   const sel = new Set();
   view(`${head}${body}${sc.items.map((it, i) => `<button class="choice" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(it.label)}</span></button><p class="why" id="w${i}" hidden></p>`).join('')}
     <button class="btn" id="ok" disabled>${sc.need}개 골라 주세요</button><div id="out"></div>`);
+  fitPick();
   const okBtn = $('#ok');
   on('.choice', (b) => {
     if (okBtn.dataset.done) return; const i = +b.dataset.i;
@@ -385,6 +394,7 @@ function leaving(sc, head, body) {
   } else {
     view(`${head}${body}<div class="bubble">오늘 일은 제시간에 끝났어요. 남은 기록을 다음 근무자에게 넘겨요.</div><button class="btn" id="go">사복으로 갈아입고 퇴근하기</button>`);
   }
+  fitPick();
   const done = (stay) => { const r = leave(S, J, stay); S.closed = true; world?.dress(J.look, 'casual'); react(r.d); save(); setTimeout(slip, 500); };
   on('#stay', () => done(true)); on('#go', () => done(false));
 }
