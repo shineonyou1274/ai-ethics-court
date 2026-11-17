@@ -9,7 +9,7 @@ import { sendView, teacherView } from './collect.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
 import { MIN_WAGE, earnedSoFar, hourlyOf, won, manwon } from './pay.js';
-import { makeRecord, checkRecord, loadRecords, loadMine, saveRecordSafe, walletSummary, needsWhoCheck, keepSession, startNewSession, RECORDS_KEY } from '../../shared/workday.js';
+import { PAY_NOTE, makeRecord, checkRecord, loadRecords, loadMine, saveRecordSafe, walletSummary, needsWhoCheck, keepSession, startNewSession, RECORDS_KEY } from '../../shared/workday.js';
 import {
   GAUGES, RIASEC, newDay, sceneOf, enter, optionsOf, choose, finishTasks, finishOrder, finishPick, finishHands, thanksLine, leave, next,
   payslip, mood, clockOf, shiftMin, toMin, toHHMM,
@@ -209,6 +209,7 @@ function scene() {
   S.notesFor = S.i; save();
   const lockerDone = S.i > idxOf((x) => x.place === 'locker' && x.kind === 'tasks');
   const setDress = PLACES[J.place].sets[sc.place]?.dress;
+  drawHud(); // 위쪽 띠를 먼저 그려 둔다. 3D 무대를 띠 아래 칸에 맞추기 때문이다
   if (world) { world.dress(setDress ? { ...J.look, ...setDress } : J.look, lockerDone ? 'work' : 'casual'); world.stage({ place: sc.place, hour: clockOf(S, J, sc) / 60, overview: false }); world.crowd(waiting()); }
   drawHud();
   const head = `<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· ${S.i + 1} / ${J.scenes.length}</span></p><h2>${esc(sc.title)}</h2>`;
@@ -308,7 +309,11 @@ let testing = location.hash === '#test'; try { testing ||= !!sessionStorage.getI
 if (testing) window.__cd = { world: () => world };
 let unmount = null; // 지금 붙어 있는 손 놀이를 떼어 내는 함수 (3D 가까이 보기를 끝낸다)
 function hands(sc, head, body) {
-  view(`${head}${body}<div class="hands" id="hands"></div><div id="out"></div>`);
+  // 손으로 하는 장면에서는 3D와 할 일이 먼저 보이게, 장면 설명은 "상황 다시 보기"로 접어 둔다 (shared/DESIGN.md §2-1)
+  const wide = typeof matchMedia === 'function' && matchMedia('(min-aspect-ratio: 11/10)').matches; // PC에서는 자리가 넉넉해 펼쳐 둔다
+  const again = `<details class="again"${wide ? ' open' : ''}><summary>상황 다시 보기</summary><p class="lead">${esc(sc.body)}</p></details>`;
+  const ripples = (S.notes || []).map((n) => `<div class="ripple"><b>앞선 선택이 이어져요</b>${esc(n.text)}${chips(n.d)}</div>`).join('');
+  view(`${head}${ripples}${again}<div class="hands" id="hands"></div><div id="out"></div>`);
   const show = (r) => {
     $('#out').innerHTML = `<div class="reply">${esc(r.text)}</div>${chips(r.d)}${r.fact ? `<div class="fact"><b>알아 두기</b>${esc(r.fact)}</div>` : ''}<button class="btn" id="nx">다음 장면으로</button>`;
     $('#nx').addEventListener('click', goNext);
@@ -317,7 +322,7 @@ function hands(sc, head, body) {
   const before = S.handsDone?.[S.i];
   if (before) { $('#app').classList.remove('closeOn'); $('#hands').innerHTML = `<div class="handsDone">✓ ${esc(sc.grades[before.grade]?.moment || sc.moment)}</div>`; show(before); return; }
   // 폰에서는 안내를 읽을 틈을 준 뒤, 손으로 하는 곳이 화면 위쪽에 오게 내려 준다
-  setTimeout(() => { const h = $('#hands'); if (h && h.getBoundingClientRect().bottom > window.innerHeight) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 1600);
+  setTimeout(() => { const h = $('#hands'); if (h && h.getBoundingClientRect().bottom > window.innerHeight + 24) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 1600);
   unmount = HANDS[sc.game]($('#hands'), sc, {
     sfx, act: (k) => world?.action(k), world,
     done: (grade, detail) => {
@@ -380,6 +385,7 @@ function slip() {
     <p class="eyebrow">퇴근 · ${toHHMM(toMin(J.shift.end) + (S.stayed ? S.delay : 0))}</p>
     <h2>오늘의 일당 명세서</h2>
     <p class="payBig">🪙 ${won(p.total)}<small>세금·보험료 떼기 전</small></p>
+    <p class="payNote">${esc(PAY_NOTE)}</p>
     <div class="bubble"><table class="slip">
       <tr><td>기본급<small>시급 ${won(p.hourly)} × ${Math.min(p.worked, p.shift) / 60}시간</small></td><td>${won(p.base)}</td></tr>
       ${p.overMin ? `<tr><td>연장 근무 수당<small>시급 × 1.5 × ${p.overMin}분${S.breakWorked ? ` (쉬는 시간에 일한 ${S.breakWorked}분 포함)` : ''}</small></td><td class="up">+${won(p.overtime)}</td></tr>` : ''}
