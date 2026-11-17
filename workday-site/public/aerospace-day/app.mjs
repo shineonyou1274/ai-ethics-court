@@ -51,5 +51,5 @@ function reportView(){
 
 async function spaceView(){
  if(spaceSession)return;world?.dispose();world=null;$('world').hidden=true;$('flatCanvas').hidden=true;$('flat').hidden=true;$('expand').hidden=true;show('<h2>우주선 시험실 준비 중…</h2>');
- spaceSession=await mountSpace({stage:$('stage'),panel,flat,checkSession,onComplete:result=>{if(!day.completeSpace(result))return;spaceSession?.dispose();spaceSession=null;$('flat').hidden=false;$('expand').hidden=false;if(flat)toFlat();else to3D();render()}});
+ spaceSession=await mountSpace({baseDelay:day.delay,stage:$('stage'),panel,flat,checkSession,onComplete:result=>{if(!day.completeSpace(result))return;spaceSession?.dispose();spaceSession=null;$('flat').hidden=false;$('expand').hidden=false;if(flat)toFlat();else to3D();render()}});
 }
