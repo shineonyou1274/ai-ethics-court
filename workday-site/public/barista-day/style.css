@@ -82,52 +82,16 @@ body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen) #taskPanel{display:none}
 
 #newPerson{display:block;width:100%;padding:12px;margin:12px 0;background:var(--wd-card);border:1px solid var(--wd-line);border-radius:12px;color:var(--wd-ink)}#startWallet{font-size:14px}#startWallet small{font-size:12px}
 
-@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-
-#washTap{background:#2f6b55;color:#fffdf8} #benchHint{color:#263c52}
-
-/* Readable instructions, with optional context collapsed during direct work. */
-#intro p,#intro small,#intro .badge-info small,#intro>section>small,#intro .controls,#intro .controls b,#startWallet,#startWallet small,.badge-info,.fine,.work-panel p,.work-panel small,.work-panel button,.moment-card>span,.career-end .moment-card button{font-size:16px}
+/* Restore the 11/16 layout; retain only targeted interaction/accessibility fixes. */
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 body.onBreak #action,body.onBreak #discard{display:none!important}
-#taskPanel #position,#taskPanel #toast{position:static;transform:none;max-width:100%;font-size:16px;margin:8px 0;color:var(--wd-ink);background:transparent;text-shadow:none}
-.work-details{margin:6px 0}.work-details summary{min-height:44px;font-size:16px;padding:8px 0;cursor:pointer}
-.work-panel>:is(#benchHint,#cleanHint,#washHint,#payHint){font-size:18px!important;margin:0 0 8px!important;padding:4px 0!important}
-.work-panel footer p{display:none}.work-panel footer{margin:4px 0!important;padding:4px 0!important}
-#cleanTray,#payChange,#payReceipt{display:none}#workClock,#wallet.wd-money{font-size:16px}
-/* HUD has a dedicated strip on the work side, outside the 3D canvas. */
-body>header{left:var(--scene-w);right:0;top:0;width:auto;padding:8px 16px;margin:0;background:var(--wd-paper);z-index:8;pointer-events:none}
-body>header #sound,body>header #help{pointer-events:auto}
-#taskPanel,.work-panel{padding-top:100px}
-@media(max-width:799px){body>header{left:0;top:var(--scene-h);right:0}#taskPanel,.work-panel{padding-top:92px}.work-panel h2{font-size:20px!important}}
+#washbench .work-panel #washTap{background:#2f6b55!important;color:#fffdf8;border-radius:12px;padding:10px;font-size:14px}
+#benchCupView{pointer-events:none;top:12px;right:calc(100vw - var(--scene-w) + 12px)}
+#held,#discard,#position,#greeting small,#bubble small,#payGuest,#payTarget,#payChange,#payReceipt,#washShelf,#washRack,#cleanTray,.benchLabel{font-size:14px}
+#checkout small,.work-panel small{font-size:14px}
+.pay-note,.wage-comparison{line-height:1.5}
 
-.step-list summary{min-height:44px;cursor:pointer;font-size:22px}.step-dot{color:var(--wd-soft)}.step-dot.done{color:#2f8f6c}.step-list li{font-size:16px}
-body:is(.benchOpen,.cleanOpen,.washOpen,.payOpen)>header{display:flex!important;z-index:35}
-.benchControl,#benchMeter span,#benchVolume,#benchFlavor,#benchPreference,#payTotals,#payCoins button,#payExit{font-size:16px!important}
-.benchLabel,#washRack,#washShelf,#payGuest,#payTarget{display:none}
-
-/* 2026-11-17 grading fixes: separate scene, materials and primary actions. */
-.material-controls{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}
-#bench .material-controls .benchControl{position:static!important;inset:auto!important;transform:none!important;flex:1;white-space:normal;min-width:110px;font-size:16px!important;margin:0}
-#benchCupView{pointer-events:none}
-#washbench .work-panel #washTap{background:#2f6b55!important;color:#fffdf8!important;border-radius:12px;padding:10px!important;font-size:16px!important}
-#phase,#task,#direction,#lookHint,#order,#order *,#intro .eyebrow,.pay-note{font-size:16px!important;line-height:1.5}
-#taskPanel #lookHint{font-size:16px!important}
-.barista-action-dock{pointer-events:auto;background:var(--wd-paper);padding:8px 16px;display:flex;gap:8px}
-.barista-action-dock:has(>button:not([hidden])){border-top:1px solid var(--wd-line)}
-.barista-action-dock>button{position:static!important;inset:auto!important;transform:none!important;flex:1;width:auto!important;min-width:0!important;margin:0!important;min-height:48px;font-size:16px!important;white-space:normal}
-@media(max-width:799px){
- .barista-action-dock{position:fixed;bottom:0;left:0;right:0;z-index:40;padding-bottom:max(8px,env(safe-area-inset-bottom))}
- .barista-action-dock:not(:has(>button:not([hidden]))){display:none}
- #taskPanel,.work-panel{padding-bottom:100px}
- #taskPanel .barista-action-dock #action{margin:0;padding:12px}
-}
-@media(min-width:800px){body>section>.barista-action-dock{position:fixed;left:var(--scene-w);right:0;bottom:0;z-index:40}.work-panel{padding-bottom:100px}}
-
-/* Follow-up grading: readable remaining text, including end-of-day slips. */
-#bubble,#payOrder,#held,#discard,.career-end p,.career-end .ending-name,.career-end #interestResponse,.career-end #recordStatus,.career-end #savedWalletMoney,.career-end #saveDay,.career-end #sendDay{font-size:16px!important;line-height:1.5}
-#checkout small,.work-panel small,.career-end small,.career-end .eyebrow,#intro small{font-size:14px!important;line-height:1.45}
-#bubble{max-width:min(300px,calc(var(--scene-w) - 32px));white-space:normal}
-#taskPanel,.work-panel{padding-bottom:160px;scroll-padding-bottom:160px}
-.barista-action-dock{box-sizing:border-box}#intro section{padding-bottom:85px}
-@media(max-width:799px){#intro #start{position:fixed;bottom:8px;left:16px;right:16px;width:calc(100% - 32px);z-index:11;margin:0;min-height:48px;font-size:16px}}
-@media(max-width:799px) and (max-height:620px){body:has(#world):is(.benchOpen,.cleanOpen,.washOpen,.payOpen){--scene-h:46dvh}.work-panel,#taskPanel{padding-top:86px}}
+#benchHint{color:var(--wd-ink)}
+/* Short screens: keep the cup inset away from the milk cartons and their controls. */
+@media(max-width:799px) and (max-height:700px){#benchCupView{left:12px;right:auto}}
+@media(max-width:799px) and (max-height:700px){#benchMilk{transform:translate(-50%,-100%)}#benchOat{transform:translate(-50%,0)}}

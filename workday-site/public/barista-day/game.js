@@ -137,20 +137,8 @@ for(const [id,selectors] of [
  ['cleanup',['header','#cleanHint','footer']],
  ['washbench',['header','#washHint','#washTap','footer']],
  ['checkout',['header','#payOrder','#payHint','footer']]
-]){const root=$(id),panel=document.createElement('aside');panel.className='work-panel';panel.setAttribute('aria-label','직접 하는 일');for(const selector of selectors)panel.append(root.querySelector(selector));root.append(panel);const details=document.createElement('details');details.className='work-details';details.innerHTML='<summary>상황 다시 보기 · 할 일 펼치기</summary>';const heading=panel.querySelector('header,.benchTop');if(heading)details.append(heading);panel.append(details)}
-// Real DOM controls live outside the projected scene, so touch targets never overlap.
-const materialControls=document.createElement('div');materialControls.className='material-controls';
-for(const id of ['benchGrind','benchExtract','benchMilk','benchOat','benchSteam'])materialControls.append($(id));
-$('bench').querySelector('.work-panel').prepend(materialControls);
-for(const [root,ids] of [['taskPanel',['action']],['checkout',['payDone']],['washbench',['washDone','washNext']],['bench',['benchSeal','benchFinish']],['cleanup',['cleanDone']]]){
- const dock=document.createElement('div');dock.className='barista-action-dock';for(const id of ids)dock.append($(id));$(root).append(dock);
-}
-// Collapsed step circles keep the current task readable without a long list.
-for(const [rootId,progressId,steps] of [['cleanup','cleanProgress',['컵 수거','얼룩 닦기']],['washbench','washProgress',['자국 닦기','헹구기','건조대','컵 선반']]]){
- const panel=$(rootId).querySelector('.work-panel'),details=document.createElement('details');details.className='step-list';panel.append(details);
- const update=()=>{const n=Number($(progressId).textContent.match(/^(\d+)/)?.[1]||1);details.innerHTML='<summary aria-label="전체 할 일 펼치기">'+steps.map((s,i)=>`<span class="step-dot ${i<n-1?'done':''}" aria-label="${i+1}. ${s}${i<n-1?' 완료':''}">${i<n-1?'●':'○'}</span>`).join(' ')+'</summary><ol>'+steps.map((s,i)=>`<li>${s}${i<n-1?' ✓':''}</li>`).join('')+'</ol>'};new MutationObserver(update).observe($(progressId),{childList:true,characterData:true,subtree:true});update();
-}
-for(const id of ['held','discard','lookHint','position','toast'])$('taskPanel').append($(id));
+]){const root=$(id),panel=document.createElement('aside');panel.className='work-panel';panel.setAttribute('aria-label','직접 하는 일');for(const selector of selectors)panel.append(root.querySelector(selector));root.append(panel)}
+for(const id of ['action','held','discard','lookHint'])$('taskPanel').append($(id));
 const expand=document.createElement('button');expand.id='expandScene';expand.textContent='3D 크게 보기';expand.onclick=()=>{document.body.classList.toggle('sceneExpanded');expand.textContent=document.body.classList.contains('sceneExpanded')?'기본 크기로':'3D 크게 보기'};document.body.append(expand);
 new ResizeObserver(resizeScene).observe($('world'));
 addEventListener('resize',resizeScene);resizeScene();sync();requestAnimationFrame(frame);
