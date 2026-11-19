@@ -40,3 +40,12 @@ for(const [width,height]of [[390,472],[768,800]]){
  b.up(e);assert.equal(b.pouring,false);assert.deepEqual(b.vessel.position.toArray(),[1.55,.2,.85]);
 }
 console.log('PASS: pouring vessel clears cup and machine, then returns home on release at phone/PC sizes.');
+
+// Visible cup opening intersects the stream at an off-centre position.
+{
+ const s=new Shift(),cup=new WashCup(0,'rinse-edge');cup.points.forEach(p=>p.clean=true);s.washCups=[cup];
+ const w=new Washbench({state:s,canvas:canvas(390,472),onChange(){},onClose(){},sound(){}});w.open();w.water=true;
+ w.cup.position.set(.35,0,0);w.update(.5);assert.ok(cup.rinsing>0,'water inside the visible cup opening must rinse');
+ const before=cup.rinsing;w.cup.position.set(.5,0,0);w.update(.5);assert.equal(cup.rinsing,before,'water outside the cup must not rinse');
+}
+console.log('PASS: off-centre visible stream rinses; outside stream does not.');

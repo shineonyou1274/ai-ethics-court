@@ -1,2 +1,3 @@
 import {SpaceTrial} from '../dist/space-model.mjs';
-export function completeSpace(day){const results=[false,true].map(repaired=>{const t=new SpaceTrial({mass:2,power:2,assist:true},repaired);for(let i=0;i<100;i++)t.step(.05,{throttle:.4});t.stop();return t.result()});return day.completeSpace({results,repaired:true})}
+export function completeSpace(day){const results=[2,3].map(mass=>{const t=new SpaceTrial({mass,power:2,assist:true},day.repaired);for(let i=0;i<100;i++)t.step(.05,{throttle:.4});t.stop();return t.result()});return day.completeSpace({results,repaired:day.repaired})}
+export function finishDay(d,{repaired=true,decision='go',leave='handover'}={}){d.next();d.prepare();d.next();d.next('drawing');d.assemble(repaired);d.next();d.next('sensor');d.next('rest');if(!completeSpace(d))throw Error('comparison rejected');d.next();d.next(decision);d.next('result');d.cleanup();d.next(leave);return d}
