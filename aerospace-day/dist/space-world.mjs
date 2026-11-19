@@ -22,6 +22,7 @@ export function createSpaceView(canvas){
  const observer=new ResizeObserver(resize);observer.observe(canvas);resize();
  function project(point){camera.updateMatrixWorld(true);const b=canvas.getBoundingClientRect(),p=point.clone().project(camera);return {x:(p.x*.5+.5)*b.width,y:(-.5*p.y+.5)*b.height}}
  return {
+  resize,
   draw(work){state=work;const flight=['flight','result'].includes(work.phase);scene.background=new T.Color(flight?0x14223b:0xdce5e6);lab.visible=!flight;person.visible=work.phase==='suit';craft.visible=work.phase==='design';board.visible=work.phase==='inspect';cockpit.visible=target.visible=planet.visible=stars.visible=flight;
    if(flight){camera.position.set(0,0,0);camera.lookAt(0,0,-1);const t=work.trial;target.position.set(-(t?.x||0),-(t?.y||0),-Math.max(1.6,t?.distance||12));stick.rotation.z=-(t?.vx||0)*.3;}else{camera.position.set(0,1.2,Math.max(4.5,3/camera.aspect));camera.lookAt(0,.7,0)}
    helmet.visible=visor.visible=work.gear.has('helmet');face.visible=!helmet.visible;hands.forEach(h=>h.material.color.set(work.gear.has('gloves')?0xf4f0e7:0xe3b98d));hose.visible=work.gear.has('hose');hull.scale.y=.8+work.config.mass*.15;solar.forEach(s=>s.scale.x=.7+work.config.mass*.15);engines.forEach(e=>e.scale.setScalar(.7+work.config.power*.2));looseBand.visible=!work.repaired;bolts[0].position.z=work.repaired?.22:.32;bolts[0].rotation.z=work.repaired?0:.3-work.turn*Math.PI/180;renderer.render(scene,camera);
