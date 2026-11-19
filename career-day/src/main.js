@@ -5,6 +5,7 @@ import { JOBS, jobById } from './jobs/index.js';
 import { PLACES } from './places/index.js';
 import { createWorld } from './world/world.js';
 import { HANDS } from './hands/index.js';
+import { walkOn, stepFor, hasStep, inbox } from './flow.js';
 import { sendView, teacherView } from './collect.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
@@ -208,6 +209,8 @@ function scene() {
   const sc = sceneOf(S, J);
   const notes = enter(S, J); if (notes.length) S.notes = notes; else if (S.notesFor !== S.i) S.notes = [];
   S.notesFor = S.i; save();
+  // 걸어 다니는 일터(카페 방식): 장면을 열기 전에, 찾아온 일을 받고 그 자리까지 내 캐릭터로 걸어간다 (src/flow.js)
+  if (walkOn(J, PLACES[J.place]) && S.at !== S.i) { const st = stepFor(J, PLACES[J.place], S.i); if (hasStep(st)) return goView(sc, st); S.at = S.i; }
   const lockerDone = S.i > idxOf((x) => x.place === 'locker' && x.kind === 'tasks');
   const setDress = PLACES[J.place].sets[sc.place]?.dress;
   drawHud(); // 위쪽 띠를 먼저 그려 둔다. 3D 무대를 띠 아래 칸에 맞추기 때문이다
@@ -217,6 +220,7 @@ function scene() {
   const ripple = rippleCards();
   const body = `${ripple}<p class="lead">${esc(sc.body)}</p>`;
   unmount?.(); unmount = null;
+  $('#app').classList.remove('walkOn');
   $('#app').classList.toggle('handsOn', sc.kind === 'hands' && !sc.closeup);
   $('#app').classList.toggle('closeOn', sc.kind === 'hands' && !!sc.closeup && !!world);
   $('#app').classList.toggle('pickOn', ['choice', 'order', 'pick', 'leave'].includes(sc.kind)); // 폰 세로의 판단 장면: 3D 칸을 줄여 보기가 모두 한 화면에 들어오게 한다 (shared/DESIGN.md §2-1)
@@ -224,6 +228,72 @@ function scene() {
   world?.resize(); // 3D 칸의 크기를 먼저 정한 뒤 장면을 그린다 (작게 그렸다가 커지지 않게)
   ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
 }
+// ── 걸어가기 (카페 방식, shared/DESIGN.md §2-3) ──
+// 찾아온 일(무전·출동 벨)과 받은 일 목록을 보여 주고, 다음 일이 있는 자리에 표시를 띄운다.
+// 학생은 바닥이나 표시를 눌러 걷거나, 아래 큰 버튼을 눌러 그 자리로 걸어간다. 닿으면 장면이 열린다. 일터 밖은 소방차로 오간다.
+const VIA = { 일정: '🗓️', 무전: '📻', '출동 벨': '🔔', 팀장: '💬', 약속: '🤝', 전화: '📞' };
+const ro = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 && c % 28 !== 8 ? '으로' : '로'; }; // 받침 따라 '로/으로'
+function inboxHtml(list) {
+  const wide = typeof matchMedia === 'function' && matchMedia('(min-aspect-ratio: 11/10)').matches;
+  const li = (it) => `<li class="${it.state}${it.fresh ? ' fresh' : ''}"><i></i><span>${VIA[it.via] || '🗓️'} ${esc(it.label)}</span><small>${it.state === 'done' ? '마침' : it.state === 'missed' ? '못 함' : it.fresh ? '새로 옴' : it.state === 'now' ? '지금' : it.at}</small></li>`;
+  // 폰에서는 마친 일을 한 줄로 모으고, 지금 일과 다음 일 둘만 보인다. 남은 일은 개수로 알려 준다 (스크롤 없이 단추가 보이게)
+  const done = list.filter((x) => x.state === 'done' || x.state === 'missed'), rest = list.filter((x) => !done.includes(x));
+  const now = rest.filter((x) => x.state === 'now'), next = rest.filter((x) => x.state === 'next');
+  const shown = wide ? list : [...now, ...next.slice(0, now.length ? 1 : 2)];
+  const more = wide ? 0 : rest.length - shown.length;
+  const missed = done.filter((x) => x.state === 'missed').length;
+  const headLine = `<p class="inboxHead"><b>받은 일</b>${!wide && done.length ? `<span class="sum">✓ 마친 일 ${done.length - missed}개${missed ? ` · 못 한 일 ${missed}개` : ''}</span>` : ''}</p>`;
+  return `${headLine}<ol class="todo inbox" aria-label="받은 일">${shown.map(li).join('')}${more > 0 ? `<li class="later"><span>그다음에도 할 일 ${more}개</span></li>` : ''}</ol>`;
+}
+function goView(sc, st) {
+  const P = PLACES[J.place], N = P.nav;
+  unmount?.(); unmount = null;
+  const app = $('#app'); app.classList.remove('handsOn', 'closeOn', 'pickOn'); app.classList.add('walkOn'); app.style.removeProperty('--pick');
+  drawHud();
+  const spot = st.walk ? N.spots[st.walk] : null, far = st.remote ? N.remote[sc.place] : null;
+  walkGoal = spot ? { id: st.walk, x: spot.x, z: spot.z } : null;
+  const todo = [].concat(sc.todo || [])[0], what = todo?.label || sc.goal || sc.title;
+  const lockerDone = S.i > idxOf((x) => x.place === 'locker' && x.kind === 'tasks');
+  const arrive = () => { if (S.at === S.i) return; sfx('pop'); if (st.travel) travelView(sc, st.travel); else { S.at = S.i; save(); scene(); } };
+  const head = spot ? `${spot.name}${ro(spot.name)} 가요` : far ? `${far.name}${ro(far.name)} 가요` : sc.title;
+  const btn = spot ? `${spot.name}${ro(spot.name)} 걸어가기` : st.travel ? '소방차 타고 출발하기' : `${N.spots[st.from]?.name || '이곳'}에서 시작하기`;
+  walker = null;
+  if (world && st.away) { // 일터 밖(시장)에서 곧장 다른 현장으로: 3D는 지금 있는 바깥 자리를 그대로 보여 준다
+    const set = P.sets[st.away]?.dress; world.dress(set ? { ...J.look, ...set } : J.look, 'work'); world.resize(); world.stage({ place: st.away, hour: clockOf(S, J, sc) / 60 });
+  } else if (world) {
+    world.dress(J.look, lockerDone ? 'work' : 'casual'); world.resize();
+    walker = world.walk({
+      hour: clockOf(S, J, sc) / 60, from: N.spots[st.from],
+      target: spot && { id: st.walk, x: spot.x, z: spot.z, name: spot.name, room: P.rooms.some((r) => r.id === st.walk) ? st.walk : null, what: far ? `소방차 타고 ${far.name}` : what },
+      onArrive: arrive, onNote: (t) => { const m = $('#walkMsg'); if (m) { m.textContent = t; m.classList.add('note'); } },
+      onMove: (moving) => { const b = $('#walkGo'); if (b) { b.disabled = moving; b.textContent = moving ? '걸어가는 중…' : btn; } }, // 바닥이나 표시를 눌러 걸어도 큰 단추가 함께 바뀐다
+    });
+  }
+  const n = sc.notice;
+  view(`<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· 다음 일</span></p>
+    ${st.back ? `<p class="travelLine">🚒 ${esc(st.back)}</p>` : ''}
+    ${n ? `<div class="notice" role="alert"><b>${VIA[n.via] || '📣'} ${esc(n.via)}</b>${esc(n.text)}</div>` : ''}
+    <h2>${esc(head)}</h2>
+    ${todo ? '' : `<p class="walkWhat">할 일 · <b>${esc(what)}</b></p>`}
+    ${spot && world ? `<p class="fine walkHint" id="walkMsg" role="status">3D의 바닥이나 장소 표시를 눌러 걸어가요.</p>` : ''}
+    ${inboxHtml(inbox(S, J))}
+    <button class="btn" id="walkGo">${esc(btn)}</button>`);
+  if (n) sfx(n.via === '출동 벨' ? 'bell' : 'radio');
+  on('#walkGo', (b) => {
+    if (!spot || !walker) return arrive(); // 3D가 없는 기기나 걸을 곳이 없을 때는 바로 다음으로
+    walker.go();
+  });
+}
+let walker = null, walkGoal = null;
+// 일터 밖으로 오갈 때: 소방차를 타고 가는 짧은 한 장면 (걸어서 도시를 다니지는 않는다)
+function travelView(sc, text) {
+  S.at = S.i; save();
+  view(`<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· 가는 길</span></p><div class="travelCard"><span class="truck" aria-hidden="true">🚒</span><b>${esc(text)}</b><div class="dots" aria-hidden="true"><span></span><span></span><span></span></div></div>
+    <button class="btn ghost" id="arrive">도착</button>`);
+  let gone = false; const go = () => { if (gone) return; gone = true; scene(); };
+  on('#arrive', go); setTimeout(go, 1800);
+}
+
 // 앞선 선택이 남긴 여파 카드. 보통은 펼쳐져 있고, 폰의 고르기 장면에서 자리가 모자랄 때만 접힌다(누르면 펼쳐진다).
 const rippleCards = () => (S.notes || []).map((n) => `<details class="ripple" open><summary>앞선 선택이 이어져요</summary>${esc(n.text)}${chips(n.d)}</details>`).join('');
 const goNext = () => { next(S, J); save(); scene(); };
@@ -327,7 +397,7 @@ function order(sc, head, body) {
 // 마친 결과는 S.handsDone 에 남겨서, 새로 고쳐도 다시 하거나 두 번 반영되지 않게 한다.
 // 실기 검사에서만 쓰는 손잡이. 주소 끝 #test 또는 검사 도구가 넣어 둔 표시(cd-test)가 있을 때만 연다.
 let testing = location.hash === '#test'; try { testing ||= !!sessionStorage.getItem('cd-test'); } catch { /* 저장이 막힌 기기 */ }
-if (testing) window.__cd = { world: () => world };
+if (testing) window.__cd = { world: () => world, goal: () => walkGoal };
 let unmount = null; // 지금 붙어 있는 손 놀이를 떼어 내는 함수 (3D 가까이 보기를 끝낸다)
 function hands(sc, head, body) {
   // 손으로 하는 장면에서는 3D와 할 일이 먼저 보이게, 장면 설명은 "상황 다시 보기"로 접어 둔다 (shared/DESIGN.md §2-1)

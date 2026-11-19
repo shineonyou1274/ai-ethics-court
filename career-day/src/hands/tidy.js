@@ -92,6 +92,22 @@ export const rehabtidy = tidy({
 });
 
 // ── 소방관 ──
+export const alarmcheck = tidy({
+  stage: 'alarmcheck', title: '화재경보 확인', hint: '위쪽 3D 화면에서 직접 해요. 물기는 손가락으로 문지르고, 가습기와 열쇠는 끌어서 초록 원에 놓아요.',
+  start: '연기 감지기 아래를 먼저 살펴요. 진짜 불일까요, 다른 까닭일까요?',
+  items: [
+    { id: 'look', label: '감지기 아래를 살피기 (탁자의 물기 닦기)', kind: 'rub', done: '연기가 아니라 가습기 김이었어요. 탄 냄새도, 불도 없어요.' },
+    { id: 'humid', label: '가습기를 감지기에서 먼 창가로 옮기기', kind: 'move', done: '김이 감지기 쪽으로 오르지 않아요. 이제 수신기를 되돌려요.' },
+    { id: 'reset', label: '복구 열쇠로 수신기 되돌리기', kind: 'move', done: '수신기 불이 초록으로 바뀌었어요. 경보가 멈췄어요.' },
+  ],
+  order: ['look', 'humid', 'reset'],
+  early: {
+    humid: '잠깐! 먼저 둘레를 살펴요. 진짜 불이 아닌지부터 확인해야 해요.',
+    reset: '울린 까닭을 치우기 전에 되돌리면 경보가 또 울려요. 살피고, 까닭을 치운 뒤에 되돌려요.',
+  },
+  good: 'calm', bad: 'redo',
+});
+
 const GEAR = { helmet: '헬멧은', tank: '공기호흡기는', lantern: '랜턴은' };
 const GEARSLOT = { helmet: '헬멧', tank: '공기호흡기', lantern: '랜턴' };
 

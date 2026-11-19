@@ -41,7 +41,7 @@ for (const job of JOBS) {
     if (sc.kind !== 'hands') return;
     if (!HANDS[sc.game]) bad(`${i}번 장면 "${sc.title}": 없는 놀이 ${sc.game}`);
     if (Object.keys(sc.grades || {}).length < 2) bad(`${i}번 장면 "${sc.title}": 등급이 둘 이상이어야 함`);
-    if (!sc.type || !sc.moment) bad(`${i}번 장면 "${sc.title}": moment 와 type 필요`);
+    if (sc.type === undefined || !sc.moment) bad(`${i}번 장면 "${sc.title}": moment 와 type 필요 (돌아보기의 순간으로 세지 않을 장면은 type: null 로 밝힌다)`);
   });
 
   function walk(s) {
@@ -65,6 +65,7 @@ for (const job of JOBS) {
     ends.push({ s, p, m });
     used.moods[m.name] = (used.moods[m.name] || 0) + 1;
     s.log.forEach((l) => l.type && used.types.add(l.type));
+    const nMoments = s.log.filter((l) => l.type).length; if (nMoments < 4 || nMoments > 8) bad(`돌아보기의 순간이 ${nMoments}개 (4~8개여야 함, shared/README.md §2)`);
     for (const k of ['care', 'team', 'energy']) if (s.g[k] < 0 || s.g[k] > 100) bad(`게이지 범위 밖 ${k}=${s.g[k]}`);
     // 결말 이름과 게이지가 맞는가
     const g = s.g, top = ['care', 'team', 'energy'].sort((a, b) => g[b] - g[a])[0];
