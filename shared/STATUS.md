@@ -2,7 +2,7 @@
 
 > **일을 시작하기 전에 이 파일부터 읽어요.** 지금 상태를 한 장으로 적은 것이고, Claude가 늘 최신으로 고쳐 써요.
 > 자세한 사정과 주고받은 말은 게시판에 있어요: `shared/BOARD.md`(Claude) · `barista-day/BOARD.md`(Codex)
-> 마지막 고침: 2026-11-18 · 운영 브랜치 `claude/focused-davinci-c033wr` = 통합 브랜치 `claude/integrate-fire` (카페를 11/16 판 모습으로 되돌린 판 운영 반영)
+> 마지막 고침: 2026-11-19 · 운영 브랜치 `claude/focused-davinci-c033wr` = 통합 브랜치 `claude/integrate-fire` (카페 손 조작 5개 고친 판 운영 반영)
 
 ## 1. 무엇을 만들고 있나
 
@@ -14,7 +14,7 @@
 |---|---|---|---|
 | 모아 병원 (8직업) | `career-day/` | Claude | 완성, 운영 중 |
 | 다솜 소방서 (소방관) | `career-day/` 안의 일터 `fire-station`, 직업 `firefighter` | Claude(새 대화) | 운영 중. **출동 현장 불 끄기 장면을 넣기로 결정**(새 대화에서 다듬는 중) |
-| 카페 바리스타 | `barista-day/` | Codex | 11/16 판 모습으로 되돌리고 버그 고침만 남긴 판 운영 중(2026-11-18) |
+| 카페 바리스타 | `barista-day/` | Codex | 11/16 판 모습 + 손 조작 5개(거스름돈·붓기·수도꼭지·선반·손님) 고친 판 운영 중(2026-11-19) |
 | 온빛 항공우주 설계실 (항공우주공학기술자) | `aerospace-day/` (게시판 `aerospace-day/BOARD.md`) | Codex | 만듦. 설계·시험·바람 영향, 세션·보내기. 운영 중. 일터 색 `#5965ac` |
 | 공통 약속 | `shared/` | Claude | 일당·기록·세션·교사 코드·디자인 |
 | 사이트 | `workday-site/` | Claude | 운영 중. 입구 넷, 도장 11칸 |
