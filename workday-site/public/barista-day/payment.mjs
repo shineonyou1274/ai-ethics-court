@@ -19,7 +19,7 @@ export class Checkout {
   const amounts=[...new Set(this.model.change)];
   amounts.forEach((value,i)=>{const count=this.model.change.filter(v=>v===value).length,g=new T.Group();
    const columns=Math.min(2,amounts.length),rows=Math.ceil(amounts.length/2);
-   g.position.set((i%2-(columns-1)/2)*1.05,0,(Math.floor(i/2)-(rows-1)/2)*.52);g.scale.setScalar(.8);this.change.add(g);
+   g.position.set((i%2-(columns-1)/2)*1.05,0,(Math.floor(i/2)-(rows-1)/2)*.52);if(value<1000)g.position.x-=.18;g.scale.setScalar(.8);this.change.add(g);
    if(value>=1000)this.makePaper(g,won(value),count+'장',value===5000?0xcba575:0x9abccc,1,.42);
    else this.makePaper(g,won(value),count+'개',value===500?0xd0bd84:0xc0c7c0,.5,.5,true);
   });this.change.updateMatrixWorld(true);
