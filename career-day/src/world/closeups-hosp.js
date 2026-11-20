@@ -218,7 +218,7 @@ export const HOSP_A = {
       for (const [, x, c, t] of BINS) {
         if (t === '의료폐기물') { box(g, x, 0.45, -0.85, 1.0, 0.9, 0.9, c); box(g, x, 0.91, -0.85, 1.02, 0.03, 0.92, '#a87b22'); }
         else { cyl(g, x, 0.45, -0.85, 0.48, 0.9, c, 0.42); cyl(g, x, 0.91, -0.85, 0.5, 0.04, '#4d5559'); }
-        tag2(g, [t], x, 1.35, -0.4, t.length > 3 ? 1.3 : 1.0, 0.36);
+        tag2(g, [t], x, 0.55, -0.3, t.length > 3 ? 1.3 : 1.0, 0.36); // 이름표는 수거함 앞면에 (넣은 물건이 위에서 보이게)
       }
       box(g, 0, 0.35, 1.35, 5.0, 0.7, 0.85, '#b9c2bf'); box(g, 0, 0.705, 1.35, 5.05, 0.02, 0.9, '#d0d8d6'); // 수레
       const snack = new T.Group(); box(snack, 0, 0.05, 0, 0.36, 0.1, 0.26, '#e98f4a'); ball(snack, 0.12, 0.08, 0.05, 0.08, '#fbfbf6'); mtag(snack, '과자 봉지·휴지', 0, 0.42, 0.2, 1.05, 0.28); g.add(snack);
@@ -228,7 +228,7 @@ export const HOSP_A = {
       const done = tag2(g, ['분리 끝 · 수거차 준비 ✓'], 0, 2.0, -1.5, 2.1, 0.34, '#2f8f6c'); done.visible = false;
       let left = 4;
       const into = (o) => { o.scale.setScalar(0.8); if (--left === 0) done.visible = true; };
-      const M = (id, obj, slot, x) => ({ id, obj, slot, from: [x, 1.35], y: 0.72, dragY: 0.95, restY: 0.93, lift: 0.18, onPlaced: into });
+      const M = (id, obj, slot, x) => ({ id, obj, slot, from: [x, 1.35], y: 0.72, dragY: 0.95, restY: 0.97, lift: 0.18, onPlaced: into });
       return {
         frame: { top: 1.8 },
         slots: BINS.map(([id, x]) => ({ id, at: [x, -0.85], y: 0.95, r: 0.5 })),
