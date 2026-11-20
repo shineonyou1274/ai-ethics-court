@@ -1,0 +1,1221 @@
+{
+  "width": 1250,
+  "height": 750,
+  "commands": [
+    {
+      "action": "tap",
+      "selector": "#start",
+      "label": "start"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 8000,
+      "label": "handwash"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 10000,
+      "label": "open-cafe"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 7000,
+      "label": "take-order",
+      "expect": "카운터로 오는 손님 맞이하기"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 800,
+      "label": "payment",
+      "expect": "현금 결제 받기"
+    },
+    {
+      "action": "drag",
+      "from": [
+        178,
+        298
+      ],
+      "to": [
+        470,
+        494
+      ],
+      "label": "receive-cash"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"5000\"]",
+      "label": "change-5000"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"1000\"]",
+      "label": "change-1000"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"500\"]",
+      "label": "change-500"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"100\"]",
+      "label": "change-four-kinds"
+    },
+    {
+      "action": "separate",
+      "a": "#payChange",
+      "b": ".pay-count",
+      "label": "one-unit-labels-clear"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"5000\"]",
+      "label": "two-units-5000"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"1000\"]",
+      "label": "two-units-1000"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"500\"]",
+      "label": "two-units-500"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"100\"]",
+      "label": "two-units-100"
+    },
+    {
+      "action": "separate",
+      "a": "#payChange",
+      "b": ".pay-count",
+      "label": "two-unit-labels-clear"
+    },
+    {
+      "action": "tap",
+      "selector": "#payUndo",
+      "label": "restore-one-unit-0"
+    },
+    {
+      "action": "tap",
+      "selector": "#payUndo",
+      "label": "restore-one-unit-1"
+    },
+    {
+      "action": "tap",
+      "selector": "#payUndo",
+      "label": "restore-one-unit-2"
+    },
+    {
+      "action": "tap",
+      "selector": "#payUndo",
+      "label": "restore-one-unit-3"
+    },
+    {
+      "action": "tap",
+      "selector": "#payUndo",
+      "label": "undo-100"
+    },
+    {
+      "action": "tap",
+      "selector": "#payUndo",
+      "label": "undo-500"
+    },
+    {
+      "action": "tap",
+      "selector": "#payUndo",
+      "label": "undo-1000"
+    },
+    {
+      "action": "tap",
+      "selector": "#payUndo",
+      "label": "undo-5000"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"1000\"]",
+      "label": "correct-change"
+    },
+    {
+      "action": "drag",
+      "from": [
+        238,
+        478
+      ],
+      "to": [
+        176,
+        298
+      ],
+      "label": "give-change",
+      "wait": 6000
+    },
+    {
+      "action": "drag",
+      "from": [
+        352,
+        404
+      ],
+      "to": [
+        176,
+        298
+      ],
+      "label": "give-receipt"
+    },
+    {
+      "action": "tap",
+      "selector": "#payDone",
+      "wait": 500,
+      "label": "receipt-thanks"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 4000,
+      "label": "brewing-bench"
+    },
+    {
+      "action": "drag",
+      "from": [
+        134,
+        470
+      ],
+      "to": [
+        320,
+        450
+      ],
+      "label": "place-cup"
+    },
+    {
+      "action": "hold",
+      "selector": "#benchGrind",
+      "ms": 5000,
+      "label": "grind"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchExtract",
+      "wait": 5000,
+      "label": "extract"
+    },
+    {
+      "action": "read",
+      "wait": 5000,
+      "label": "espresso-ready"
+    },
+    {
+      "action": "drag",
+      "from": [
+        602,
+        474
+      ],
+      "to": [
+        320,
+        406
+      ],
+      "hold": 1800,
+      "label": "pour-water"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchSeal",
+      "label": "seal-americano"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchFinish",
+      "label": "take-coffee"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 10000,
+      "label": "customer-drinks"
+    },
+    {
+      "action": "read",
+      "wait": 3000,
+      "label": "taste-reaction"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 4000,
+      "label": "second-order",
+      "expect": "카운터로 오는 손님 맞이하기"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 600,
+      "label": "second-payment",
+      "expect": "카드 결제 받기"
+    },
+    {
+      "action": "drag",
+      "from": [
+        178,
+        298
+      ],
+      "to": [
+        546,
+        316
+      ],
+      "wait": 2000,
+      "label": "tap-card"
+    },
+    {
+      "action": "read",
+      "label": "resume-card-state"
+    },
+    {
+      "action": "drag",
+      "from": [
+        352,
+        404
+      ],
+      "to": [
+        176,
+        298
+      ],
+      "label": "second-receipt"
+    },
+    {
+      "action": "tap",
+      "selector": "#payDone",
+      "label": "second-paid"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 3000,
+      "label": "first-table-cleanup"
+    },
+    {
+      "action": "read",
+      "wait": 4000,
+      "label": "cleanup-ready"
+    },
+    {
+      "action": "drag",
+      "from": [
+        294,
+        308
+      ],
+      "to": [
+        554,
+        546
+      ],
+      "label": "collect-used-cup"
+    },
+    {
+      "action": "rub",
+      "points": [
+        [
+          232,
+          310
+        ],
+        [
+          344,
+          314
+        ],
+        [
+          230,
+          336
+        ],
+        [
+          348,
+          340
+        ],
+        [
+          250,
+          290
+        ],
+        [
+          332,
+          360
+        ],
+        [
+          404,
+          396
+        ],
+        [
+          502,
+          404
+        ],
+        [
+          406,
+          424
+        ],
+        [
+          496,
+          432
+        ],
+        [
+          354,
+          450
+        ],
+        [
+          446,
+          452
+        ],
+        [
+          354,
+          438
+        ],
+        [
+          448,
+          466
+        ]
+      ],
+      "label": "wipe-table"
+    },
+    {
+      "action": "rub",
+      "points": [
+        [
+          430,
+          372
+        ],
+        [
+          478,
+          374
+        ],
+        [
+          432,
+          366
+        ],
+        [
+          480,
+          380
+        ],
+        [
+          270,
+          364
+        ],
+        [
+          310,
+          370
+        ],
+        [
+          270,
+          380
+        ],
+        [
+          310,
+          380
+        ]
+      ],
+      "label": "finish-table-wipe"
+    },
+    {
+      "action": "read",
+      "label": "table-finished"
+    },
+    {
+      "action": "tap",
+      "selector": "#cleanDone",
+      "label": "return-from-table"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 6000,
+      "label": "sink-ready"
+    },
+    {
+      "action": "tap",
+      "x": 438,
+      "y": 216,
+      "label": "touch-faucet-on"
+    },
+    {
+      "action": "rub",
+      "points": [
+        [
+          196,
+          380
+        ],
+        [
+          278,
+          380
+        ],
+        [
+          196,
+          392
+        ],
+        [
+          280,
+          394
+        ],
+        [
+          196,
+          406
+        ],
+        [
+          280,
+          408
+        ],
+        [
+          198,
+          420
+        ],
+        [
+          278,
+          420
+        ],
+        [
+          212,
+          366
+        ],
+        [
+          264,
+          430
+        ]
+      ],
+      "label": "scrub-coffee-stains"
+    },
+    {
+      "action": "drag",
+      "from": [
+        238,
+        404
+      ],
+      "to": [
+        384,
+        360
+      ],
+      "hold": 2500,
+      "label": "rinse-under-visible-stream"
+    },
+    {
+      "action": "drag",
+      "from": [
+        384,
+        360
+      ],
+      "to": [
+        604,
+        390
+      ],
+      "label": "place-on-drying-rack"
+    },
+    {
+      "action": "drag",
+      "from": [
+        610,
+        378
+      ],
+      "to": [
+        182,
+        240
+      ],
+      "label": "rack-to-shelf-first-try"
+    },
+    {
+      "action": "tap",
+      "selector": "#washDone",
+      "label": "clean-cup-stored"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 6000,
+      "label": "reuse-cup-bench"
+    },
+    {
+      "action": "drag",
+      "from": [
+        134,
+        470
+      ],
+      "to": [
+        320,
+        450
+      ],
+      "label": "reuse-shelf-cup"
+    },
+    {
+      "action": "hold",
+      "selector": "#benchGrind",
+      "ms": 5000,
+      "label": "grind-oat-latte"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchExtract",
+      "wait": 10000,
+      "label": "extract-oat-latte"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchOat",
+      "label": "fill-oat-pitcher"
+    },
+    {
+      "action": "hold",
+      "selector": "#benchSteam",
+      "ms": 5000,
+      "label": "steam-oat-milk"
+    },
+    {
+      "action": "drag",
+      "from": [
+        602,
+        474
+      ],
+      "to": [
+        320,
+        406
+      ],
+      "hold": 6500,
+      "label": "pour-oat-milk"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchSeal",
+      "label": "finish-oat-ratio"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchFinish",
+      "label": "carry-oat-latte"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 12000,
+      "label": "second-customer-drinks"
+    },
+    {
+      "action": "read",
+      "wait": 7000,
+      "label": "second-customer-reaction"
+    },
+    {
+      "action": "tap",
+      "selector": "#finishBreak",
+      "label": "finish-lunch-break",
+      "wait": 6000
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 6000,
+      "label": "third-order",
+      "expect": "카운터로 오는 손님 맞이하기"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 6000,
+      "label": "third-payment",
+      "expect": "현금 결제 받기"
+    },
+    {
+      "action": "drag",
+      "from": [
+        178,
+        298
+      ],
+      "to": [
+        470,
+        494
+      ],
+      "label": "receive-third-cash"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"5000\"]",
+      "label": "third-change-note"
+    },
+    {
+      "action": "tap",
+      "selector": "[data-money=\"500\"]",
+      "label": "third-change-coin"
+    },
+    {
+      "action": "drag",
+      "from": [
+        238,
+        478
+      ],
+      "to": [
+        176,
+        298
+      ],
+      "label": "third-give-change",
+      "wait": 6000
+    },
+    {
+      "action": "drag",
+      "from": [
+        352,
+        404
+      ],
+      "to": [
+        176,
+        298
+      ],
+      "wait": 1000,
+      "label": "third-receipt-ready"
+    },
+    {
+      "action": "tap",
+      "selector": "#payDone",
+      "label": "third-paid-confirmed"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 8000,
+      "label": "second-table-ready"
+    },
+    {
+      "action": "drag",
+      "from": [
+        294,
+        308
+      ],
+      "to": [
+        554,
+        546
+      ],
+      "label": "collect-second-cup"
+    },
+    {
+      "action": "rub",
+      "points": [
+        [
+          232,
+          310
+        ],
+        [
+          344,
+          314
+        ],
+        [
+          230,
+          336
+        ],
+        [
+          348,
+          340
+        ],
+        [
+          250,
+          290
+        ],
+        [
+          332,
+          360
+        ],
+        [
+          404,
+          396
+        ],
+        [
+          502,
+          404
+        ],
+        [
+          406,
+          424
+        ],
+        [
+          496,
+          432
+        ],
+        [
+          354,
+          450
+        ],
+        [
+          446,
+          452
+        ],
+        [
+          354,
+          438
+        ],
+        [
+          448,
+          466
+        ],
+        [
+          430,
+          372
+        ],
+        [
+          478,
+          374
+        ],
+        [
+          432,
+          366
+        ],
+        [
+          480,
+          380
+        ],
+        [
+          270,
+          364
+        ],
+        [
+          310,
+          370
+        ],
+        [
+          270,
+          380
+        ],
+        [
+          310,
+          380
+        ]
+      ],
+      "label": "wipe-second-table"
+    },
+    {
+      "action": "tap",
+      "selector": "#cleanDone",
+      "label": "second-table-clean"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 8000,
+      "label": "second-cup-sink"
+    },
+    {
+      "action": "tap",
+      "x": 438,
+      "y": 216,
+      "label": "second-faucet-on"
+    },
+    {
+      "action": "rub",
+      "points": [
+        [
+          196,
+          380
+        ],
+        [
+          278,
+          380
+        ],
+        [
+          196,
+          392
+        ],
+        [
+          280,
+          394
+        ],
+        [
+          196,
+          406
+        ],
+        [
+          280,
+          408
+        ],
+        [
+          198,
+          420
+        ],
+        [
+          278,
+          420
+        ],
+        [
+          212,
+          366
+        ],
+        [
+          264,
+          430
+        ]
+      ],
+      "label": "second-cup-scrub"
+    },
+    {
+      "action": "drag",
+      "from": [
+        238,
+        404
+      ],
+      "to": [
+        384,
+        360
+      ],
+      "hold": 2500,
+      "label": "second-cup-rinse"
+    },
+    {
+      "action": "drag",
+      "from": [
+        384,
+        360
+      ],
+      "to": [
+        604,
+        390
+      ],
+      "label": "second-cup-dry"
+    },
+    {
+      "action": "drag",
+      "from": [
+        610,
+        378
+      ],
+      "to": [
+        182,
+        240
+      ],
+      "label": "second-cup-shelve"
+    },
+    {
+      "action": "tap",
+      "selector": "#washDone",
+      "label": "second-cup-stored"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 7000,
+      "label": "third-bench"
+    },
+    {
+      "action": "drag",
+      "from": [
+        134,
+        470
+      ],
+      "to": [
+        320,
+        450
+      ],
+      "label": "third-cup"
+    },
+    {
+      "action": "hold",
+      "selector": "#benchGrind",
+      "ms": 5000,
+      "label": "third-grind"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchExtract",
+      "wait": 10000,
+      "label": "third-extract"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchMilk",
+      "label": "third-milk"
+    },
+    {
+      "action": "hold",
+      "selector": "#benchSteam",
+      "ms": 5000,
+      "label": "third-steam"
+    },
+    {
+      "action": "drag",
+      "from": [
+        602,
+        474
+      ],
+      "to": [
+        320,
+        406
+      ],
+      "hold": 1800,
+      "label": "pour-strong-latte"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchSeal",
+      "label": "finish-strong-latte"
+    },
+    {
+      "action": "tap",
+      "selector": "#benchFinish",
+      "label": "carry-third-coffee"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 20000,
+      "label": "third-customer-drinks"
+    },
+    {
+      "action": "read",
+      "wait": 8000,
+      "label": "third-reaction-and-closing"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 8000,
+      "label": "last-table"
+    },
+    {
+      "action": "drag",
+      "from": [
+        294,
+        308
+      ],
+      "to": [
+        554,
+        546
+      ],
+      "label": "collect-last-cup"
+    },
+    {
+      "action": "rub",
+      "points": [
+        [
+          232,
+          310
+        ],
+        [
+          344,
+          314
+        ],
+        [
+          230,
+          336
+        ],
+        [
+          348,
+          340
+        ],
+        [
+          250,
+          290
+        ],
+        [
+          332,
+          360
+        ],
+        [
+          404,
+          396
+        ],
+        [
+          502,
+          404
+        ],
+        [
+          406,
+          424
+        ],
+        [
+          496,
+          432
+        ],
+        [
+          354,
+          450
+        ],
+        [
+          446,
+          452
+        ],
+        [
+          354,
+          438
+        ],
+        [
+          448,
+          466
+        ],
+        [
+          430,
+          372
+        ],
+        [
+          478,
+          374
+        ],
+        [
+          432,
+          366
+        ],
+        [
+          480,
+          380
+        ],
+        [
+          270,
+          364
+        ],
+        [
+          310,
+          370
+        ],
+        [
+          270,
+          380
+        ],
+        [
+          310,
+          380
+        ]
+      ],
+      "label": "wipe-last-table"
+    },
+    {
+      "action": "tap",
+      "selector": "#cleanDone",
+      "label": "last-table-clean"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 8000,
+      "label": "last-cup-sink"
+    },
+    {
+      "action": "tap",
+      "x": 438,
+      "y": 216,
+      "label": "last-faucet-on"
+    },
+    {
+      "action": "rub",
+      "points": [
+        [
+          196,
+          380
+        ],
+        [
+          278,
+          380
+        ],
+        [
+          196,
+          392
+        ],
+        [
+          280,
+          394
+        ],
+        [
+          196,
+          406
+        ],
+        [
+          280,
+          408
+        ],
+        [
+          198,
+          420
+        ],
+        [
+          278,
+          420
+        ],
+        [
+          212,
+          366
+        ],
+        [
+          264,
+          430
+        ]
+      ],
+      "label": "last-cup-scrub"
+    },
+    {
+      "action": "drag",
+      "from": [
+        238,
+        404
+      ],
+      "to": [
+        384,
+        360
+      ],
+      "hold": 2500,
+      "label": "last-cup-rinse"
+    },
+    {
+      "action": "drag",
+      "from": [
+        384,
+        360
+      ],
+      "to": [
+        604,
+        390
+      ],
+      "label": "last-cup-dry"
+    },
+    {
+      "action": "drag",
+      "from": [
+        610,
+        378
+      ],
+      "to": [
+        182,
+        240
+      ],
+      "label": "last-cup-shelve"
+    },
+    {
+      "action": "tap",
+      "selector": "#washDone",
+      "label": "last-cup-stored"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 8000,
+      "label": "clean-tools"
+    },
+    {
+      "action": "tap",
+      "selector": "#action",
+      "wait": 8000,
+      "label": "store-ingredients"
+    },
+    {
+      "action": "tap",
+      "selector": "#like-3",
+      "label": "liked-pouring"
+    },
+    {
+      "action": "tap",
+      "selector": "#hard-5",
+      "label": "hard-washing"
+    },
+    {
+      "action": "tap",
+      "selector": "#saveDay",
+      "label": "whole-day-saved"
+    },
+    {
+      "action": "assert",
+      "selector": "#recordStatus",
+      "text": "출근 기록을 저장했어요.",
+      "label": "saved-confirmed"
+    },
+    {
+      "action": "close"
+    }
+  ],
+  "errors": [],
+  "commandErrors": []
+}

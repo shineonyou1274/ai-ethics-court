@@ -1,0 +1,1 @@
+✓ ../../outputs/story-batch/cafe-final-verified-se/page@069d9f18355024e18a5af0b146796c8d.webm {"seconds":475.8,"maxFlashesPerSec":1,"worst":"칸 0,1","atSec":224.96,"whiteFrames":0,"whiteAt":[],"pass":true}
