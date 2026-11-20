@@ -3,7 +3,7 @@
 //   movers : 집어서 옮기는 물건. { id, obj, from: [x, z], to: [x, z], r, y }
 // 좌표는 무대 가운데가 (0, 0) 이고, 화면 아래쪽이 +z 예요.
 import * as T from 'three';
-import { box, cyl, ball, label, person, mat } from './kit.js';
+import { box, cyl, ball, label, person, mat, reduced } from './kit.js';
 import { makeFire, makeEmberGlow, makeWater } from './fx.js';
 import { helmet, tank, lantern, hydrant, hoseRoll, nozzle, wrench, cone, RED, CREAM, STEEL, KHAKI, GLOW } from './firekit.js';
 
@@ -210,6 +210,59 @@ export const CLOSEUPS = {
           { id: 'band', obj: bandG, from: [1.4, 1.35], slot: 'band', y: 0.02, restY: SY + 0.1, lift: 0.3 },
           { id: 'bell', obj: bell, from: [2.2, 1.25], slot: 'bell', y: 0.02, restY: SY + 0.1, lift: 0.3 },
         ],
+      };
+    },
+  },
+  // 소방관 ⓪ 잘못 울린 화재경보: 감지기 아래의 물기를 살펴 불이 아닌 것을 확인하고, 가습기를 감지기에서 먼 곳으로 옮기고, 수신기를 되돌린다.
+  // 실제 확인 절차를 아주 단순하게 줄인 무대다. 경보 불빛은 2초에 한 번 부드럽게 오르내린다(번쩍이지 않게).
+  alarmcheck: {
+    build(g) {
+      floor(g, 5.8, 4.2, '#ebe6dc');
+      label(g, '학원 3층 복도', -0.5, 1.45, -2.03, 1.5, 0.36); // 위쪽 띠에 가리지 않게 낮게 단다
+      box(g, -1.85, 1.5, -2.02, 1.3, 0.85, 0.04, '#bcd8e4'); box(g, -1.85, 1.5, -2.0, 0.04, 0.85, 0.03, '#f3efe6'); // 창
+      const Y = 0.75;
+      box(g, -1.85, Y / 2, -1.6, 1.0, Y, 0.6, '#e2d6c3'); box(g, -1.85, Y - 0.02, -1.6, 1.05, 0.04, 0.65, '#f3ece1'); // 창가 선반
+      box(g, 0.1, Y / 2, -1.05, 2.1, Y, 0.95, '#d7c3a6'); box(g, 0.1, Y - 0.02, -1.05, 2.2, 0.05, 1.05, '#efe3cf'); // 감지기 아래 탁자
+      // 천장 가까이 벽에 단 연기 감지기 (빨간 불이 천천히 오르내린다)
+      cyl(g, 0.4, 2.15, -1.96, 0.3, 0.1, '#f7f4ec').rotation.x = Math.PI / 2; cyl(g, 0.4, 2.15, -1.9, 0.18, 0.04, '#e4ded2').rotation.x = Math.PI / 2;
+      const led = new T.Mesh(new T.SphereGeometry(0.07, 12, 8), new T.MeshBasicMaterial({ color: '#e2513a', transparent: true, opacity: 0.9 })); led.position.set(0.4, 2.15, -1.86); g.add(led);
+      tag(g, '연기 감지기', 1.2, 2.2, -1.9, 1.05, 0.4);
+      // 화재 수신기: 경보가 울린 곳을 알려 주는 상자. 복구 열쇠를 꽂으면 되돌아간다
+      const P = [2.15, -1.45];
+      box(g, P[0], 0.65, P[1], 0.85, 1.3, 0.55, '#f3efe6'); box(g, P[0], 1.31, P[1], 0.9, 0.04, 0.6, '#d9d3c7');
+      const lamp = new T.Mesh(new T.CircleGeometry(0.09, 16), new T.MeshBasicMaterial({ color: '#e2513a' })); lamp.rotation.x = -Math.PI / 2; lamp.position.set(P[0] - 0.22, 1.335, P[1] + 0.12); g.add(lamp);
+      box(g, P[0] + 0.12, 1.335, P[1] + 0.12, 0.3, 0.012, 0.12, '#5b5f66');
+      tag(g, '화재 수신기', P[0], 1.95, P[1] - 0.2, 1.05, 0.4);
+      // 가습기와 김
+      const humid = new T.Group(); cyl(humid, 0, 0.22, 0, 0.17, 0.44, '#cfe3ea'); cyl(humid, 0, 0.46, 0, 0.08, 0.06, '#9fc1cf'); g.add(humid);
+      const puffs = [0, 1, 2, 3].map((k) => { const m = new T.Mesh(new T.SphereGeometry(0.12, 10, 8), new T.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0, depthWrite: false })); m.userData.k = k; g.add(m); return m; });
+      // 복구 열쇠 (앞쪽 깔개 위)
+      box(g, -0.4, 0.012, 1.35, 1.6, 0.02, 0.7, '#cfd6d8');
+      const key = new T.Group(); box(key, 0, 0.04, 0, 0.36, 0.05, 0.12, '#f2c94c'); const ring = new T.Mesh(new T.TorusGeometry(0.09, 0.03, 8, 18), mat('#f2c94c')); ring.rotation.x = Math.PI / 2; ring.position.set(-0.24, 0.04, 0); key.add(ring); g.add(key);
+      tag(g, '복구 열쇠', -0.4, 0.55, 1.05, 0.9, 0.36);
+      // 함께 나온 팀장과 학원 선생님
+      const boss = person({ coat: KHAKI, seed: 1, hair: 2, outfit: 'turnout' }); boss.root.position.set(-2.45, 0, 0.55); boss.root.rotation.y = 0.9; g.add(boss.root);
+      const teacher = person({ coat: '#b5c4dc', seed: 6, hair: 1 }); teacher.root.position.set(2.45, 0, 0.75); teacher.root.rotation.y = -1.9; g.add(teacher.root);
+      const tool = cloth(); g.add(tool);
+      let on = true, moved = false;
+      const H0 = [0.75, -1.25];
+      return {
+        rubY: Y + 0.01, focus: [0, 0.6, 0.2], zoom: 3.9, tool,
+        patches: [{ id: 'look', y: Y + 0.005, color: '#9fd0ea', opacity: 0.7, dot: 0.1, reach: 0.26, blobs: [{ x: -0.35, z: -0.9, r: 0.3, n: 15 }, { x: 0.25, z: -0.72, r: 0.2, n: 8 }] }], // 감지기 아래 탁자에 맺힌 물기
+        movers: [
+          { id: 'humid', obj: humid, from: H0, to: [-1.85, -1.6], r: 0.5, y: Y, dragY: Y, restY: Y, lift: 0.25, ringY: Y + 0.01, onPlaced() { moved = true; } },
+          { id: 'reset', obj: key, from: [-0.4, 1.35], to: P, r: 0.45, y: 0.03, dragY: 1.32, restY: 1.34, lift: 0.2, ringY: 1.345, onPlaced() { on = false; lamp.material.color.set('#3f9d7d'); led.material.color.set('#9fb6c4'); } },
+        ],
+        tick(dt, t) {
+          led.material.opacity = on && !reduced ? 0.65 + 0.3 * Math.sin(t * Math.PI) : 0.9; // 2초에 한 번 부드럽게
+          for (const m of puffs) {
+            const ph = (t * 0.35 + m.userData.k / 4) % 1, base = humid.position;
+            m.visible = !reduced || m.userData.k === 0;
+            m.position.set(base.x + Math.sin(ph * 4 + m.userData.k) * 0.08, base.y + 0.5 + (reduced ? 0.25 : ph * 1.3), base.z);
+            m.scale.setScalar(0.6 + ph * 1.4); m.material.opacity = (moved ? 0.25 : 0.45) * (reduced ? 0.8 : Math.sin(ph * Math.PI));
+          }
+          boss.update(t, false); teacher.update(t, false);
+        },
       };
     },
   },

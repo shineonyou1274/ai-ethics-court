@@ -343,18 +343,18 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   #app.pickOn .view > .eyebrow { display: none; }
   /* 줄어든 3D 칸이 가려지지 않게: '크게 보기'는 감추고, 위쪽 띠는 밀림 표시가 있어도 한 줄로 둔다(자리가 모자라면 직업 이름만 줄인다) */
   #app.pickOn #zoomBtn { display: none; }
-  #app.pickOn #hud { flex-wrap: nowrap; gap: 4px; }
-  #app.pickOn #clock { display: flex; align-items: baseline; min-width: 0; flex: 0 1 auto; padding: 3px 8px; }
-  #app.pickOn #clock i { font-style: normal; overflow: hidden; text-overflow: ellipsis; min-width: 2.2em; }
-  #app.pickOn #clock span, #app.pickOn #clock small { flex: none; }
-  #app.pickOn #gauges { gap: 2px; flex: none; }
-  #app.pickOn .gauge { padding: 2px 5px; }
+  #app:is(.pickOn, .walkOn) #hud { flex-wrap: nowrap; gap: 4px; }
+  #app:is(.pickOn, .walkOn) #clock { display: flex; align-items: baseline; min-width: 0; flex: 0 1 auto; padding: 3px 8px; }
+  #app:is(.pickOn, .walkOn) #clock i { font-style: normal; overflow: hidden; text-overflow: ellipsis; min-width: 2.2em; }
+  #app:is(.pickOn, .walkOn) #clock span, #app:is(.pickOn, .walkOn) #clock small { flex: none; }
+  #app:is(.pickOn, .walkOn) #gauges { gap: 2px; flex: none; }
+  #app:is(.pickOn, .walkOn) .gauge { padding: 2px 5px; }
   /* 밀림 표시가 있을 때는 직업 이름을 감추고 시각과 밀린 시간을 보여 준다 (한 줄에 다 들어가게) */
-  #app.pickOn #clock { overflow: hidden; }
-  #app.pickOn #clock:has(small) i { display: none; }
+  #app:is(.pickOn, .walkOn) #clock { overflow: hidden; }
+  #app:is(.pickOn, .walkOn) #clock:has(small) i { display: none; }
   /* 골라 담기: 보기가 여섯이라 다 들어오지 않을 수 있다. 정하는 단추는 늘 아래에 붙어 보이게 한다 */
   #app.pickOn #ok { position: sticky; bottom: 0; box-shadow: 0 5px 0 var(--coral-d), 0 -10px 12px 6px var(--paper); }
-  #app.pickOn #money { flex: none; padding: 1px 8px; }
+  #app:is(.pickOn, .walkOn) #money { flex: none; padding: 1px 8px; }
   /* 3D를 못 쓰는 기기: 위 칸에는 안내 그림 하나뿐이라, 칸을 줄여 버튼이 위로 올라오게 한다 */
   #app.flat, #app.flat.closeOn, #app.flat.pickOn, #app.flat.handsOn { grid-template-rows: 20dvh minmax(0, 1fr); }
   /* 위 칸이 낮아서 긴 안내는 ♪ 단추에 가린다. 짧은 글로 바꾸고 단추 자리를 비워 둔다 */
@@ -372,4 +372,81 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   #app.closeOn .ctrl button { width: 40px; height: 40px; font-size: 19px; }
   #app.closeOn #zoomBtn { display: none; }
   .handsMsg { margin-top: 8px; padding: 8px 12px; }
+}
+
+/* ── 걸어 다니기 (카페 방식, shared/DESIGN.md §2-3 · src/flow.js) ── */
+/* 3D 위의 이름표: 다음 일이 있는 자리(누르면 걸어간다)와 내 캐릭터 */
+.marks { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.marks[hidden] { display: none; }
+.ctrl { z-index: 2; }
+.mark { position: absolute; left: 0; top: 0; }
+.mark.goal { pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 5px 12px 6px; border-radius: 14px; background: #fffdf8; border: 2px solid var(--place, var(--coral)); box-shadow: 0 3px 0 var(--place-d, var(--coral-d)); color: var(--ink); white-space: nowrap; line-height: 1.25; }
+.mark.goal b { font-family: "Jua", sans-serif; font-weight: 400; font-size: 17px; }
+.mark.goal small { font-size: 16px; color: var(--soft); }
+.mark.goal small[hidden] { display: none; }
+.mark.goal::after { content: ""; position: absolute; left: 50%; bottom: -10px; margin-left: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: var(--place, var(--coral)); }
+.mark.goal[hidden] { display: none; }
+.mark.me { padding: 1px 9px; border-radius: 999px; background: var(--ink); color: #fff; font: 15px/1.35 "Jua", sans-serif; }
+/* 아래 칸: 찾아온 일, 할 일, 받은 일 목록, 걸어가기 단추 */
+.notice { background: #fff1e8; border: 2px solid #f2c4b3; border-radius: 16px; padding: 9px 14px; margin: 4px 0 8px; font-size: 16px; line-height: 1.5; }
+.notice b { display: block; font-family: "Jua", sans-serif; font-weight: 400; color: var(--coral-d); font-size: 17px; }
+.travelLine { background: #eef4f7; border-radius: 14px; padding: 7px 12px; margin: 4px 0 8px; font-size: 16px; }
+.walkWhat { font-size: 16px; margin: 0 0 8px; } .walkWhat b { font-family: "Jua", sans-serif; font-weight: 400; font-size: 17px; } .walkWhat span { color: var(--soft); }
+.inboxHead { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 4px; font-size: 16px; }
+.inboxHead b { font-family: "Jua", sans-serif; font-weight: 400; color: var(--soft); }
+.inboxHead .sum { margin-left: auto; color: var(--mint-d); }
+.inbox li { padding: 6px 12px; }
+.inbox li.now { border-color: var(--coral); background: #fff6f0; } .inbox li.now i { border-color: var(--coral); }
+.inbox li.fresh small { color: var(--coral-d); font-family: "Jua", sans-serif; }
+.inbox li.missed { opacity: .65; } .inbox li.missed span { text-decoration: line-through; }
+.inbox li.sum span, .inbox li.later span { color: var(--soft); }
+.inbox li.later { border-style: dashed; background: transparent; }
+.walkHint { margin: 0 0 4px; font-size: 16px; } .walkHint.note { color: var(--ink); background: #fff6d8; border-radius: 12px; padding: 6px 10px; }
+#walkGo { margin-top: 10px; }
+.travelCard { display: grid; justify-items: center; gap: 4px; text-align: center; background: #eef4f7; border-radius: 20px; padding: 18px 16px 6px; margin: 10px 0; font-size: 18px; }
+.travelCard .truck { font-size: 42px; line-height: 1; }
+.travelCard b { font-family: "Jua", sans-serif; font-weight: 400; }
+@media not (min-aspect-ratio: 11/10) {
+  /* 걸어 다닐 때는 3D가 주인공이라 칸을 키운다. 아래에는 할 일과 단추만 */
+  #app.walkOn { grid-template-rows: var(--walk, 52dvh) minmax(0, 1fr); transition: none; }
+  #app.walkOn #zoomBtn { display: none; }
+  #app.walkOn .view > .eyebrow { display: none; }
+  #app.walkOn h2 { margin-bottom: 2px; }
+  #app.walkOn #panel { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  /* 걸어가기 단추는 늘 아래에 붙어 보이게 (받은 일 목록이 길어도) */
+  #app.walkOn #walkGo { position: sticky; bottom: 0; box-shadow: 0 5px 0 var(--coral-d), 0 -10px 12px 6px var(--paper); }
+  #app.walkOn #walkGo:disabled { opacity: 1; background: #e9a594; }
+  /* 자리가 모자란 작은 폰(src/main.js 의 fitWalk): 걸어가는 법 안내 한 줄을 접는다. 같은 말을 3D의 장소 표시와 큰 단추가 하고 있다 */
+  #app.walkOn .walkHint.tight:not(.note) { display: none; }
+}
+
+/* ── 걸어 다니는 하루(.walkDay, 지금은 소방서)의 폰 배치 ── */
+@media not (min-aspect-ratio: 11/10) {
+  /* 위쪽 띠는 어느 장면에서나 한 줄. 줄이 바뀌면 둘째 줄이 3D의 물건(연기 감지기 같은)을 가린다 */
+  #app.walkDay #hud { flex-wrap: nowrap; gap: 4px; }
+  #app.walkDay #clock { display: flex; align-items: baseline; min-width: 0; flex: 0 1 auto; padding: 3px 8px; overflow: hidden; }
+  #app.walkDay #clock i { font-style: normal; overflow: hidden; text-overflow: ellipsis; min-width: 2.2em; }
+  #app.walkDay #clock span, #app.walkDay #clock small { flex: none; }
+  #app.walkDay #clock:has(small) i { display: none; }
+  #app.walkDay #gauges { gap: 2px; flex: none; }
+  #app.walkDay .gauge { padding: 2px 5px; }
+  #app.walkDay #money { flex: none; padding: 1px 8px; }
+  /* 고르는 장면: 보기가 넷이어도 3D를 34dvh 가까이 두고 다 보이게. 말한 사람 이름은 말 앞에 한 줄로 잇는다. 글자 크기는 그대로 */
+  #app.walkDay.pickOn .speech small { display: inline; margin: 0 6px 0 0; }
+  #app.walkDay.pickOn .speech { padding: 7px 14px; }
+  #app.walkDay.pickOn .choice { padding: 7px 12px; margin-top: 7px; }
+  #app.walkDay.pickOn .lead { margin: 2px 0 8px; }
+  #app.walkDay.pickOn .bubble { padding: 9px 14px; margin-bottom: 8px; }
+  /* 걸어가기 화면: 찾아온 일 알림과 받은 일 목록을 조금 촘촘하게 (지금 일이 큰 단추에 가리지 않게) */
+  #app.walkDay .notice { padding: 7px 12px; margin: 2px 0 6px; }
+  #app.walkDay .inboxHead { margin: 4px 0 2px; }
+  #app.walkDay .inbox li small { white-space: nowrap; }
+}
+/* 아주 좁은 폰(폭 360px 미만): 밀린 시간이 있으면 시계 알약 안에서 시각 아래로 내려, 단어가 잘리지 않게 한다 */
+@media (max-width: 359px) {
+  #app.walkDay #hud { gap: 3px; inset: 8px 6px auto 6px; }
+  #app.walkDay #clock:has(small) { flex-direction: column; align-items: center; line-height: 1.12; padding: 2px 9px; border-radius: 14px; }
+  #app.walkDay #clock small { margin-left: 0; }
+  #app.walkDay .gauge { padding: 2px 4px; gap: 2px; }
+  #app.walkDay #money { padding: 1px 6px; }
 }
