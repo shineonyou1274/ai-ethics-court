@@ -23,3 +23,9 @@ mistakes.assemble(false);assert.equal(mistakes.delay,17);mistakes.next();
 mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);mistakes.attachSensor(0,-1);assert.equal(mistakes.delay,19);
 for(const id of [0,1,2])mistakes.attachSensor(id,id);mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);
 console.log('PASS: distinct assembly/sensor rechecks add time once; cancel, completed sensor and same errors do not double count.');
+// Recheck time must survive the entire day, into overtime and the saved handover record.
+for(const leave of ['stay','handover']){
+ const d=new Day();d.stage=3;d.noteBolt(1,0);d.assemble(false);d.next();d.attachSensor(0,1);[0,1,2].forEach(i=>d.attachSensor(i,i));d.next('sensor');d.next('rest');assert.ok(completeSpace(d));d.next();d.next('go');d.next('result');d.cleanup();d.next(leave);
+ const r=d.make(2,5);assert.equal(d.delay,19);assert.equal(d.worked,leave==='stay'?499:480);assert.equal(r.extra.handedOverMin,leave==='stay'?0:19);assert.equal(r.extra.boltRecheckMin,2);assert.equal(r.extra.sensorRecheckMin,2);assert.deepEqual(checkRecord(r),[]);
+}
+console.log('PASS: recheck minutes persist into overtime choice and saved record.');
