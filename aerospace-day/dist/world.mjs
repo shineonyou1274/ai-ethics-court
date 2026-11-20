@@ -3,7 +3,8 @@ import {reducedMotion} from './motion.mjs';
 import {findPath} from './navigation.mjs';
 import * as T from './vendor/three.module.min.js';
 export const STATIONS=[{id:'drawing',name:'도면 책상',x:-3.4,z:-2.5,ax:-1.65,az:-2.5},{id:'assembly',name:'조립대',x:3.4,z:-2.5,ax:1.65,az:-2.5},{id:'sensor',name:'센서 작업대',x:-3.4,z:1,ax:-1.65,az:1},{id:'cockpit',name:'조종석',x:3.4,z:1,ax:1.65,az:1},{id:'meeting',name:'회의실 · 관제 창',x:0,z:4,ax:0,az:2.7}];
-export const blocked=(x,z)=>Math.abs(x)>5.25||z< -4.5||z>5||STATIONS.some(s=>Math.abs(x-s.x)<1.4&&Math.abs(z-s.z)<.95);
+const FIXTURES=[{x:0,z:-4.25,w:1.5,d:.8},{x:-3.4,z:-3.95,w:.8,d:.65},{x:3.4,z:-3.95,w:.8,d:.65},{x:4.85,z:1,w:.65,d:.8}];
+export const blocked=(x,z)=>Math.abs(x)>5.25||z< -4.5||z>5||FIXTURES.some(s=>Math.abs(x-s.x)<s.w/2+.1&&Math.abs(z-s.z)<s.d/2+.1)||STATIONS.some(s=>Math.abs(x-s.x)<1.4&&Math.abs(z-s.z)<.95);
 export function createWorld(canvas,{flat=false,position={x:0,z:2.4},onArrive=()=>{},onMove=()=>{},onPins=()=>{}}={}){
  let renderer=null,ctx=null;if(flat)ctx=canvas.getContext('2d');else{renderer=new T.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=true;}
  const scene=new T.Scene();scene.background=new T.Color('#dbe6ec');const camera=new T.OrthographicCamera(-8,8,8,-8,.1,70);camera.position.set(0,15,12);camera.lookAt(0,0,.2);scene.add(new T.HemisphereLight(0xfff9eb,0x8caaa6,2.5));const light=new T.DirectionalLight(0xfff0d9,3);light.position.set(-3,8,4);light.castShadow=true;light.shadow.normalBias=.035;scene.add(light);
@@ -20,6 +21,17 @@ export function createWorld(canvas,{flat=false,position={x:0,z:2.4},onArrive=()=
   if(s.id==='meeting'){box(1.3,.02,.55,0xfaf1db,0,.98,0,g);box(.6,.45,.08,0x3d536d,.65,1.25,-.25,g)}
   g.traverse(o=>o.userData.station=s.id);
  }
+ // Storage and staffed work positions stay out of the central walking aisle.
+ box(1.4,1.5,.7,0x728da0,0,.75,-4.25);for(const y of [.25,.7,1.15]){box(1.22,.37,.03,0xa8bac6,0,y,-3.88);box(.36,.035,.06,0x486477,0,y,-3.85)}
+ for(const x of [-3.3,3.3]){box(2.1,1.1,.08,0x708d9d,x,2.05,-4.77);box(1.85,.85,.04,0xc0d7d8,x,2.05,-4.71);for(let i=0;i<5;i++)box(.18,.12+i*.08,.025,0x5965ac,x-.65+i*.3,1.84+i*.04,-4.67)}
+ for(const x of [-4.65,4.65]){box(.5,1.45,.55,0xb8c7c4,x,.72,-4.25);for(const y of [.3,.7,1.1])box(.36,.18,.03,0x718a97,x,y,-3.95)}
+ for(const side of [-1,1])for(let i=0;i<12;i++)box(.06,.012,.38,0xe4b75c,side*1.03,.006,-3.9+i*.7);
+ for(const s of STATIONS){box(.7,.018,.3,0x4d6879,s.x+.6,1.02,s.z+.24,props.get(s.id)?.parent);}
+ const colleagues=[[-3.4,-3.95,0,'#d8c6aa',0],[3.4,-3.95,0,'#accbc3',2],[4.85,1,-Math.PI/2,'#d2b8b2',1]];
+ colleagues.forEach(([x,z,angle,coat,hair],i)=>{const p=makePerson({coat,hair,seed:i+2});p.root.position.set(x,0,z);p.root.rotation.y=angle;p.act('work');scene.add(p.root)});
+ // Desk instruments, cable reels and a sample rack tell the room's purpose.
+ for(const [x,z] of [[-3.4,1],[3.4,-2.5]]){box(.45,.28,.32,0x516d80,x-.6,1.1,z-.15);box(.34,.18,.025,0x8bc1b7,x-.6,1.13,z+.025);for(const k of [-.1,.1])sphere(.035,0xe0ba66,x-.6+k,1.04,z+.045,scene)}
+ const sample=new T.Mesh(new T.TorusGeometry(.36,.065,10,32),new T.MeshStandardMaterial({color:0xa7bbc4}));sample.rotation.x=-Math.PI/2;sample.position.set(3.4,1.32,-2.5);scene.add(sample);
  const avatar=makePerson({coat:'#b7ccdc',hair:1,seed:1}),actor=avatar.root;scene.add(actor);actor.position.set(position.x,0,position.z);
  const ring=new T.Mesh(new T.RingGeometry(.3,.36,32),new T.MeshBasicMaterial({color:0xe8b85b,side:T.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.015;scene.add(ring);ring.visible=false;
  let route=[],destination=null,task=null,paused=false,raf=0,last=performance.now(),width=1,height=1,phase=0,needsDraw=true;

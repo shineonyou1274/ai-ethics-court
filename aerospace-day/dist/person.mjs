@@ -72,7 +72,7 @@ export function person({ coat = '#b7ccdc', hair = 0, seed = 0, outfit = 'casual'
   for (let i = 0; i < 3; i++) box(clipboard, -0.38, 1.12 - i * 0.07, 0.37, 0.16, 0.012, 0.008, '#a4bbc4');
   clipboard.visible = false;
   let gestureUntil = 0, gestureKind = '';
-  const act = (kind) => { gestureKind = kind; gestureUntil = performance.now() / 1000 + 2; clipboard.visible = ['write', 'work', 'inspect'].includes(kind); };
+  const act = (kind) => { gestureKind = kind; gestureUntil = performance.now() / 1000 + 2; clipboard.visible = ['write', 'work', 'inspect'].includes(kind); if(clipboard.visible){limbs[2].rotation.x=-.55;limbs[3].rotation.x=-.75;head.rotation.x=.08} };
   const update = (t, walk = false) => {
     if (reducedMotion()) return;
     for (let i = 0; i < 2; i++) limbs[i].rotation.x = walk ? Math.sin(t * 7 + i * Math.PI) * 0.42 : 0;
