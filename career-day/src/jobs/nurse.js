@@ -16,17 +16,18 @@ const job = {
 };
 
 // 약속: 아침에 "10시쯤 다시 와서 설명하겠다"고 하면 받은 일 목록에 오르고, 10시의 호출 소동에서 지키러 가면 '마침', 지나치면 '못 함'
+// drain: 0 — 짧은 장면은 들어올 때 힘이 빠지지 않게 한다 (장면이 많은 하루라, 하루 전체의 피로를 다른 병원 직업과 비슷하게 맞춘다)
 const promised = (s) => !!s.flags.promise, kept = (s) => !!s.flags.kept;
 
 job.scenes = wardDay(job, {
   records: [['밤사이', '모두 잘 주무심 · 701호 윤호 님이 새벽에 한 번 벨을 누름'], ['오늘의 일정', '아침 순회 · 703호 새 입원 준비 · 다음 근무 인계'], ['702호 다온 님', '오늘 일정을 다시 듣고 싶어 함 · 오후 검사 시간이 바뀔 수 있음']],
   am: [
-    { kind: 'order', atOff: 10, place: 'station', cost: { energy: 3 }, title: '기록 너머, 환자 곁으로', body: '인계를 들었어요. 이제 병실을 돌 차례예요. 일의 순서를 맞춰 보세요.',
+    { kind: 'order', atOff: 10, place: 'station', drain: 0, title: '기록 너머, 환자 곁으로', body: '인계를 들었어요. 이제 병실을 돌 차례예요. 일의 순서를 맞춰 보세요.',
       steps: ['야간 근무자에게 인계 듣기', '병실을 돌며 상태와 요청 확인하기', '필요한 도움을 담당 의료진에게 알리기', '확인한 내용을 기록으로 남기기'],
       why: '들은 것을 직접 확인하고, 알리고, 남겨야 다음 사람이 이어받을 수 있어요.', moment: '순회의 순서를 맞춘 순간', type: null }, // 돌아보기의 순간으로 세지 않는다 (순간은 여덟 안)
 
     // 손으로 하는 일 ① 702호 문 앞에서 손을 소독하고, 다온 님의 팔찌와 차트를 견준다 (이름 + 생년월일)
-    { kind: 'hands', game: 'idcheck', closeup: true, atOff: 25, place: 'r702', cost: { energy: 2 }, title: '들어가기 전에, 손과 이름부터',
+    { kind: 'hands', game: 'idcheck', closeup: true, atOff: 25, place: 'r702', drain: 0, title: '들어가기 전에, 손과 이름부터',
       todo: { label: '아침 순회 · 702호 다온 님', known: true },
       body: '아침 순회의 첫 병실, 702호예요. 문 앞에서 손을 소독하고, 다온 님이 맞는지 팔찌와 차트로 확인해요.',
       moment: '손을 닦고 팔찌와 차트를 견준 순간', type: 'C',
@@ -44,7 +45,7 @@ job.scenes = wardDay(job, {
       ] },
 
     // 손으로 하는 일 ② 호출 벨: 701호 윤호 님 침대 곁을 살핀다 (베개, 손 닿는 곳의 호출 벨, 침대 난간)
-    { kind: 'hands', game: 'bedside', closeup: true, atOff: 80, place: 'r701', cost: { energy: 2 }, title: '호출 벨, 701호',
+    { kind: 'hands', game: 'bedside', closeup: true, atOff: 80, place: 'r701', drain: 0, title: '호출 벨, 701호',
       notice: { via: '호출 벨', text: '“701호 윤호 님 호출이에요. 자세가 불편하다고 하세요.”' },
       todo: { label: '701호 호출 · 침대 곁 살피기', via: '호출 벨' },
       body: '윤호 님 베개가 아래로 내려가 있고, 호출 벨은 바닥에 떨어져 있어요. 침대 난간도 내려가 있어요. 윤호 님은 오른팔에 붕대를 감았어요.',
@@ -56,7 +57,7 @@ job.scenes = wardDay(job, {
       } },
 
     // 동료의 부탁: 퇴원한 703호를 새 환자를 위해 준비한다. 물품실에서 챙기고 → 손으로 하는 일 ③ 침대 정리
-    { kind: 'tasks', atOff: 110, place: 'supply', title: '물품실에서 먼저 챙겨요', cost: { energy: 3 },
+    { kind: 'tasks', atOff: 110, place: 'supply', title: '물품실에서 먼저 챙겨요', drain: 0,
       notice: { via: '동료', text: '“703호 분이 퇴원하셨어요. 오후에 새 환자분이 오시니 침대 정리를 부탁해요.”' },
       todo: { label: '703호 침대 정리 · 새 입원 준비', via: '동료', now: (s, i) => s.i === i || s.i === i + 1, done: (s, i) => s.i > i + 1 }, // 물품실에서 챙기고 703호에서 정리를 마칠 때까지 '지금'
       body: '약품·물품실이에요. 703호 침대에 쓸 것을 수레에 담아요.',
@@ -98,7 +99,7 @@ job.scenes = wardDay(job, {
         { label: '벨은 동료에게, 약속대로 다온 님께', when: promised, fx: { care: 8, team: -4, delay: 6, energy: -2 }, flag: 'kept', reply: '“벨은 제가 받을게요. 다녀오세요.” 동료가 호출 둘을 맡았어요. 702호로 가요.', moment: '약속대로 다온 님께 다시 간 순간', type: 'S' },
       ] },
     // 약속을 지키러 가기로 했을 때만 열린다: 702호로 걸어가 일정을 다시 설명한다
-    { kind: 'tasks', atOff: 188, place: 'r702', skip: (s) => !kept(s), cost: { energy: 3 }, goal: '약속대로 일정 설명하기', title: '약속한 대로, 다온 님께',
+    { kind: 'tasks', atOff: 188, place: 'r702', skip: (s) => !kept(s), drain: 0, goal: '약속대로 일정 설명하기', title: '약속한 대로, 다온 님께',
       body: '“정말 오셨네요.” 다온 님이 침대 머리를 세우고 기다리고 있어요.',
       moment: '약속대로 다시 가 일정을 설명한 순간', type: null, // 돌아보기의 순간은 앞의 고르기(약속대로 다온 님께 간 순간)가 맡는다
       tasks: [
@@ -109,7 +110,7 @@ job.scenes = wardDay(job, {
   ],
   pm: [
     // 손으로 하는 일 ④ 의사의 부탁: 다온 님 침대 곁 모니터에 뜬 값을 기록지에 옮겨 적는다 (재는 일이 아니라 읽어 옮기는 일)
-    { kind: 'hands', game: 'vitals', closeup: true, atOff: 290, place: 'r702', cost: { energy: 2 }, title: '모니터의 숫자를 기록지로',
+    { kind: 'hands', game: 'vitals', closeup: true, atOff: 290, place: 'r702', drain: 0, title: '모니터의 숫자를 기록지로',
       notice: { via: '의사', text: '“다온 님 검사 전에 활력 징후를 한 번 더 기록해 주세요.”' },
       todo: { label: '702호 다온 님 · 검사 전 기록', via: '의사' },
       body: '다온 님 침대 곁 모니터에 체온, 맥박, 혈압이 떠 있어요. 읽은 값을 기록지의 알맞은 칸에 옮겨 적어요.',

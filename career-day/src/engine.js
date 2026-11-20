@@ -41,7 +41,7 @@ export function enter(s, job) {
   if (s.entered === s.i) return [];
   s.entered = s.i;
   const sc = sceneOf(s, job), notes = [];
-  apply(s, { energy: -(DRAIN[sc.kind] ?? 2) });
+  apply(s, { energy: -(sc.drain ?? DRAIN[sc.kind] ?? 2) }); // drain: 이 장면만 다르게 (짧은 일이라 힘이 덜 드는 장면)
   for (const r of sc.ripple || []) {
     if (r.if(s)) { const d = apply(s, r.fx); notes.push({ text: r.text, d }); }
   }
