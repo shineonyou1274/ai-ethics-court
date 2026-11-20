@@ -69,3 +69,8 @@ body:not(.space-session) #groundTag{top:auto;bottom:8px}
 .station-pin{transform:none;max-width:145px;min-height:34px;padding:3px 7px;font-size:16px;line-height:1.25;isolation:isolate}
 .station-pin::after{content:"";position:absolute;left:50%;top:100%;height:1px;width:var(--lead-length);transform-origin:0 0;transform:rotate(var(--lead-angle));background:#718995;pointer-events:none;z-index:-1}
 .station-call{display:block;position:static;transform:none;border:0;box-shadow:none;padding:0;background:none;font-size:14px;line-height:1.2;color:#795b20}.station-call::after{content:none}
+
+/* Touch targets are attached to the actual bench parts, with their names below. */
+.bolt-target{width:44px;height:44px;min-height:44px;border:1px dashed #637d8977;background:#263c5218}
+.sensor-port{background:transparent;border:2px dashed #3f806b;width:48px;height:48px}.sensor-port.filled{background:transparent;border-color:#2e6b55}
+.sensor-chip{bottom:auto;width:100px;max-width:31%;min-height:36px;padding:4px 2px;margin:0;transform:translate(-50%,0);font-size:16px;background:#fffdf8ed}.sensor-chip.dragging{background:#fffdf8b8}
