@@ -2,7 +2,7 @@
 import '../../shared/design.css'; // 공통 디자인 토큰 (shared/DESIGN.md)
 import './style.css';
 import { JOBS, jobById } from './jobs/index.js';
-import { PLACES } from './places/index.js';
+import { PLACES, placeOf } from './places/index.js';
 import { createWorld } from './world/world.js';
 import { HANDS } from './hands/index.js';
 import { walkOn, stepFor, hasStep, inbox } from './flow.js';
@@ -45,14 +45,16 @@ const save = () => { saved.current = S && !S.closed ? S : null; store.set(saved)
 
 // ── 3D 일터 ──
 let world = null, worldPlace = null;
-function ensureWorld(placeId) {
-  if (worldPlace === placeId) return world;
+// place 는 일터(PLACES) 또는 그 안의 층(FLOORS, 예: 간호사의 7층 병동). 층이 다르면 모형을 새로 짓는다.
+function ensureWorld(place) {
+  const key = place.floor ? `${place.id}/${place.floor}` : place.id;
+  if (worldPlace === key) return world;
   world?.destroy(); world = null;
   const old = $('#gl'), canvas = old.cloneNode(false); old.replaceWith(canvas);
-  worldPlace = placeId; $('.fallback')?.remove();
-  try { world = createWorld(canvas, $('#stage'), PLACES[placeId]); } catch (e) { console.warn('3D 일터를 띄우지 못해 글과 버튼으로 진행해요.', e); world = null; }
+  worldPlace = key; $('.fallback')?.remove();
+  try { world = createWorld(canvas, $('#stage'), place); } catch (e) { console.warn('3D 일터를 띄우지 못해 글과 버튼으로 진행해요.', e); world = null; }
   $('#app').classList.toggle('flat', !world); // 3D가 없으면 폰에서 위 칸을 줄여 버튼이 밀리지 않게 한다
-  if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${PLACES[placeId].icon}</b><span class="long">이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</span><span class="short">3D 없이 글과 버튼으로 해요.</span></div></div>`); }
+  if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${place.icon}</b><span class="long">이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</span><span class="short">3D 없이 글과 버튼으로 해요.</span></div></div>`); }
   return world;
 }
 
@@ -94,7 +96,7 @@ function drawHud() {
 }
 
 // 밀린 일만큼 기다리는 사람. 쉬는 곳, 탈의실처럼 일터가 정한 조용한 곳(quiet)과 퇴근 뒤에는 따라오지 않는다.
-const waiting = () => (S.closed || PLACES[J.place].quiet.includes(sceneOf(S, J).place) ? 0 : Math.ceil(S.delay / 8));
+const waiting = () => (S.closed || placeOf(J).quiet.includes(sceneOf(S, J).place) ? 0 : Math.ceil(S.delay / 8));
 
 // 바뀐 값 꼬리표와 3D 반응
 function chips(d = {}) {
@@ -119,7 +121,7 @@ function react(d = {}) {
 function title() {
   S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {}; $('#app').classList.remove('pickOn', 'closeOn', 'handsOn', 'walkDay');
   const P = PLACES[focusPlace]; paintPlace(P);
-  const w0 = ensureWorld(P.id); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
+  const w0 = ensureWorld(P); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
   const cur = saved.current && jobById(saved.current.job) ? saved.current : null;
   diary = loadMine();
   const been = new Set(diary.map((r) => r.job.id));
@@ -200,8 +202,8 @@ function begin() {
   document.documentElement.style.setProperty('--role', J.color);
   focusPlace = J.place; paintPlace(PLACES[J.place]);
   // 걸어 다니는 하루(카페 방식)의 폰 배치: 위쪽 띠를 늘 한 줄로, 고르는 장면을 더 촘촘하게 (style.css 의 .walkDay). 병원 직업들은 그대로다
-  $('#app').classList.toggle('walkDay', walkOn(J, PLACES[J.place]));
-  ensureWorld(J.place); $('#gauges').innerHTML = ''; shown = {};
+  $('#app').classList.toggle('walkDay', walkOn(J, placeOf(J)));
+  ensureWorld(placeOf(J)); $('#gauges').innerHTML = ''; shown = {};
   if (S.closed) return S.slipSeen ? reflect() : slip();
   scene();
 }
@@ -212,9 +214,9 @@ function scene() {
   const notes = enter(S, J); if (notes.length) S.notes = notes; else if (S.notesFor !== S.i) S.notes = [];
   S.notesFor = S.i; save();
   // 걸어 다니는 일터(카페 방식): 장면을 열기 전에, 찾아온 일을 받고 그 자리까지 내 캐릭터로 걸어간다 (src/flow.js)
-  if (walkOn(J, PLACES[J.place]) && S.at !== S.i) { const st = stepFor(J, PLACES[J.place], S.i); if (hasStep(st)) return goView(sc, st); S.at = S.i; }
+  if (walkOn(J, placeOf(J)) && S.at !== S.i) { const st = stepFor(J, placeOf(J), S.i, S); if (hasStep(st)) return goView(sc, st); S.at = S.i; }
   const lockerDone = S.i > idxOf((x) => x.place === 'locker' && x.kind === 'tasks');
-  const setDress = PLACES[J.place].sets[sc.place]?.dress;
+  const setDress = placeOf(J).sets[sc.place]?.dress;
   drawHud(); // 위쪽 띠를 먼저 그려 둔다. 3D 무대를 띠 아래 칸에 맞추기 때문이다
   if (world) { world.dress(setDress ? { ...J.look, ...setDress } : J.look, lockerDone ? 'work' : 'casual'); world.stage({ place: sc.place, hour: clockOf(S, J, sc) / 60, overview: false }); world.crowd(waiting()); }
   drawHud();
@@ -233,7 +235,8 @@ function scene() {
 // ── 걸어가기 (카페 방식, shared/DESIGN.md §2-3) ──
 // 찾아온 일(무전·출동 벨)과 받은 일 목록을 보여 주고, 다음 일이 있는 자리에 표시를 띄운다.
 // 학생은 바닥이나 표시를 눌러 걷거나, 아래 큰 버튼을 눌러 그 자리로 걸어간다. 닿으면 장면이 열린다. 일터 밖은 소방차로 오간다.
-const VIA = { 일정: '🗓️', 무전: '📻', '출동 벨': '🔔', 팀장: '💬', 약속: '🤝', 전화: '📞' };
+const VIA = { 일정: '🗓️', 무전: '📻', '출동 벨': '🔔', '호출 벨': '🔔', 팀장: '💬', 동료: '💬', 의사: '🩺', 약속: '🤝', 전화: '📞' };
+const VIA_SOUND = { '출동 벨': 'bell', '호출 벨': 'bell', 무전: 'radio', 전화: 'radio' }; // 그 밖(동료·의사·팀장)은 짧은 알림음
 const ro = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 && c % 28 !== 8 ? '으로' : '로'; }; // 받침 따라 '로/으로'
 function inboxHtml(list, tight = false) {
   const wide = typeof matchMedia === 'function' && matchMedia('(min-aspect-ratio: 11/10)').matches;
@@ -248,7 +251,7 @@ function inboxHtml(list, tight = false) {
   return `${headLine}<ol class="todo inbox" aria-label="받은 일">${shown.map(li).join('')}${more > 0 ? `<li class="later"><span>그다음에도 할 일 ${more}개</span></li>` : ''}</ol>`;
 }
 function goView(sc, st) {
-  const P = PLACES[J.place], N = P.nav;
+  const P = placeOf(J), N = P.nav;
   unmount?.(); unmount = null;
   const app = $('#app'); app.classList.remove('handsOn', 'closeOn', 'pickOn'); app.classList.add('walkOn'); app.style.removeProperty('--pick'); app.style.removeProperty('--walk');
   drawHud();
@@ -281,7 +284,7 @@ function goView(sc, st) {
     <div id="inboxBox">${inboxHtml(inbox(S, J))}</div>
     <button class="btn" id="walkGo">${esc(btn)}</button>`);
   fitWalk(spot ? 40 : 30);
-  if (n) sfx(n.via === '출동 벨' ? 'bell' : 'radio');
+  if (n) sfx(VIA_SOUND[n.via] || 'pop');
   on('#walkGo', (b) => {
     if (!spot || !walker) return arrive(); // 3D가 없는 기기나 걸을 곳이 없을 때는 바로 다음으로
     walker.go();

@@ -94,7 +94,7 @@ export const CLOSEUPS = {
   bed: {
     build(g) {
       floor(g, 5.8, 4.2, '#eadfca');
-      label(g, '병동 · 3호실', 1.3, 2.0, -2.03, 1.6, 0.38);
+      label(g, '703호 병실', 1.3, 2.0, -2.03, 1.6, 0.38);
       const bed = new T.Group(); g.add(bed);
       box(bed, 0, 0.4, 0, 2.6, 0.16, 1.3, '#d9dedb'); box(bed, 0, 0.62, 0, 2.5, 0.28, 1.2, '#b3c8d3');
       box(bed, -1.32, 0.85, 0, 0.1, 0.8, 1.32, '#c9d6d8'); box(bed, 1.32, 0.7, 0, 0.08, 0.5, 1.32, '#c9d6d8');
@@ -394,4 +394,170 @@ export const CLOSEUPS = {
       };
     },
   },
+
+  // ── 간호사 (7층 병동). 의료 처치는 다루지 않는다: 손 위생, 환자 확인, 침대 곁 살피기, 모니터 값 옮겨 적기 ──
+  // 간호사 ① 702호 문 앞: 손 소독제로 손을 문지르고, 차트 둘 가운데 팔찌와 이름·생년월일이 모두 같은 것을 팔찌 옆에 대어 본다
+  idcheck: {
+    build(g) {
+      floor(g, 5.8, 4.2, '#eadfca');
+      label(g, '702호 병실', 1.6, 2.0, -2.03, 1.5, 0.38);
+      const B = [0.75, -1.0]; const pt = wardBed(g, B[0], B[1], { skin: '#e6bfa1', hair: '#66534a' });
+      // 이불 위로 나온 팔과 팔찌
+      const arm = cyl(g, B[0] + 0.05, 0.9, B[1] + 0.48, 0.065, 0.62, '#e6bfa1'); arm.rotation.z = Math.PI / 2; ball(g, B[0] + 0.4, 0.9, B[1] + 0.48, 0.08, '#e6bfa1');
+      const band = cyl(g, B[0] + 0.24, 0.9, B[1] + 0.48, 0.078, 0.09, '#f6efe0'); band.rotation.z = Math.PI / 2;
+      tag2(g, ['팔찌', '박다온 · 1958.03.14'], B[0] + 0.2, 1.5, B[1] + 0.2, 1.3, 0.5);
+      const ok = tag2(g, ['이름 ✓', '생년월일 ✓'], B[0] + 1.55, 1.5, B[1] + 0.2, 1.0, 0.5, '#2f8f6c'); ok.visible = false;
+      const say = tag2(g, ['“네, 박다온이에요.”'], B[0] - 0.55, 1.75, B[1] - 0.2, 1.5, 0.36); say.visible = false;
+      // 문 앞 손 소독제와 내 손 (손바닥에 묻은 것을 문질러 소독한다)
+      box(g, -2.75, 1.0, 0.6, 0.12, 2.0, 1.3, '#e6dac8'); // 문틀
+      cyl(g, -2.3, 0.55, 0.15, 0.05, 1.1, '#a5afb1'); cyl(g, -2.3, 1.2, 0.15, 0.12, 0.3, '#d6ecf2'); cyl(g, -2.3, 1.39, 0.15, 0.04, 0.08, '#4fa38a'); box(g, -2.22, 1.42, 0.15, 0.16, 0.03, 0.05, '#4fa38a');
+      tag(g, '손 소독제', -2.15, 1.85, 0.2, 0.95, 0.36);
+      const SH = [-1.35, 1.05]; box(g, SH[0], 0.27, SH[1], 1.5, 0.54, 0.85, '#efe3cf'); box(g, SH[0], 0.555, SH[1], 1.55, 0.03, 0.9, '#f6efe3'); // 손을 올려 둔 낮은 선반
+      hands(g, SH[0], 0.57, SH[1]);
+      tag(g, '내 손', SH[0] - 0.55, 0.95, SH[1] + 0.55, 0.62, 0.3);
+      // 차트 수레: 차트 둘 (이름은 같고 생년월일이 다르다)
+      const CT = [1.9, 1.25]; box(g, CT[0], 0.36, CT[1], 1.6, 0.72, 0.72, '#e3d6c3'); box(g, CT[0], 0.735, CT[1], 1.65, 0.03, 0.78, '#f3ece1');
+      const chart = clip(['박다온', '1958.03.14']), other = clip(['박다온', '1962.07.02']); g.add(chart, other);
+      const foam = new T.Group(); for (const [x, z, r] of [[0, 0, 0.11], [0.09, 0.05, 0.08], [-0.08, 0.06, 0.07]]) ball(foam, x, 0.03, z, r, '#f6fbfc', [1, 0.45, 1]); g.add(foam);
+      let checked = false;
+      return {
+        rubY: 0.64, tool: foam,
+        patches: [{ id: 'rub', y: 0.635, color: '#9bbf7f', opacity: 0.6, dot: 0.055, reach: 0.2, blobs: [{ x: SH[0] - 0.28, z: SH[1], r: 0.26, n: 10, squash: 1.3 }, { x: SH[0] + 0.28, z: SH[1], r: 0.26, n: 10, squash: 1.3 }] }],
+        movers: [
+          { id: 'chart', obj: chart, from: [CT[0] + 0.4, CT[1]], to: [B[0] + 0.3, B[1] + 0.95], r: 0.42, y: 0.76, dragY: 0.9, restY: 0.92, lift: 0.2, ringY: 0.92, onPlaced() { checked = true; ok.visible = true; say.visible = true; } },
+          { id: 'chartB', obj: other, from: [CT[0] - 0.4, CT[1]], to: [B[0] + 0.3, B[1] + 0.95], r: 0.42, y: 0.76, dragY: 0.9, restY: 0.92, lift: 0.2, ringY: 0.92 },
+        ],
+        tick(dt, t) { pt.update(t, checked); },
+      };
+    },
+  },
+  // 간호사 ② 701호 호출: 내려간 베개를 머리 쪽으로, 바닥에 떨어진 호출 벨을 잘 쓰는 손 곁으로, 내려간 난간을 올린다
+  bedside: {
+    build(g) {
+      floor(g, 5.8, 4.2, '#eadfca');
+      label(g, '701호 병실', 1.6, 2.0, -2.03, 1.5, 0.38);
+      const B = [0.35, -0.95]; const pt = wardBed(g, B[0], B[1], { skin: '#f1d4b7', hair: '#9a948c', low: true, pillow: false });
+      // 오른팔(앞쪽)은 붕대, 왼팔(뒤쪽)은 이불 위에. 누운 사람의 오른쪽이 화면 앞쪽이다
+      const right = cyl(g, B[0] - 0.05, 0.9, B[1] + 0.5, 0.1, 0.6, '#eef2f4'); right.rotation.z = Math.PI / 2;
+      const left = cyl(g, B[0] - 0.05, 0.9, B[1] - 0.5, 0.065, 0.6, '#f1d4b7'); left.rotation.z = Math.PI / 2; ball(g, B[0] + 0.3, 0.9, B[1] - 0.5, 0.08, '#f1d4b7');
+      tag(g, '오른팔 · 붕대', B[0] + 0.8, 1.12, B[1] + 0.45, 1.15, 0.32); tag(g, '왼손', B[0] + 0.95, 1.4, B[1] - 0.65, 0.6, 0.3);
+      const say = tag2(g, ['“이제 편해요. 벨도 손에 닿네요.”'], B[0] - 0.4, 1.85, B[1] - 0.1, 2.0, 0.36); say.visible = false;
+      // 협탁
+      box(g, -2.2, 0.38, -1.25, 0.6, 0.76, 0.55, '#efe4d4'); cyl(g, -2.2, 0.85, -1.25, 0.07, 0.16, '#c1d4dc');
+      // 베개 (침대 발치로 밀려 내려가 있다)
+      const pillow = new T.Group(); box(pillow, 0, 0.05, 0, 0.42, 0.13, 0.78, '#ffffff'); box(pillow, 0, 0.12, 0, 0.36, 0.02, 0.7, '#f1f4f6'); g.add(pillow);
+      // 호출 벨: 바닥에 떨어져 있다
+      const bell = new T.Group(); box(bell, 0, 0.05, 0, 0.16, 0.1, 0.3, '#e8eef0'); cyl(bell, 0, 0.11, -0.05, 0.05, 0.03, '#e2513a'); g.add(bell);
+      const bellTag = tag(g, '떨어진 호출 벨', 2.1, 0.45, 0.85, 1.1, 0.3);
+      // 침대 난간: 내려가 앞쪽에 처져 있다
+      const rail = new T.Group(); box(rail, 0, 0.0, 0, 1.3, 0.06, 0.06, '#8fa3a8'); box(rail, 0, 0.16, 0, 1.3, 0.05, 0.05, '#8fa3a8'); for (const x of [-0.55, 0, 0.55]) box(rail, x, 0.08, 0, 0.04, 0.2, 0.04, '#8fa3a8'); g.add(rail);
+      const railTag = tag(g, '내려간 난간', -0.95, 0.45, B[1] + 1.4, 1.05, 0.3);
+      let comfy = false;
+      return {
+        slots: [
+          { id: 'bell', at: [B[0] + 0.2, B[1] - 0.38], y: 0.9, r: 0.34 }, // 왼손 곁 (이불 위)
+          { id: 'right', at: [B[0] + 0.2, B[1] + 0.32], y: 0.9, r: 0.34 }, // 붕대 감은 오른손 곁
+        ],
+        movers: [
+          { id: 'pillow', obj: pillow, from: [B[0] + 1.0, B[1]], to: [B[0] - 0.98, B[1]], r: 0.45, y: 0.88, restY: 0.78, lift: 0.2, ringY: 0.9, onPlaced() { comfy = true; pt.lift(); } },
+          { id: 'bell', obj: bell, slot: 'bell', from: [2.1, 1.3], y: 0.02, dragY: 0.9, restY: 0.92, lift: 0.18, onPlaced() { bellTag.visible = false; } },
+          { id: 'rail', obj: rail, from: [B[0] + 0.1, B[1] + 1.15], to: [B[0] + 0.1, B[1] + 0.68], r: 0.3, y: 0.3, dragY: 0.9, restY: 0.9, lift: 0.15, ringY: 0.95, onPlaced() { say.visible = true; railTag.visible = false; } },
+        ],
+        tick(dt, t) { pt.update(t, comfy); },
+      };
+    },
+  },
+  // 간호사 ③ 702호 검사 전: 침대 곁 모니터에 뜬 값을 읽고, 숫자 카드를 기록지의 알맞은 칸에 옮겨 적는다
+  vitals: {
+    build(g) {
+      floor(g, 5.8, 4.2, '#eadfca');
+      label(g, '702호 병실', 1.6, 2.0, -2.03, 1.5, 0.38);
+      const B = [0.45, -1.15]; const pt = wardBed(g, B[0], B[1], { skin: '#e6bfa1', hair: '#66534a' });
+      // 침대 옆 모니터 (값이 화면에 떠 있다)
+      cyl(g, -1.75, 0.75, -1.35, 0.035, 1.5, '#a5afb1'); cyl(g, -1.75, 0.02, -1.35, 0.25, 0.04, '#8f9a9c');
+      const scr = new T.Group(); scr.position.set(-1.75, 1.55, -1.25); scr.rotation.x = -0.35; g.add(scr);
+      box(scr, 0, 0, 0, 1.35, 0.95, 0.08, '#364e61');
+      const face = new T.Mesh(new T.PlaneGeometry(1.25, 0.85), new T.MeshBasicMaterial({ map: screenTexture(false) })); face.position.z = 0.045; scr.add(face);
+      // 숫자 카드: 모니터에서 읽은 값 (기록지 칸과 다른 차례로 놓는다)
+      box(g, -1.6, 0.25, 0.85, 1.3, 0.5, 1.95, '#e3d6c3'); box(g, -1.6, 0.515, 0.85, 1.35, 0.03, 2.0, '#f3ece1');
+      tag(g, '모니터에서 읽은 값', -1.6, 0.85, -0.35, 1.25, 0.3);
+      const cards = { bp: valueCard('118/76 mmHg'), temp: valueCard('36.8 ℃'), pulse: valueCard('78 회/분') }; for (const c of Object.values(cards)) g.add(c);
+      // 기록지 (침대 앞 탁자 위): 체온 · 맥박 · 혈압 칸
+      box(g, 1.15, 0.35, 0.85, 1.9, 0.7, 2.0, '#d9cdb6'); box(g, 1.15, 0.715, 0.85, 1.95, 0.03, 2.05, '#efe6d6');
+      box(g, 1.15, 0.74, 0.85, 1.65, 0.02, 1.95, '#fffdf8'); tag(g, '기록지 · 박다온', 1.15, 1.1, -0.3, 1.3, 0.3);
+      const ROWS = { temp: 0.15, pulse: 0.85, bp: 1.55 }, NAME = { temp: '체온', pulse: '맥박', bp: '혈압' };
+      for (const [id, z] of Object.entries(ROWS)) { tag(g, NAME[id], 0.65, 0.8, z, 0.55, 0.28); box(g, 1.4, 0.755, z, 1.0, 0.008, 0.6, '#eef1ee'); }
+      let left = 3;
+      return {
+        slots: Object.entries(ROWS).map(([id, z]) => ({ id, at: [1.4, z], y: 0.76, r: 0.32 })),
+        movers: [['bp', 0.15], ['temp', 0.85], ['pulse', 1.55]].map(([id, z]) => ({ id, obj: cards[id], slot: id, from: [-1.6, z], y: 0.54, dragY: 0.76, restY: 0.77, lift: 0.15,
+          onPlaced() { if (--left === 0) { face.material.map.dispose(); face.material.map = screenTexture(true); pt.lift(); } } })),
+        tick(dt, t) { pt.update(t, left === 0); },
+      };
+    },
+  },
 };
+
+// ── 간호사 무대의 조각 ──
+// 누운 환자가 있는 병실 침대 (머리는 -x 쪽). low 면 베개 없이 아래로 미끄러져 누운 모습. lift() 하면 베개에 기대 앉는다.
+function wardBed(g, x, z, { skin, hair, low = false, pillow = true }) {
+  const b = new T.Group(); b.position.set(x, 0, z); g.add(b);
+  box(b, 0, 0.4, 0, 2.6, 0.16, 1.3, '#d9dedb'); box(b, 0, 0.62, 0, 2.5, 0.28, 1.2, '#e6eae8');
+  box(b, -1.32, 0.85, 0, 0.1, 0.8, 1.32, '#c9d6d8'); box(b, 1.32, 0.7, 0, 0.08, 0.5, 1.32, '#c9d6d8');
+  for (const a of [-1.1, 1.1]) for (const c of [-0.5, 0.5]) { box(b, a, 0.18, c, 0.07, 0.36, 0.07, '#a5afb1'); ball(b, a, 0.06, c, 0.08, '#697d85'); }
+  if (pillow) box(b, -0.98, 0.82, 0, 0.42, 0.12, 0.78, '#ffffff');
+  box(b, 0.35, 0.83, 0, 1.75, 0.12, 1.18, '#a9c9db'); // 덮은 이불
+  const head = new T.Group(); head.position.set(low ? -0.55 : -0.92, low ? 0.9 : 1.0, 0); b.add(head);
+  ball(head, 0, 0, 0, 0.2, skin, [1, 0.9, 1]); ball(head, -0.06, 0.05, 0, 0.205, hair, [0.85, 0.75, 1]);
+  for (const s of [-1, 1]) ball(head, 0.12, 0.13, s * 0.08, 0.022, '#35434d');
+  let up = 0;
+  return {
+    lift() { up = 1; },
+    update(t, happy) {
+      head.position.x += ((up ? -0.92 : low ? -0.55 : -0.92) - head.position.x) * 0.1;
+      head.position.y += ((up ? 1.05 : low ? 0.9 : 1.0) - head.position.y) * 0.1;
+      head.rotation.z = reduced ? 0 : (happy ? Math.sin(t * 2.2) * 0.06 : 0); // 고개를 천천히 끄덕인다 (동작 줄이기면 가만히)
+    },
+  };
+}
+// 위에서 내려다봐도 읽히는 이름표. 두 줄이면 첫 줄은 작게(무엇인지), 둘째 줄은 크게. color 를 주면 그 색으로 한 줄
+function tag2(g, lines, x, y, z, w, h, color) {
+  const c = document.createElement('canvas'); c.width = 520; c.height = Math.round(520 * h / w); const k = c.getContext('2d'); const H = c.height;
+  k.fillStyle = color ? '#eaf6f0' : '#fffaf0'; k.beginPath(); k.roundRect(0, 0, 520, H, 26); k.fill(); k.strokeStyle = color || '#c9b49a'; k.lineWidth = 6; k.stroke();
+  k.textAlign = 'center'; k.textBaseline = 'middle';
+  if (lines.length === 1) { k.fillStyle = color || '#344d63'; k.font = `bold ${Math.round(H * 0.5)}px "Gowun Dodum", sans-serif`; k.fillText(lines[0], 260, H / 2 + 3, 490); }
+  else { k.fillStyle = '#6f7875'; k.font = `bold ${Math.round(H * 0.3)}px "Gowun Dodum", sans-serif`; k.fillText(lines[0], 260, H * 0.3, 490); k.fillStyle = '#344d63'; k.font = `bold ${Math.round(H * 0.38)}px "Gowun Dodum", sans-serif`; k.fillText(lines[1], 260, H * 0.7, 490); }
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace;
+  const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ map: t, transparent: true })); m.position.set(x, y, z); m.rotation.x = -0.55; g.add(m); return m;
+}
+// 차트(클립보드): 이름과 생년월일이 적힌 종이
+function clip(lines) {
+  const c = new T.Group(); box(c, 0, 0.02, 0, 0.62, 0.04, 0.72, '#b59674'); box(c, 0, 0.045, 0.03, 0.55, 0.01, 0.6, '#fffaf0'); box(c, 0, 0.055, -0.33, 0.2, 0.03, 0.06, '#8d8f8f');
+  tag2(c, lines, 0, 0.3, 0.05, 0.7, 0.42); return c;
+}
+// 내 두 손 (손바닥이 위로). 손가락 넷과 엄지
+function hands(g, x, y, z) {
+  for (const s of [-1, 1]) {
+    const h = new T.Group(); h.position.set(x + s * 0.28, y, z); h.rotation.y = s * 0.12; g.add(h);
+    box(h, 0, 0.03, 0.05, 0.36, 0.06, 0.4, '#e6bfa1');
+    for (let i = 0; i < 4; i++) { const f = cyl(h, -0.12 + i * 0.08, 0.03, -0.27, 0.03, 0.22, '#e6bfa1'); f.rotation.x = Math.PI / 2; }
+    const th = cyl(h, -s * 0.22, 0.03, 0.02, 0.032, 0.2, '#e6bfa1'); th.rotation.x = Math.PI / 2; th.rotation.y = -s * 0.7;
+    box(h, 0, 0.02, 0.33, 0.3, 0.05, 0.14, '#e8b1a1'); // 간호복 소매
+  }
+}
+// 숫자 카드 (모니터에서 읽은 값)
+function valueCard(text) {
+  const c = new T.Group(); box(c, 0, 0.015, 0, 0.92, 0.03, 0.38, '#fff6d8');
+  const m = tag2(c, [text], 0, 0.2, 0.02, 0.95, 0.36); m.rotation.x = -0.75; return c;
+}
+// 침대 옆 모니터 화면: 체온 · 맥박 · 혈압. done 이면 '기록함 ✓'
+function screenTexture(done) {
+  const c = document.createElement('canvas'); c.width = 500; c.height = 340; const k = c.getContext('2d');
+  k.fillStyle = '#1f3442'; k.fillRect(0, 0, 500, 340); k.textBaseline = 'middle';
+  [['체온', '36.8 ℃', '#f2c94c'], ['맥박', '78 회/분', '#7fe0b0'], ['혈압', '118/76', '#8fc6f0']].forEach(([a, b, col], i) => {
+    const y = 58 + i * 100; k.fillStyle = '#c9d6dc'; k.font = 'bold 44px "Gowun Dodum", sans-serif'; k.textAlign = 'left'; k.fillText(a, 24, y);
+    k.fillStyle = col; k.font = 'bold 62px "Jua", sans-serif'; k.textAlign = 'right'; k.fillText(b, 480, y);
+  });
+  if (done) { k.fillStyle = '#3f9d7d'; k.fillRect(300, 300, 200, 40); k.fillStyle = '#fff'; k.font = 'bold 30px "Gowun Dodum", sans-serif'; k.textAlign = 'center'; k.fillText('기록함 ✓', 400, 321); }
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
+}

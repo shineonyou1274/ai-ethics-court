@@ -16,8 +16,13 @@
 //   todo: { label, via, known, done, missed } 또는 그 목록   할 일 목록(받은 일)에 올라갈 일
 //     known: true 면 아침부터 알고 있는 일(일정). 함수면 그 조건이 맞을 때만 보인다(예: 약속한 날). 없으면 그 장면이 될 때 새로 들어온다.
 //     done(s) · missed(s): 마쳤는지, 놓쳤는지 (없으면 그 장면을 지나면 마친 것). at: 목록에 보일 시각 (없으면 장면 시각)
+//     now(s, i): 지금 하는 일인지 (없으면 그 장면일 때. 예: 약속을 지키러 가는 다음 장면까지 '지금')
 //   goal: '옷 갈아입기'   할 일 목록에 올리지 않는 장면의 짧은 이름 (3D 장소 표시의 둘째 줄)
+//   skip: (s) => …        이 조건이 맞으면 건너뛰는 장면 (예: 약속을 지키러 가기로 했을 때만 여는 장면, engine.js 의 next)
+//
+// 병원처럼 한 일터 안에서 한 직업만 다른 층을 걸을 때는, 직업이 floor 를 적고 그 층을 places/index.js 의 FLOORS 에 둔다(placeOf).
 import { makeNav } from './world/nav.js';
+import { skipped } from './engine.js';
 
 export const walkOn = (job, place) => !!(job?.walk && place?.nav);
 
@@ -37,8 +42,10 @@ const remoteOf = (place, pid) => place.nav.remote?.[pid] || null;
 //   walk     걸어가야 할 자리 (이미 그 자리에 있거나, 일터 밖에서 일터 밖으로 옮길 때는 null)
 //   back     일터 밖에서 돌아오는 길의 한 줄 (걷기 전에 보여 준다)
 //   travel   일터 밖으로 나가는 길의 한 줄 (걸어간 뒤에 보여 준다)
-export function stepFor(job, place, i) {
-  const n = place.nav, sc = job.scenes[i], prev = i > 0 ? job.scenes[i - 1] : null;
+//   s 를 주면 건너뛴 장면(skip)은 앞 장면으로 치지 않는다 (그 자리에 가지 않았으니까)
+export function stepFor(job, place, i, s = null) {
+  let k = i - 1; while (s && k > 0 && skipped(s, job, k)) k--;
+  const n = place.nav, sc = job.scenes[i], prev = k >= 0 ? job.scenes[k] : null;
   const prevRemote = prev ? remoteOf(place, prev.place) : null, nowRemote = remoteOf(place, sc.place);
   const from = !prev ? n.start : prevRemote ? n.depart : spotFor(place, prev.place) || n.start;
   // away: 일터 밖에서 일터 밖으로 곧장 옮길 때, 지금 있는 바깥 자리 (3D는 그곳을 그대로 보여 준다)
@@ -61,13 +68,14 @@ export const hasStep = (st) => !!(st.walk || st.travel || st.back || st.notice);
 export function inbox(s, job) {
   const out = [];
   job.scenes.forEach((sc, i) => {
+    if (skipped(s, job, i)) return; // 건너뛰는 장면의 일은 목록에 오르지 않는다
     for (const t of [].concat(sc.todo || [])) {
       if (typeof t.known === 'function' && !t.known(s)) continue; // 조건이 있는 일(약속)은 조건이 맞을 때만 목록에 오른다
       const known = !!t.known, arrived = i <= s.i;
       if (!known && !arrived) continue;
       const missed = t.missed ? t.missed(s, i) : false;
       const done = !missed && (t.done ? t.done(s, i) : i < s.i);
-      out.push({ i, label: t.label, via: t.via || '일정', at: t.at || sc.at, state: missed ? 'missed' : done ? 'done' : i === s.i ? 'now' : 'next', fresh: !known && i === s.i });
+      out.push({ i, label: t.label, via: t.via || '일정', at: t.at || sc.at, state: missed ? 'missed' : done ? 'done' : (t.now ? t.now(s, i) : i === s.i) ? 'now' : 'next', fresh: !known && i === s.i });
     }
   });
   return out;
