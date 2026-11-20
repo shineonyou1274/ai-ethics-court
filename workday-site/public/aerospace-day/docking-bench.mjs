@@ -12,7 +12,7 @@ export function dockingBench({sensors=false}={}){
  for(const x of [-.9,.9])box(.18,.22,.3,0x425e70,x,.84,0,model);
  const bolts=[],gaps=[],ports=[],chips=[];
  const at=(i,r=1.08)=>({x:Math.sin(i*Math.PI/3)*r,z:-Math.cos(i*Math.PI/3)*r});
- for(let i=0;i<6;i++){const q=at(i);mesh(new T.CylinderGeometry(.18,.18,.04,24),0xe0ba66,q.x,1.34,q.z,model);const bolt=mesh(new T.CylinderGeometry(.125,.125,.15,6),0x485e73,q.x,1.44,q.z,model);box(.13,.012,.025,0xe2e8e5,0,.078,0,bolt);bolts.push(bolt);const gap=box(.25,.07,.15,0xe6924a,q.x,1.13,q.z,model);gaps.push(gap)}
+ for(let i=0;i<6;i++){const q=at(i);mesh(new T.CylinderGeometry(.18,.18,.04,24),0xe0ba66,q.x,1.34,q.z,model);const bolt=mesh(new T.CylinderGeometry(.125,.125,.15,6),0x485e73,q.x,1.44,q.z,model);box(.13,.012,.025,0xe2e8e5,0,.078,0,bolt);bolts.push(bolt);const gap=box(.25,.05,.18,0xe6924a,q.x*1.18,1.145,q.z*1.18,model);gap.rotation.y=-i*Math.PI/3;gaps.push(gap)}
  // Identical landing sockets: no matching shape/color gives away the answer.
  for(const i of [0,2,4]){const q=at(i);const port=mesh(new T.CylinderGeometry(.25,.25,.075,24),0x387e69,q.x,1.4,q.z,model);mesh(new T.CylinderGeometry(.2,.2,.078,24),0x93bca7,0,.01,0,port);ports.push(port)}
  for(let i=0;i<3;i++){const g=new T.Group();root.add(g);box(.42,.22,.38,0x607991,0,0,0,g);box(.33,.025,.28,0xe3e9e8,0,.125,0,g);if(i===0){const lens=mesh(new T.CylinderGeometry(.11,.11,.09,16),0x253e53,0,.05,-.22,g);lens.rotation.x=Math.PI/2}else if(i===1){box(.1,.06,.1,0x6bb9ad,0,.17,0,g)}else{for(const x of [-.08,.08])box(.045,.07,.13,0xc5a564,x,.14,0,g)}chips.push(g)}

@@ -81,3 +81,5 @@ body[data-space-phase=control] .space-surface{position:relative;inset:auto;width
 @media(max-width:799px){body[data-space-phase=control] main{grid-template-rows:clamp(180px,62.5vw,300px) minmax(0,1fr)}}
 body[data-space-phase=result] #panel{overflow-y:auto}
 body[data-space-phase=result] .space-content{flex:0 0 auto;min-height:0;overflow:visible}
+
+.sensor-port{transform:translate(-50%,-50%) scaleY(.68)}
