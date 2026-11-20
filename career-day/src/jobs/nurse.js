@@ -123,30 +123,30 @@ job.scenes = wardDay(job, {
         noted: { fx: { team: 3, delay: 2 }, text: '체온, 맥박, 혈압을 알맞은 칸에 옮겨 적었어요. 기록지를 의사에게 넘겼어요.' },
         redo: { fx: { delay: 5, energy: -1 }, moment: '칸을 다시 보고 값을 옮겨 적은 순간', text: '한 번 다른 칸에 적을 뻔했어요. 단위를 보고 바로잡았지만 시간이 조금 더 들었어요.' },
       } },
-    { kind: 'choice', atOff: 360, place: 'r702', title: '검사 갈 시간이에요', body: '703호에는 새 환자분이 막 도착했어요.',
+    { kind: 'choice', atOff: 360, place: 'r702', title: '검사 갈 시간이에요', body: '703호에 새 환자분이 막 왔어요.',
       notice: { via: '전화', text: '“검사실이에요. 다온 님 지금 내려오시면 돼요.”' },
       todo: { label: '다온 님 검사 이동', via: '전화' },
-      speaker: '가상 인물 · 박다온', speech: '“휠체어에 앉았어요. 조금 떨려요.”',
+      speaker: '가상 인물 · 박다온', speech: '“조금 떨려요.”',
       ripple: [
-        { if: (s) => s.flags.unclear, text: '오전에 정하지 않은 검사 이동까지 겹쳤어요. 맡을 사람을 급히 찾느라 시간이 들었어요.', fx: { delay: 10, team: -4 } },
+        { if: (s) => s.flags.unclear, text: '정하지 않은 이동 담당을 급히 찾았어요.', fx: { delay: 10, team: -4 } },
         { if: (s) => s.flags.ownTransfer, text: '내가 맡기로 한 검사 이동이에요.', fx: { energy: -4 } },
       ],
       options: [
-        { label: '직접 모시고 가며 검사 순서를 알려 드린다', fx: { care: 8, team: -3, energy: -4, delay: 10 }, reply: '엘리베이터 안에서 다온 님이 “덕분에 덜 떨려요.” 해요. 그동안 새 환자분 안내는 동료가 맡았어요.', moment: '다온 님을 직접 모시고 간 순간', type: 'S' },
+        { label: '직접 모시고 가며 순서를 알려 드린다', fx: { care: 8, team: -3, energy: -4, delay: 10 }, reply: '엘리베이터 안에서 다온 님이 “덕분에 덜 떨려요.” 해요. 그동안 새 환자분 안내는 동료가 맡았어요.', moment: '다온 님을 직접 모시고 간 순간', type: 'S' },
         { label: '이송 담당에게 맡기고, 누가 올지 알린다', fx: { team: 5, care: 2, delay: 2 }, reply: '이송 담당이 바로 왔어요. “저분이 모셔다드릴 거예요.” 다온 님이 고개를 끄덕여요.', moment: '이송 담당과 일을 나눈 순간', type: 'E' },
-        { label: '새 환자분 안내 먼저, 다온 님은 동료에게', fx: { care: -2, team: 3, energy: 2, delay: -5 }, reply: '703호 새 환자분께 병실과 호출 벨 쓰는 법을 알려 드렸어요. 다온 님은 동료와 함께 내려갔어요.', moment: '새로 온 환자 안내를 먼저 챙긴 순간', type: 'C' },
+        { label: '새 환자분 먼저, 다온 님은 동료에게', fx: { care: -2, team: 3, energy: 2, delay: -5 }, reply: '703호 새 환자분께 병실과 호출 벨 쓰는 법을 알려 드렸어요. 다온 님은 동료와 함께 내려갔어요.', moment: '새로 온 환자 안내를 먼저 챙긴 순간', type: 'C' },
       ] },
   ],
   pickAt: 400,
   pick: {
-    id: 'handoff', title: '다음 근무자가 알아야 할 것', body: '교대 전, 인계 쪽지에 꼭 적을 것 세 가지를 골라요.', need: 3, moment: '인계 쪽지를 고른 순간', type: null, // 돌아보기의 순간으로 세지 않는다 (손으로 하는 장면 넷이 그 자리를 맡는다)
+    id: 'handoff', title: '다음 근무자가 알아야 할 것', body: '인계 쪽지에 꼭 적을 것 셋을 골라요.', need: 3, moment: '인계 쪽지를 고른 순간', type: null, // 돌아보기의 순간으로 세지 않는다 (손으로 하는 장면 넷이 그 자리를 맡는다)
     items: [
       { label: '다온 님이 일정 재설명을 원함', ok: true },
       { label: '다온 님 검사 시간이 1시 반으로 바뀜', ok: true },
       { label: '701호 윤호 님이 오전에 불안을 말함', ok: true },
       { label: '오늘 점심 메뉴가 별로였음', ok: false, why: '근무와 상관없는 이야기예요.' },
       { label: '“아마 괜찮을 거예요.”라는 내 짐작', ok: false, why: '확인한 사실과 짐작은 구분해서 전해요.' },
-      { label: '옆 침대 환자 이야기도 다온 님 칸에 함께 적기', ok: false, why: '다른 사람의 정보는 그 사람 기록에만 적어요.' },
+      { label: '옆 침대 환자 이야기를 다온 님 칸에', ok: false, why: '다른 사람의 정보는 그 사람 기록에만 적어요.' },
     ],
   },
   thanksBody: '검사를 마치고 병실로 돌아가던 다온 님이 스테이션 앞에서 말을 건네요.',

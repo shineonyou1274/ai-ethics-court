@@ -416,7 +416,7 @@ export const CLOSEUPS = {
       hands(g, SH[0], 0.57, SH[1]);
       tag(g, '내 손', SH[0] - 0.55, 0.95, SH[1] + 0.55, 0.62, 0.3);
       // 차트 수레: 차트 둘 (이름은 같고 생년월일이 다르다)
-      const CT = [1.9, 1.25]; box(g, CT[0], 0.36, CT[1], 1.6, 0.72, 0.72, '#e3d6c3'); box(g, CT[0], 0.735, CT[1], 1.65, 0.03, 0.78, '#f3ece1');
+      const CT = [1.75, 1.3]; box(g, CT[0], 0.36, CT[1], 2.2, 0.72, 0.72, '#e3d6c3'); box(g, CT[0], 0.735, CT[1], 2.25, 0.03, 0.78, '#f3ece1');
       const chart = clip(['박다온', '1958.03.14']), other = clip(['박다온', '1962.07.02']); g.add(chart, other);
       const foam = new T.Group(); for (const [x, z, r] of [[0, 0, 0.11], [0.09, 0.05, 0.08], [-0.08, 0.06, 0.07]]) ball(foam, x, 0.03, z, r, '#f6fbfc', [1, 0.45, 1]); g.add(foam);
       let checked = false;
@@ -424,8 +424,8 @@ export const CLOSEUPS = {
         rubY: 0.64, tool: foam,
         patches: [{ id: 'rub', y: 0.635, color: '#9bbf7f', opacity: 0.6, dot: 0.055, reach: 0.2, blobs: [{ x: SH[0] - 0.28, z: SH[1], r: 0.26, n: 10, squash: 1.3 }, { x: SH[0] + 0.28, z: SH[1], r: 0.26, n: 10, squash: 1.3 }] }],
         movers: [
-          { id: 'chart', obj: chart, from: [CT[0] + 0.4, CT[1]], to: [B[0] + 0.3, B[1] + 0.95], r: 0.42, y: 0.76, dragY: 0.9, restY: 0.92, lift: 0.2, ringY: 0.92, onPlaced() { checked = true; ok.visible = true; say.visible = true; } },
-          { id: 'chartB', obj: other, from: [CT[0] - 0.4, CT[1]], to: [B[0] + 0.3, B[1] + 0.95], r: 0.42, y: 0.76, dragY: 0.9, restY: 0.92, lift: 0.2, ringY: 0.92 },
+          { id: 'chart', obj: chart, from: [CT[0] + 0.55, CT[1]], to: [B[0] + 0.3, B[1] + 0.95], r: 0.42, y: 0.76, dragY: 0.9, restY: 0.92, lift: 0.2, ringY: 0.92, onPlaced() { checked = true; ok.visible = true; say.visible = true; } },
+          { id: 'chartB', obj: other, from: [CT[0] - 0.55, CT[1]], to: [B[0] + 0.3, B[1] + 0.95], r: 0.42, y: 0.76, dragY: 0.9, restY: 0.92, lift: 0.2, ringY: 0.92 },
         ],
         tick(dt, t) { pt.update(t, checked); },
       };
@@ -521,19 +521,19 @@ function wardBed(g, x, z, { skin, hair, low = false, pillow = true }) {
   };
 }
 // 위에서 내려다봐도 읽히는 이름표. 두 줄이면 첫 줄은 작게(무엇인지), 둘째 줄은 크게. color 를 주면 그 색으로 한 줄
-function tag2(g, lines, x, y, z, w, h, color) {
+function tag2(g, lines, x, y, z, w, h, color, even = false) {
   const c = document.createElement('canvas'); c.width = 520; c.height = Math.round(520 * h / w); const k = c.getContext('2d'); const H = c.height;
   k.fillStyle = color ? '#eaf6f0' : '#fffaf0'; k.beginPath(); k.roundRect(0, 0, 520, H, 26); k.fill(); k.strokeStyle = color || '#c9b49a'; k.lineWidth = 6; k.stroke();
   k.textAlign = 'center'; k.textBaseline = 'middle';
   if (lines.length === 1) { k.fillStyle = color || '#344d63'; k.font = `bold ${Math.round(H * 0.5)}px "Gowun Dodum", sans-serif`; k.fillText(lines[0], 260, H / 2 + 3, 490); }
-  else { k.fillStyle = '#6f7875'; k.font = `bold ${Math.round(H * 0.3)}px "Gowun Dodum", sans-serif`; k.fillText(lines[0], 260, H * 0.3, 490); k.fillStyle = '#344d63'; k.font = `bold ${Math.round(H * 0.38)}px "Gowun Dodum", sans-serif`; k.fillText(lines[1], 260, H * 0.7, 490); }
+  else { k.fillStyle = even ? '#344d63' : '#6f7875'; k.font = `bold ${Math.round(H * (even ? 0.38 : 0.3))}px "Gowun Dodum", sans-serif`; k.fillText(lines[0], 260, H * 0.3, 490); k.fillStyle = '#344d63'; k.font = `bold ${Math.round(H * 0.38)}px "Gowun Dodum", sans-serif`; k.fillText(lines[1], 260, H * 0.7, 490); }
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace;
   const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ map: t, transparent: true })); m.position.set(x, y, z); m.rotation.x = -0.55; g.add(m); return m;
 }
 // 차트(클립보드): 이름과 생년월일이 적힌 종이
 function clip(lines) {
   const c = new T.Group(); box(c, 0, 0.02, 0, 0.62, 0.04, 0.72, '#b59674'); box(c, 0, 0.045, 0.03, 0.55, 0.01, 0.6, '#fffaf0'); box(c, 0, 0.055, -0.33, 0.2, 0.03, 0.06, '#8d8f8f');
-  tag2(c, lines, 0, 0.3, 0.05, 0.7, 0.42); return c;
+  tag2(c, lines, 0, 0.34, 0.05, 1.05, 0.6, null, true); return c; // 이름과 생년월일을 같은 크기로 크게 (작은 폰에서도 읽히게)
 }
 // 내 두 손 (손바닥이 위로). 손가락 넷과 엄지
 function hands(g, x, y, z) {

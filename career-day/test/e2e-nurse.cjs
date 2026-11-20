@@ -46,12 +46,12 @@ const opt = phone ? { ...phone, deviceScaleFactor: 1 } : { viewport: { width: 12
   const rub = async (blobs, y) => { for (const [x, z, r] of blobs) { let first = true; for (let dz = -r; dz <= r + 0.01; dz += 0.14) { for (const dx of (Math.round((dz + r) / 0.14) % 2 ? [r, -r] : [-r, r])) { const q = await P(x + dx, y, z + dz); if (first) { mv.last=null; await dn(q.x, q.y); mv.last={x:q.x,y:q.y}; first = false; } else await mv(q.x, q.y, 5); } } await up(); await p.waitForTimeout(150); } };
   const stages = {
     '들어가기 전에, 손과 이름부터': async () => {
-      if (mode === 'messy') await dragTo([1.5, 0.8, 1.25], [1.05, 0.92, -0.05]); // 손 소독 전에 차트부터 (막힘)
+      if (mode === 'messy') await dragTo([1.2, 0.8, 1.3], [1.05, 0.92, -0.05]); // 손 소독 전에 차트부터 (막힘)
       await shot({ path: `${out}/${tag0}-id-start3d.png` });
       await rub([[-1.63, 1.05, 0.24], [-1.07, 1.05, 0.24]], 0.64);
       await shot({ path: `${out}/${tag0}-id-rubbed.png` });
-      if (mode === 'messy') await dragTo([1.5, 0.8, 1.25], [1.05, 0.92, -0.05], `${out}/${tag0}-id-wrongdrag.png`); // 생년월일이 다른 차트 (틀림)
-      await dragTo([2.3, 0.8, 1.25], [1.05, 0.92, -0.05], `${out}/${tag0}-id-dragging.png`); await p.waitForTimeout(300);
+      if (mode === 'messy') await dragTo([1.2, 0.8, 1.3], [1.05, 0.92, -0.05], `${out}/${tag0}-id-wrongdrag.png`); // 생년월일이 다른 차트 (틀림)
+      await dragTo([2.3, 0.8, 1.3], [1.05, 0.92, -0.05], `${out}/${tag0}-id-dragging.png`); await p.waitForTimeout(300);
       await shot({ path: `${out}/${tag0}-id-done3d.png` });
     },
     '호출 벨, 701호': async () => {
