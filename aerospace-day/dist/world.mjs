@@ -1,3 +1,4 @@
+import {person as makePerson} from './person.mjs';
 import {reducedMotion} from './motion.mjs';
 import {findPath} from './navigation.mjs';
 import * as T from './vendor/three.module.min.js';
@@ -19,7 +20,7 @@ export function createWorld(canvas,{flat=false,position={x:0,z:2.4},onArrive=()=
   if(s.id==='meeting'){box(1.3,.02,.55,0xfaf1db,0,.98,0,g);box(.6,.45,.08,0x3d536d,.65,1.25,-.25,g)}
   g.traverse(o=>o.userData.station=s.id);
  }
- const actor=new T.Group();scene.add(actor);actor.position.set(position.x,0,position.z);box(.46,.6,.28,0x5965ac,0,1,0,actor);sphere(.22,0xe0b58e,0,1.55,0,actor);const hair=sphere(.23,0x473c30,0,1.65,-.03,actor);hair.scale.y=.55;box(.15,.15,.015,0xfff9ec,.08,1.1,.16,actor);const legs=[];for(const x of [-.13,.13]){legs.push(box(.17,.65,.2,0x435971,x,.37,0,actor));box(.19,.1,.28,0xe6dac2,x,.08,.04,actor);box(.12,.5,.14,0x5965ac,x<0?-.31:.31,1,0,actor)}
+ const avatar=makePerson({coat:'#b7ccdc',hair:1,seed:1}),actor=avatar.root;scene.add(actor);actor.position.set(position.x,0,position.z);
  const ring=new T.Mesh(new T.RingGeometry(.3,.36,32),new T.MeshBasicMaterial({color:0xe8b85b,side:T.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.015;scene.add(ring);ring.visible=false;
  let route=[],destination=null,task=null,paused=false,raf=0,last=performance.now(),width=1,height=1,phase=0;
  const screen=(x,y,z)=>{if(flat)return {x:width/2+x*width/12,y:height*.48+z*height/11};const p=new T.Vector3(x,y,z).project(camera);return{x:(p.x*.5+.5)*width,y:(-p.y*.5+.5)*height}};
@@ -32,7 +33,7 @@ export function createWorld(canvas,{flat=false,position={x:0,z:2.4},onArrive=()=
  function walk(x,z){if(blocked(x,z))return;route=findPath(actor.position,{x,z},blocked);destination=null;ring.position.set(x,.015,z);ring.visible=!!route.length;if(route.length)onMove('시험동 바닥')}
  canvas.addEventListener('pointerdown',press);canvas.addEventListener('pointerup',release);
  function drawFlat(){ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);ctx.fillStyle='#dbe6ec';ctx.fillRect(0,0,width,height);ctx.fillStyle='#f7f2e9';ctx.fillRect(width*.025,height*.03,width*.95,height*.94);for(const s of STATIONS){const p=screen(s.x,0,s.z);ctx.fillStyle=s.id===task?'#bbc3e0':'#c5d3cc';ctx.fillRect(p.x-width*.1,p.y-height*.05,width*.2,height*.1)}const p=screen(actor.position.x,0,actor.position.z);ctx.fillStyle='#5965ac';ctx.beginPath();ctx.arc(p.x,p.y,10,0,Math.PI*2);ctx.fill();ctx.fillStyle='#263c52';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('나',p.x,p.y+27)}
- function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused){phase+=dt;if(route.length){const p=route[0],dx=p.x-actor.position.x,dz=p.z-actor.position.z,d=Math.hypot(dx,dz);if(d<.035){route.shift();if(!route.length){ring.visible=false;legs.forEach(l=>l.rotation.x=0);const id=destination;destination=null;onArrive(id)}}else{const step=Math.min(d,dt*2.8);actor.position.x+=dx/d*step;actor.position.z+=dz/d*step;actor.rotation.y=Math.atan2(dx,dz);legs.forEach((l,i)=>l.rotation.x=reducedMotion()?0:Math.sin(phase*9+i*Math.PI)*.23)}}if(renderer)renderer.render(scene,camera);else drawFlat();}raf=requestAnimationFrame(loop)}
+ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused){phase+=dt;if(route.length){const p=route[0],dx=p.x-actor.position.x,dz=p.z-actor.position.z,d=Math.hypot(dx,dz);if(d<.035){route.shift();if(!route.length){ring.visible=false;avatar.update(phase,false);const id=destination;destination=null;onArrive(id)}}else{const step=Math.min(d,dt*2.8);actor.position.x+=dx/d*step;actor.position.z+=dz/d*step;actor.rotation.y=Math.atan2(dx,dz);avatar.update(phase,true)}}if(renderer)renderer.render(scene,camera);else drawFlat();}raf=requestAnimationFrame(loop)}
  const observer=new ResizeObserver(resize);observer.observe(canvas);resize();raf=requestAnimationFrame(loop);
  return{go,setTask(id){task=id;pins()},getPosition(){return{x:actor.position.x,z:actor.position.z}},pause(v){paused=v;last=performance.now()},dispose(){cancelAnimationFrame(raf);observer.disconnect();canvas.removeEventListener('pointerdown',press);canvas.removeEventListener('pointerup',release);renderer?.dispose();scene.traverse(o=>{o.geometry?.dispose();o.material?.dispose()})}};
 }
