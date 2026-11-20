@@ -1,0 +1,1 @@
+✓ local-review/loose-go/pc/page@abac8c6ca497accaa6862d543196a274.webm {"seconds":60.7,"maxFlashesPerSec":1,"worst":"칸 0,0","atSec":41.68,"whiteFrames":0,"whiteAt":[],"pass":true}
