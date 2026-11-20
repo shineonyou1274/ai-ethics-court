@@ -15,11 +15,13 @@ export class SpaceTrial {
  result(){return {status:this.status,config:{...this.config},repaired:this.repaired,fuelUsed:Math.round((100-this.fuel)*10)/10,offset:Math.round(Math.hypot(this.x,this.y)*100)/100,speed:Math.round(this.speed*100)/100,seconds:Math.round(this.elapsed),drift:Math.round(this.drift*100)/100}}
 }
 export class SpaceWork {
- constructor(){this.phase='suit';this.gear=new Set();this.config={mass:2,power:2,assist:true};this.turn=0;this.results=[];this.trial=null;this.paused=false}
- get repaired(){return this.turn>=180}
+ constructor(){this.phase='suit';this.gear=new Set();this.config={mass:2,power:2,assist:true};this.turns=Array(6).fill(0);this.boltOrder=[0,3,1,4,2,5];this.results=[];this.trial=null;this.paused=false}
+ get turn(){return this.turns.reduce((a,b)=>a+b,0)/6}
+ get nextBolt(){return this.boltOrder.find(id=>this.turns[id]<180)}
+ get repaired(){return this.nextBolt===undefined}
  equip(id){if(this.phase!=='suit'||!['workwear','badge','wrist'].includes(id))return false;this.gear.add(id);return true}
  prepare(){if(this.gear.size!==3)return false;this.phase='design';return true}
- tighten(degrees){if(this.phase!=='inspect'||!Number.isFinite(degrees))return;this.turn=clamp(this.turn+Math.max(0,degrees),0,180)}
+ tighten(degrees,id=this.nextBolt){if(this.phase!=='inspect'||!Number.isFinite(degrees)||id===undefined||id!==this.nextBolt)return false;this.turns[id]=clamp(this.turns[id]+Math.max(0,degrees),0,180);return true}
  start(){if(!['inspect','result'].includes(this.phase))return false;this.trial=new SpaceTrial(this.config,this.repaired);this.phase='flight';this.paused=false;return true}
  finish(){if(!this.trial||this.trial.status==='running')return false;this.results.push(this.trial.result());if(this.results.length>4)this.results.shift();this.phase='result';return true}
  get comparable(){return this.results.length>=2&&this.results.some((r,i)=>i>0&&(r.repaired!==this.results[0].repaired||JSON.stringify(r.config)!==JSON.stringify(this.results[0].config)))}
