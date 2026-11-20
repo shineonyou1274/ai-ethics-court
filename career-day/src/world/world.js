@@ -4,6 +4,8 @@ import * as T from 'three';
 import { box, label, person, dispose, reduced } from './kit.js';
 import { makeCloseup } from './closeup.js';
 import { makeNav } from './nav.js';
+// 받침이 있으면 '이에요', 없으면 '예요' (703호예요, 대기실이에요)
+const copula = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 === 0 ? '예요' : '이에요'; };
 
 const BURST = { care: '🫶', team: '🤝', energy: '⚡', tired: '💤', coin: '🪙', star: '✨' };
 
@@ -182,7 +184,7 @@ export function createWorld(canvas, el, place) {
     const room = place.rooms.find((rm) => Math.abs(p.x - rm.x) < rm.w / 2 && Math.abs(p.z - rm.z) < rm.d / 2);
     if (tg && room && tg.room === room.id) return goTarget();
     const spot = room && place.nav.spots[room.id];
-    if (spot) return walkTo(spot, null, `여기는 ${room.name}이에요.${tg ? ` 지금 할 일은 ${tg.name}에 있어요.` : ''}`);
+    if (spot) return walkTo(spot, null, `여기는 ${room.name}${copula(room.name)}.${tg ? ` 지금 할 일은 ${tg.name}에 있어요.` : ''}`);
     walkTo({ x: p.x, z: p.z });
   }
   // 이름표를 3D 자리 위에 붙인다. 칸 밖이나 위쪽 띠 밑으로 숨지 않게 안쪽으로 당긴다
