@@ -7,7 +7,7 @@ import {Payment} from '../dist/payment-state.mjs';
 import {Shift} from '../dist/shift.mjs';
 import {WashCup} from '../dist/wash-state.mjs';
 const els=new Map();
-globalThis.document={body:{insertAdjacentHTML(){},classList:{add(){},remove(){}}},createElement(){return{getContext(){return{fillText(){}}}}},querySelectorAll(){return[]},getElementById(id){if(!els.has(id))els.set(id,{style:{},setAttribute(){},getBoundingClientRect(){return{left:20,right:160,top:60,bottom:100}},querySelector(){return{scrollTo(){}}}});return els.get(id)},addEventListener(){}};
+globalThis.document={body:{insertAdjacentHTML(){},classList:{add(){},remove(){}}},createElement(){return{style:{},setAttribute(k,v){this[k]=v},remove(){},getContext(){return{fillText(){}}}}},querySelectorAll(){return[]},getElementById(id){if(!els.has(id))els.set(id,{style:{},append(){},setAttribute(){},getBoundingClientRect(){return{left:20,right:160,top:60,bottom:100}},querySelector(){return{scrollTo(){}}}});return els.get(id)},addEventListener(){}};
 globalThis.window={addEventListener(){},matchMedia(){return{matches:false}}};
 const canvas=(width,height)=>({addEventListener(){},setPointerCapture(){},getBoundingClientRect:()=>({left:0,top:0,width,height})});
 const state=new Shift();state.order={name:'지우',drink:'아메리카노'};state.payment=new Payment(4000,'cash',10000);state.payment.receive();
@@ -17,6 +17,7 @@ for(const value of [5000,1000,500,100,1000,500,100,5000]){
  const bounds=pay.change.children.map(g=>new T.Box3().setFromObject(g));
  for(let i=0;i<bounds.length;i++)for(let j=i+1;j<bounds.length;j++)assert.equal(bounds[i].intersectsBox(bounds[j]),false,'denomination labels must not overlap');
 }
+assert.equal(pay.countLabels.length,4);assert.deepEqual(pay.countLabels.map(e=>e.label.textContent),['2장','2장','2개','2개']);
 assert.equal(pay.change.children.length,4,'duplicates are counted in four separate denominations');
 const before=pay.change.children.map(g=>g.position.toArray());pay.close();pay.open();assert.deepEqual(pay.change.children.map(g=>g.position.toArray()),before,'reopening cannot change layout');
 for(const [width,height]of [[390,472],[768,800]]){
