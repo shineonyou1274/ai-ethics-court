@@ -23,8 +23,8 @@ export function createWorld(canvas,{flat=false,position={x:0,z:2.4},onArrive=()=
  const ring=new T.Mesh(new T.RingGeometry(.3,.36,32),new T.MeshBasicMaterial({color:0xe8b85b,side:T.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.015;scene.add(ring);ring.visible=false;
  let route=[],destination=null,task=null,paused=false,raf=0,last=performance.now(),width=1,height=1,phase=0;
  const screen=(x,y,z)=>{if(flat)return {x:width/2+x*width/12,y:height*.48+z*height/11};const p=new T.Vector3(x,y,z).project(camera);return{x:(p.x*.5+.5)*width,y:(-p.y*.5+.5)*height}};
- const resize=()=>{const b=canvas.getBoundingClientRect();width=b.width||1;height=b.height||1;if(renderer)renderer.setSize(width,height,false);else{canvas.width=width*devicePixelRatio;canvas.height=height*devicePixelRatio}const a=width/height,half=Math.max(6,6/a);camera.left=-half*a;camera.right=half*a;camera.top=half;camera.bottom=-half;camera.updateProjectionMatrix();camera.updateMatrixWorld();pins()};
- function pins(){onPins(STATIONS.map(s=>({...s,...screen(s.x,1.15,s.z)})))}
+ const resize=()=>{const b=canvas.getBoundingClientRect();width=b.width||1;height=b.height||1;if(renderer)renderer.setSize(width,height,false);else{canvas.width=width*devicePixelRatio;canvas.height=height*devicePixelRatio}const a=width/height,half=Math.max(4.9,5.65/a);camera.left=-half*a;camera.right=half*a;camera.top=half;camera.bottom=-half;camera.updateProjectionMatrix();camera.updateMatrixWorld();pins()};
+ function pins(){onPins(STATIONS.map(s=>({...s,...screen(s.x,1.75,s.z)})))}
  function go(id){const s=STATIONS.find(x=>x.id===id);if(!s)return;route=findPath(actor.position,{x:s.ax,z:s.az},blocked);if(!route.length)return;destination=id;ring.position.set(s.ax,.015,s.az);ring.visible=true;onMove(s.name)}
  const ray=new T.Raycaster(),pointer=new T.Vector2();let down=null;
  const press=e=>{down={x:e.clientX,y:e.clientY}};
