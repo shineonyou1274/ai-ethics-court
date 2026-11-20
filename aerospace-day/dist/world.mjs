@@ -3,7 +3,7 @@ import {reducedMotion} from './motion.mjs';
 import {findPath} from './navigation.mjs';
 import * as T from './vendor/three.module.min.js';
 export const STATIONS=[{id:'drawing',name:'도면 책상',x:-3.4,z:-2.5,ax:-1.65,az:-2.5},{id:'assembly',name:'조립대',x:3.4,z:-2.5,ax:1.65,az:-2.5},{id:'sensor',name:'센서 작업대',x:-3.4,z:1,ax:-1.65,az:1},{id:'cockpit',name:'조종석',x:3.4,z:1,ax:1.65,az:1},{id:'meeting',name:'회의실 · 관제 창',x:0,z:4,ax:0,az:2.7}];
-const FIXTURES=[{x:0,z:-4.25,w:1.5,d:.8},{x:-3.4,z:-3.95,w:.8,d:.65},{x:3.4,z:-3.95,w:.8,d:.65},{x:4.85,z:1,w:.65,d:.8}];
+const FIXTURES=[{x:0,z:-4.25,w:1.5,d:.8},{x:-4.85,z:-2.5,w:.65,d:.8},{x:4.85,z:-2.5,w:.65,d:.8},{x:4.85,z:1,w:.65,d:.8}];
 export const blocked=(x,z)=>Math.abs(x)>5.25||z< -4.5||z>5||FIXTURES.some(s=>Math.abs(x-s.x)<s.w/2+.1&&Math.abs(z-s.z)<s.d/2+.1)||STATIONS.some(s=>Math.abs(x-s.x)<1.4&&Math.abs(z-s.z)<.95);
 export function createWorld(canvas,{flat=false,position={x:0,z:2.4},onArrive=()=>{},onMove=()=>{},onPins=()=>{}}={}){
  let renderer=null,ctx=null;if(flat)ctx=canvas.getContext('2d');else{renderer=new T.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=true;}
@@ -27,7 +27,7 @@ export function createWorld(canvas,{flat=false,position={x:0,z:2.4},onArrive=()=
  for(const x of [-4.65,4.65]){box(.5,1.45,.55,0xb8c7c4,x,.72,-4.25);for(const y of [.3,.7,1.1])box(.36,.18,.03,0x718a97,x,y,-3.95)}
  for(const side of [-1,1])for(let i=0;i<12;i++)box(.06,.012,.38,0xe4b75c,side*1.03,.006,-3.9+i*.7);
  for(const s of STATIONS){box(.7,.018,.3,0x4d6879,s.x+.6,1.02,s.z+.24,props.get(s.id)?.parent);}
- const colleagues=[[-3.4,-3.95,0,'#d8c6aa',0],[3.4,-3.95,0,'#accbc3',2],[4.85,1,-Math.PI/2,'#d2b8b2',1]];
+ const colleagues=[[-4.85,-2.5,Math.PI/2,'#d8c6aa',0],[4.85,-2.5,-Math.PI/2,'#accbc3',2],[4.85,1,-Math.PI/2,'#d2b8b2',1]];
  colleagues.forEach(([x,z,angle,coat,hair],i)=>{const p=makePerson({coat,hair,seed:i+2});p.root.position.set(x,0,z);p.root.rotation.y=angle;p.act('work');scene.add(p.root)});
  // Desk instruments, cable reels and a sample rack tell the room's purpose.
  for(const [x,z] of [[-3.4,1],[3.4,-2.5]]){box(.45,.28,.32,0x516d80,x-.6,1.1,z-.15);box(.34,.18,.025,0x8bc1b7,x-.6,1.13,z+.025);for(const k of [-.1,.1])sphere(.035,0xe0ba66,x-.6+k,1.04,z+.045,scene)}
@@ -40,7 +40,7 @@ export function createWorld(canvas,{flat=false,position={x:0,z:2.4},onArrive=()=
  function pins(){
   const bounds=points=>{const p=points.map(v=>screen(...v)),x=Math.min(...p.map(v=>v.x)),y=Math.min(...p.map(v=>v.y));return{x:x-5,y:y-5,w:Math.max(...p.map(v=>v.x))-x+10,h:Math.max(...p.map(v=>v.y))-y+10}};
   const obstacles=STATIONS.map(s=>bounds([[-1.13,-.58],[-1.13,.58],[1.13,-.58],[1.13,.58]].map(([x,z])=>[s.x+x,1,s.z+z])));
-  const a=actor.position;obstacles.push(bounds([[a.x-.36,0,a.z],[a.x+.36,2.15,a.z]]));
+  for(const a of [actor.position,...colleagues.map(([x,z])=>({x,z}))])obstacles.push(bounds([[a.x-.36,0,a.z],[a.x+.36,2.15,a.z]]));
   onPins(STATIONS.map(s=>({...s,...screen(s.x,1.4,s.z)})),obstacles)
  }
  function go(id){const s=STATIONS.find(x=>x.id===id);if(!s)return;route=findPath(actor.position,{x:s.ax,z:s.az},blocked);if(!route.length)return;destination=id;ring.position.set(s.ax,.015,s.az);ring.visible=true;onMove(s.name)}

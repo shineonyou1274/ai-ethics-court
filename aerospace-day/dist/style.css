@@ -83,3 +83,7 @@ body[data-space-phase=result] #panel{overflow-y:auto}
 body[data-space-phase=result] .space-content{flex:0 0 auto;min-height:0;overflow:visible}
 
 .sensor-port{transform:translate(-50%,-50%) scaleY(.68)}
+
+/* Pick up the visible 3D sensor itself; the caption sits underneath the hit area. */
+.sensor-chip{height:76px;min-height:76px;border:0;background:transparent;display:flex;align-items:flex-end;padding:0;box-shadow:none}.sensor-chip.dragging{background:transparent;box-shadow:none}
+.sensor-name{display:block;width:100%;border:1px solid #657f92;border-radius:9px;padding:4px 2px;background:#fffdf8ed;line-height:1.25}
