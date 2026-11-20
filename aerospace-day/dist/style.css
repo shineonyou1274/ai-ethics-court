@@ -61,3 +61,6 @@ body[data-space-phase=result] .space-actions button{min-height:44px;margin:0;pad
 .scene-header .wd-hud{flex-wrap:nowrap;white-space:nowrap;max-width:100%}.scene-header .wd-clock,.scene-header .wd-money{white-space:nowrap;flex-shrink:0}
 .stage-controls button,.station-pin,.space-heading button,.space-gear button,.nudge-controls button{font-size:16px}
 @media(max-width:799px){.scene-header{padding:6px 8px}.scene-header .wd-hud{gap:3px}.scene-header .wd-clock,.scene-header .wd-money{font-size:14px;padding:4px 8px}#panel{scroll-padding:12px}.space-session #panel{padding:8px 12px 20px}body:is([data-space-phase=design],[data-space-phase=result],[data-space-phase=inspect]) #panel{overflow-y:auto}.space-content{flex:1 0 auto;overflow:visible}.station-pin{max-width:46%;padding:4px 6px}.station-call{font-size:14px}}
+
+/* Keep hall calls inside the scene; the location badge stays clear of station names. */
+body:not(.space-session) #groundTag{top:auto;bottom:8px}
