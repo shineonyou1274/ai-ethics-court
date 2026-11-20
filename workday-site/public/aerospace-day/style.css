@@ -55,3 +55,9 @@ body[data-space-phase=result] .space-actions button{min-height:44px;margin:0;pad
 .station-call{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#fff3cf;border:1px solid #b28b3a;border-radius:9px;padding:2px 7px;font-size:14px;white-space:nowrap;box-shadow:0 2px 6px #263c5222;pointer-events:none}.station-call::after{content:"";position:absolute;top:100%;left:45%;border:4px solid transparent;border-top-color:#b28b3a}
 
 .trial-comparison{table-layout:fixed;width:100%;font-size:16px}.trial-comparison caption{text-align:left;font-family:var(--wd-title);padding:10px 0}.trial-comparison th,.trial-comparison td{font-size:16px;overflow-wrap:anywhere;text-align:left}.trial-comparison th:first-child{width:38%}
+
+/* Small phones: actions stay in normal flow, so no floating footer covers a control. */
+.space-actions{position:static;flex-wrap:wrap}.space-actions button{min-width:100px}.space-content{scroll-padding:12px;min-height:96px}
+.scene-header .wd-hud{flex-wrap:nowrap;white-space:nowrap;max-width:100%}.scene-header .wd-clock,.scene-header .wd-money{white-space:nowrap;flex-shrink:0}
+.stage-controls button,.station-pin,.space-heading button,.space-gear button,.nudge-controls button{font-size:16px}
+@media(max-width:799px){.scene-header{padding:6px 8px}.scene-header .wd-hud{gap:3px}.scene-header .wd-clock,.scene-header .wd-money{font-size:14px;padding:4px 8px}#panel{scroll-padding:12px}.space-session #panel{padding:8px 12px 20px}body:is([data-space-phase=design],[data-space-phase=result],[data-space-phase=inspect]) #panel{overflow-y:auto}.space-content{flex:1 0 auto;overflow:visible}.station-pin{max-width:46%;padding:4px 6px}.station-call{font-size:14px}}
