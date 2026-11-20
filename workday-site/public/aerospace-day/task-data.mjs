@@ -8,7 +8,7 @@ export const PARTS=[
 ];
 export const polar=(i,r=1.25)=>{const a=PARTS[i].angle*Math.PI/180-Math.PI/2;return{x:Math.cos(a)*r,y:Math.sin(a)*r}};
 export const SENSORS=[
- {name:'거리 센서',symbol:'△',reason:'접근 거리를 읽는 센서는 위쪽 △ 연결부에 놓아요.'},
- {name:'중심 센서',symbol:'□',reason:'중심 정렬 신호는 오른쪽 아래 □ 연결부에서 받아요.'},
- {name:'기록 단자',symbol:'◇',reason:'시험 값을 남기는 단자는 왼쪽 아래 ◇ 연결부와 연결해요.'}
+ {name:'거리 센서',reason:'링 위쪽에서 다가오는 화물선을 정면으로 바라봐야 거리를 읽어요.'},
+ {name:'중심 센서',reason:'링 오른쪽 아래에서 중심 정렬 신호를 읽어요.'},
+ {name:'기록 단자',reason:'링 왼쪽 아래의 기록 케이블과 이어 시험 값을 남겨요.'}
 ];
