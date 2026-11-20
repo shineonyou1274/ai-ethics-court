@@ -64,7 +64,7 @@ job.scenes = floorDay(job, {
 
     // 손으로 하는 일 ③ 호출기: 수술 준비. 모자·마스크 → 손 세척 → 멸균 가운 → 멸균 장갑
     { kind: 'hands', game: 'gowning', closeup: true, atOff: 50, place: 'scrub', drain: 0, title: '수술실, 나를 먼저 준비해요',
-      notice: { via: '호출기', text: '“수술실이에요. 9시 10분 수술, 준비 시작해 주세요.”' },
+      notice: { via: '호출기', text: '“수술실이에요. 오전 수술, 준비 시작해 주세요.”' },
       todo: { label: '오전 수술 준비', via: '호출기', now: (s, i) => s.i === i || s.i === i + 1, done: (s, i) => s.i > i + 1 }, // 준비실에서 수술실 타임아웃까지 '지금'
       body: '수술 준비실이에요. 멸균 상태를 지키려면 입는 순서가 정해져 있어요. 탁자의 물건을 끌어다 입고, 개수대에서 손을 씻어요.',
       moment: '수술복을 순서대로 갖춰 입은 순간', type: 'R',
