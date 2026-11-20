@@ -1,5 +1,5 @@
 import {taskView} from './task-world.mjs';
-import {PARTS} from './task-data.mjs';
+import {PARTS,SENSORS} from './task-data.mjs';
 export function mountDrawing({stage,panel,day,flat,onChange,onComplete,onExit,checkSession}){
  const surface=document.createElement('div');surface.className='space-surface task-surface';stage.append(surface);document.body.classList.add('space-session');document.body.dataset.spacePhase='drawing';
  let canvas=document.createElement('canvas');canvas.setAttribute('aria-label','도면의 도킹 링과 여섯 부품');surface.append(canvas);let view=taskView(canvas,{flat});
@@ -10,4 +10,16 @@ export function mountDrawing({stage,panel,day,flat,onChange,onComplete,onExit,ch
  document.getElementById('drawingDone').onclick=()=>{if(checkSession()&&day.drawingFound.size===3)onComplete()};document.getElementById('returnHall').onclick=onExit;
  const observer=new ResizeObserver(()=>{view.resize();refresh()});observer.observe(surface);refresh();
  return{dispose(){observer.disconnect();view.dispose();surface.remove();document.body.classList.remove('space-session');delete document.body.dataset.spacePhase}};
+}
+
+export function mountSensors({stage,panel,day,flat,onComplete,onExit,checkSession}){
+ const surface=document.createElement('div');surface.className='space-surface task-surface';stage.append(surface);document.body.classList.add('space-session');document.body.dataset.spacePhase='sensor';
+ let canvas=document.createElement('canvas');canvas.setAttribute('aria-label','도킹 링의 센서 연결부 세 곳');surface.append(canvas);let view=taskView(canvas,{flat,mode:'sensor'});if(!view){canvas.replaceWith(canvas=document.createElement('canvas'));surface.append(canvas);view=taskView(canvas,{flat:true,mode:'sensor'})}
+ panel.innerHTML='<div class="space-heading">11:30 · 센서 작업대</div><h2>센서를 집어 링에 연결해요.</h2><p>아래 센서를 끌어 같은 기호의 연결부에 놓아요. 빈 자리는 모두 같은 초록 원이에요.</p><p id="sensorHint" role="status">거리·중심·기록 신호가 모두 필요해요.</p><p id="sensorProgress"></p><div class="space-actions"><button class="wd-btn" id="sensorDone">연결 확인 · 점심 먹으러 가기</button><button id="returnHall">← 시험동으로</button></div>';
+ let drag=null;
+ const ports=SENSORS.map((s,i)=>{const b=document.createElement('span');b.className='sensor-port';b.dataset.port=i;b.textContent=s.symbol;b.setAttribute('aria-label',s.symbol+' 연결부');surface.append(b);return b});
+ const chips=SENSORS.map((s,i)=>{const b=document.createElement('button');b.className='sensor-chip';b.dataset.sensor=i;b.textContent=s.symbol+' '+s.name;b.onpointerdown=e=>{if(!checkSession()||day.sensors.has(i))return;e.preventDefault();b.setPointerCapture(e.pointerId);drag={id:e.pointerId,sensor:i,x:e.clientX,y:e.clientY};b.classList.add('dragging')};b.onpointermove=e=>{if(drag?.id===e.pointerId){b.style.transform=`translate(${e.clientX-drag.x}px,${e.clientY-drag.y}px)`}};const release=(e,cancel=false)=>{if(drag?.id!==e.pointerId)return;let port=-1;if(!cancel)port=ports.findIndex(p=>{const r=p.getBoundingClientRect();return Math.hypot(e.clientX-r.x-r.width/2,e.clientY-r.y-r.height/2)<Math.max(32,r.width*.65)});const r=cancel?{note:'집은 센서를 내려놓았어요.'}:day.attachSensor(i,port);document.getElementById('sensorHint').textContent=r.note;drag=null;b.style.transform='';b.classList.remove('dragging');refresh()};b.onpointerup=e=>release(e);b.onpointercancel=b.onlostpointercapture=e=>release(e,true);surface.append(b);return b});
+ function refresh(){view.draw(day.sensors);ports.forEach((p,i)=>{const q=view.point(i*2,1.08);p.style.left=q.x+'px';p.style.top=q.y+'px';p.classList.toggle('filled',day.sensors.has(i))});chips.forEach((b,i)=>{b.disabled=day.sensors.has(i);b.textContent=(b.disabled?'✓ ':'')+SENSORS[i].symbol+' '+SENSORS[i].name;b.style.left=(i*100/3)+'%'});document.getElementById('sensorProgress').textContent=`연결 ${day.sensors.size}/3 · 오후 시험에 전달할 신호`;document.getElementById('sensorDone').disabled=day.sensors.size!==3}
+ document.getElementById('sensorDone').onclick=()=>{if(checkSession()&&day.sensors.size===3)onComplete()};document.getElementById('returnHall').onclick=onExit;
+ const observer=new ResizeObserver(()=>{view.resize();refresh()});observer.observe(surface);refresh();return{dispose(){observer.disconnect();view.dispose();surface.remove();document.body.classList.remove('space-session');delete document.body.dataset.spacePhase}};
 }

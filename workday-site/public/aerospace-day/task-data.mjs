@@ -7,3 +7,8 @@ export const PARTS=[
  {name:'바깥 기록 단자',angle:300,clash:false,reason:'단자는 링 바깥쪽에 있어요. 안쪽 통로와 겹치지 않아요.'}
 ];
 export const polar=(i,r=1.25)=>{const a=PARTS[i].angle*Math.PI/180-Math.PI/2;return{x:Math.cos(a)*r,y:Math.sin(a)*r}};
+export const SENSORS=[
+ {name:'거리 센서',symbol:'△',reason:'접근 거리를 읽는 센서는 위쪽 △ 연결부에 놓아요.'},
+ {name:'중심 센서',symbol:'□',reason:'중심 정렬 신호는 오른쪽 아래 □ 연결부에서 받아요.'},
+ {name:'기록 단자',symbol:'◇',reason:'시험 값을 남기는 단자는 왼쪽 아래 ◇ 연결부와 연결해요.'}
+];
