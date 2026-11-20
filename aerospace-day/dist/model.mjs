@@ -16,15 +16,18 @@ export const STEPS=[
  {time:'18:00',name:'퇴근',station:'meeting',team:'동료 다온',radio:'오늘의 기록을 남기고 퇴근해요.'}
 ];
 export class Day{
- constructor(){this.stage=0;this.prepared=false;this.drawingChecked=false;this.drawingFound=new Set();this.drawingWrong=new Set();this.assembled=false;this.repaired=false;this.sensorChecked=false;this.sensors=new Set();this.rested=null;this.spaceDone=false;this.spaceResults=[];this.decision=null;this.reportChecked=false;this.report=null;this.leave=null;this.energy=85;this.record=null}
+ constructor(){this.stage=0;this.prepared=false;this.drawingChecked=false;this.drawingFound=new Set();this.drawingWrong=new Set();this.boltWrong=new Set();this.sensorWrong=new Set();this.assembled=false;this.repaired=false;this.sensorChecked=false;this.sensors=new Set();this.rested=null;this.spaceDone=false;this.spaceResults=[];this.decision=null;this.reportChecked=false;this.report=null;this.leave=null;this.energy=85;this.record=null}
  get drawingDelay(){return this.drawingWrong.size*2}
- get delay(){return this.drawingDelay+(this.assembled&&!this.repaired?15:0)}
+ get recheckDelay(){return this.drawingDelay+(this.boltWrong.size+this.sensorWrong.size)*2}
+ get delay(){return this.recheckDelay+(this.assembled&&!this.repaired?15:0)}
  get overtime(){return this.leave==='stay'?Math.min(120,this.delay):0}
  get worked(){return 480+this.overtime}
  get pay(){return salaryDay(JOB.annual,this.worked,480)}
  get outcome(){if(!this.decision)return null;if(this.decision==='hold')return 'held';return this.repaired&&this.sensors.size===3&&this.spaceResults.at(-1)?.status==='docked'?'docked':'stopped'}
  get ending(){return this.outcome==='docked'?'무인 화물선 도킹을 지상에서 검증한 하루':this.outcome==='held'?'시험 기록을 보고 도킹을 안전하게 미룬 하루':'관제와 접근을 멈추고 내일의 확인을 남긴 하루'}
- attachSensor(id,port){if(this.stage!==4||!SENSORS[id])return {note:'지금은 센서 연결 시간이 아니에요.'};if(id!==port)return {valid:false,note:SENSORS[id].reason+' 센서는 원래 자리로 돌아왔어요.'};this.sensors.add(id);return {valid:true,note:SENSORS[id].name+' 연결했어요. 오후 시험에서 이 신호를 읽어요.'}}
+ noteBolt(id,expected){if(this.stage!==3||this.assembled||![id,expected].every(n=>Number.isInteger(n)&&n>=0&&n<6)||id===expected)return 0;const size=this.boltWrong.size;this.boltWrong.add(expected+':'+id);return this.boltWrong.size>size?2:0}
+ attachSensor(id,port){if(this.stage!==4||!SENSORS[id]||this.sensors.has(id))return {valid:false,note:'이 센서는 이미 연결했거나 지금 연결 시간이 아니에요.'};if(!SENSORS[port])return {valid:false,note:'센서를 내려놓았어요. 연결부 위에 놓으면 확인해요.'};if(id!==port){const size=this.sensorWrong.size;this.sensorWrong.add(id+':'+port);return {valid:false,note:SENSORS[id].reason+' 원래 자리로 돌아왔어요. '+(this.sensorWrong.size>size?'배선 재확인 +2분.':'같은 연결 실수는 시간을 다시 더하지 않아요.')}};this.sensors.add(id);return {valid:true,note:SENSORS[id].name+' 연결했어요. 오후 시험에서 이 신호를 읽어요.'}}
+
  inspectDrawing(id){if(this.stage!==2||!PARTS[id])return {note:"지금은 도면 점검 시간이 아니에요."};const p=PARTS[id];if(p.clash)this.drawingFound.add(id);else this.drawingWrong.add(id);return {valid:p.clash,note:p.reason+(p.clash?" 제작팀에 위치 조정을 요청해요.":" 이 부품 재확인 +2분(한 번만 반영).")}}
  prepare(){if(this.stage!==1)return false;this.prepared=true;return true}
  assemble(repaired){if(this.stage!==3||this.assembled||typeof repaired!=='boolean')return false;this.repaired=repaired;this.assembled=true;return true}
@@ -46,5 +49,5 @@ export class Day{
  case 9:if(!this.reportChecked||!['stay','handover'].includes(choice))return false;this.leave=choice;this.energy=Math.max(0,this.energy-this.overtime/15*4);break;
  default:return false;
  }this.stage++;return true}
- make(like,hard){if(this.stage!==10||like===hard||!MOMENTS[like]||!MOMENTS[hard])throw Error('하루를 마치고 서로 다른 순간을 골라요.');this.record ||=makeRecord({app:'aerospace-day',place:'design-lab',job:JOB,annual:JOB.annual,wageYear:JOB.year,wageBasis:JOB.basis,shift:{start:'09:00',end:`${18+Math.floor(this.overtime/60)}:${String(this.overtime%60).padStart(2,'0')}`,breakMin:60},workedMin:this.worked,shiftMin:480,ending:{name:this.ending,icon:'🚀'},like:MOMENTS[like],hard:MOMENTS[hard],extra:{trials:this.spaceResults.length,handedOverMin:this.delay-this.overtime,energy:this.energy,report:this.report,quality:this.repaired?'repair':'unrepaired',spaceTrials:this.spaceResults,drawingChecked:this.drawingChecked,drawingParts:[...this.drawingFound],drawingRecheckMin:this.drawingDelay,reportChecked:this.reportChecked,mission:'cargo-docking-1600',decision:this.decision,outcome:this.outcome,sensorChecked:this.sensorChecked,sensors:[...this.sensors]}});const errors=checkRecord(this.record);if(errors.length)throw Error(errors.join(', '));return this.record}
+ make(like,hard){if(this.stage!==10||like===hard||!MOMENTS[like]||!MOMENTS[hard])throw Error('하루를 마치고 서로 다른 순간을 골라요.');this.record ||=makeRecord({app:'aerospace-day',place:'design-lab',job:JOB,annual:JOB.annual,wageYear:JOB.year,wageBasis:JOB.basis,shift:{start:'09:00',end:`${18+Math.floor(this.overtime/60)}:${String(this.overtime%60).padStart(2,'0')}`,breakMin:60},workedMin:this.worked,shiftMin:480,ending:{name:this.ending,icon:'🚀'},like:MOMENTS[like],hard:MOMENTS[hard],extra:{trials:this.spaceResults.length,handedOverMin:this.delay-this.overtime,energy:this.energy,report:this.report,quality:this.repaired?'repair':'unrepaired',spaceTrials:this.spaceResults,drawingChecked:this.drawingChecked,drawingParts:[...this.drawingFound],drawingRecheckMin:this.drawingDelay,boltRecheckMin:this.boltWrong.size*2,sensorRecheckMin:this.sensorWrong.size*2,reportChecked:this.reportChecked,mission:'cargo-docking-1600',decision:this.decision,outcome:this.outcome,sensorChecked:this.sensorChecked,sensors:[...this.sensors]}});const errors=checkRecord(this.record);if(errors.length)throw Error(errors.join(', '));return this.record}
 }

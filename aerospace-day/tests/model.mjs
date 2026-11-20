@@ -16,3 +16,10 @@ const drawing=new Day();drawing.next();drawing.prepare();drawing.next();assert.e
 console.log('PASS: three interference gates, bounded recheck time and combined fastener delay.');
 
 const sensor=new Day();sensor.stage=4;assert.equal(sensor.next('sensor'),false);assert.equal(sensor.attachSensor(0,1).valid,false);assert.equal(sensor.sensors.size,0);[0,1,2].forEach(id=>assert.ok(sensor.attachSensor(id,id).valid));assert.ok(sensor.next('sensor'));
+
+const mistakes=new Day();mistakes.stage=3;
+assert.equal(mistakes.noteBolt(1,0),2);assert.equal(mistakes.noteBolt(1,0),0);assert.equal(mistakes.noteBolt(0,0),0);assert.equal(mistakes.delay,2);
+mistakes.assemble(false);assert.equal(mistakes.delay,17);mistakes.next();
+mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);mistakes.attachSensor(0,-1);assert.equal(mistakes.delay,19);
+for(const id of [0,1,2])mistakes.attachSensor(id,id);mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);
+console.log('PASS: distinct assembly/sensor rechecks add time once; cancel, completed sensor and same errors do not double count.');
