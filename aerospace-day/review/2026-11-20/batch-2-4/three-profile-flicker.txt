@@ -1,3 +1,3 @@
-✓ /Users/ShinyPeace/Documents/Codex/2026-11-14/new-chat/outputs/story-batch/item-2-4-matrix/phone/page@91b0e17d08750f62de0d9a2dfb715cb5.webm {"seconds":61,"maxFlashesPerSec":1,"worst":"칸 0,1","atSec":0.04,"whiteFrames":0,"whiteAt":[],"pass":true}
-✓ /Users/ShinyPeace/Documents/Codex/2026-11-14/new-chat/outputs/story-batch/item-2-4-matrix/se/page@67a63ed5b2543621d0d2ca16d8346b25.webm {"seconds":56.7,"maxFlashesPerSec":2,"worst":"칸 2,0","atSec":46.52,"whiteFrames":0,"whiteAt":[],"pass":true}
-✓ /Users/ShinyPeace/Documents/Codex/2026-11-14/new-chat/outputs/story-batch/item-2-4-matrix/pc/page@f88cea91577ce306e3b3839dea9fcfed.webm {"seconds":53.1,"maxFlashesPerSec":1,"worst":"칸 1,0","atSec":0.56,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/item-2-4-matrix/phone/page@91b0e17d08750f62de0d9a2dfb715cb5.webm {"seconds":61,"maxFlashesPerSec":1,"worst":"칸 0,1","atSec":0.04,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/item-2-4-matrix/se/page@67a63ed5b2543621d0d2ca16d8346b25.webm {"seconds":56.7,"maxFlashesPerSec":2,"worst":"칸 2,0","atSec":46.52,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/item-2-4-matrix/pc/page@f88cea91577ce306e3b3839dea9fcfed.webm {"seconds":53.1,"maxFlashesPerSec":1,"worst":"칸 1,0","atSec":0.56,"whiteFrames":0,"whiteAt":[],"pass":true}
