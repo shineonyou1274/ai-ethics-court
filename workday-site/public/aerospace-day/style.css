@@ -64,3 +64,8 @@ body[data-space-phase=result] .space-actions button{min-height:44px;margin:0;pad
 
 /* Keep hall calls inside the scene; the location badge stays clear of station names. */
 body:not(.space-session) #groundTag{top:auto;bottom:8px}
+
+/* Labels occupy free space rather than sitting on the model or the person. */
+.station-pin{transform:none;max-width:145px;min-height:34px;padding:3px 7px;font-size:16px;line-height:1.25;isolation:isolate}
+.station-pin::after{content:"";position:absolute;left:50%;top:100%;height:1px;width:var(--lead-length);transform-origin:0 0;transform:rotate(var(--lead-angle));background:#718995;pointer-events:none;z-index:-1}
+.station-call{display:block;position:static;transform:none;border:0;box-shadow:none;padding:0;background:none;font-size:14px;line-height:1.2;color:#795b20}.station-call::after{content:none}

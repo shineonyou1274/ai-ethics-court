@@ -1,3 +1,4 @@
+import {layoutLabels} from './station-labels.mjs';
 import {comparisonHTML} from './report.mjs';
 import {mountControl} from './control-ui.mjs';
 import {mountDrawing,mountSensors} from './task-ui.mjs';
@@ -18,7 +19,7 @@ function wallet(){const w=walletSummary();return `<p>🔖 다녀온 직업 ${w.j
 function checkSession(){let active=null;try{active=JSON.parse(localStorage.getItem('workday-session-v1'))?.id}catch{}if(active&&active!==session){show('<h2>출근하는 사람이 바뀌었어요.</h2><p>다른 사람 기록에 이 하루를 넣지 않도록 새로 시작해요.</p>'+button('reload','새 사람으로 시작하기'));$('reload').onclick=()=>location.reload();return false}return true}
 function modeButton(){$('flat').textContent=flat?'3D로 돌아가기':'평면 모드';$('flat').setAttribute('aria-pressed',String(flat))}
 function initWorld(){if(world){position=world.getPosition();world.dispose()}$('world').hidden=flat;$('flatCanvas').hidden=!flat;
- const options={flat,position,onPins(list){pins.replaceChildren();for(const s of list){const b=document.createElement('button');b.className='station-pin'+(s.id===STEPS[day.stage].station?' current':'');b.dataset.station=s.id;b.textContent=s.name;if(s.id===STEPS[day.stage].station&&day.stage>0&&day.stage<10){const call=document.createElement('span');call.className='station-call';call.textContent='무전 도착';b.append(call);b.setAttribute('aria-label',s.name+' · 새 무전이 있어요')}b.style.left=s.x+'px';b.style.top=Math.max(b.querySelector('.station-call')?76:44,s.y)+'px';b.onclick=()=>travel(s.id);pins.append(b)}},onMove(name){moving=true;say(`이동 중 · ${name}`);if($('goWork'))$('goWork').disabled=true},onArrive(id){moving=false;if(id===STEPS[day.stage].station&&day.stage>0&&day.stage<10){atStation=true;render()}else{say('지금 무전은 '+STATIONS.find(s=>s.id===STEPS[day.stage].station).name+'에서 기다리고 있어요.');if($('goWork'))$('goWork').disabled=false}}};
+ const options={flat,position,onPins(list,obstacles){layoutLabels(pins,list,obstacles,day.stage>0&&day.stage<10?STEPS[day.stage].station:'',travel)},onMove(name){moving=true;say(`이동 중 · ${name}`);if($('goWork'))$('goWork').disabled=true},onArrive(id){moving=false;if(id===STEPS[day.stage].station&&day.stage>0&&day.stage<10){atStation=true;render()}else{say('지금 무전은 '+STATIONS.find(s=>s.id===STEPS[day.stage].station).name+'에서 기다리고 있어요.');if($('goWork'))$('goWork').disabled=false}}};
  try{world=createWorld(flat?$('flatCanvas'):$('world'),options)}catch(e){if(flat)throw e;flat=true;world=null;initWorld();return}world.setTask(STEPS[day.stage].station);modeButton();
 }
 function travel(id){if(!checkSession()||opening||spaceSession||day.stage===0||day.stage===10)return;atStation=false;world.go(id)}
