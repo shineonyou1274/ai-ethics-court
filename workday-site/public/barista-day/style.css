@@ -95,3 +95,5 @@ body.onBreak #action,body.onBreak #discard{display:none!important}
 /* Short screens: keep the cup inset away from the milk cartons and their controls. */
 @media(max-width:799px) and (max-height:700px){#benchCupView{left:12px;right:auto}}
 @media(max-width:799px) and (max-height:700px){#benchMilk{transform:translate(-50%,-100%)}#benchOat{transform:translate(-50%,0)}}
+
+#checkout .pay-count{position:absolute;transform:translateX(-50%);font:16px/1.2 var(--wd-body);font-weight:600;white-space:nowrap;color:#284c39;background:#fffdf8ed;border-radius:5px;padding:1px 4px;pointer-events:none}
