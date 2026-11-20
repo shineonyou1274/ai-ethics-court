@@ -74,3 +74,10 @@ body:not(.space-session) #groundTag{top:auto;bottom:8px}
 .bolt-target{width:44px;height:44px;min-height:44px;border:1px dashed #637d8977;background:#263c5218}
 .sensor-port{background:transparent;border:2px dashed #3f806b;width:48px;height:48px}.sensor-port.filled{background:transparent;border-color:#2e6b55}
 .sensor-chip{bottom:auto;width:100px;max-width:31%;min-height:36px;padding:4px 2px;margin:0;transform:translate(-50%,0);font-size:16px;background:#fffdf8ed}.sensor-chip.dragging{background:#fffdf8b8}
+
+/* A horizontal control-room window; no camera rotation on portrait devices. */
+body[data-space-phase=control] #stage{display:flex;align-items:center}
+body[data-space-phase=control] .space-surface{position:relative;inset:auto;width:100%;aspect-ratio:1.6;height:auto;max-height:100%}
+@media(max-width:799px){body[data-space-phase=control] main{grid-template-rows:clamp(180px,62.5vw,300px) minmax(0,1fr)}}
+body[data-space-phase=result] #panel{overflow-y:auto}
+body[data-space-phase=result] .space-content{flex:0 0 auto;min-height:0;overflow:visible}
