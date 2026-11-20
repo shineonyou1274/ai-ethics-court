@@ -32,3 +32,6 @@ body[data-space-phase=result] .space-actions{display:block}body[data-space-phase
 body[data-space-phase=result] .space-actions button{min-height:44px;margin:0;padding:6px;border-radius:12px;border:1px solid var(--wd-line)}
 
 .space-result,.space-result details{font-size:16px}.space-actions{flex-wrap:wrap}#returnHall{min-height:44px;padding:6px 10px;border:1px solid var(--wd-line);border-radius:12px;background:var(--wd-card);color:var(--wd-ink)}
+
+/* Keep the active view toggle legible after the general control background. */
+.stage-controls button[aria-pressed="true"]{background:var(--place);color:#fff;border-color:var(--place)}
