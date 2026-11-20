@@ -46,6 +46,7 @@
 - `dist/space-model.mjs`, `space-world.mjs`, `space-ui.mjs`: 준비·별 순서 조임·설계·도킹 조종.
 - `dist/control-ui.mjs`, `report.mjs`: 관제 재현과 실제 시험 비교표.
 - `dist/app.mjs`: 무전·화면 전환·세션·저장·교사 내보내기.
+- `dist/fonts.css`, `fonts/`: 공통 디자인과 같은 Jua·Gowun Dodum을 자체 포함. 외부 글꼴 연결 없이 로드하며 OFL 라이선스·원본 출처를 함께 둡니다.
 
 `node aerospace-day/tests/model.mjs`, `navigation.mjs`, `space.mjs`, `integration.mjs`, `send-records.mjs`는 모델·경로·시험·통합·세션을 검사합니다. `node shared/test.mjs` 및 `node workday-site/build.mjs --check`로 공통 약속과 묶음 일치를 확인합니다.
 
