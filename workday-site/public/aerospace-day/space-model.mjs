@@ -17,7 +17,7 @@ export class SpaceTrial {
 export class SpaceWork {
  constructor(){this.phase='suit';this.gear=new Set();this.config={mass:2,power:2,assist:true};this.turn=0;this.results=[];this.trial=null;this.paused=false}
  get repaired(){return this.turn>=180}
- equip(id){if(this.phase!=='suit'||!['helmet','gloves','hose'].includes(id))return false;this.gear.add(id);return true}
+ equip(id){if(this.phase!=='suit'||!['workwear','badge','wrist'].includes(id))return false;this.gear.add(id);return true}
  prepare(){if(this.gear.size!==3)return false;this.phase='design';return true}
  tighten(degrees){if(this.phase!=='inspect'||!Number.isFinite(degrees))return;this.turn=clamp(this.turn+Math.max(0,degrees),0,180)}
  start(){if(!['inspect','result'].includes(this.phase))return false;this.trial=new SpaceTrial(this.config,this.repaired);this.phase='flight';this.paused=false;return true}
