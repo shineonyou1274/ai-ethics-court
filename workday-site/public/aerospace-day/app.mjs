@@ -28,11 +28,11 @@ function tracker(){return `<details class="todo"><summary aria-label="하루 할
 function hud(){$('clock').setAttribute('aria-label','항공우주공학기술자 근무 시각 · +분은 밀린 시간');$('money').setAttribute('aria-label','오늘 번 일당');const step=STEPS[day.stage],closing=day.stage===9&&day.reportChecked;const time=day.stage===10?`${18+Math.floor(day.overtime/60)}:${String(day.overtime%60).padStart(2,'0')}`:closing?'18:00':step.time;const [h,m]=time.split(':').map(Number),worked=day.stage===10?day.worked:Math.max(0,(h-9)*60+m-(day.stage>=6?60:0));$('clock').textContent=`항공우주 · ${time}${day.delay&&day.stage<10?' +'+day.delay+'분':''}`;$('money').textContent='🪙 일당 '+won(salaryDay(JOB.annual,worked,480).total)}
 function advance(choice){if(!checkSession())return;const previousStation=STEPS[day.stage].station,wasAtStation=atStation;if(day.next(choice)){atStation=wasAtStation&&previousStation===STEPS[day.stage].station;moving=false;render()}}
 function returnHall(){spaceSession?.dispose();spaceSession=null;opening=false;atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;initWorld();render()}
-async function hands(mode){if(spaceSession||opening)return;opening=true;world.pause(true);$('world').hidden=$('flatCanvas').hidden=pins.hidden=true;$('flat').hidden=$('expand').hidden=true;
+async function hands(mode){if(spaceSession||opening)return;opening=true;world.pause(true);
  const created=await mountSpace({stage:$('stage'),panel,flat,work,mode,baseDelay:day.delay,getDelay:()=>day.delay,onBoltMistake:(id,next)=>{const added=day.noteBolt(id,next);hud();return added},checkSession,onModeChange:v=>flat=v,onExit:returnHall,onComplete:result=>{
   let ok=false;if(mode==='prepare')ok=day.prepare();else if(mode==='assembly')ok=day.assemble(result.repaired);else ok=day.completeSpace(result);
   if(ok){spaceSession?.dispose();spaceSession=null;opening=false;day.next();atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;initWorld();render()}
- }});spaceSession=created;opening=false;
+ }});spaceSession=created;opening=false;$('world').hidden=$('flatCanvas').hidden=pins.hidden=true;$('flat').hidden=$('expand').hidden=true;
 }
 function drawingHands(mode='drawing'){if(spaceSession)return;world.pause(true);$('world').hidden=$('flatCanvas').hidden=pins.hidden=true;$('flat').hidden=$('expand').hidden=true;spaceSession=(mode==='result'?mountControl:mode==='sensor'?mountSensors:mountDrawing)({stage:$('stage'),panel,day,flat,reportHTML:results(),onChange:hud,checkSession,onExit:returnHall,onComplete(){spaceSession.dispose();spaceSession=null;atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;day.next(mode);initWorld();render()}})}
 function results(){return comparisonHTML(day.spaceResults)}

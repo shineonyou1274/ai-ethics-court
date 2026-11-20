@@ -16,15 +16,16 @@ export function createSpaceView(canvas){
  const target=new T.Group();scene.add(target);for(const r of [1,1.3])mesh(new T.TorusGeometry(r,.08,10,48),0x83cbb9,0,0,0,target);box(.12,3,.12,0xb5c6d4,0,0,-.2,target);box(3,.12,.12,0xb5c6d4,0,0,-.2,target);
  const planet=mesh(new T.SphereGeometry(6,40,24),0x477bac,-14,-10,-35);const positions=[];for(let i=0;i<100;i++)positions.push(Math.sin(i*17.1)*45,Math.cos(i*9.7)*30,-15-(i%17)*3);const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(positions,3));const stars=new T.Points(g,new T.PointsMaterial({color:0xe8edf7,size:.12}));scene.add(stars);
  const ray=new T.Raycaster(),pointer=new T.Vector2();let state=null;
- function resize(){const b=canvas.getBoundingClientRect();renderer.setSize(b.width,b.height,false);camera.aspect=b.width/b.height;camera.updateProjectionMatrix()}
+ function draw(work){state=work;const flight=['flight','result'].includes(work.phase);scene.background=new T.Color(flight?0x14223b:0xdce5e6);lab.visible=!flight;person.visible=work.phase==='suit';craft.visible=work.phase==='design';board.visible=work.phase==='inspect';cockpit.visible=target.visible=planet.visible=stars.visible=flight;
+   if(flight){camera.position.set(0,0,0);camera.lookAt(0,0,-1);const t=work.trial;target.position.set(-(t?.x||0),-(t?.y||0),-Math.max(1.6,t?.distance||12));stick.rotation.z=-(t?.vx||0)*.3;}else if(work.phase==='inspect'){const d=Math.max(1,.75/camera.aspect);camera.position.set(.15,4.1*d,4.8*d);camera.lookAt(0,.9,.15)}else{camera.position.set(0,1.2,Math.max(4.5,3/camera.aspect));camera.lookAt(0,.7,0)}
+   workwear.visible=work.gear.has('workwear');badge.visible=work.gear.has('badge');wrist.visible=work.gear.has('wrist');hull.scale.y=.8+work.config.mass*.15;solar.forEach(s=>s.scale.x=.7+work.config.mass*.15);engines.forEach(e=>e.scale.setScalar(.7+work.config.power*.2));bench.setTurns(work.turns);renderer.render(scene,camera);
+  }
+ function resize(){const b=canvas.getBoundingClientRect();renderer.setSize(b.width,b.height,false);camera.aspect=b.width/b.height;camera.updateProjectionMatrix();if(state)draw(state)}
  const observer=new ResizeObserver(resize);observer.observe(canvas);resize();
  function project(point){camera.updateMatrixWorld(true);const b=canvas.getBoundingClientRect(),p=point.clone().project(camera);return {x:(p.x*.5+.5)*b.width,y:(-.5*p.y+.5)*b.height}}
  return {
   resize,
-  draw(work){state=work;const flight=['flight','result'].includes(work.phase);scene.background=new T.Color(flight?0x14223b:0xdce5e6);lab.visible=!flight;person.visible=work.phase==='suit';craft.visible=work.phase==='design';board.visible=work.phase==='inspect';cockpit.visible=target.visible=planet.visible=stars.visible=flight;
-   if(flight){camera.position.set(0,0,0);camera.lookAt(0,0,-1);const t=work.trial;target.position.set(-(t?.x||0),-(t?.y||0),-Math.max(1.6,t?.distance||12));stick.rotation.z=-(t?.vx||0)*.3;}else if(work.phase==='inspect'){const d=Math.max(1,.75/camera.aspect);camera.position.set(.15,4.1*d,4.8*d);camera.lookAt(0,.9,.15)}else{camera.position.set(0,1.2,Math.max(4.5,3/camera.aspect));camera.lookAt(0,.7,0)}
-   workwear.visible=work.gear.has('workwear');badge.visible=work.gear.has('badge');wrist.visible=work.gear.has('wrist');hull.scale.y=.8+work.config.mass*.15;solar.forEach(s=>s.scale.x=.7+work.config.mass*.15);engines.forEach(e=>e.scale.setScalar(.7+work.config.power*.2));bench.setTurns(work.turns);renderer.render(scene,camera);
-  },
+  draw,
   gearPoint(id){return project(new T.Vector3(...({workwear:[-.15,.59,.25],badge:[.18,.69,.28],wrist:[.36,.38,.08]}[id])))},
   boltPoint(id){board.updateWorldMatrix(true,true);return project(bolts[id].getWorldPosition(new T.Vector3()))},
   hitBolt(e){const b=canvas.getBoundingClientRect();pointer.set((e.clientX-b.left)/b.width*2-1,1-(e.clientY-b.top)/b.height*2);camera.updateMatrixWorld(true);board.updateWorldMatrix(true,true);ray.setFromCamera(pointer,camera);return ray.intersectObjects(bolts)[0]?.object.userData.bolt??null},
