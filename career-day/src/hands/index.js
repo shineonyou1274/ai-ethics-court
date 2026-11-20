@@ -10,6 +10,8 @@ import { bedmake } from './bedmake.js';
 import { labtubes, xraytable, rehabtidy, gearcheck, hosedrill, washdown, firefight, alarmcheck, idcheck, bedside, vitals } from './tidy.js';
 import { rxcheck } from './rxcheck.js';
 import { paperwork } from './paperwork.js';
+import { handwash, wristband, gowning, suturepad, touchwipe, wastesort } from './hosp-a.js'; // 의사·환경미화 직원 (카페 방식, 3D)
 
 // mop · bedmake 는 3D 가까이 보기(src/world/closeup.js)에서 직접 닦고 옮긴다. 장면에 closeup: true 를 적는다.
 export const HANDS = { scrub, band, gown, suture, mop, bedmake, labtubes, xraytable, rehabtidy, rxcheck, paperwork, gearcheck, hosedrill, washdown, firefight, alarmcheck, idcheck, bedside, vitals };
+Object.assign(HANDS, { handwash, wristband, gowning, suturepad, touchwipe, wastesort }); // 의사·환경미화 직원

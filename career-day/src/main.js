@@ -216,7 +216,7 @@ function scene() {
   // 걸어 다니는 일터(카페 방식): 장면을 열기 전에, 찾아온 일을 받고 그 자리까지 내 캐릭터로 걸어간다 (src/flow.js)
   if (walkOn(J, placeOf(J)) && S.at !== S.i) { const st = stepFor(J, placeOf(J), S.i, S); if (hasStep(st)) return goView(sc, st); S.at = S.i; }
   const lockerDone = S.i > idxOf((x) => x.place === 'locker' && x.kind === 'tasks');
-  const setDress = placeOf(J).sets[sc.place]?.dress;
+  const setDress = placeOf(J).sets[sc.place]?.dress || placeOf(J).rooms.find((r) => r.id === sc.place)?.dress; // 층 안의 방도 옷을 정할 수 있다 (의사의 수술실)
   drawHud(); // 위쪽 띠를 먼저 그려 둔다. 3D 무대를 띠 아래 칸에 맞추기 때문이다
   if (world) { world.dress(setDress ? { ...J.look, ...setDress } : J.look, lockerDone ? 'work' : 'casual'); world.stage({ place: sc.place, hour: clockOf(S, J, sc) / 60, overview: false }); world.crowd(waiting()); }
   drawHud();
@@ -236,7 +236,8 @@ function scene() {
 // 찾아온 일(무전·출동 벨)과 받은 일 목록을 보여 주고, 다음 일이 있는 자리에 표시를 띄운다.
 // 학생은 바닥이나 표시를 눌러 걷거나, 아래 큰 버튼을 눌러 그 자리로 걸어간다. 닿으면 장면이 열린다. 일터 밖은 소방차로 오간다.
 const VIA = { 일정: '🗓️', 무전: '📻', '출동 벨': '🔔', '호출 벨': '🔔', 팀장: '💬', 동료: '💬', 의사: '🩺', 약속: '🤝', 전화: '📞' };
-const VIA_SOUND = { '출동 벨': 'bell', '호출 벨': 'bell', 무전: 'radio', 전화: 'radio' }; // 그 밖(동료·의사·팀장)은 짧은 알림음
+Object.assign(VIA, { 호출기: '📟', 간호사: '💬', 선배: '💬', '안내 데스크': '💬', 방문자: '💬' }); // 의사·환경미화 직원의 걷는 하루
+const VIA_SOUND = { '출동 벨': 'bell', '호출 벨': 'bell', 무전: 'radio', 전화: 'radio', 호출기: 'radio' }; // 그 밖(동료·의사·팀장)은 짧은 알림음
 const ro = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 && c % 28 !== 8 ? '으로' : '로'; }; // 받침 따라 '로/으로'
 function inboxHtml(list, tight = false) {
   const wide = typeof matchMedia === 'function' && matchMedia('(min-aspect-ratio: 11/10)').matches;
