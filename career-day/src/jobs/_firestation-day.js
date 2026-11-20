@@ -31,6 +31,6 @@ export function fireStationDay(job, p) {
     ...wrap('incident', { kind: 'choice', at: after(half + 50), place: p.incidentPlace || job.room, ...p.incident }),
     { kind: 'pick', at: after(half + 120), place: p.pickPlace || job.room, todo: { label: '출동 기록 넘기기', via: '팀장' }, ...p.pick },
     { kind: 'thanks', at: after(half * 2 - 40), place: job.room, title: '오늘 남은 한마디', body: p.thanksBody || '바쁜 하루 사이, 짧은 인사가 오래 남기도 해요.', speaker: `${job.person} 님`, lines: p.thanks },
-    { kind: 'leave', at: job.shift.end, place: 'locker', todo: { label: `${job.shift.end} 퇴근`, known: true }, title: `${job.uniform}을 벗고, 오늘을 접어요`, body: '정해진 퇴근 시각이에요. 저녁 근무 팀이 들어와요.' },
+    { kind: 'leave', at: job.shift.end, place: 'locker', todo: { label: `${job.shift.end} 퇴근`, known: true }, title: `${job.uniform}을 벗고, 오늘을 접어요`, body: '퇴근 시각이에요. 저녁 팀이 와요.' },
   ];
 }

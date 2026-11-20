@@ -134,7 +134,7 @@ const opt = phone ? { ...phone, deviceScaleFactor: 1 } : { viewport: { width: 12
       const n = await ch.count(), isChoice = await p.locator('#opts').count();
       // 판단: clean 은 시장에서 "오후에 다시 오겠다"(약속)를 고르고, 불을 끈 뒤 약속을 지키러 간다. messy 는 약속하고 지키지 않는다
       let k = isChoice ? (mode === 'messy' ? Math.min(n - 1, 2) : 0) : step % n;
-      if (isChoice) { const labels = await ch.allTextContents(); const want = labels.findIndex((t) => (mode === 'clean' ? /약속을 지키러|다시 오겠다고/ : /다시 오겠다고/).test(t)); if (want >= 0) k = want; }
+      if (isChoice) { const labels = await ch.allTextContents(); const want = labels.findIndex((t) => (mode === 'clean' ? /약속대로|다시 오겠다고/ : /다시 오겠다고/).test(t)); if (want >= 0) k = want; }
       await ch.nth(k).click(); continue;
     }
   }

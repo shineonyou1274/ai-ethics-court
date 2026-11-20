@@ -196,8 +196,15 @@ export function createWorld(canvas, el, place) {
       return { l: sx - cw / 2, r: sx + cw / 2, t: sy - ch, b: sy };
     };
     const g = walking.target ? at(walking.target.x, 2.3, walking.target.z, goalChip) : null;
-    const pp = player.root.position, m = at(pp.x, 2.45, pp.z, meChip);
-    meChip.style.visibility = g && m.l < g.r && m.r > g.l && m.t < g.b && m.b > g.t ? 'hidden' : ''; // 갈 곳에 다 와서 이름표끼리 겹치면 '나'는 잠깐 감춘다
+    // '나' 이름표는 늘 보이게: 머리 위가 갈 곳 이름표와 겹치면 발밑으로, 그래도 겹치면 갈 곳 이름표의 옆으로 옮긴다
+    const pp = player.root.position, hit = (m) => g && m.l < g.r + 4 && m.r > g.l - 4 && m.t < g.b + 4 && m.b > g.t - 4;
+    let m = at(pp.x, 2.45, pp.z, meChip);
+    if (hit(m)) { // 발밑 바로 아래에 (이름표 위쪽 끝을 발에 맞춘다)
+      const v = new T.Vector3(pp.x, 0, pp.z).project(camera), cw = meChip.offsetWidth, ch = meChip.offsetHeight;
+      const sx = Math.max(cw / 2 + 6, Math.min(W - cw / 2 - 6, (v.x + 1) / 2 * W)), sy = Math.min(H - ch - 6, (1 - v.y) / 2 * H + 3);
+      meChip.style.transform = `translate(${Math.round(sx - cw / 2)}px, ${Math.round(sy)}px)`; m = { l: sx - cw / 2, r: sx + cw / 2, t: sy, b: sy + ch };
+    }
+    if (hit(m)) { const cw = meChip.offsetWidth, ch = meChip.offsetHeight, left = g.l - cw - 8 >= 6, sx = left ? g.l - cw - 8 : Math.min(W - cw - 6, g.r + 8), sy = Math.max(top, Math.min(H - ch - 6, m.t)); meChip.style.transform = `translate(${Math.round(sx)}px, ${Math.round(sy)}px)`; }
   }
   function endWalk() {
     if (!walking) return;
@@ -301,16 +308,22 @@ export function createWorld(canvas, el, place) {
     crowd(n) {
       while (crowd.length) { const p = crowd.pop(); scene.remove(p.root); dispose(p.root); }
       const base = player.root.position;
-      // 걸어 다니는 일터에서는 벽이나 가구를 뚫고 서지 않게, 막히지 않은 자리에만 줄을 세운다 (오른쪽 → 왼쪽 → 앞쪽 순서로 찾는다)
+      // 걸어 다니는 일터에서는 벽이나 가구를 뚫고 서지 않게, 막히지 않고 나와 사이에 벽이 없는 자리에만 세운다.
+      // 내 캐릭터를 가리지 않게 한 걸음 넘게 떨어져 서고, 카메라와 나 사이(바로 앞)에는 세우지 않는다. 가까운 자리부터 채운다.
       const spots = [], inStation = !!nav && !setGroup;
-      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1]]) for (let k = 0; k < 6 && spots.length < 5; k++) {
-        const x = base.x + (dx ? dx * (1.1 + k * 0.75) : (k % 2) * 0.3), z = base.z + (dz ? 1.2 + k * 0.75 : 0.9 + (k % 2) * 0.2);
-        if (inStation && nav.blocked(x, z)) { if (dx) break; continue; }
-        spots.push([x, z, dx ? (dx > 0 ? -1.9 : 1.9) : Math.PI]);
+      if (inStation) {
+        const seen = (x, z) => { for (let k = 1; k <= 8; k++) { const t = k / 8; if (nav.blocked(base.x + (x - base.x) * t, base.z + (z - base.z) * t)) return false; } return true; };
+        for (let r = 1.5; r <= 4.3 && spots.length < 5; r += 0.4) for (let a = 0; a < 18 && spots.length < 5; a++) {
+          const th = a / 18 * Math.PI * 2, x = base.x + Math.cos(th) * r, z = base.z - Math.sin(th) * r * 0.75;
+          if (z - base.z > 0.3 && Math.abs(x - base.x) < 1.4) continue;
+          if (!seen(x, z) || spots.some(([sx, sz]) => Math.hypot(sx - x, sz - z) < 0.85)) continue;
+          spots.push([x, z, Math.atan2(base.x - x, base.z - z)]); // 나를 바라보고 선다
+        }
       }
       for (let i = 0; i < Math.min(5, n); i++) {
+        if (inStation && !spots[i]) break;
         const p = person({ coat: ['#c9b6d6', '#a9c7b9', '#e3c39b', '#b5c4dc', '#e2b2a8'][i], seed: i + 4, hair: i % 3 });
-        const [x, z, ry] = inStation && spots[i] ? spots[i] : [base.x + 1.1 + i * 0.75, base.z + 0.9 + (i % 2) * 0.2, -1.9];
+        const [x, z, ry] = inStation ? spots[i] : [base.x + 1.1 + i * 0.75, base.z + 0.9 + (i % 2) * 0.2, -1.9];
         p.root.position.set(x, 0, z); p.root.rotation.y = ry; p.root.scale.setScalar(0.92);
         scene.add(p.root); crowd.push(p);
       }
