@@ -16,7 +16,7 @@ const rooms = [
   { id: 'station', sign: '간호 스테이션', name: '간호 스테이션', x: -5.2, z: 3.2, w: 4.6, d: 3.6, color: '#e7b4a4', open: true, staff: { coat: '#e8b1a1', outfit: 'scrub', hair: 2 }, npc: [-1.4, 0.2] },
   { id: 'meeting', sign: '회의실', name: '회의실', x: -0.6, z: 3.2, w: 3.6, d: 3.6, color: '#b7cddd', open: true, staff: { coat: '#f7f8f3', outfit: 'white', hair: 0 }, npc: [-1.3, 0.35] },
   { id: 'lounge', sign: '휴게실', name: '휴게실', x: 3.0, z: 3.2, w: 3.6, d: 3.6, color: '#d9b4a6', open: true },
-  { id: 'locker', sign: '탈의실', name: '탈의실', x: 6.8, z: 3.2, w: 3.0, d: 3.6, color: '#c4c8a8', open: true },
+  { id: 'locker', sign: '탈의실', name: '탈의실', x: 6.8, z: 3.2, w: 3.0, d: 3.6, color: '#c4c8a8', open: true, labelRight: true }, // 이름표를 오른쪽에: 걸어갈 자리를 폰의 둥근 버튼(♪)에서 먼 왼쪽에 두려고
 ];
 
 // 누워 있는 환자: 베개 위 머리와 이불 밖으로 나온 팔 (침대는 kit 의 bed, 머리 쪽이 -z)
@@ -85,7 +85,7 @@ export default {
       [-2.1, 0.9, 1.5, 3.55], [-2.15, -1.65, 3.3, 3.8], // 회의실: 탁자와 의자, 의사
       [2.0, 4.0, 1.6, 2.2], [2.45, 3.55, 2.55, 3.05], [4.3, 4.7, 1.7, 2.1], // 휴게실: 소파, 탁자, 물 마시는 곳
       [5.4, 8.2, 1.55, 2.05], [5.9, 7.7, 3.2, 3.6], // 탈의실: 사물함, 긴 의자
-      ...rooms.filter((r) => r.open).map((r) => [r.x - r.w / 2 + 0.1, r.x - r.w / 2 + 1.9, 4.86, 4.94]), // 앞쪽 방의 이름표
+      ...rooms.filter((r) => r.open).map((r) => { const c = r.x + (r.labelRight ? r.w / 2 - 1.0 : -r.w / 2 + 1.0); return [c - 0.9, c + 0.9, 4.86, 4.94]; }), // 앞쪽 방의 이름표
       [-8.4, -8.2, 0.4, 0.6], [-8.1, -7.5, 5.3, 5.9], [4.9, 5.5, 5.3, 5.9], // 간판, 화분
     ],
     spots: {
@@ -97,7 +97,7 @@ export default {
       station: { x: -5.45, z: 3.65, name: '간호 스테이션' },
       meeting: { x: 0.25, z: 4.15, name: '회의실' },
       lounge: { x: 3.85, z: 4.0, name: '휴게실' },
-      locker: { x: 7.75, z: 4.3, name: '탈의실' },
+      locker: { x: 5.95, z: 4.3, name: '탈의실' },
     },
     start: 'door', depart: 'door',
   },
@@ -111,7 +111,7 @@ export default {
     rooms.forEach((r, i) => {
       const g = new T.Group(); g.position.set(r.x, 0, r.z); scene.add(g);
       box(g, 0, 0.025, 0, r.w, 0.05, r.d, r.open ? '#f4efe6' : '#f2eee6');
-      if (r.open) label(g, r.sign, -r.w / 2 + 1.0, 0.9, r.d / 2 - 0.1, 1.8, 0.46, '#5c6a6d', '#faf4e8');
+      if (r.open) label(g, r.sign, r.labelRight ? r.w / 2 - 1.0 : -r.w / 2 + 1.0, 0.9, r.d / 2 - 0.1, 1.8, 0.46, '#5c6a6d', '#faf4e8');
       else {
         const h = 2.7, back = -r.d / 2 + 0.1;
         box(g, 0, h / 2, back, r.w + 0.13, h, 0.14, '#f1e6d6'); box(g, 0, 0.24, back + 0.1, r.w + 0.05, 0.42, 0.045, r.color);
