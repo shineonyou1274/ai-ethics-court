@@ -1,3 +1,4 @@
+import {mountDrawing} from './task-ui.mjs';
 import {Day,JOB,MOMENTS,STEPS} from './model.mjs';
 import {SpaceWork} from './space-model.mjs';
 import {createWorld,STATIONS} from './world.mjs';
@@ -25,11 +26,12 @@ function hud(){const step=STEPS[day.stage],closing=day.stage===9&&day.reportChec
 function advance(choice){if(!checkSession())return;const previousStation=STEPS[day.stage].station,wasAtStation=atStation;if(day.next(choice)){atStation=wasAtStation&&previousStation===STEPS[day.stage].station;moving=false;render()}}
 function returnHall(){spaceSession?.dispose();spaceSession=null;opening=false;atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;initWorld();render()}
 async function hands(mode){if(spaceSession||opening)return;opening=true;world.pause(true);$('world').hidden=$('flatCanvas').hidden=pins.hidden=true;$('flat').hidden=$('expand').hidden=true;
- const created=await mountSpace({stage:$('stage'),panel,flat,work,mode,baseDelay:mode==='assembly'?0:day.delay,checkSession,onModeChange:v=>flat=v,onExit:returnHall,onComplete:result=>{
+ const created=await mountSpace({stage:$('stage'),panel,flat,work,mode,baseDelay:mode==='assembly'?day.drawingDelay:day.delay,checkSession,onModeChange:v=>flat=v,onExit:returnHall,onComplete:result=>{
   let ok=false;if(mode==='prepare')ok=day.prepare();else if(mode==='assembly')ok=day.assemble(result.repaired);else ok=day.completeSpace(result);
   if(ok){spaceSession?.dispose();spaceSession=null;opening=false;day.next();atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;initWorld();render()}
  }});spaceSession=created;opening=false;
 }
+function drawingHands(){if(spaceSession)return;world.pause(true);$('world').hidden=$('flatCanvas').hidden=pins.hidden=true;$('flat').hidden=$('expand').hidden=true;spaceSession=mountDrawing({stage:$('stage'),panel,day,flat,onChange:hud,checkSession,onExit:returnHall,onComplete(){spaceSession.dispose();spaceSession=null;atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;day.next('drawing');initWorld();render()}})}
 function results(){const names={docked:'도킹 범위 안 정지',fast:'접근 속도 큼',offset:'중심 벗어남',fuel:'연료 부족',timeout:'시간 종료',stopped:'중지 기록'};return `<div class="trial-list">${day.spaceResults.map((r,i)=>`<article><b>${i+1}차 · ${names[r.status]}</b><p>질량 ${r.config.mass} · 추력 ${r.config.power} · 안정 보조 ${r.config.assist?'켬':'끔'}<br>중심 오차 ${r.offset} · 접근 속도 ${r.speed} · 연료 사용 ${r.fuelUsed}</p></article>`).join('')}</div>`}
 function render(){if(!checkSession())return;hud();document.body.classList.toggle('judging',day.stage===7&&atStation);pins.hidden=day.stage===0||day.stage===10;world?.setTask(STEPS[day.stage].station);const step=STEPS[day.stage];say(`${step.team} 무전 · “${step.radio}”`);
  if(day.stage===0){if(needsWhoCheck()){show('<h2>누구의 기록인가요?</h2>'+button('keep','내 기록이에요')+button('new','새로 출근하는 사람이에요'));$('keep').onclick=()=>{keepSession();render()};$('new').onclick=()=>{session=startNewSession().id;render()};return}
@@ -37,13 +39,14 @@ function render(){if(!checkSession())return;hud();document.body.classList.toggle
  if(day.stage===10){endView();return}
  if(!atStation){const station=STATIONS.find(s=>s.id===step.station);show(`<p class="eyebrow">${step.time} · ${step.name}</p><h2>${station.name}에서 만나요.</h2><p>장소 표시를 누르면 내가 걸어가요. 바닥을 눌러 자유롭게 둘러볼 수도 있어요.</p>${button('goWork',station.name+' · 걸어가기 →')}${tracker()}<p>${home}</p>`);$('goWork').disabled=moving;$('goWork').onclick=()=>travel(step.station);return}
  if([1,3,6].includes(day.stage)){hands({1:'prepare',3:'assembly',6:'cockpit'}[day.stage]);return}
+ if(day.stage===2){drawingHands();return}
  const back=button('backHall','← 시험동 둘러보기');let content='';
  if(day.stage===2)content=`<h2>오늘의 접속부 도면이에요.</h2><div class="blueprint" aria-label="무인 화물선과 도킹 장치 개요"><span>무인 화물선</span><b>▰ ── ◎ ── ▣</b><span>화물선 → 도킹 장치 → 정거장</span></div><p>오후 4시 접속할 장치예요. 조립대에서 체결부를 확인하고 조종석에서 접근을 시험해요.</p>${button('drawingDone','도면 확인 · 제작팀에 전달')}`;
  if(day.stage===4)content=`<h2>거리와 중심 신호를 확인해요.</h2><div class="wd-card"><p>◎ 중심 정렬 신호<br>↔ 접근 거리 신호<br>▣ 시험 기록 연결</p></div><p>센서 팀이 준비한 세 항목을 함께 확인하고 오후 시험에 연결해요.</p>${button('sensorDone','센서 팀 확인 기록 받기')}`;
  if(day.stage===5)content=`<h2>점심 먹고 잠깐 쉬어요.</h2><p>오후에는 같은 장치를 조종석에서 시험해요. 지금 60분은 근무 시간에 넣지 않는 휴식이에요.</p>${button('rest','몸을 쉬고 점심 먹기')}${button('talk','동료와 가볍게 이야기 나누기')}`;
  if(day.stage===7)content=`<h2>16시 도킹, 어떻게 할까요?</h2><p>체결부: ${day.repaired?'조임 완료':'틈 있음 · 후속 확인 15분'} · 마지막 시험: ${day.spaceResults.at(-1)?.status==='docked'?'범위 안 정지':'안전 범위 확인 못함'}</p><div class="decision-actions">${button('go','16:00 도킹 진행')}${button('hold','보류 · 내일 다시 확인')}</div><details><summary>내 시험 기록 ${day.spaceResults.length}회 펼치기</summary>${results()}</details><p class="fine">진행을 골라도 위험한 결과가 있으면 관제가 접근을 멈춰요. 안전하게 미루는 것도 엔지니어의 일이에요.</p>`;
  if(day.stage===8){const text=day.outcome==='docked'?'관제: “확인한 조건에서 도킹을 마쳤어요.”':day.outcome==='held'?'관제: “의견을 받았어요. 오늘 접근은 보류하고 내일 다시 확인해요.”':'관제: “위험한 접근 징후가 있어 멈췄어요. 시험 기록을 보완하고 내일 다시 해요.”';content=`<h2>${day.outcome==='docked'?'오늘의 도킹 결과':'오늘은 안전하게 멈췄어요.'}</h2><div class="control-window"><span>관제실 · 무인 화물선</span><strong>${day.outcome==='docked'?'◎ ━ ▣':'◎　⋯　▣'}</strong><p>${text}</p></div><p>내 선택: ${day.decision==='go'?'진행':'보류'} · 지상 시험과 체결부 기록을 함께 확인한 결과예요.</p>${button('resultDone','관제 결과를 기록하고 정리하기')}`}
- if(day.stage===9)content=!day.reportChecked?`<h2>다음 팀이 이어 볼 수 있게.</h2><p>${day.ending}.</p><div class="wd-card">체결부 ${day.repaired?'조임 완료':'추가 확인 필요'} · 시험 ${day.spaceResults.length}회<br>내일 확인: ${day.outcome==='docked'?'다른 접근 조건에서도 재검증':'안전한 접근 조건과 중심 정렬'}</div>${button('cleanup','시험기 정리 · 조건과 한계 인계하기')}`:`<h2>18시, 퇴근할 시간이에요.</h2><p>${day.delay?'조이지 않은 체결부의 후속 확인 '+day.delay+'분이 남았어요.':'오늘 기록과 시험기를 정리했어요.'}</p>${day.delay?button('stay','남아서 마치기 · 15분 연장'):''}${button('handover',day.delay?'다음 팀에 넘기고 정시 퇴근':'기록을 넘기고 정시 퇴근')}`;
+ if(day.stage===9)content=!day.reportChecked?`<h2>다음 팀이 이어 볼 수 있게.</h2><p>${day.ending}.</p><div class="wd-card">체결부 ${day.repaired?'조임 완료':'추가 확인 필요'} · 시험 ${day.spaceResults.length}회<br>내일 확인: ${day.outcome==='docked'?'다른 접근 조건에서도 재검증':'안전한 접근 조건과 중심 정렬'}</div>${button('cleanup','시험기 정리 · 조건과 한계 인계하기')}`:`<h2>18시, 퇴근할 시간이에요.</h2><p>${day.delay?'도면 재확인·체결부 후속 확인 '+day.delay+'분이 남았어요.':'오늘 기록과 시험기를 정리했어요.'}</p>${day.delay?button('stay','남아서 마치기 · '+day.delay+'분 연장'):''}${button('handover',day.delay?'다음 팀에 넘기고 정시 퇴근':'기록을 넘기고 정시 퇴근')}`;
  show(`<p class="eyebrow">${day.stage===9&&day.reportChecked?'18:00 · 퇴근 준비':step.time+' · '+step.name}</p>${content}${back}${tracker()}`);$('backHall').onclick=()=>{atStation=false;render()};
  for(const [id,choice]of [['drawingDone','drawing'],['sensorDone','sensor'],['rest','rest'],['talk','talk'],['go','go'],['hold','hold'],['resultDone','result'],['stay','stay'],['handover','handover']])if($(id))$(id).onclick=()=>advance(choice);
  if($('cleanup'))$('cleanup').onclick=()=>{if(checkSession()&&day.cleanup())render()};
