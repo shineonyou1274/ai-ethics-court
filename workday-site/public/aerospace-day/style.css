@@ -49,3 +49,5 @@ body[data-space-phase=result] .space-actions button{min-height:44px;margin:0;pad
 
 @media(max-width:799px){body[data-space-phase=sensor] main{grid-template-rows:56dvh minmax(0,1fr)}}
 .sensor-port{position:absolute;transform:translate(-50%,-50%);width:50px;height:50px;display:grid;place-items:center;border:3px solid #3f806b;border-radius:50%;background:#e7f2e9aa;color:#244d3a;font-size:18px;pointer-events:none}.sensor-port.filled{background:#3f806b;color:white}.sensor-chip{position:absolute;bottom:10px;width:calc(33.333% - 4px);margin:0 2px;padding:8px 4px;min-height:48px;border:2px solid #657f92;border-radius:10px;background:#fffdf8;color:#263c52;font-size:16px;touch-action:none;z-index:2}.sensor-chip.dragging{z-index:5;box-shadow:0 4px 12px #263c5244}
+
+@media(max-width:799px){body[data-space-phase=control] main{grid-template-rows:56dvh minmax(0,1fr)}}

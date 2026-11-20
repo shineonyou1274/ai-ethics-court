@@ -1,3 +1,4 @@
+import {mountControl} from './control-ui.mjs';
 import {mountDrawing,mountSensors} from './task-ui.mjs';
 import {Day,JOB,MOMENTS,STEPS} from './model.mjs';
 import {SpaceWork} from './space-model.mjs';
@@ -31,7 +32,7 @@ async function hands(mode){if(spaceSession||opening)return;opening=true;world.pa
   if(ok){spaceSession?.dispose();spaceSession=null;opening=false;day.next();atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;initWorld();render()}
  }});spaceSession=created;opening=false;
 }
-function drawingHands(mode='drawing'){if(spaceSession)return;world.pause(true);$('world').hidden=$('flatCanvas').hidden=pins.hidden=true;$('flat').hidden=$('expand').hidden=true;spaceSession=(mode==='sensor'?mountSensors:mountDrawing)({stage:$('stage'),panel,day,flat,onChange:hud,checkSession,onExit:returnHall,onComplete(){spaceSession.dispose();spaceSession=null;atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;day.next(mode);initWorld();render()}})}
+function drawingHands(mode='drawing'){if(spaceSession)return;world.pause(true);$('world').hidden=$('flatCanvas').hidden=pins.hidden=true;$('flat').hidden=$('expand').hidden=true;spaceSession=(mode==='result'?mountControl:mode==='sensor'?mountSensors:mountDrawing)({stage:$('stage'),panel,day,flat,onChange:hud,checkSession,onExit:returnHall,onComplete(){spaceSession.dispose();spaceSession=null;atStation=false;pins.hidden=false;$('flat').hidden=$('expand').hidden=false;day.next(mode);initWorld();render()}})}
 function results(){const names={docked:'도킹 범위 안 정지',fast:'접근 속도 큼',offset:'중심 벗어남',fuel:'연료 부족',timeout:'시간 종료',stopped:'중지 기록'};return `<div class="trial-list">${day.spaceResults.map((r,i)=>`<article><b>${i+1}차 · ${names[r.status]}</b><p>질량 ${r.config.mass} · 추력 ${r.config.power} · 안정 보조 ${r.config.assist?'켬':'끔'}<br>중심 오차 ${r.offset} · 접근 속도 ${r.speed} · 연료 사용 ${r.fuelUsed}</p></article>`).join('')}</div>`}
 function render(){if(!checkSession())return;hud();document.body.classList.toggle('judging',day.stage===7&&atStation);pins.hidden=day.stage===0||day.stage===10;world?.setTask(STEPS[day.stage].station);const step=STEPS[day.stage];say(`${step.team} 무전 · “${step.radio}”`);
  if(day.stage===0){if(needsWhoCheck()){show('<h2>누구의 기록인가요?</h2>'+button('keep','내 기록이에요')+button('new','새로 출근하는 사람이에요'));$('keep').onclick=()=>{keepSession();render()};$('new').onclick=()=>{session=startNewSession().id;render()};return}
@@ -39,7 +40,7 @@ function render(){if(!checkSession())return;hud();document.body.classList.toggle
  if(day.stage===10){endView();return}
  if(!atStation){const station=STATIONS.find(s=>s.id===step.station);show(`<p class="eyebrow">${step.time} · ${step.name}</p><h2>${station.name}에서 만나요.</h2><p>장소 표시를 누르면 내가 걸어가요. 바닥을 눌러 자유롭게 둘러볼 수도 있어요.</p>${button('goWork',station.name+' · 걸어가기 →')}${tracker()}<p>${home}</p>`);$('goWork').disabled=moving;$('goWork').onclick=()=>travel(step.station);return}
  if([1,3,6].includes(day.stage)){hands({1:'prepare',3:'assembly',6:'cockpit'}[day.stage]);return}
- if([2,4].includes(day.stage)){drawingHands(day.stage===2?'drawing':'sensor');return}
+ if([2,4,8].includes(day.stage)){drawingHands({2:'drawing',4:'sensor',8:'result'}[day.stage]);return}
  const back=button('backHall','← 시험동 둘러보기');let content='';
  if(day.stage===2)content=`<h2>오늘의 접속부 도면이에요.</h2><div class="blueprint" aria-label="무인 화물선과 도킹 장치 개요"><span>무인 화물선</span><b>▰ ── ◎ ── ▣</b><span>화물선 → 도킹 장치 → 정거장</span></div><p>오후 4시 접속할 장치예요. 조립대에서 체결부를 확인하고 조종석에서 접근을 시험해요.</p>${button('drawingDone','도면 확인 · 제작팀에 전달')}`;
  if(day.stage===4)content=`<h2>거리와 중심 신호를 확인해요.</h2><div class="wd-card"><p>◎ 중심 정렬 신호<br>↔ 접근 거리 신호<br>▣ 시험 기록 연결</p></div><p>센서 팀이 준비한 세 항목을 함께 확인하고 오후 시험에 연결해요.</p>${button('sensorDone','센서 팀 확인 기록 받기')}`;
