@@ -30,3 +30,8 @@
 
 처방전과 준비 봉투의 네 줄을 넘기며 이름·횟수·기간을 대조합니다. 다솜캡슐 횟수와 하늘시럽 기간에 도장을 찍어야 인계가 열립니다. 같은 칸은 두 기록에 적힌 값을 설명하고 도장이 돌아갑니다. 가온 님 상담을 약속하면 15시 할 일로 올라오고, 지키기로 한 경우만 상담실에서 수첩을 펴고 미회신 문의를 넘깁니다. 놓친 약속은 다른 마지막 한마디로 이어집니다.
 [봉투 대조 전후](review/2026-11-21/revision/pharmacist/graded-to-new.png) · [도장 이동 중](review/2026-11-21/revision/pharmacist/mark.png) · [약제실](review/2026-11-21/revision/pharmacist/floor.png)
+
+### 원무행정 직원 · 5f578a4 / db6a70c / b584de8
+
+접수 창구에서 여섯 장을 한 장씩 보관합니다. 틀린 서랍에 놓으면 그 서류의 용도와 보관 이유가 나옵니다. 서류를 모두 넣은 뒤 모니터의 잠금 키를 눌러야 방문자 목록이 사라집니다. 오후에는 기존 위치에 방향 안내대를, 새 진료실에 도착 안내대를 세웁니다.
+[서류 분류 전후](review/2026-11-21/revision/admin/graded-to-new.png) · [잠금 완료](review/2026-11-21/revision/admin/morning-done.png) · [원무과](review/2026-11-21/revision/admin/floor.png)
