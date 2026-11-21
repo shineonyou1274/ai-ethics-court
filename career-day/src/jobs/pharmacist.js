@@ -51,17 +51,17 @@ const day = {
     ],
   },
   incident: {
-    title: '계획대로만 흘러가진 않아요', body: '상담 요청이 몰려, 동료와 상담 시간을 나눠야 해요.',
-    speaker: '약제실 동료', speech: '“상담 기다리시는 분이 다섯 분이에요!”',
+    title: '오후 상담 순서 정하기', body: '누구부터 상담할까요?',
+    speaker: '약제실 동료', speech: '“다섯 분이 기다려요.”',
     ripple: [
       { if: (s) => s.flags.batched, text: '오전에 미뤄 둔 질문의 답을 아직 못 받아, 처리할 처방까지 쌓였어요.', fx: { delay: 8, team: -3 } },
       { if: (s) => s.flags.waiting, text: '메신저 답이 와 있어요. 멈춰 있던 처방 하나가 풀렸어요.', fx: { delay: -4 } },
       { if: (s) => s.flags.promise, text: '가온 님과 잡아 둔 오후 상담 시간도 다가와요.', fx: { energy: -3 } },
     ],
     options: [
-      { label: '오래 기다린 분부터 내가 맡고, 나머지는 동료에게 부탁한다', fx: { care: 6, team: 3, delay: 8, energy: -4 }, reply: '동료와 나눠 맡으니 줄이 줄어들기 시작해요.', moment: '동료와 상담을 나눈 순간', type: 'E' },
-      { label: '한 분 한 분 충분히 시간을 들여 설명한다', fx: { care: 10, team: -5, delay: 14, energy: -3 }, reply: '설명을 들은 분들은 고개를 끄덕여요. 기다리는 줄은 동료가 버텨 줬어요.', moment: '한 분씩 충분히 설명한 순간', type: 'S' },
-      { label: '자주 묻는 내용을 짧은 안내문으로 만들어 함께 드린다', fx: { care: 4, team: 2, delay: 6, energy: -2 }, reply: '같은 질문이 줄었어요. 안내문을 만드는 데 시간이 조금 들었어요.', moment: '안내문을 만들어 나눈 순간', type: 'A' },
+      { label: '기다린 순서대로 나눠 맡는다', fx: { care: 6, team: 3, delay: 8, energy: -4 }, reply: '동료와 나눠 맡으니 줄이 줄어들기 시작해요.', moment: '동료와 상담을 나눈 순간', type: 'E' },
+      { label: '한 분씩 충분히 설명한다', fx: { care: 10, team: -5, delay: 14, energy: -3 }, reply: '설명을 들은 분들은 고개를 끄덕여요. 기다리는 줄은 동료가 버텨 줬어요.', moment: '한 분씩 충분히 설명한 순간', type: 'S' },
+      { label: '공통 질문은 안내문으로 드린다', fx: { care: 4, team: 2, delay: 6, energy: -2 }, reply: '같은 질문이 줄었어요. 안내문을 만드는 데 시간이 조금 들었어요.', moment: '안내문을 만들어 나눈 순간', type: 'A' },
     ],
   },
   pick: {
