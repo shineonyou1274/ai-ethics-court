@@ -3,7 +3,7 @@
 // 좌표는 무대 가운데가 (0, 0) 이고, 화면 아래쪽이 +z 예요. 문질러 지우는 얼룩은 한 무대 안에서 모두 같은 높이(rubY)에 둔다.
 // 모두 단순하게 줄인 체험이라, 실제 절차를 정답처럼 보여 주지 않는다 (손 장면의 '알아 두기'가 그렇게 밝힌다).
 import * as T from 'three';
-import { box, cyl, ball, person, mat, reduced } from './kit.js';
+import { box, cyl, ball, label, person, mat, reduced } from './kit.js';
 import { floor, tag, tag2, clip, cloth } from './closeups.js';
 
 const SKIN = '#e6bfa1', PALM = '#f0cdb2', BACK = '#e2b596';
@@ -44,7 +44,7 @@ export const HOSP_A = {
   handwash: {
     build(g) {
       floor(g, 5.8, 4.2, '#e9eef0');
-      tag(g, '501호 앞 세면대', -1.6, 1.95, -2.0, 1.6, 0.36);
+      label(g, '501호 앞 세면대', 0.8, 1.5, -2.02, 1.5, 0.36);
       box(g, 0, 0.45, -0.25, 4.6, 0.9, 2.9, '#d7e2e4'); box(g, 0, 0.915, -0.25, 4.7, 0.03, 3.0, '#eef3f3'); // 세면대
       box(g, 0, 0.93, -1.35, 1.5, 0.01, 0.55, '#c3d3d7'); // 개수대
       cyl(g, 0, 1.15, -1.62, 0.05, 0.45, '#a5afb1'); const sp = box(g, 0, 1.36, -1.45, 0.08, 0.06, 0.36, '#a5afb1'); sp.rotation.x = 0.1; // 수도꼭지
@@ -82,7 +82,7 @@ export const HOSP_A = {
   wristband: {
     build(g) {
       floor(g, 5.8, 4.2, '#eadfca');
-      tag(g, '501호 병실', -1.0, 2.05, -2.03, 1.4, 0.36);
+      label(g, '501호 병실', 1.1, 2.05, -2.02, 1.3, 0.36);
       const BEDS = [
         { x: -1.9, hair: '#6b4f3a', name: '윤하람', birth: '1968.04.12' },
         { x: 0, hair: '#2f2a28', name: '윤하늘', birth: '1975.09.03' },
@@ -109,7 +109,7 @@ export const HOSP_A = {
   gowning: {
     build(g) {
       floor(g, 5.8, 4.2, '#e6eef0');
-      tag(g, '수술 준비실', -1.7, 2.0, -2.03, 1.3, 0.36);
+      label(g, '수술 준비실', 1.1, 2.0, -2.02, 1.3, 0.36);
       const me = person({ coat: '#a6c5d1', outfit: 'scrub', seed: 2 }); me.root.position.set(0.1, 0, -0.75); g.add(me.root);
       // 입혀질 것: 모자와 마스크, 가운, 장갑 (처음에는 감춰 둔다)
       const cap = ball(me.head, 0, 0.17, -0.015, 0.31, '#7fa8c4', [1, 0.66, 1]), mask = box(me.head, 0, -0.08, 0.25, 0.3, 0.16, 0.04, '#d3e6e9'); cap.visible = mask.visible = false;
@@ -148,7 +148,7 @@ export const HOSP_A = {
   suturepad: {
     build(g) {
       floor(g, 5.8, 4.2, '#efe7d8');
-      tag(g, '의사실 · 연습 시간', 0.6, 2.0, -2.03, 1.6, 0.36);
+      label(g, '의사실 · 연습 시간', 1.1, 2.0, -2.02, 1.5, 0.36);
       box(g, 0, 0.4, 0.15, 5.0, 0.8, 3.0, '#e5cdb1'); box(g, 0, 0.815, 0.15, 5.1, 0.03, 3.1, '#efdcc2'); // 책상
       const senior = person({ coat: '#f7f8f3', outfit: 'white', hair: 2, seed: 3 }); senior.root.position.set(-2.2, 0, -1.75); senior.root.rotation.y = 0.5; g.add(senior.root);
       box(g, 0, 0.86, -0.05, 3.4, 0.08, 1.7, '#f0b9a8'); box(g, 0, 0.902, -0.05, 3.1, 0.006, 0.035, '#b5655a'); // 연습용 패드와 그 위의 긴 선
@@ -178,7 +178,7 @@ export const HOSP_A = {
   touchwipe: {
     build(g) {
       floor(g, 5.8, 4.2, '#eadfca');
-      tag(g, '108호 병실', -1.2, 2.0, -2.03, 1.3, 0.36);
+      label(g, '108호 병실', -1.2, 2.0, -2.02, 1.3, 0.36);
       // 침대 (퇴원해 비어 있다, 머리가 -x)
       box(g, -0.4, 0.4, -0.75, 2.6, 0.16, 1.3, '#d9dedb'); box(g, -0.4, 0.6, -0.75, 2.5, 0.24, 1.2, '#e6eae8'); box(g, -1.72, 0.85, -0.75, 0.1, 0.8, 1.32, '#c9d6d8');
       for (const a of [-1.5, 0.7]) for (const c of [-1.25, -0.25]) { box(g, a, 0.18, c, 0.07, 0.36, 0.07, '#a5afb1'); ball(g, a, 0.06, c, 0.08, '#697d85'); }
@@ -213,7 +213,7 @@ export const HOSP_A = {
   wastesort: {
     build(g) {
       floor(g, 5.8, 4.2, '#e4e6dc');
-      tag(g, '폐기물 보관실', -1.6, 2.0, -2.03, 1.4, 0.36);
+      label(g, '폐기물 보관실', 1.1, 2.0, -2.02, 1.4, 0.36);
       const BINS = [['general', -2.1, '#7d8a8f', '일반'], ['plastic', -0.7, '#5f8fb0', '플라스틱'], ['paper', 0.7, '#c9a46b', '종이'], ['medical', 2.1, '#d9a23a', '의료폐기물']];
       for (const [, x, c, t] of BINS) {
         if (t === '의료폐기물') { box(g, x, 0.45, -0.85, 1.0, 0.9, 0.9, c); box(g, x, 0.91, -0.85, 1.02, 0.03, 0.92, '#a87b22'); }
