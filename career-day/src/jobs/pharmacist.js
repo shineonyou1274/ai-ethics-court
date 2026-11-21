@@ -3,7 +3,7 @@
 import { hospitalDay } from './_hospital-day.js';
 
 const job = {
-  id: 'pharmacist', name: '약사', title: '병원 약제실의 하루', place: 'hospital', room: 'pharmacy',
+  id: 'pharmacist', name: '약사', title: '병원 약제실의 하루', place: 'hospital', walk: true, floor: 'pharmacist', room: 'pharmacy',
   careernet: '23', color: '#89a9af', look: { coat: '#f7f7f1', hair: 1, outfit: 'white' }, uniform: '가운',
   pay: 'salary', shift: { start: '09:00', end: '18:00', breakMin: 60 },
   person: '오가온',
@@ -82,5 +82,24 @@ job.scenes = hospitalDay(job, {
     { text: '“다들 바쁘신 것 같아서 메모를 다 못 여쭤봤어요.”' },
   ],
 });
+
+// 새로 도착한 일은 해당 장면의 시각에만 받은 일 목록에 오른다.
+const arrivals = new Map([
+  ['09:25', ['counter', '번호 호출', '가온 님이 질문 메모를 들고 오셨어요.']],
+  ['10:10', ['pharmacy', '업무 알림', '새 처방 기록이 도착했어요.']],
+  ['10:50', ['store', '동료', '봉투를 내보내기 전에 기록을 함께 봐 주세요.']],
+  ['11:48', ['meeting', '전화', '의료진에게 확인할 질문이 있어요.']],
+  ['14:50', ['counter', '동료', '상담 대기자가 늘었어요.']],
+  ['16:00', ['store', '인계 요청', '다음 상담에 이어 갈 질문을 남겨 주세요.']],
+]);
+for (const scene of job.scenes) {
+  const arrival = arrivals.get(scene.at);
+  if (arrival) {
+    const [place, via, text] = arrival;
+    scene.place = place;
+    scene.notice = { via, text };
+    scene.todo = { label: scene.title, via };
+  }
+}
 
 export default job;
