@@ -105,7 +105,7 @@ job.scenes = floorDay(job, {
         recheck: { fx: { delay: 5, energy: -3 }, moment: '세포를 다시 들여다본 순간', text: '한 번 헷갈렸지만 핵을 보고 다시 찾았어요. 시간이 조금 더 들었어요.' },
       } },
     // 오후의 돌발: 응급실 검체가 몰린다. 약속했다면, 새봄 님 재검을 지킬지 여기서 고른다
-    { kind: 'choice', atOff: 300, place: 'chem', title: '계획대로만 흘러가진 않아요', body: '응급실 검체 다섯 개가 한꺼번에 왔어요. 새봄 님 재검 검체도 막 도착했어요.',
+    { kind: 'choice', atOff: 300, place: 'chem', title: '계획대로만 흘러가진 않아요', body: '응급실 검체 다섯 개가 한꺼번에 왔어요. 새봄 님 재검 검체도 막 왔어요.',
       notice: { via: '전화', text: '“응급실이에요! 교통사고 환자분들 검체 다섯 개가 한꺼번에 올라가요.”' },
       todo: [
         { label: '응급실 검체 다섯 개', via: '전화' },
@@ -118,10 +118,10 @@ job.scenes = floorDay(job, {
         { if: promised, text: '새봄 님 재검 결과를 직접 알리겠다는 약속이 응급 검체와 겹쳐요.' },
       ],
       options: [
-        { label: '응급실 검체를 먼저 돌리고, 새봄 님 재검은 그 뒤에 돌린다', fx: { team: 5, care: -2, delay: 3, energy: -3 }, reply: '응급 결과가 제때 나갔어요. 새봄 님 재검은 조금 기다려요.', moment: '응급 검체부터 돌린 순간', type: 'R' },
-        { label: '동료와 나눠, 동료는 응급실 검체를, 나는 새봄 님 재검을 맡는다', fx: { team: 4, care: 4, delay: 6, energy: -2 }, reply: '둘이 나눠 맡으니 두 줄이 함께 줄어요.', moment: '동료와 검체를 나눈 순간', type: 'E' },
-        { label: '외래에 재검 결과가 조금 늦는다고 먼저 알리고, 들어온 차례대로 돌린다', fx: { care: 3, team: 1, delay: 4, energy: -1 }, reply: '“알려 줘서 고마워요. 기다릴게요.” 외래가 진료 순서를 조금 바꿨어요.', moment: '늦어지는 까닭을 먼저 알린 순간', type: 'C' },
-        { label: '응급 검체와 함께 새봄 님 재검도 바로 올리고, 결과가 나오면 약속대로 직접 전화한다', when: promised, fx: { care: 8, team: -2, delay: 10, energy: -4 }, flag: 'kept', reply: '분석기 두 줄을 오가며 둘 다 올렸어요. 결과가 나오면 사무실로 가요.', moment: '약속을 지키려고 오후를 다시 짠 순간', type: 'S' },
+        { label: '응급실 검체부터 돌리고, 재검은 그 뒤에 돌린다', fx: { team: 5, care: -2, delay: 3, energy: -3 }, reply: '응급 결과가 제때 나갔어요. 새봄 님 재검은 조금 기다려요.', moment: '응급 검체부터 돌린 순간', type: 'R' },
+        { label: '동료는 응급 검체, 나는 재검을 맡아 나눈다', fx: { team: 4, care: 4, delay: 6, energy: -2 }, reply: '둘이 나눠 맡으니 두 줄이 함께 줄어요.', moment: '동료와 검체를 나눈 순간', type: 'E' },
+        { label: '외래에 재검이 늦는다고 알리고 차례대로 돌린다', fx: { care: 3, team: 1, delay: 4, energy: -1 }, reply: '“알려 줘서 고마워요. 기다릴게요.” 외래가 진료 순서를 조금 바꿨어요.', moment: '늦어지는 까닭을 먼저 알린 순간', type: 'C' },
+        { label: '재검도 함께 올리고, 약속대로 직접 전화한다', when: promised, fx: { care: 8, team: -2, delay: 10, energy: -4 }, flag: 'kept', reply: '분석기 두 줄을 오가며 둘 다 올렸어요. 결과가 나오면 사무실로 가요.', moment: '약속을 지키려고 오후를 다시 짠 순간', type: 'S' },
       ] },
     // 약속을 지키러 가기로 했을 때만 열린다: 재검 결과를 직접 전화로 알린다
     { kind: 'tasks', atOff: 330, place: 'office', skip: (s) => !kept(s), drain: 0, goal: '약속대로 재검 결과 알리기', title: '약속한 대로, 결과를 직접',

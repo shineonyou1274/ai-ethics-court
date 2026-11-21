@@ -94,25 +94,24 @@ job.scenes = floorDay(job, {
         recheck: { fx: { delay: 4 }, moment: '사진을 다시 보고 고른 순간', text: '한 번 엇갈렸지만 다시 보고 바로 골랐어요. 시간이 조금 더 들었어요.' },
       } },
     // 오후의 돌발: 응급 촬영이 몰린다. 약속했다면, CT실에 갈지 여기서 고른다
-    { kind: 'choice', atOff: 290, place: 'xray', title: '계획대로만 흘러가진 않아요', body: '응급 촬영 두 분이 한꺼번에 내려왔어요. 곧 로운 님 CT 시간이에요.',
+    { kind: 'choice', atOff: 290, place: 'xray', title: '계획대로만 흘러가진 않아요', body: '응급 촬영 두 분이 한꺼번에 왔어요. 곧 로운 님 CT 시간이에요.',
       notice: { via: '전화', text: '“응급실이에요. 넘어진 환자분 두 분, 바로 사진 부탁해요!”' },
       todo: [
         { label: '응급 촬영 두 분', via: '전화' },
         { label: '로운 님 CT 때 곁에서 설명하기', via: '약속', at: '15:00', known: promised,
           now: (s, i) => s.i === i || (kept(s) && s.i === i + 1), done: (s, i) => kept(s) && s.i > i + 1, missed: (s, i) => s.i > i && !kept(s) }, // 지키러 가는 다음 장면(CT실)까지 '지금'
       ],
-      speaker: '응급실 간호사', speech: '“두 분 다 손목이랑 발목이 많이 부었어요!”',
+      speaker: '응급실 간호사', speech: '“두 분 다 많이 부었어요!”',
       ripple: [
         { if: (s) => s.flags.callLater, text: '오후 시간을 정해 두지 않아, 병동 환자분까지 한꺼번에 내려와 기다려요.', fx: { delay: 8, care: -4 } },
         { if: (s) => s.flags.fixedTime, text: '병동 촬영 시간을 정해 둔 덕에 응급 촬영과 엇갈리지 않아요.', fx: { team: 3 } },
-        { if: (s) => s.flags.grandMic, text: '가람 님이 CT실 앞에서 기다려요. “CT 때도 마이크로 할머니께 말 걸어 드릴게요.”', fx: { care: 2 } },
         { if: promised, text: '로운 님 CT 때 곁에 있겠다는 약속이 응급 촬영과 겹쳐요.' },
       ],
       options: [
-        { label: '응급 환자부터 찍고, 로운 님 CT는 CT실 동료에게 맡긴다', fx: { team: 5, care: -1, delay: 3, energy: -3 }, reply: '응급 사진이 제때 나갔어요. 로운 님은 CT실 동료가 맞았어요.', moment: '응급 촬영부터 한 순간', type: 'R' },
-        { label: '선배에게 일반촬영실을 잠깐 부탁하고, 응급 환자를 나눠 찍는다', fx: { team: 6, care: 3, delay: 6, energy: -2 }, reply: '두 촬영실을 함께 열어 순서를 나눴어요. 줄이 금방 줄어요.', moment: '선배와 촬영을 나눈 순간', type: 'E' },
-        { label: '대기실에 나가 늦어지는 까닭과 예상 시간을 알린다', fx: { care: 7, team: -1, delay: 5, energy: -3 }, reply: '“알려 주니 기다릴 만해요.” 그동안 선배가 응급 촬영을 시작했어요.', moment: '대기실에 사정을 알린 순간', type: 'S' },
-        { label: '응급 촬영을 마치자마자 약속대로 CT실에 가서 로운 님 곁에 선다', when: promised, fx: { care: 8, team: -2, delay: 10, energy: -4 }, flag: 'kept', reply: '두 분 사진을 서둘러 마치고 CT실로 가요. 일반촬영실은 잠깐 기다려요.', moment: '약속을 지키려고 오후를 다시 짠 순간', type: 'S' },
+        { label: '응급 환자부터 찍고, CT는 CT실 동료에게 맡긴다', fx: { team: 5, care: -1, delay: 3, energy: -3 }, reply: '응급 사진이 제때 나갔어요. 로운 님은 CT실 동료가 맞았어요.', moment: '응급 촬영부터 한 순간', type: 'R' },
+        { label: '선배와 응급 환자를 나눠 찍는다', fx: { team: 6, care: 3, delay: 6, energy: -2 }, reply: '두 촬영실을 함께 열어 순서를 나눴어요. 줄이 금방 줄어요.', moment: '선배와 촬영을 나눈 순간', type: 'E' },
+        { label: '대기실에 늦어지는 까닭과 시간을 알린다', fx: { care: 7, team: -1, delay: 5, energy: -3 }, reply: '“알려 주니 기다릴 만해요.” 그동안 선배가 응급 촬영을 시작했어요.', moment: '대기실에 사정을 알린 순간', type: 'S' },
+        { label: '응급 촬영을 마치자마자 약속대로 CT실로 간다', when: promised, fx: { care: 8, team: -2, delay: 10, energy: -4 }, flag: 'kept', reply: '두 분 사진을 서둘러 마치고 CT실로 가요. 일반촬영실은 잠깐 기다려요.', moment: '약속을 지키려고 오후를 다시 짠 순간', type: 'S' },
       ] },
     // 약속을 지키러 가기로 했을 때만 열린다: CT실에서 로운 님 곁에
     { kind: 'tasks', atOff: 310, place: 'ct', skip: (s) => !kept(s), drain: 0, goal: '약속대로 CT 곁에 서기', title: '약속한 대로, CT실에서',
