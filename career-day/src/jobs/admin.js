@@ -2,7 +2,7 @@
 import { hospitalDay } from './_hospital-day.js';
 
 const job = {
-  id: 'admin', name: '원무행정 직원', title: '접수와 안내의 하루', place: 'hospital', room: 'reception',
+  id: 'admin', name: '원무행정 직원', title: '접수와 안내의 하루', place: 'hospital', walk: true, floor: 'admin', room: 'reception',
   careernet: '1257', careernetNote: '커리어넷에 원무행정 직원이 따로 없어서, 임금은 가까운 직업인 병원코디네이터의 자료를 썼어요. 실제 임금과 다를 수 있어요.',
   // 커리어넷에 없는 직업이라 '하는 일'은 직접 적는다. 병원 원무과의 일반적인 업무만 적었다.
   works: ['병원을 찾은 사람의 접수와 수납을 맡아요.', '진료 예약을 잡고, 바뀐 일정과 진료실 위치를 안내해요.', '진단서 같은 서류 발급을 돕고, 그 과정에서 개인정보를 지켜요.'],
@@ -32,7 +32,7 @@ job.scenes = hospitalDay(job, {
   // 손으로 하는 일
   after: {
     order: [{
-      kind: 'hands', game: 'paperwork', atOff: 110, place: 'reception', title: '창구를 잠깐 비우기 전에',
+      kind: 'hands', game: 'paperwork', closeup: true, atOff: 110, place: 'reception', title: '창구를 잠깐 비우기 전에',
       body: '점심 교대 전, 창구에 서류가 쌓였어요. 알맞은 곳에 정리하고 자리를 비워요.',
       moment: '서류를 정리하고 화면을 잠근 순간', type: 'C',
       fact: '병원 창구에는 다른 사람의 개인정보가 담긴 서류와 화면이 많아요. 자리를 비울 때는 민감한 서류를 잠금함에 넣고 화면을 잠가요.',
@@ -91,5 +91,34 @@ job.scenes = hospitalDay(job, {
     { text: '“다들 바빠 보여서 그냥 물어물어 찾았어요.”' },
   ],
 });
+
+// 새로 도착한 일은 해당 장면의 시각에만 받은 일 목록에 오른다.
+const arrivals = new Map([
+  ['08:55', ['counter', '번호 호출', '이든 님 차례예요. 처음 오셨대요.']],
+  ['09:40', ['reception', '업무 알림', '다음 접수 번호가 떴어요.']],
+  ['10:20', ['store', '동료', '창구 교대 전에 서류를 정리해 주세요.']],
+  ['11:18', ['meeting', '전화', '진료실 위치가 바뀌었어요.']],
+  ['14:20', ['counter', '동료', '이전 진료실 앞에서 기다리는 분들이 있어요.']],
+  ['15:30', ['store', '인계 요청', '이든 님의 서류 요청이 도착했어요.']],
+]);
+for (const scene of job.scenes) {
+  const arrival = arrivals.get(scene.at);
+  if (arrival) {
+    const [place, via, text] = arrival;
+    scene.place = place;
+    scene.notice = { via, text };
+    scene.todo = { label: scene.title, via };
+  }
+}
+
+const afternoon = {
+  moment: '바뀐 진료실 길을 표시한 순간', type: null, kind: 'hands', game: 'adminroute', closeup: true, at: '15:00', place: 'meeting',
+  title: '바뀐 진료실 안내', body: '작업대에서 물건을 집어 옮겨요. 단순화한 체험이에요.',
+  grades: {
+    neat: { fx: { team: 2 }, text: '다음 사람이 이어받을 준비를 마쳤어요.' },
+    redo: { fx: { delay: 3 }, text: '자리를 다시 확인해 정리했어요. 재확인에 3분이 들었어요.' },
+  },
+};
+job.scenes.splice(job.scenes.findIndex(scene => scene.kind === 'pick'), 0, afternoon);
 
 export default job;

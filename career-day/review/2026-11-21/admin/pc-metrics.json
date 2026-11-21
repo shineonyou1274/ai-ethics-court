@@ -1,0 +1,959 @@
+[
+ {
+  "h": "원무행정 직원",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "go",
+  "covered": "fine",
+  "offscreen": true,
+  "panelScroll": 116,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 08:10",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 탈의실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 08:20",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "탈의실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "옷을 갈아입으면, 하루 시작",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 2,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 08:20",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 접수 창구로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 08:30",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "접수 창구로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "오늘의 접수 현황 열기",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 08:30",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 수납 창구로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 08:55",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 번호 호출\n이든 님 차례예요. 처음 오셨대요.",
+   "head": "수납 창구로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "첫 만남의 한마디",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 08:55",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 접수 창구로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 09:5010분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 업무 알림\n다음 접수 번호가 떴어요.",
+   "head": "접수 창구로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "처음 온 사람의 접수",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 4,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 09:5010분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 서류실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 10:3010분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 마침",
+    "💬 창구를 잠깐 비우기 전에 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n마침\n💬 창구를 잠깐 비우기 전에\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "💬 동료\n창구 교대 전에 서류를 정리해 주세요.",
+   "head": "서류실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "창구를 잠깐 비우기 전에",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay closeOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 10:3010분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 대기 의자로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 11:3113분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 마침",
+    "💬 창구를 잠깐 비우기 전에 마침",
+    "📞 혼자 하는 일이 아니니까 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n마침\n💬 창구를 잠깐 비우기 전에\n마침\n📞 혼자 하는 일이 아니니까\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📞 전화\n진료실 위치가 바뀌었어요.",
+   "head": "대기 의자로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "혼자 하는 일이 아니니까",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 11:3113분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 휴게실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 12:5323분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 마침",
+    "💬 창구를 잠깐 비우기 전에 마침",
+    "📞 혼자 하는 일이 아니니까 마침"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n마침\n💬 창구를 잠깐 비우기 전에\n마침\n📞 혼자 하는 일이 아니니까\n마침",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "휴게실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "잠깐, 나도 숨을 고르기",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 12:5323분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 수납 창구로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 14:3717분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 마침",
+    "💬 창구를 잠깐 비우기 전에 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n마침\n💬 창구를 잠깐 비우기 전에\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "💬 동료\n이전 진료실 앞에서 기다리는 분들이 있어요.",
+   "head": "수납 창구로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "계획대로만 흘러가진 않아요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 14:3717분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 대기 의자로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 15:2929분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 마침",
+    "💬 창구를 잠깐 비우기 전에 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 마침"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n마침\n💬 창구를 잠깐 비우기 전에\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n마침",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "대기 의자로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "바뀐 진료실 안내",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay closeOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 15:2929분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 서류실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 15:5929분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 마침",
+    "💬 창구를 잠깐 비우기 전에 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 마침",
+    "🗓️ 서류 한 장 너머의 사정 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n마침\n💬 창구를 잠깐 비우기 전에\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n마침\n🗓️ 서류 한 장 너머의 사정\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 인계 요청\n이든 님의 서류 요청이 도착했어요.",
+   "head": "서류실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "서류 한 장 너머의 사정",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "ok",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 6,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 15:5929분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 접수 창구로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 17:1929분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 마침",
+    "💬 창구를 잠깐 비우기 전에 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 마침",
+    "🗓️ 서류 한 장 너머의 사정 마침"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n마침\n💬 창구를 잠깐 비우기 전에\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n마침\n🗓️ 서류 한 장 너머의 사정\n마침",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "접수 창구로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "오늘 남은 한마디",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 17:1929분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 탈의실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 17:5929분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 처음 온 사람의 접수 마침",
+    "💬 창구를 잠깐 비우기 전에 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 마침",
+    "🗓️ 서류 한 장 너머의 사정 마침"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 처음 온 사람의 접수\n마침\n💬 창구를 잠깐 비우기 전에\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n마침\n🗓️ 서류 한 장 너머의 사정\n마침",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "탈의실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "근무복을 벗고, 오늘을 접어요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "go",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 2,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 17:5929분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "오늘의 일당 명세서",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 퇴근 17:30",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "사람 곁을 지킨 하루",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [
+   {
+    "t": "오늘의 기록을 읽은 순간",
+    "fs": 15
+   },
+   {
+    "t": "이든 님과 함께 걸어간 순간",
+    "fs": 15
+   },
+   {
+    "t": "접수 순서를 맞춘 순간",
+    "fs": 15
+   },
+   {
+    "t": "서류를 정리하고 화면을 잠근 순간",
+    "fs": 15
+   },
+   {
+    "t": "안내판을 만든 순간",
+    "fs": 15
+   },
+   {
+    "t": "직접 올라가 안내한 순간",
+    "fs": 15
+   },
+   {
+    "t": "서류 확인 항목을 고른 순간",
+    "fs": 15
+   }
+  ],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 211,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "원무행정 직원 · 퇴근 17:30",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ }
+]
