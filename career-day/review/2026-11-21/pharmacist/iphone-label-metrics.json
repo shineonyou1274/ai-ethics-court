@@ -1,0 +1,919 @@
+[
+ {
+  "h": "약사",
+  "canvasH": 305,
+  "canvasPct": 46,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "go",
+  "covered": "LI",
+  "offscreen": true,
+  "panelScroll": 784,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/08:40",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 탈의실로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/08:50",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "탈의실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "옷을 갈아입으면, 하루 시작",
+  "canvasH": 305,
+  "canvasPct": 46,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 2,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/08:50",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 조제실로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/09:00",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "조제실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "먼저, 오늘의 기록부터",
+  "canvasH": 305,
+  "canvasPct": 46,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": "view",
+  "offscreen": true,
+  "panelScroll": 110,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/09:00",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 투약 창구로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/09:25",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 번호 호출\n가온 님이 질문 메모를 들고 오셨어요.",
+   "head": "투약 창구로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "첫 만남의 한마디",
+  "canvasH": 226,
+  "canvasPct": 34,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/09:25",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 조제실로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "10:24/14분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 한 번 더 확인하는 아침 새로 옴"
+   ],
+   "inboxText": "받은 일\n✓ 마친 일 1개\n\n🗓️ 한 번 더 확인하는 아침\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 업무 알림\n새 처방 기록이 도착했어요.",
+   "head": "조제실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "한 번 더 확인하는 아침",
+  "canvasH": 226,
+  "canvasPct": 34,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 4,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "10:24/14분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 약품 창고로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "11:04/14분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "💬 나가기 전에 한 번 더 새로 옴"
+   ],
+   "inboxText": "받은 일\n✓ 마친 일 2개\n\n💬 나가기 전에 한 번 더\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "💬 동료\n봉투를 내보내기 전에 기록을 함께 봐 주세요.",
+   "head": "약품 창고로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "나가기 전에 한 번 더",
+  "canvasH": 372,
+  "canvasPct": 56,
+  "appCls": "walkDay closeOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "11:04/14분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 상담실로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "12:06/18분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "📞 혼자 하는 일이 아니니까 새로 옴"
+   ],
+   "inboxText": "받은 일\n✓ 마친 일 3개\n\n📞 혼자 하는 일이 아니니까\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📞 전화\n의료진에게 확인할 질문이 있어요.",
+   "head": "상담실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "혼자 하는 일이 아니니까",
+  "canvasH": 226,
+  "canvasPct": 34,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "12:06/18분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 휴게실로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "13:24/24분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일\n✓ 마친 일 4개",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "휴게실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "잠깐, 나도 숨을 고르기",
+  "canvasH": 226,
+  "canvasPct": 34,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "13:24/24분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 투약 창구로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "15:14/24분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "💬 계획대로만 흘러가진 않아요 새로 옴"
+   ],
+   "inboxText": "받은 일\n✓ 마친 일 4개\n\n💬 계획대로만 흘러가진 않아요\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "💬 동료\n상담 대기자가 늘었어요.",
+   "head": "투약 창구로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "계획대로만 흘러가진 않아요",
+  "canvasH": 226,
+  "canvasPct": 34,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "15:14/24분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 상담실로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "16:02/32분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일\n✓ 마친 일 5개",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "상담실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "가온 님 상담 준비",
+  "canvasH": 372,
+  "canvasPct": 56,
+  "appCls": "walkDay closeOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "16:02/32분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 약품 창고로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "16:32/32분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 질문을 이어 주는 기록 새로 옴"
+   ],
+   "inboxText": "받은 일\n✓ 마친 일 5개\n\n🗓️ 질문을 이어 주는 기록\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 인계 요청\n다음 상담에 이어 갈 질문을 남겨 주세요.",
+   "head": "약품 창고로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "질문을 이어 주는 기록",
+  "canvasH": 186,
+  "canvasPct": 28,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "ok",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 6,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "16:32/32분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 조제실로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "17:52/32분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일\n✓ 마친 일 6개",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "조제실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "오늘 남은 한마디",
+  "canvasH": 305,
+  "canvasPct": 46,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "17:52/32분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 탈의실로 가요",
+  "canvasH": 345,
+  "canvasPct": 52,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "18:32/32분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일\n✓ 마친 일 6개",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "탈의실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "근무복을 벗고, 오늘을 접어요",
+  "canvasH": 226,
+  "canvasPct": 34,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "go",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 2,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "18:32/32분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "오늘의 일당 명세서",
+  "canvasH": 226,
+  "canvasPct": 34,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": "B",
+  "offscreen": true,
+  "panelScroll": 281,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/퇴근 18:00",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "팀과 호흡을 맞춘 하루",
+  "canvasH": 226,
+  "canvasPct": 34,
+  "appCls": "walkDay pickOn",
+  "small": [
+   {
+    "t": "오늘의 기록을 읽은 순간",
+    "fs": 15
+   },
+   {
+    "t": "질문 메모를 함께 짚은 순간",
+    "fs": 15
+   },
+   {
+    "t": "처방 확인 순서를 맞춘 순간",
+    "fs": 15
+   },
+   {
+    "t": "처방전과 약 봉투를 대조한 순간",
+    "fs": 15
+   },
+   {
+    "t": "직접 전화해 확인한 순간",
+    "fs": 15
+   },
+   {
+    "t": "동료와 상담을 나눈 순간",
+    "fs": 15
+   },
+   {
+    "t": "상담 기록을 고른 순간",
+    "fs": 15
+   }
+  ],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 651,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 28,
+   "bottom": 36,
+   "clock": "약사 ·/퇴근 18:00",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ }
+]

@@ -101,8 +101,8 @@ const opt = phone ? { ...phone, deviceScaleFactor: 1 } : { viewport: { width: 12
   }
   const rec = await p.evaluate(() => JSON.parse(localStorage.getItem('workday-records-v1') || '[]'));
   console.log('기록', JSON.stringify(rec.map((r) => ({ app: r.app, place: r.place, job: r.job, pay: r.pay?.total, ending: r.ending, like: r.like, hard: r.hard }))));
-  console.log('가로 밀림(최대 px)', over); 
+  console.log('가로 밀림(최대 px)', over);
   console.log('errors', errs); require('fs').writeFileSync(`${out}/${tag0}-metrics.json`, JSON.stringify(metrics,null,1));
-  if(!rec.length || errs.length || over) throw Error(JSON.stringify({errs,over,records:rec.length}));
+  if(!rec.some(record => record.job?.id === job) || errs.length || over) throw Error(JSON.stringify({errs,over,records:rec.length}));
   const v = p.video(); await ctx.close(); if (v) console.log('영상', await v.path()); await b.close();
 })().catch((e) => { console.error('실패', e); process.exit(1); });
