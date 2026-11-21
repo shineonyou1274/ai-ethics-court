@@ -2,6 +2,8 @@ import { box, cyl, ball } from '../world/kit.js';
 import { workbench, print, unit, table, tray, seal } from './bench-input.js';
 import { rxcheck as flatRx } from './rxcheck.js';
 import { paperwork as flatPaper } from './paperwork.js';
+// 받침이 있으면 a(이라고·을), 없으면 b(라고·를). 숫자로 끝나면 읽는 소리로 본다
+const josa=(w,a,b)=>{const ch=String(w).trim().slice(-1);if(/[0-9]/.test(ch))return '013678'.includes(ch)?a:b;const c=ch.charCodeAt(0)-0xac00;return c>=0&&c<11172&&c%28?a:b;};
 
 function prescription(g,ui,sc){
   table(g);tray(g,0,0,5.5,3.65,'#bac6bc');
@@ -24,7 +26,7 @@ function prescription(g,ui,sc){
   ui.drag(stamp,.95,.7,key=>{
     if(!keys.includes(key))return;
     const id=row+'.'+key;
-    if(!diffs.includes(id))return ui.wrong('처방전과 봉투에 모두 '+sc.rx[row][key]+'라고 적혀 있어요. 이 칸은 일치해요.');
+    if(!diffs.includes(id))return ui.wrong('처방전과 봉투에 모두 '+sc.rx[row][key]+josa(sc.rx[row][key],'이라고','라고')+' 적혀 있어요. 이 칸은 일치해요.');
     marked.add(id);show();ui.say('다른 칸에 도장을 남겼어요. 확인 '+marked.size+' / '+diffs.length);
   });
   ui.button('이전 줄',()=>{row=(row+sc.rx.length-1)%sc.rx.length;show();});
@@ -45,7 +47,7 @@ function filing(g,ui,sc){
   const stack=sc.cards.slice(1).map((_,i)=>box(g,-1.18-i*.035,.66+i*.016,1.16+i*.035,2.58,.018,1.03,i%2?'#e2d6bd':'#faf3da'));
   const face=print(doc,0,.07,0,2.53,.96,['']);
   function refresh(){if(current===sc.cards.length){doc.visible=false;ui.say('서류 여섯 장을 보관했어요. 화면에 무엇이 남았나요?');return;}
-    const c=sc.cards[current];face([c.label,c.sub]);ui.say((current+1)+' / 6 · '+c.label+'을 집어 보관할 서랍에 넣어요.');}
+    const c=sc.cards[current];face([c.label,c.sub]);ui.say((current+1)+' / 6 · '+c.label+josa(c.label,'을','를')+' 집어 보관할 서랍에 넣어요.');}
   ui.drag(doc,2.58,1.13,id=>{
     if(current>=sc.cards.length)return;
     const c=sc.cards[current];if(c.to!==id)return ui.wrong(c.why);
@@ -68,6 +70,8 @@ function pathway(g,ui){
   const bench=unit(g,-1.3,.76,1.14),rail=unit(g,1.25,.76,1.14);
   box(bench,0,.25,0,1.05,.14,.45,'#ae7650');box(bench,0,.48,-.18,1.05,.35,.09,'#bb855d');
   for(const x of [-.4,.4]){box(bench,x,.11,0,.1,.22,.38,'#526267');cyl(rail,x,.31,0,.06,.62,'#889397');}box(rail,0,.63,0,1,.10,.12,'#9a764c');
+  print(bench,0,.62,.32,.9,.3,['벤치']);print(rail,0,.8,.32,.9,.3,['난간']);
+  ['계단 앞','계단','계단 뒤'].forEach((t,i)=>print(g,locations[i],.72,.25,.95,.28,[t]));
   for(const [obj,name,goal] of [[bench,'벤치','0'],[rail,'난간','1']]){
     obj.name=name;let placed=false;
     ui.drag(obj,1.32,1,id=>{

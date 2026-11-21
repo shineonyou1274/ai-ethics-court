@@ -1,4 +1,4 @@
-import { Group, CanvasTexture, SRGBColorSpace, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three';
+import { Group, CanvasTexture, SRGBColorSpace, Mesh, MeshBasicMaterial, PlaneGeometry, RingGeometry, DoubleSide } from 'three';
 import { box, cyl } from '../world/kit.js';
 import { mountBench } from '../world/department-benches.js';
 
@@ -24,8 +24,8 @@ export function workbench(el,sc,{world,sfx,done},model) {
   const msg=el.querySelector('#cuMsg'), controls=el.querySelector('.benchControls');
   let errors=0,completed=false,held=null;
   const api={
-    say(text){msg.textContent=text;},
-    wrong(text){errors++;sfx('bad');api.say(text);return false;},
+    say(text){msg.textContent=text;msg.classList.remove('bad');},
+    wrong(text){errors++;sfx('bad');msg.textContent=text;msg.classList.add('bad');return false;},
     finish(){if(completed)return;completed=true;sfx('good');done(Object.keys(sc.grades)[errors?1:0],{mistakes:errors});},
     button(text,fn){const b=document.createElement('button');b.className='btn ghost';b.textContent=text;controls.append(b);b.onclick=()=>{if(!completed)fn();};return b;},
     area(name,x,y,z,w,d,fn){const area={name,x,y,z,w,d,fn};targets.push(area);return area;},
@@ -33,7 +33,12 @@ export function workbench(el,sc,{world,sfx,done},model) {
   };
   const surface=document.querySelector('canvas');
   let fallback;
-  const build=g=>{model(g,api,sc);return {};};
+  // 물건을 집으면 놓을 수 있는 자리(누르는 단추가 아닌 칸) 모두에 같은 초록 원을 띄운다 (shared/DESIGN.md §5)
+  const rings=[];
+  const build=g=>{model(g,api,sc);for(const a of targets){if(a.fn)continue;const r=Math.min(a.w,a.d)*.45;
+    const ring=new Mesh(new RingGeometry(r*.82,r,40),new MeshBasicMaterial({color:'#3f9d7d',transparent:true,opacity:.85,side:DoubleSide,depthWrite:false}));
+    ring.rotation.x=-Math.PI/2;ring.position.set(a.x,a.y+.03,a.z);ring.visible=false;ring.renderOrder=3;g.add(ring);rings.push(ring);}return {};};
+  const showRings=on=>rings.forEach(r=>{r.visible=on;});
   const handle=world ? mountBench(world,sc.game,build) : null;
   if(!world){
     fallback=new Group();model(fallback,api,sc);
@@ -55,14 +60,14 @@ export function workbench(el,sc,{world,sfx,done},model) {
       if(type==='pointerdown'){
         pointer=e.pointerId;surface.setPointerCapture(pointer);
         held=items.find(it=>it.g.visible&&!it.g.userData.fixed&&hit(e,it.g.position.x,it.g.position.y,it.g.position.z,it.w,it.d));
-        pressed=targets.find(a=>hit(e,a.x,a.y,a.z,a.w,a.d));
+        pressed=targets.find(a=>hit(e,a.x,a.y,a.z,a.w,a.d));showRings(!!held);
       }else if(type==='pointermove'&&held){
         const p=local(e,held.home.y);held.g.position.set(p.x,held.home.y+.1,p.z);
       }else if(type==='pointerup'||type==='pointercancel'){
         const a=targets.find(a=>hit(e,a.x,a.y,a.z,a.w,a.d));
         if(held){held.g.position.copy(held.home);if(type==='pointerup'&&a)held.drop(a.name);}
         else if(type==='pointerup'&&a&&a===pressed)a.fn?.();
-        held=null;pressed=null;pointer=null;
+        held=null;pressed=null;pointer=null;showRings(false);
       }
     },{capture:true,signal:listeners.signal});
   }
