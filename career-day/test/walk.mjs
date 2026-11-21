@@ -131,7 +131,7 @@ const still = JOBS.filter((j) => !walkOn(j, placeOf(j)));
 console.log(`\n걷지 않는 직업 ${still.length}개: ${still.map((j) => j.name).join(', ')}`);
 for (const j of still) if (placeOf(j).nav && j.walk) bad(`${j.name}: walk 인데 걷지 않음`);
 // 병원의 다른 직업은 층(floor) 없이 병원 모형 그대로다 (간호사만 7층 병동을 걷는다)
-for (const j of JOBS.filter((x) => x.place === 'hospital' && x.id !== 'pharmacist' && x.id !== 'nurse')) {
+for (const j of JOBS.filter((x) => x.place === 'hospital' && x.id !== 'pharmacist' && x.id !== 'admin' && x.id !== 'nurse')) {
   if (placeOf(j) !== PLACES.hospital || j.walk || j.floor) bad(`${j.name}: 병원 모형 그대로여야 하는데 바뀜`);
   if (j.scenes.some((sc) => sc.skip || sc.todo)) bad(`${j.name}: 걷는 하루의 표시(skip·todo)가 있음`);
 }

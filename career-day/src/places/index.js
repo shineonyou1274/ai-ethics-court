@@ -11,4 +11,5 @@ export const PLACES = { hospital, 'fire-station': fireStation };
 // 기록의 일터(job.place)와 첫 화면의 일터는 그대로다. floor 가 없는 직업은 일터 모형 그대로 쓴다(병원의 다른 일곱 직업).
 export const FLOORS = { 'hospital/ward': hospitalWard };
 FLOORS['hospital/pharmacist'] = department('pharmacist', [["pharmacy", "조제실", "desk"], ["counter", "투약 창구", "desk"], ["meeting", "상담실", "seat"], ["store", "약품 창고", "shelf"]]);
+FLOORS['hospital/admin'] = department('admin', [["reception", "접수 창구", "desk"], ["counter", "수납 창구", "desk"], ["meeting", "대기 의자", "seat"], ["store", "서류실", "shelf"]]);
 export const placeOf = (job) => (job.floor && FLOORS[`${job.place}/${job.floor}`]) || PLACES[job.place];
