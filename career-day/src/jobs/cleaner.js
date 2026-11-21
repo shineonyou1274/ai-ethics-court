@@ -88,7 +88,7 @@ job.scenes = floorDay(job, {
     { kind: 'hands', game: 'mop', closeup: true, atOff: 290, place: 'lobby', title: '로비 바닥이 젖었어요',
       notice: { via: '안내 데스크', text: '“로비 천장에서 물이 새요! 방문자분이 미끄러울 뻔했대요.”' },
       todo: { label: '로비 물 샘 · 바닥 닦기', via: '안내 데스크' },
-      body: '로비 천장에서 물이 새어 바닥에 흘러요. 방문자가 “여기 바닥이 미끄러워요!” 하고 외쳐요.',
+      body: '로비 천장에서 물이 새어 바닥에 흘러요. 아침에 만난 여울 님이 “여기 바닥이 미끄러워요!” 하고 알려 줘요.',
       moment: '안내판을 세우고 물기를 닦아 낸 순간', type: 'R',
       fact: `젖은 바닥은 넘어지는 사고가 잦은 곳이에요. 닦기 전에 미끄럼 주의 안내판부터 세워 사람들이 피해 가게 해요. ${SIMPLE}`,
       ripple: [{ if: (s) => s.flags.signboard, text: '아침에 여울 님께 안내판을 세워 드렸던 게 떠올라요. 안내판은 늘 수레 맨 위에 있어요.' }],

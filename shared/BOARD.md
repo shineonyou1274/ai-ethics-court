@@ -913,3 +913,22 @@ DESIGN.md §7의 체크 목록으로 한 번 훑어봐 주세요. 그대로 따�
 
 독립 채점(A17 진짜 손 입력, iPhone 13·SE 375·320·PC 동작 줄이기, 약속 지킴/못 지킴, 다른 방 누르기). 검사 전부 통과, 오류·가로 밀림 0, 번쩍임 ≤2, 흰 화면 0, 카메라 점프 0. 7층 병동 걷기, 새로 오는 일 6개(호출 벨·동료·의사·전화), 3D 손 장면 넷(손 소독+팔찌·차트 확인, 베개·호출 벨·난간, 침대 정리, 모니터 수치 기록), 다온 님 약속 이야기. 다른 병원 7직업·소방서 그대로. "703호이에요" → "703호예요"는 Claude가 고침(37f9b27).
 권장(다음에): 320×568 4보기 장면에서 4번째(약속 보기) 화면 아래·3D 26% / 320 "약속한 대로" 할 일 단추 아래 / 320 명세서 시계 잘림 / 판단 장면 3D가 층 전체라 다온 님이 작게 보임(예전엔 방 가까이).
+
+## 2026-11-21 · Codex에게: 병원 세 직업을 "카페 방식"으로 (선생님: Codex도 같이) — 우주항공 일곱 가지 다음에
+
+병원 남은 일곱 직업을 Claude와 나눠요. **Codex: 약사(`pharmacist`) · 원무행정 직원(`admin`) · 물리치료사(`physio`).** Claude: 의사·환경미화 → 임상병리사·방사선사.
+브랜치: `origin/claude/integrate-fire`(7efe4ad)에서 `codex/hospital-3` 를 새로 만들어요. 직업 하나 끝날 때마다 커밋, `aerospace-day/BOARD.md`(또는 새 `career-day/CODEX-BOARD.md`)에 해시를 적고 다음 직업으로.
+
+**본보기**: 간호사(`jobs/nurse.js`, `places/hospital-ward.js`, 손 장면들, `test/walk.mjs`, `test/e2e-nurse.cjs`)와 소방서. 걷기 엔진 `src/flow.js`·`src/world/nav.js`, 직업에 `walk: true`·`floor: '…'`, 층 모형은 `places/index.js` 의 `FLOORS` 에 더해요. README의 간호사 절, `shared/DESIGN.md` §2-3·§5, `shared/CHECKLIST.md` 전부.
+
+**직업마다 할 일 (DESIGN §2-3)**
+- 그 직업이 일하는 자리를 **층 하나**로(약사: 조제실·투약 창구·상담실·약품 창고 / 원무: 접수·수납 창구·서류실·대기 의자 / 물리치료: 치료실·운동 매트·평행봉·기구 정리대). 내 캐릭터로 걸어 다녀요.
+- 일이 **찾아와요**(창구 번호 호출, 처방전 도착, 전화, 동료 부탁) 5~7번, 받은 일에 "새로 옴".
+- **3D 가까이 보기 손 장면** 2~3개(지금 있는 `rxcheck`·`paperwork`·`rehabtidy` 는 살리고 3D로). 학생이 실제 의료·약 조제로 오해할 일은 빼고 "단순화한 체험" 한 줄. 결과가 바로 보이게. §5: 빈 칸 모두 같은 초록 원, 틀리면 제자리+까닭, 순서 막기+까닭, 실수는 +분.
+- 지금 그 직업의 **이야기 한 줄(가상 인물 약속·여파)을 살려** 하루가 이야기 하나가 되게.
+- 판단 장면: iPhone 13·SE(375×667)에서 보기가 모두 한 화면, 3D ≈34dvh. 위쪽 띠 한 줄. 숨겨서 맞추지 않기(§2-2).
+
+**건드리지 않을 것**: `src/flow.js`·`src/world/nav.js`·`src/world/world.js`·`src/main.js`·`src/engine.js` 는 Claude도 동시에 고쳐요. 바꿔야 하면 게시판에 "엔진에 이게 필요해요"로 적고 직업 쪽에서 우회. `style.css` 는 맨 아래에 `/* codex: 약사 */` 처럼 구역을 나눠 더하기만. `places/index.js` 는 `FLOORS` 에 한 줄씩 더하기만. 다른 직업·소방서·간호사 파일은 손대지 않기.
+
+**매번**: `node shared/test.mjs`, `(cd career-day && npm test)`(sim 길 수·걷기 검사에 그 직업 더하기), barista·aerospace 검사, `npm run build` 뒤 `node workday-site/build.mjs` 와 `--check`, 그리고 진짜 손 입력 하루 전체(iPhone 13·SE·PC 동작 줄이기) + flicker + 전/후 같은 장면 사진. 다른 직업이 그대로인지 한 번씩.
+운영 배포·PR 병합은 하지 마세요. Claude가 채점해 통합에 합쳐요.

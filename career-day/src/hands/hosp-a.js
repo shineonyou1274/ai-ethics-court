@@ -5,22 +5,24 @@ import { tidy } from './tidy.js';
 // ── 의사 ──
 const STEP = { palm: '① 손바닥', back: '② 손등', between: '③ 손가락 사이', knuckle: '④ 손가락 마디', thumb: '⑤ 엄지', tips: '⑥ 손끝' };
 const ORDER = Object.keys(STEP);
-const DONE = {
-  palm: '손바닥을 마쳤어요. 다음은 ② 손등.', back: '손등을 마쳤어요. 다음은 ③ 손가락 사이.', between: '손가락 사이를 마쳤어요. 다음은 ④ 손가락 마디.',
-  knuckle: '손가락 마디를 마쳤어요. 다음은 ⑤ 엄지.', thumb: '엄지를 마쳤어요. 마지막은 ⑥ 손끝.', tips: '여섯 단계를 모두 문질렀어요. 이제 종이 타월로 수도꼭지를 잠가요.',
+const HOW = {
+  palm: '손바닥과 손바닥을 마주 대고 문질러요.', back: '손바닥으로 다른 손의 손등을 감싸 문질러요.', between: '손가락을 깍지 껴서 사이사이를 문질러요.',
+  knuckle: '두 손을 맞잡고 손가락 마디를 문질러요.', thumb: '엄지를 다른 손으로 감싸 돌려 가며 문질러요.', tips: '손끝을 반대쪽 손바닥에 대고 손톱 밑까지 문질러요.',
 };
+const eul = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 === 0 ? '를' : '을'; }; // 받침 따라 을/를
+const DONE = Object.fromEntries(ORDER.map((id, k) => [id, k < ORDER.length - 1
+  ? `${STEP[id].slice(2)}${eul(STEP[id])} 마쳤어요. 다음은 ${STEP[ORDER[k + 1]]}: ${HOW[ORDER[k + 1]]}`
+  : '여섯 단계를 모두 문질렀어요. 이제 종이 타월로 수도꼭지를 잠가요.']));
 export const handwash = tidy({
   stage: 'handwash', title: '손 위생 여섯 단계', hint: '위쪽 3D 화면에서 직접 해요. 손 위의 번호 자리를 차례로 손가락으로 문지르고, 종이 타월은 끌어서 수도꼭지에 대요.',
-  start: '501호 앞 세면대예요. 번호 1(손바닥)부터 차례로 문질러요.',
+  start: `501호 앞 세면대예요. 번호 ① 손바닥부터: ${HOW.palm}`,
   items: [
     ...ORDER.map((id, k) => ({ id, label: `${STEP[id]} 문지르기`, kind: 'rub', done: DONE[id] })),
     { id: 'towel', label: '종이 타월로 수도꼭지 잠그기', kind: 'move', done: '종이 타월로 잠갔어요. 씻은 손이 수도꼭지에 다시 닿지 않았어요.' },
   ],
   order: [...ORDER, 'towel'],
-  early: {
-    ...Object.fromEntries(ORDER.slice(1).map((id, k) => [id, `여섯 단계는 차례대로 해요. 먼저 ${STEP[ORDER[k]]}부터 문질러요.`])),
-    towel: '잠깐! 아직 문지를 단계가 남았어요. 다 마친 뒤에 수도꼭지를 잠가요.',
-  },
+  early: (id, first) => (id === 'towel' ? '잠깐! 아직 문지를 단계가 남았어요. 다 마친 뒤에 수도꼭지를 잠가요.'
+    : `여섯 단계는 차례대로 해요. 먼저 ${STEP[first]}: ${HOW[first]}`),
   finish: '손끝까지 깨끗해요. 이제 병실에 들어가요.',
   good: 'thorough', bad: 'rushed',
 });
@@ -62,10 +64,8 @@ export const suturepad = tidy({
     { id: 'cut', label: '가위로 실 끝 자르기', kind: 'move', done: '실 끝을 잘랐어요.' },
   ],
   order: ['s1', 's2', 's3', 's4', 's5', 'cut'],
-  early: {
-    ...Object.fromEntries([2, 3, 4, 5].map((n) => [`s${n}`, `왼쪽부터 차례로 꿰매요. 먼저 ${n - 1}번 땀이에요. 간격이 고르게요.`])),
-    cut: '아직 꿰맬 땀이 남았어요. 다 꿰맨 뒤에 실을 잘라요.',
-  },
+  early: (id, first) => (id === 'cut' ? '아직 꿰맬 땀이 남았어요. 다 꿰맨 뒤에 실을 잘라요.'
+    : `왼쪽부터 차례로 꿰매요. 먼저 ${first.slice(1)}번 땀이에요. 간격이 고르게요.`),
   finish: '“좋아요, 간격이 고르네요.” 선배가 고개를 끄덕여요.',
   good: 'neat', bad: 'retie',
 });
