@@ -12,4 +12,5 @@ export const PLACES = { hospital, 'fire-station': fireStation };
 export const FLOORS = { 'hospital/ward': hospitalWard };
 FLOORS['hospital/pharmacist'] = department('pharmacist', [["pharmacy", "조제실", "desk"], ["counter", "투약 창구", "desk"], ["meeting", "상담실", "seat"], ["store", "약품 창고", "shelf"]]);
 FLOORS['hospital/admin'] = department('admin', [["reception", "접수 창구", "desk"], ["counter", "수납 창구", "desk"], ["meeting", "대기 의자", "seat"], ["store", "서류실", "shelf"]]);
+FLOORS['hospital/physio'] = department('physio', [["rehab", "치료실", "desk"], ["counter", "운동 매트", "mat"], ["meeting", "평행봉", "bars"], ["store", "기구 정리대", "shelf"]]);
 export const placeOf = (job) => (job.floor && FLOORS[`${job.place}/${job.floor}`]) || PLACES[job.place];
