@@ -239,16 +239,16 @@ const VIA = { 일정: '🗓️', 무전: '📻', '출동 벨': '🔔', '호출 �
 Object.assign(VIA, { 호출기: '📟', 간호사: '💬', 선배: '💬', '안내 데스크': '💬', 방문자: '💬' }); // 의사·환경미화 직원의 걷는 하루
 const VIA_SOUND = { '출동 벨': 'bell', '호출 벨': 'bell', 무전: 'radio', 전화: 'radio', 호출기: 'radio' }; // 그 밖(동료·의사·팀장)은 짧은 알림음
 const ro = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 && c % 28 !== 8 ? '으로' : '로'; }; // 받침 따라 '로/으로'
-function inboxHtml(list, tight = false) {
-  const wide = typeof matchMedia === 'function' && matchMedia('(min-aspect-ratio: 11/10)').matches;
+function inboxHtml(list, tight = false, fold = false) { // fold: PC에서도 목록이 넘치면 마친 일을 한 줄로 모은다 (fitWalk)
+  const wide = typeof matchMedia === 'function' && matchMedia('(min-aspect-ratio: 11/10)').matches, full = wide && !fold && !tight;
   const li = (it) => `<li class="${it.state}${it.fresh ? ' fresh' : ''}"><i></i><span>${VIA[it.via] || '🗓️'} ${esc(it.label)}</span><small>${it.state === 'done' ? '마침' : it.state === 'missed' ? '못 함' : it.fresh ? '새로 옴' : it.state === 'now' ? '지금' : it.at}</small></li>`;
   // 폰에서는 마친 일을 한 줄로 모으고, 지금 일과 다음 일 둘만 보인다. 남은 일은 개수로 알려 준다 (스크롤 없이 단추가 보이게)
   const done = list.filter((x) => x.state === 'done' || x.state === 'missed'), rest = list.filter((x) => !done.includes(x));
   const now = rest.filter((x) => x.state === 'now'), next = rest.filter((x) => x.state === 'next');
-  const shown = wide ? list : tight ? (now.length ? now : next.slice(0, 1)) : [...now, ...next.slice(0, now.length ? 1 : 2)]; // tight: 아주 작은 폰에서는 지금 일 하나만 (fitWalk)
-  const more = wide ? 0 : rest.length - shown.length;
+  const shown = full ? list : tight ? (now.length ? now : next.slice(0, 1)) : wide ? rest : [...now, ...next.slice(0, now.length ? 1 : 2)]; // tight: 아주 작은 폰에서는 지금 일 하나만 (fitWalk)
+  const more = full ? 0 : rest.length - shown.length;
   const missed = done.filter((x) => x.state === 'missed').length;
-  const headLine = `<p class="inboxHead"><b>받은 일</b>${!wide && done.length ? `<span class="sum">✓ 마친 일 ${done.length - missed}개${missed ? ` · 못 한 일 ${missed}개` : ''}</span>` : ''}</p>`;
+  const headLine = `<p class="inboxHead"><b>받은 일</b>${!full && done.length ? `<span class="sum">✓ 마친 일 ${done.length - missed}개${missed ? ` · 못 한 일 ${missed}개` : ''}</span>` : ''}</p>`;
   return `${headLine}<ol class="todo inbox" aria-label="받은 일">${shown.map(li).join('')}${more > 0 ? `<li class="later"><span>그다음에도 할 일 ${more}개</span></li>` : ''}</ol>`;
 }
 function goView(sc, st) {
@@ -297,10 +297,16 @@ let walker = null, walkGoal = null;
 //   ② 그래도 넘치면 걸어가는 법 안내 한 줄을 접는다(3D의 장소 표시와 큰 단추가 같은 말을 한다)
 //   ③ 그래도 넘치면 목록에는 지금 일 하나만 두고, 나머지는 "그다음에도 할 일 N개" 한 줄로 센다.
 function fitWalk(min = 40) {
-  const app = $('#app'), v = panel.querySelector('.view'); if (!v || !app.classList.contains('walkOn') || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return;
-  app.style.removeProperty('--walk');
+  const app = $('#app'), v = panel.querySelector('.view'); if (!v || !app.classList.contains('walkOn')) return;
   const cs = getComputedStyle(panel), pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
   const over = () => v.offsetHeight + pad - panel.clientHeight;
+  if (getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) { // PC 두 칸: 3D 칸은 그대로 두고, 목록이 넘치면 마친 일부터 한 줄로 모은다
+    const box = v.querySelector('#inboxBox'); if (!box) return;
+    if (over() > 0) box.innerHTML = inboxHtml(inbox(S, J), false, true);
+    if (over() > 0) box.innerHTML = inboxHtml(inbox(S, J), true, true);
+    return;
+  }
+  app.style.removeProperty('--walk');
   if (over() <= 0) return;
   app.style.setProperty('--walk', `${Math.max(min, 52 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
   world?.resize();
