@@ -3,7 +3,7 @@
 import { tidy } from './tidy.js';
 
 // tidy 에 "이것들을 마쳐야 할 수 있다(needs)"를 더한다. 순서가 정해지지 않은 일(튜브 둘은 어느 쪽부터 넣어도 된다)이 있을 때 쓴다.
-// 먼저 하려 하면 실수로 세고(서두름), 까닭은 miss(id, '_early:<모자란 일>') 로 한 줄 알려 준다. 문지르는 일은 한 번만 세고, 그 뒤로는 안내만 한다.
+// 먼저 하려 하면 실수로 세고(서두름), 까닭은 miss(id, '_early:<모자란 일>') 로 한 줄 알려 준다. 문지르는 일은 모자란 까닭마다 한 번만 세고, 그 뒤로는 안내만 한다.
 // 3D가 없는 기기에서는 fallbackOrder 의 차례대로 누른다.
 function needs(def) {
   const plain = tidy({ ...def, order: def.fallbackOrder });
@@ -18,7 +18,7 @@ function needs(def) {
           ...on,
           canRub(id) {
             const k = lack(id);
-            if (k) { if (!struck.has(id)) { struck.add(id); on.onMiss(id, `_early:${k}`); } return false; }
+            if (k) { if (!struck.has(`${id}:${k}`)) { struck.add(`${id}:${k}`); on.onMiss(id, `_early:${k}`); } return false; }
             return on.canRub(id);
           },
           onRub(id, v) { if (v >= 1) done.add(id); on.onRub(id, v); },
@@ -137,7 +137,7 @@ export const expose = needs({
     { id: 'shoot', label: '“움직이지 마세요” 하고 노출 스위치 누르기', kind: 'rub', done: '“찰칵.” 촬영 중 등이 잠깐 켜졌다 꺼졌어요. 화면에 손목 사진이 떴어요.' },
   ],
   needs: { door: ['me'], shoot: ['me', 'door'] }, fallbackOrder: ['me', 'door', 'shoot'],
-  early: { shoot: '나와서, 문을 닫은 뒤에 눌러요.', door: '먼저 조정실로 나와요.' },
+  early: { shoot: '나는 조정실로 나오고, 촬영실 문을 닫은 뒤에 눌러요.', door: '먼저 조정실로 나와요.' },
   miss: (id, slot) => (slot === '_early:me' ? (id === 'door' ? '문을 먼저 닫으면 내가 촬영실 안에 남아요. 조정실로 먼저 나와요.' : SHOOT.me) : SHOOT.door),
   finish: '조정실에서, 문을 닫고 찍었어요. 로운 님 말고는 아무도 방사선을 받지 않았어요.',
   good: 'safe', bad: 'rushed',

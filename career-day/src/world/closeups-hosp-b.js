@@ -8,7 +8,8 @@ import { floor, tag, tag2 } from './closeups.js';
 
 const SKIN = '#e6bfa1', OLD = '#d9b49a';
 // 옮기는 물건에 붙인 이름표: 손가락이 닿지 않는 것으로 한다 (물건 자체만 잡힌다)
-const quiet = (m) => { m.raycast = () => {}; return m; };
+const quiet = (m) => { m.raycast = () => {}; m.userData.tag = true; return m; };
+const untag = (o) => o.traverse((c) => { if (c.userData.tag) c.visible = false; }); // 놓은 뒤에는 이름표를 감춘다 (놓인 자리를 가리지 않게)
 const mtag = (o, ...a) => quiet(tag(o, ...a));
 const mtag2 = (o, ...a) => quiet(tag2(o, ...a));
 // 그림판 하나를 판에 붙인다 (화면, 사진). draw(k, w, h) 로 그린다
@@ -115,7 +116,7 @@ export const HOSP_B = {
         movers: [
           { id: 'full', obj: full, slot: 'h3', from: [1.15, 1.05], y: 0.88, dragY: 1.24, restY: 1.0, lift: 0.3 },
           { id: 'half', obj: half, slot: 'h4', from: [2.45, 1.05], y: 0.88, dragY: 1.24, restY: 1.0, lift: 0.3 },
-          { id: 'lid', obj: lid, from: [1.9, -0.9], to: C, r: 0.75, y: 0.83, dragY: 1.3, restY: 1.32, lift: 0.15, onPlaced(o) { o.scale.setScalar(1); spin = 1; done.visible = true; } },
+          { id: 'lid', obj: lid, from: [1.9, -0.9], to: C, r: 0.75, y: 0.83, dragY: 1.3, restY: 1.32, lift: 0.15, onPlaced(o) { untag(o); o.scale.setScalar(1); spin = 1; done.visible = true; } },
         ],
         tick(dt) { if (spin && !reduced) lid.rotation.y += dt * 9; else if (spin) spinMark.material.color.set('#3f9d7d'); },
       };
@@ -147,7 +148,7 @@ export const HOSP_B = {
         rubY: 1.06, tool, frame: { top: 2.0, tilt: [0.8, 1.1] },
         patches: [{ id: 'look', y: 1.06, color: '#c9c3b6', opacity: 0.8, dot: 0.07, reach: 0.2, blobs: [{ x: 0.55, z: 0.45, r: 0.42, n: 12, squash: 0.45 }] }],
         movers: [
-          { id: 'rack', obj: rack, from: [-1.55, 1.3], to: [-1.55, -0.4], r: 0.5, y: 0.83, restY: 0.86, lift: 0.2, onPlaced() { screen.userData.redraw((k, W, H) => drawScreen(k, W, H, true)); } },
+          { id: 'rack', obj: rack, from: [-1.55, 1.3], to: [-1.55, -0.4], r: 0.5, y: 0.83, restY: 0.86, lift: 0.2, onPlaced(o) { untag(o); screen.userData.redraw((k, W, H) => drawScreen(k, W, H, true)); } },
           { id: 'flag', obj: card, from: [2.1, 1.3], to: [2.1, -0.35], r: 0.45, y: 0.83, restY: 0.9, lift: 0.15, onPlaced() { sent.visible = true; } },
         ],
         onRub(id, v) { if (v >= 1) clear.visible = true; },
@@ -187,8 +188,8 @@ export const HOSP_B = {
         patches: [{ id: 'focus', y: 0.9, color: '#e6e3ee', opacity: 0.92, dot: 0.15, reach: 0.3, blobs: [{ x: V[0], z: V[1], r: 1.0, n: 46 }] }],
         slots: Object.entries(C).map(([id, at]) => ({ id, at, y: 0.92, r: 0.3 })),
         movers: [
-          { id: 'slide', obj: slide, from: [-0.6, 1.25], to: M, r: 0.45, y: 0.83, dragY: 1.14, restY: 1.15, lift: 0.15, onPlaced() { cells.visible = true; } },
-          { id: 'wbc', obj: pin, slot: 'c2', from: [2.35, 1.35], y: 0.83, dragY: 0.92, restY: 0.9, lift: 0.2, onPlaced() { found.visible = true; } },
+          { id: 'slide', obj: slide, from: [-0.6, 1.25], to: M, r: 0.45, y: 0.83, dragY: 1.14, restY: 1.15, lift: 0.15, onPlaced(o) { untag(o); cells.visible = true; } },
+          { id: 'wbc', obj: pin, slot: 'c2', from: [2.35, 1.35], y: 0.83, dragY: 0.92, restY: 0.9, lift: 0.2, onPlaced(o) { untag(o); found.visible = true; } },
         ],
         tick(dt, t) { senior.update(t, false); },
       };
@@ -225,8 +226,8 @@ export const HOSP_B = {
         rubY: 1.0, tool, frame: { top: 2.5, tilt: [0.8, 1.1] },
         patches: [{ id: 'light', ...L0, blobs: [[-0.62, 0], [0.62, 0], [0, -0.62], [0, 0.62], [-0.55, -0.55], [0.55, -0.55], [-0.55, 0.55], [0.55, 0.55]].map(([a, b]) => ({ x: W[0] + a, z: W[1] + b, r: 0.16, n: 4 })) }],
         movers: [
-          { id: 'plate', obj: plate, from: [-2.4, 1.3], to: W, r: 0.45, y: 0.75, dragY: 0.84, restY: 0.835, lift: 0.15 },
-          { id: 'bag', obj: bag, from: [-1.5, 1.3], to: [0.25, -0.68], r: 0.4, y: 0.75, dragY: 0.84, restY: 0.84, lift: 0.2 },
+          { id: 'plate', obj: plate, from: [-2.4, 1.3], to: W, r: 0.45, y: 0.75, dragY: 0.84, restY: 0.835, lift: 0.15, onPlaced: untag },
+          { id: 'bag', obj: bag, from: [-1.5, 1.3], to: [0.25, -0.68], r: 0.4, y: 0.75, dragY: 0.84, restY: 0.84, lift: 0.2, onPlaced: untag },
           { id: 'mark', obj: R, from: [1.6, 1.0], to: [W[0] + 0.3, W[1] + 0.25], r: 0.25, y: 0.72, dragY: 0.88, restY: 0.88, lift: 0.15 },
           { id: 'markL', obj: L, from: [2.2, 1.0], to: [W[0] + 0.3, W[1] + 0.25], r: 0.25, y: 0.72, dragY: 0.88, restY: 0.88, lift: 0.15 },
         ],
@@ -251,9 +252,9 @@ export const HOSP_B = {
       box(g, -0.6, 0.01, 0.4, 1.2, 0.02, 0.12, '#b9a184'); // 문 자리 (문턱)
       const lamp = box(g, -0.6, 2.2, -2.0, 0.6, 0.22, 0.08, '#7a3a32'); tag(g, '촬영 중', -0.6, 2.5, -1.95, 0.75, 0.28);
       // 촬영대와 로운 님
-      box(g, -1.6, 0.4, -1.0, 2.0, 0.8, 1.0, '#c5d7df'); box(g, -1.6, 0.815, -1.0, 2.05, 0.03, 1.05, '#e8f0f3');
-      const pt = person({ coat: '#b9c6a8', hair: 2, seed: 4 }); pt.root.position.set(-1.6, -0.3, -1.85); g.add(pt.root);
-      const arm = cyl(g, -1.6, 0.9, -1.0, 0.075, 0.9, OLD); arm.rotation.x = Math.PI / 2; box(g, -1.6, 0.835, -0.75, 0.6, 0.04, 0.5, '#7d8a8f');
+      box(g, -1.2, 0.4, -1.0, 1.4, 0.8, 1.0, '#c5d7df'); box(g, -1.2, 0.815, -1.0, 1.45, 0.03, 1.05, '#e8f0f3');
+      const pt = person({ coat: '#b9c6a8', hair: 2, seed: 4 }); pt.root.position.set(-2.4, -0.32, -1.0); pt.root.rotation.y = Math.PI / 2; g.add(pt.root); box(g, -2.45, 0.2, -1.0, 0.7, 0.4, 0.7, '#9aa4a8');
+      const arm = cyl(g, -1.55, 0.9, -1.0, 0.075, 1.1, OLD); arm.rotation.z = Math.PI / 2; ball(g, -0.95, 0.9, -1.0, 0.1, OLD, [1.35, 0.55, 1.1]); box(g, -0.95, 0.835, -1.0, 0.6, 0.04, 0.5, '#7d8a8f');
       // 조정실 조작대와 화면, 노출 스위치
       box(g, 1.95, 0.45, -1.65, 1.6, 0.9, 0.7, '#d6e2ea'); box(g, 1.95, 0.915, -1.65, 1.65, 0.03, 0.75, '#eef3f6');
       const scr = canvasPlane(0.9, 0.62, (k, W, H) => { k.fillStyle = '#10171d'; k.fillRect(0, 0, W, H); k.fillStyle = '#7f8c95'; k.font = `${Math.round(H * 0.13)}px "Gowun Dodum", sans-serif`; k.textAlign = 'center'; k.fillText('촬영 준비', W / 2, H / 2); });
@@ -273,7 +274,7 @@ export const HOSP_B = {
         patches: [{ id: 'shoot', y: 1.04, color: '#ffffff', opacity: 0.85, dot: 0.035, reach: 0.18, blobs: [{ x: 2.4, z: -1.3, r: 0.12, n: 6 }] }],
         movers: [
           { id: 'me', obj: me.root, from: [-0.55, -0.35], to: [1.0, -1.0], r: 0.55, y: 0, lift: 0.15 },
-          { id: 'door', obj: door, from: [-1.9, 0.62], to: [-0.6, 0.48], r: 0.4, y: 0.02, lift: 0.05 },
+          { id: 'door', obj: door, from: [-1.9, 0.62], to: [-0.6, 0.48], r: 0.4, y: 0.02, lift: 0.05, onPlaced: untag },
         ],
         onRub(id, v) { if (v >= 1) { on = 1.2; done.visible = true; scr.userData.redraw((k, W, H) => xray(k, W, H, 'wrist')); } },
         tick(dt, t) {
@@ -302,7 +303,7 @@ export const HOSP_B = {
           box(g, x + dx, 0.84, 1.15, 0.74, 0.04, 0.7, c); tag2(g, [t], x + dx, 1.0, 1.65, 0.78, 0.28);
           slots.push({ id: sid, at: [x + dx, 1.15], y: 0.88, r: 0.34 });
         }
-        movers.push({ id, obj: card, slot: id === 'wrist' ? sendId : retakeId, from: [x, -0.65], y: 0.84, dragY: 0.88, restY: 0.88, lift: 0.12, onPlaced(o) { o.scale.setScalar(0.55); } });
+        movers.push({ id, obj: card, slot: id === 'wrist' ? sendId : retakeId, from: [x, -0.65], y: 0.84, dragY: 0.88, restY: 0.88, lift: 0.12, onPlaced(o) { untag(o); o.scale.setScalar(0.55); } });
       }
       return { frame: { top: 2.0, tilt: [0.8, 1.1] }, slots, movers };
     },
