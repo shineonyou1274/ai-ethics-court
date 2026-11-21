@@ -6,8 +6,11 @@ import { tidy } from './tidy.js';
 // 먼저 하려 하면 실수로 세고(서두름), 까닭은 miss(id, '_early:<모자란 일>') 로 한 줄 알려 준다. 문지르는 일은 모자란 까닭마다 한 번만 세고, 그 뒤로는 안내만 한다.
 // 3D가 없는 기기에서는 fallbackOrder 의 차례대로 누른다.
 function needs(def) {
+  // 막혔을 때의 안내(early)는 지금 모자란 일에 맞춘 까닭으로 (문지르다 막히면 tidy 가 early 를 다시 보여 준다)
+  const lacking = {}, early = { ...def.early };
+  for (const id of Object.keys(def.needs)) Object.defineProperty(early, id, { enumerable: true, get: () => (lacking[id] ? def.miss(id, `_early:${lacking[id]}`) : def.early?.[id]) });
   const plain = tidy({ ...def, order: def.fallbackOrder });
-  const free = tidy({ ...def, order: undefined });
+  const free = tidy({ ...def, early, order: undefined });
   return (el, sc, ctx) => {
     if (!ctx.world) return plain(el, sc, ctx);
     const done = new Set(), struck = new Set();
@@ -17,13 +20,13 @@ function needs(def) {
         return ctx.world.closeup(stage, {
           ...on,
           canRub(id) {
-            const k = lack(id);
+            const k = lack(id); lacking[id] = k;
             if (k) { if (!struck.has(`${id}:${k}`)) { struck.add(`${id}:${k}`); on.onMiss(id, `_early:${k}`); } return false; }
             return on.canRub(id);
           },
           onRub(id, v) { if (v >= 1) done.add(id); on.onRub(id, v); },
           onDrop(id) {
-            const k = lack(id); if (k) { on.onMiss(id, `_early:${k}`); return false; }
+            const k = lack(id); lacking[id] = k; if (k) { on.onMiss(id, `_early:${k}`); return false; }
             const r = on.onDrop(id); if (r !== false) done.add(id); return r;
           },
         });
