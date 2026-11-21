@@ -44,7 +44,7 @@ function xray(k, W, H, kind) {
     });
     k.restore();
   };
-  if (kind === 'chest') { draw(-W * 0.1, 0.5); draw(W * 0.1, 0.5); } else draw(0, 1); // 흐린 가슴 사진: 두 겹
+  if (kind === 'chest') { k.filter = `blur(${Math.max(3, Math.round(W * 0.02))}px)`; draw(-W * 0.06, 0.55); draw(W * 0.06, 0.55); k.filter = 'none'; } else draw(0, 1); // 흐린 가슴 사진: 두 겹
   k.fillStyle = '#f2c94c'; k.font = `bold ${Math.round(H * 0.12)}px "Jua", sans-serif`; k.textAlign = 'left'; k.textBaseline = 'top'; k.fillText(kind === 'wrist' ? 'R' : kind === 'ankle' ? 'L' : 'PA', W * 0.05, H * 0.04);
 }
 
@@ -228,10 +228,10 @@ export const HOSP_B = {
         movers: [
           { id: 'plate', obj: plate, from: [-2.4, 1.3], to: W, r: 0.45, y: 0.75, dragY: 0.84, restY: 0.835, lift: 0.15, onPlaced: untag },
           { id: 'bag', obj: bag, from: [-1.5, 1.3], to: [0.25, -0.68], r: 0.4, y: 0.75, dragY: 0.84, restY: 0.84, lift: 0.2, onPlaced: untag },
-          { id: 'mark', obj: R, from: [1.6, 1.0], to: [W[0] + 0.3, W[1] + 0.25], r: 0.25, y: 0.72, dragY: 0.88, restY: 0.88, lift: 0.15 },
-          { id: 'markL', obj: L, from: [2.2, 1.0], to: [W[0] + 0.3, W[1] + 0.25], r: 0.25, y: 0.72, dragY: 0.88, restY: 0.88, lift: 0.15 },
+          { id: 'mark', obj: R, from: [1.6, 1.0], to: [W[0] + 0.1, W[1] + 0.12], r: 0.25, y: 0.72, dragY: 0.88, restY: 0.88, lift: 0.15 },
+          { id: 'markL', obj: L, from: [2.2, 1.0], to: [W[0] + 0.1, W[1] + 0.12], r: 0.25, y: 0.72, dragY: 0.88, restY: 0.88, lift: 0.15 },
         ],
-        onRub(id, v) { glow.scale.setScalar(1 - 0.35 * v); if (v >= 1) ok.visible = true; },
+        onRub(id, v) { glow.scale.setScalar(1 - 0.2 * v); if (v >= 1) ok.visible = true; },
         tick(dt, t) { pt.update(t, false); },
       };
     },
