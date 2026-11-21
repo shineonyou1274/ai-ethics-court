@@ -29,7 +29,7 @@ export function tidy(def) {
     const complete = (id) => { if (!left.has(id)) return; left.delete(id); ui.done(id); sfx('pop'); act('work'); if (item(id).done) { ui.msg(item(id).done); warned = Date.now() + 1500; } finish(); }; // 마친 안내를 읽을 틈을 준다. 3초 동안은 '아직 안 돼요' 안내가 덮지 않는다
     const early = (id, count) => {
       if (count) { mistakes++; sfx('bad'); }
-      if (count || Date.now() - warned > 1500) { warned = Date.now(); ui.msg(def.early?.[id] || '먼저 해야 할 일이 있어요.', true); }
+      if (count || Date.now() - warned > 1500) { warned = Date.now(); ui.msg((typeof def.early === 'function' ? def.early(id, def.order?.find((x) => left.has(x))) : def.early?.[id]) || '먼저 해야 할 일이 있어요.', true); } // early 가 함수면 (누른 것, 아직 남은 첫 일)을 받는다
     };
     const on = {
       canRub: (id) => ready(id),
