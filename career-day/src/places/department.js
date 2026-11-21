@@ -7,6 +7,23 @@ const departments = {
   physio: ['재활치료실', '#e5c4ac', ['rehab','치료실'], ['counter','운동 매트'], ['meeting','평행봉'], ['store','기구 정리대']],
 };
 const desk = g => box(g,0,.46,-1.25,2.9,.92,1,'#d7bfa6');
+function readableSign(group, room) {
+  const sign = group.children.find(child => child.material?.map?.isCanvasTexture);
+  if (!sign) return;
+  const map = sign.material.map, canvas = map.image;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#324c56';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 102px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(room.sign,320,82,605);
+  map.needsUpdate = true;
+  sign.rotation.x = -.68;
+  sign.scale.set(1.12,1.25,1);
+  sign.position.z += .23;
+}
 function furnish(g, room) {
   const z = -1.25;
   switch(room.id) {
@@ -32,13 +49,13 @@ export function department(id) {
   const [sign,corridor,...spec]=departments[id];
   const fixtures={pharmacist:['medicine','shelves','dispense','counsel'],admin:['reception','pay','files','queue'],physio:['rehab','mat','bars','gear']}[id];
   const rooms=[...spec,['office','인계 사무실'],['waiting',{pharmacist:'가온 님 대기석',admin:'이든 님 안내석',physio:'서우 님 휴식석'}[id]]].map(([key,name],i)=>({
-    id:key,name,sign:name,...(i<4?BACK[i]:FRONT[i-4]),color:[corridor,'#dec4ab','#bcd1da','#c8c4d9'][i%4],
+    id:key,name,sign:name,...(i<4?BACK[i]:FRONT[i-4]),floorColor:['#d9dcc9','#ddd0b8','#c5d5d7','#d6ccda'][i%4],color:[corridor,'#dec4ab','#bcd1da','#c8c4d9'][i%4],
     ...(i===4||i===5?{npc:[-1.3,.28],staff:{coat:i===4?'#b5cdca':'#dcafa2',outfit:i===4?'white':'casual',hair:i===4?0:2}}:{}),
   }));
   rooms.push(LOUNGE,LOCKER);
   return hospFloor({floor:id,sign,corridor,rooms,quiet:['office','locker','lounge','store'],
     spots:Object.fromEntries(rooms.map((r,i)=>[r.id,{...(i<4?SPOT_BACK[i]:SPOT_FRONT[i-4]),name:r.name}])),
     blocks:rooms.slice(0,6).map(r=>[r.x-1.5,r.x+1.5,r.z-1.9,r.z-.6]),
-    furnish(g,r){const index=rooms.indexOf(r);furnish(g,{id:fixtures[index]||r.id});},
+    furnish(g,r){readableSign(g,r);const index=rooms.indexOf(r);furnish(g,{id:fixtures[index]||r.id});},
   });
 }
