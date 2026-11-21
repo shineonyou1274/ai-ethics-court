@@ -36,7 +36,7 @@ export function workbench(el,sc,{world,sfx,done},model) {
   // 물건을 집으면 놓을 수 있는 자리(누르는 단추가 아닌 칸) 모두에 같은 초록 원을 띄운다 (shared/DESIGN.md §5)
   const rings=[];
   const build=g=>{model(g,api,sc);for(const a of targets){if(a.fn)continue;const r=Math.min(a.w,a.d)*.45;
-    const ring=new Mesh(new RingGeometry(r*.82,r,40),new MeshBasicMaterial({color:'#3f9d7d',transparent:true,opacity:.85,side:DoubleSide,depthWrite:false}));
+    const ring=new Mesh(new RingGeometry(r*.82,r,40),new MeshBasicMaterial({color:'#3f9d7d',transparent:true,opacity:.85,side:DoubleSide,depthWrite:false,depthTest:false}));
     ring.rotation.x=-Math.PI/2;ring.position.set(a.x,a.y+.03,a.z);ring.visible=false;ring.renderOrder=3;g.add(ring);rings.push(ring);}return {};};
   const showRings=on=>rings.forEach(r=>{r.visible=on;});
   const handle=world ? mountBench(world,sc.game,build) : null;

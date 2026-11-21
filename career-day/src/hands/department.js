@@ -29,8 +29,8 @@ function prescription(g,ui,sc){
     if(!diffs.includes(id))return ui.wrong('처방전과 봉투에 모두 '+sc.rx[row][key]+josa(sc.rx[row][key],'이라고','라고')+' 적혀 있어요. 이 칸은 일치해요.');
     marked.add(id);show();ui.say('다른 칸에 도장을 남겼어요. 확인 '+marked.size+' / '+diffs.length);
   });
-  ui.button('이전 줄',()=>{row=(row+sc.rx.length-1)%sc.rx.length;show();});
-  ui.button('다음 줄',()=>{row=(row+1)%sc.rx.length;show();});
+  const half=[ui.button('이전 줄',()=>{row=(row+sc.rx.length-1)%sc.rx.length;show();}),ui.button('다음 줄',()=>{row=(row+1)%sc.rx.length;show();})];
+  half.forEach((b,i)=>Object.assign(b.style,{display:'inline-block',width:'calc(50% - 5px)',marginRight:i?'0':'10px',marginTop:'10px',padding:'10px 12px'})); // 두 단추를 한 줄에: 폰에서 '봉투 인계'가 화면 안에
   ui.button('봉투 인계',()=>marked.size===diffs.length?ui.finish():ui.wrong('대조가 끝나지 않았어요. 남은 줄의 횟수와 기간을 확인해요.'));
   show();
 }
