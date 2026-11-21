@@ -83,7 +83,8 @@ for (const job of JOBS) {
 
   // 받은 일 목록을 하루 따라 넘겨 본다: 약속한 날과 하지 않은 날, 약속을 지킨 날
   const ids = (list) => list.map((x) => `${x.i}:${x.label}`);
-  for (const [name, flagsAt] of [['약속 없음', {}], ['약속하고 지킴', { promise: true, kept: true }], ['약속하고 못 지킴', { promise: true }]]) {
+  const hasPromise = job.scenes.some((sc) => sc.options?.some((o) => o.flag === 'promise')); // 약속이 없는 하루(환경미화 직원)는 '약속 없음'만 본다
+  for (const [name, flagsAt] of [['약속 없음', {}], ['약속하고 지킴', { promise: true, kept: true }], ['약속하고 못 지킴', { promise: true }]].slice(0, hasPromise ? 3 : 1)) {
     const s = newDay(job); let promiseSeen = false, steps = 0, arrivals = 0;
     for (s.i = 0; s.i < job.scenes.length; s.i++) {
       if (skipped(s, job, s.i)) continue; // 이 하루에는 열리지 않는 장면 (engine.js 의 next 와 같다)
@@ -130,12 +131,13 @@ for (const job of JOBS) {
 const still = JOBS.filter((j) => !walkOn(j, placeOf(j)));
 console.log(`\n걷지 않는 직업 ${still.length}개: ${still.map((j) => j.name).join(', ')}`);
 for (const j of still) if (placeOf(j).nav && j.walk) bad(`${j.name}: walk 인데 걷지 않음`);
-// 병원의 다른 직업은 층(floor) 없이 병원 모형 그대로다 (간호사만 7층 병동을 걷는다)
-for (const j of JOBS.filter((x) => x.place === 'hospital' && x.id !== 'nurse')) {
+// 층(floor)을 적지 않은 병원 직업은 병원 모형 그대로다 (간호사·의사·환경미화 직원만 자기 층을 걷는다)
+for (const j of JOBS.filter((x) => x.place === 'hospital' && !x.floor)) { // 층(floor)을 적은 직업(간호사·의사·환경미화 직원)만 걷는다
   if (placeOf(j) !== PLACES.hospital || j.walk || j.floor) bad(`${j.name}: 병원 모형 그대로여야 하는데 바뀜`);
   if (j.scenes.some((sc) => sc.skip || sc.todo)) bad(`${j.name}: 걷는 하루의 표시(skip·todo)가 있음`);
 }
-const nurse = JOBS.find((j) => j.id === 'nurse');
-if (nurse && (!walkOn(nurse, placeOf(nurse)) || placeOf(nurse) === PLACES.hospital || nurse.place !== 'hospital')) bad('간호사: 7층 병동을 걷고, 기록의 일터는 hospital 이어야 함');
+for (const j of JOBS.filter((x) => x.place === 'hospital' && x.floor)) // 층을 걷는 병원 직업: 그 층을 걷고, 기록의 일터는 그대로 hospital
+  if (!walkOn(j, placeOf(j)) || placeOf(j) === PLACES.hospital) bad(`${j.name}: ${j.floor} 층을 걷고, 기록의 일터는 hospital 이어야 함`);
+for (const id of ['nurse', 'doctor', 'cleaner']) { const j = JOBS.find((x) => x.id === id); if (!j?.floor || !walkOn(j, placeOf(j))) bad(`${id}: 층을 걸어야 함`); }
 console.log(fail ? `\n✗ 문제 ${fail}개` : '\n✓ 걸어 다니기 검사 통과');
 process.exit(fail ? 1 : 0);
