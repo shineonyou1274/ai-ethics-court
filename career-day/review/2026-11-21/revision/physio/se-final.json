@@ -1,0 +1,9 @@
+{
+  "seconds": 100.5,
+  "maxFlashesPerSec": 2,
+  "worst": "칸 3,1",
+  "atSec": 83.2,
+  "whiteFrames": 0,
+  "whiteAt": [],
+  "pass": true
+}
