@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f2e9">
+<meta name="color-scheme" content="light only">
+<meta name="description" content="여러 일터에 하루씩 출근해 직접 일하고, 퇴근하면 그날의 일당을 받는 진로 체험.">
+<title>오늘, 출근합니다</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23263c52'/%3E%3Crect x='18' y='16' width='28' height='36' rx='6' fill='%23f2cbb2'/%3E%3Crect x='24' y='10' width='16' height='10' rx='4' fill='%23dc795e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #f7f2e9; --card: #fffdf8; --ink: #263c52; --soft: #6f7875; --line: #e6ddcf; --coral: #dc795e; --coral-d: #b85f47; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  body { background: var(--paper); color: var(--ink); font: 17px/1.6 "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; word-break: keep-all; -webkit-text-size-adjust: 100%; }
+  h1, h2, b.j, .btn, .place b { font-family: "Jua", "Gowun Dodum", sans-serif; font-weight: 400; }
+  main { max-width: 640px; margin: 0 auto; padding: 28px 16px calc(32px + env(safe-area-inset-bottom)); }
+  .eyebrow { color: var(--coral-d); font-family: "Jua", sans-serif; margin: 0; font-size: 15px; }
+  h1 { font-size: 36px; line-height: 1.15; margin: 4px 0 8px; }
+  .lead { color: var(--soft); margin: 0 0 20px; }
+  /* 일터 고르기: 큰 타일 네 개 */
+  .places { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .place { --c: var(--coral); --cd: var(--coral-d); --bg: #fbeee8; display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: inherit; background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 16px 14px 14px; box-shadow: 0 5px 0 var(--line); transition: transform .08s, box-shadow .08s, border-color .15s; }
+  .place:hover { border-color: var(--c); }
+  .place:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--line); }
+  .place .icon { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 30px; background: var(--bg); }
+  .place b { font-size: 21px; line-height: 1.2; }
+  .place small { color: var(--soft); font-size: 14px; line-height: 1.35; flex: 1; }
+  .place .go { align-self: flex-start; font-family: "Jua", sans-serif; font-size: 15.5px; color: #fff; background: var(--c); padding: 5px 14px; border-radius: 12px; box-shadow: 0 3px 0 var(--cd); }
+  .fire { --c: #d2553f; --cd: #a8402d; --bg: #fbe9e4; }
+  .cafe { --c: #2f6b55; --cd: #1f4a3a; --bg: #e6efe9; }
+  .aero { --c: #5965ac; --cd: #414b89; --bg: #eceff8; }
+  /* 내 출근 수첩: 일당과 도장을 한 칸에 */
+  .book { background: var(--card); border: 2px solid var(--line); border-radius: 20px; padding: 12px 16px 14px; margin-top: 22px; }
+  .book h2 { font-size: 18px; margin: 0; display: flex; justify-content: space-between; align-items: baseline; }
+  .book h2 span { color: var(--coral-d); }
+  .bank { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font-size: 15px; color: var(--soft); }
+  .bank b { font-family: "Jua", sans-serif; font-weight: 400; color: var(--ink); }
+  .bank .coin { background: #fff6d8; border: 1.5px solid #f1dc9b; border-radius: 10px; padding: 0 8px; color: #7a6532; }
+  .stampRow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .stamp { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 19px; border: 2px dashed var(--line); }
+  .stamp span { filter: grayscale(1); opacity: .4; }
+  .stamp.on { border: 2px solid #d0584a; background: #fff6f0; }
+  .stamp.on span { filter: none; opacity: 1; }
+  .book p { margin: 8px 0 0; font-size: 14px; color: var(--soft); }
+  .btn { display: block; width: 100%; text-align: center; text-decoration: none; padding: 12px 16px; border-radius: 16px; margin-top: 12px; font-size: 17px; color: var(--ink); background: #fff; border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); }
+  .fine { color: var(--soft); font-size: 13.5px; margin: 18px 0 0; }
+  .links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin-top: 14px; }
+  .teacher { color: var(--soft); font-size: 14px; text-underline-offset: 3px; }
+  button.teacher { background: none; border: 0; padding: 0; font-family: inherit; cursor: pointer; text-decoration: underline; }
+  .who { background: #fff4ee; border: 2px solid #f2c4b3; border-radius: 18px; padding: 14px 16px; margin-bottom: 16px; }
+  .who p { margin: 6px 0 4px; font-size: 15.5px; }
+  .who .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .who button { font: 17px "Jua", sans-serif; padding: 11px 10px; border-radius: 14px; border: 2px solid var(--line); background: #fff; color: var(--ink); box-shadow: 0 3px 0 var(--line); cursor: pointer; margin-top: 8px; width: 100%; }
+  .who button.main { background: var(--coral); color: #fff; border-color: var(--coral); box-shadow: 0 3px 0 var(--coral-d); }
+  .who .fine { margin-top: 6px; }
+  a:focus-visible, button:focus-visible { outline: 3px solid #589ac4; outline-offset: 3px; }
+  @media (max-width: 340px) { .places { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">직업인의 하루 · CAREER DAY</p>
+  <h1>오늘, 출근합니다</h1>
+  <p class="lead">일터를 골라 하루 출근해 봐요. 퇴근하면 일한 만큼 일당을 받아요.</p>
+  <div id="who"></div>
+
+  <div class="places">
+    <a class="place" href="career-day/#hospital"><span class="icon" aria-hidden="true">🏥</span><b>모아 병원</b><small>의사 등 여덟 직업</small><span class="go">출근 →</span></a>
+    <a class="place fire" href="career-day/#fire-station"><span class="icon" aria-hidden="true">🚒</span><b>다솜 소방서</b><small>소방관</small><span class="go">출근 →</span></a>
+    <a class="place cafe" href="barista-day/"><span class="icon" aria-hidden="true">☕</span><b>한 잔의 하루</b><small>카페 바리스타</small><span class="go">출근 →</span></a>
+    <a class="place aero" href="aerospace-day/"><span class="icon" aria-hidden="true">🚀</span><b>우주항공 연구소</b><small>항공우주공학기술자</small><span class="go">출근 →</span></a>
+  </div>
+
+  <section class="book" aria-label="내 출근 수첩"><div class="stampCard" id="stamps"></div><div id="bank"></div></section>
+  <a class="btn" id="send" href="career-day/#send" hidden>선생님께 출근 기록 보내기</a>
+
+  <p class="fine">일당은 커리어넷 평균 연봉으로 계산한 세전 금액이고, 직업 순위가 아니에요. 등장인물은 가상이고, 기록은 이 기기에만 남아요.</p>
+  <div class="links"><a class="teacher" href="career-day/#teacher">선생님용 · 기록 모으기</a><button class="teacher" id="newPerson">다른 사람이 쓰던 기기인가요?</button></div>
+</main>
+<script type="module">
+  import { loadMine, walletSummary, manwon, needsWhoCheck, keepSession, startNewSession } from './shared/workday.js';
+  const HOSPITAL = [['doctor', '의사', '🩺'], ['nurse', '간호사', '💉'], ['labtech', '임상병리사', '🧪'], ['radiographer', '방사선사', '🩻'], ['admin', '원무행정 직원', '🗂️'], ['pharmacist', '약사', '💊'], ['physio', '물리치료사', '🏃'], ['cleaner', '환경미화 직원', '🧹']];
+  const FIRE = [['firefighter', '소방관', '🚒']];
+  const CAFE = [['barista', '바리스타', '☕']];
+  const AERO = [['aerospace-engineer','항공우주공학기술자','✈️']];
+  const ALL = [...HOSPITAL, ...FIRE, ...CAFE, ...AERO];
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const $ = (id) => document.getElementById(id);
+
+  function whoCheck(step) {
+    if (step === 2) return `<div class="who"><b class="j">새로 출근하는 사람이에요</b><p>앞사람의 출근 기록은 어떻게 할까요?</p>
+      <button class="main" id="whoHide">앞사람 기록은 남겨 두고 숨기기</button><button id="whoWipe">이 기기의 출근 기록 모두 지우기</button>
+      <p class="fine">지우면 되돌릴 수 없어요. 선생님께 아직 보내지 않은 기록도 함께 사라져요.</p></div>`;
+    return `<div class="who"><b class="j">이 기기에 출근 기록 ${loadMine().length}개가 있어요</b>
+      <p>누구의 기록인가요? 학교 기기를 여럿이 함께 쓰면 앞사람 기록이 남아 있을 수 있어요.</p>
+      <div class="row"><button class="main" id="whoMine">내 기록이에요</button><button id="whoNew">새로 출근하는 사람이에요</button></div></div>`;
+  }
+  function bindWho() {
+    $('whoMine')?.addEventListener('click', () => { keepSession(); render(); });
+    $('whoNew')?.addEventListener('click', () => { $('who').innerHTML = whoCheck(2); bindWho(); });
+    $('whoHide')?.addEventListener('click', () => { startNewSession(); render(); });
+    $('whoWipe')?.addEventListener('click', () => { if (confirm('이 기기의 출근 기록을 모두 지울까요? 되돌릴 수 없어요.')) { startNewSession({ wipe: true }); render(); } });
+  }
+
+  function render() {
+    const records = loadMine(), sum = walletSummary(records), been = new Set(sum.jobs);
+    $('who').innerHTML = needsWhoCheck() ? whoCheck(1) : '';
+    const h = Math.floor(sum.minutes / 60), m = sum.minutes % 60;
+    const n = ALL.filter(([id]) => been.has(id)).length;
+    $('stamps').innerHTML = `<h2 class="j">직업 도장 <span>${n} / ${ALL.length}</span></h2>
+      <div class="stampRow">${ALL.map(([id, name, icon]) => `<span class="stamp slot ${been.has(id) ? 'on' : ''}" role="img" aria-label="${esc(name)}${been.has(id) ? ' 출근 완료' : ''}" title="${esc(name)}"><span aria-hidden="true">${icon}</span></span>`).join('')}</div>
+      <p>${n === 0 ? '출근할 때마다 도장이 하나씩 찍혀요.' : n < ALL.length ? `아직 가 보지 않은 직업이 ${ALL.length - n}개 있어요.` : '모든 직업에 출근했어요! 가장 끌렸던 순간을 떠올려 봐요.'}</p>`;
+    $('bank').innerHTML = records.length ? `<div class="bank"><span>⏱ <b>${h}시간${m ? ` ${m}분` : ''}</b> 일함</span><span class="coin">🪙 <b>${esc(manwon(sum.total))}</b> 받음</span></div>` : '';
+    $('send').hidden = !records.length;
+    $('newPerson').hidden = needsWhoCheck();
+    bindWho();
+  }
+  $('newPerson').addEventListener('click', () => { $('who').innerHTML = whoCheck(2); bindWho(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  render();
+  addEventListener('pageshow',render);
+  addEventListener('storage',render);
+</script>
+</body>
+</html>
