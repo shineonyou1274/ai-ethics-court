@@ -105,14 +105,14 @@ job.scenes = floorDay(job, {
         recheck: { fx: { delay: 5, energy: -3 }, moment: '세포를 다시 들여다본 순간', text: '한 번 헷갈렸지만 핵을 보고 다시 찾았어요. 시간이 조금 더 들었어요.' },
       } },
     // 오후의 돌발: 응급실 검체가 몰린다. 약속했다면, 새봄 님 재검을 지킬지 여기서 고른다
-    { kind: 'choice', atOff: 300, place: 'chem', title: '계획대로만 흘러가진 않아요', body: '응급실 검체 다섯 개가 한꺼번에 왔어요. 새봄 님 재검 검체도 막 왔어요.',
+    { kind: 'choice', atOff: 300, place: 'chem', title: '계획대로만 흘러가진 않아요', body: '응급실 검체 다섯 개와 새봄 님 재검 검체가 한꺼번에 왔어요.',
       notice: { via: '전화', text: '“응급실이에요! 교통사고 환자분들 검체 다섯 개가 한꺼번에 올라가요.”' },
       todo: [
         { label: '응급실 검체 다섯 개', via: '전화' },
         { label: '새봄 님 재검 결과, 직접 전화로 알리기', via: '약속', at: '14:30', known: promised,
           now: (s, i) => s.i === i || (kept(s) && s.i === i + 1), done: (s, i) => kept(s) && s.i > i + 1, missed: (s, i) => s.i > i && !kept(s) }, // 지키러 가는 다음 장면(사무실)까지 '지금'
       ],
-      speaker: '검사실 동료', speech: '“응급 검체부터요! 새봄 님 재검은 어떻게 할까요?”',
+      speaker: '검사실 동료', speech: '“응급 검체부터요! 재검은요?”',
       ripple: [
         { if: (s) => s.flags.memo, text: '아침 메모를 본 동료가 새봄 님 재검을 이미 챙기고 있어요.', fx: { delay: -4 } },
         { if: promised, text: '새봄 님 재검 결과를 직접 알리겠다는 약속이 응급 검체와 겹쳐요.' },
