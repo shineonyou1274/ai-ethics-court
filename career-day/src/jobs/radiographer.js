@@ -55,7 +55,7 @@ job.scenes = floorDay(job, {
     { kind: 'hands', game: 'positioning', closeup: true, atOff: 62, place: 'xray', drain: 0, title: '찍을 곳만, 정확하게',
       body: '일반촬영실이에요. 로운 님 오른 손목을 찍어요. 판과 받침을 놓고, 빛을 손목에만 맞춰요.',
       moment: '손목 자리를 잡고 빛을 맞춘 순간', type: 'R',
-      fact: `X선은 찍을 곳에만 비추도록 빛의 크기(조리개)를 줄여요. 그러면 몸의 다른 곳은 방사선을 받지 않아요. 왼쪽·오른쪽을 헷갈리지 않게 납으로 만든 R·L 글자를 함께 찍어요. ${SIMPLE}`,
+      fact: `X선은 찍을 곳에만 비추도록 빛의 크기(조리개)를 줄여요. 그러면 몸의 다른 곳은 방사선을 받지 않아요. 왼쪽·오른쪽을 헷갈리지 않게 납으로 만든 R·L 글자를 빛이 비추는 칸 안에 놓아 함께 찍어요. ${SIMPLE}`,
       grades: {
         steady: { fx: { care: 2, team: 1 }, text: '손목이 판 가운데에 편하게 놓였어요. 빛은 손목에만 비춰요.' },
         redo: { fx: { delay: 5, energy: -2 }, moment: '자리를 다시 잡은 순간', text: '한 번 엇갈려 다시 잡았어요. 로운 님이 조금 더 기다렸어요.' },

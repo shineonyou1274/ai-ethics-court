@@ -7,7 +7,7 @@
 //        SHOTS=0 은 스크린샷 없이, VIDEO=0 은 영상 없이. PORT 로 포트를 바꾼다
 //   3) node shared/tools/flicker.cjs <결과 폴더>/video-*/*.webm
 const { chromium, devices } = require('playwright');
-const [, , out, JOB = 'labtech', size = 'iphone', mode = 'clean', rm = ''] = process.argv; const url = `http://localhost:${process.env.PORT || 8123}/`; const OLD = process.env.OLD==='1';
+const [, , out, JOB = 'labtech', size = 'iphone', mode = 'clean', rm = ''] = process.argv; if (!out) { console.error('사용법: node test/e2e-hosp-b.cjs <저장 폴더> [직업] [크기] [clean|messy] [reduced]'); process.exit(1); } const url = `http://localhost:${process.env.PORT || 8123}/`; const OLD = process.env.OLD==='1';
 const phone = { iphone: devices['iPhone 13'], se: devices['iPhone 8'], tiny: devices['iPhone SE'] }[size];
 const opt = phone ? { ...phone, deviceScaleFactor: 1 } : { viewport: { width: 1280, height: 800 } }; delete opt.defaultBrowserType;
 (async () => {

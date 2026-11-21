@@ -44,7 +44,7 @@ function xray(k, W, H, kind) {
     });
     k.restore();
   };
-  if (kind === 'chest') { draw(-W * 0.05, 0.55); draw(W * 0.05, 0.55); } else draw(0, 1); // 흐린 가슴 사진: 두 겹
+  if (kind === 'chest') { draw(-W * 0.1, 0.5); draw(W * 0.1, 0.5); } else draw(0, 1); // 흐린 가슴 사진: 두 겹
   k.fillStyle = '#f2c94c'; k.font = `bold ${Math.round(H * 0.12)}px "Jua", sans-serif`; k.textAlign = 'left'; k.textBaseline = 'top'; k.fillText(kind === 'wrist' ? 'R' : kind === 'ankle' ? 'L' : 'PA', W * 0.05, H * 0.04);
 }
 
@@ -291,7 +291,7 @@ export const HOSP_B = {
       floor(g, 5.8, 4.2, '#dfe5ea');
       label(g, '판독실', 1.9, 2.1, -2.02, 1.0, 0.34);
       box(g, 0, 0.4, 0.1, 5.6, 0.8, 3.6, '#93a4b2'); box(g, 0, 0.815, 0.1, 5.7, 0.03, 3.7, '#aebdc8');
-      const COL = [['wrist', -1.85, '로운 님 · 손목'], ['chest', 0, '병동 · 가슴'], ['ankle', 1.85, '응급실 · 발목']];
+      const COL = [['wrist', -1.85, '로운 님 · 손목'], ['chest', 0, '외래 · 가슴'], ['ankle', 1.85, '응급실 · 발목']];
       const movers = [], slots = [];
       for (const [id, x, name] of COL) {
         const card = new T.Group(); box(card, 0, 0.02, 0, 1.2, 0.04, 0.5, '#2b3a46');

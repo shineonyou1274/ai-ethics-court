@@ -113,13 +113,13 @@ export const positioning = tidy({
   items: [
     { id: 'plate', label: '검출기 판을 손목 아래에 놓기', kind: 'move', done: '판을 손목 아래에 놓았어요. 이제 팔이 움직이지 않게 받쳐요.' },
     { id: 'bag', label: '모래주머니로 팔을 편하게 받치기', kind: 'move', done: '“이러니까 덜 아프네.” 팔이 편하게 놓였어요.' },
-    { id: 'mark', label: '판 귀퉁이에 오른쪽 표시(R) 놓기', kind: 'move', done: '‘R’을 놓았어요. 사진에 오른손이라는 표시가 함께 찍혀요.' },
+    { id: 'mark', label: '빛이 비추는 칸 안, 손목 옆에 오른쪽 표시(R) 놓기', kind: 'move', done: '‘R’을 놓았어요. 사진에 오른손이라는 표시가 함께 찍혀요.' },
     { id: 'light', label: '손목 밖으로 퍼진 빛을 줄이기', kind: 'rub', done: '빛이 손목에만 비춰요. 몸의 다른 곳은 방사선을 받지 않아요.' },
   ],
   order: ['plate', 'bag', 'mark', 'light'],
   early: {
     bag: '판부터 손목 아래에 놓아요. 모래주머니를 먼저 얹으면 판을 넣을 때 아픈 팔을 다시 움직여야 해요.',
-    mark: '먼저 판을 놓고 팔을 받쳐요. 글자는 판 귀퉁이에 놓아요.',
+    mark: '먼저 판을 놓고 팔을 받쳐요. 글자는 빛이 비추는 칸 안, 손목 옆에 놓아요.',
     light: '자리를 다 잡은 뒤에 빛을 맞춰요. 빛을 맞춘 뒤에 움직이면 다시 맞춰야 해요.',
   },
   wrong: { markL: { as: 'mark', msg: '로운 님이 다친 곳은 오른쪽 손목이에요. 오른쪽을 뜻하는 ‘R’을 놓아요.' } },
@@ -154,7 +154,7 @@ const PIC = {
 export const imagecheck = tidy({
   stage: 'imagecheck', title: '보낼까, 다시 찍을까', hint: '위쪽 3D 화면에서 직접 해요. 사진을 끌어서, 그 사진 아래 ‘보내기’나 ‘다시 찍기’ 칸의 초록 원에 놓아요.',
   start: '사진 세 장이에요. 흐리거나 잘린 사진만 다시 찍어요.',
-  items: Object.entries(PIC).map(([id, [, done]]) => ({ id, label: { wrist: '로운 님 손목 사진', chest: '병동 가슴 사진', ankle: '응급실 발목 사진' }[id], kind: 'move', done })),
+  items: Object.entries(PIC).map(([id, [, done]]) => ({ id, label: { wrist: '로운 님 손목 사진', chest: '외래 가슴 사진', ankle: '응급실 발목 사진' }[id], kind: 'move', done })),
   miss: (id, slot) => (slot[0] === id[0] ? PIC[id][0] : '그 칸은 다른 사진의 칸이에요. 사진 바로 아래 칸 둘 가운데에서 골라요.'),
   finish: '한 장은 판독으로, 두 장은 다시 찍기로. 꼭 필요한 사진만 다시 찍어요.',
   good: 'sure', bad: 'recheck',
