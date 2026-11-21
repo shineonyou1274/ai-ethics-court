@@ -7,6 +7,7 @@ import { box, cyl, ball, label, person, mat, reduced } from './kit.js';
 import { makeFire, makeEmberGlow, makeWater } from './fx.js';
 import { helmet, tank, lantern, hydrant, hoseRoll, nozzle, wrench, cone, RED, CREAM, STEEL, KHAKI, GLOW } from './firekit.js';
 import { HOSP_A } from './closeups-hosp.js'; // 의사·환경미화 직원(카페 방식)의 무대. 아래 조각을 함께 쓴다
+import { HOSP_B } from './closeups-hosp-b.js'; // 임상병리사·방사선사(카페 방식)의 무대
 
 function floor(g, w = 5.6, d = 4.2, c = '#efe7d8') {
   box(g, 0, -0.1, 0, w + 0.3, 0.2, d + 0.3, '#d5c7b2'); box(g, 0, 0.005, 0, w, 0.02, d, c);
@@ -566,3 +567,4 @@ function screenTexture(done) {
 // 의사·환경미화 직원의 무대(closeups-hosp.js)가 함께 쓰는 조각, 그리고 그 무대를 목록에 더한다
 export { floor, tag, tag2, clip, cloth };
 Object.assign(CLOSEUPS, HOSP_A);
+Object.assign(CLOSEUPS, HOSP_B);

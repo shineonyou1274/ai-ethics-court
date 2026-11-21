@@ -138,6 +138,6 @@ for (const j of JOBS.filter((x) => x.place === 'hospital' && !x.floor)) { // 층
 }
 for (const j of JOBS.filter((x) => x.place === 'hospital' && x.floor)) // 층을 걷는 병원 직업: 그 층을 걷고, 기록의 일터는 그대로 hospital
   if (!walkOn(j, placeOf(j)) || placeOf(j) === PLACES.hospital) bad(`${j.name}: ${j.floor} 층을 걷고, 기록의 일터는 hospital 이어야 함`);
-for (const id of ['nurse', 'doctor', 'cleaner']) { const j = JOBS.find((x) => x.id === id); if (!j?.floor || !walkOn(j, placeOf(j))) bad(`${id}: 층을 걸어야 함`); }
+for (const id of ['nurse', 'doctor', 'cleaner', 'labtech', 'radiographer']) { const j = JOBS.find((x) => x.id === id); if (!j?.floor || !walkOn(j, placeOf(j))) bad(`${id}: 층을 걸어야 함`); }
 console.log(fail ? `\n✗ 문제 ${fail}개` : '\n✓ 걸어 다니기 검사 통과');
 process.exit(fail ? 1 : 0);

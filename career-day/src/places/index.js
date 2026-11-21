@@ -5,6 +5,7 @@ import fireStation from './fire-station.js';
 import hospitalWard from './hospital-ward.js';
 import hospitalSurgery from './hospital-surgery.js'; // 의사: 5층 외과 병동·수술실
 import hospitalLobby from './hospital-lobby.js'; // 환경미화 직원: 1층 로비
+import hospitalLab from './hospital-lab.js'; import hospitalRadiology from './hospital-radiology.js'; // 임상병리사: 2층 진단검사의학과 · 방사선사: 지하 1층 영상의학과
 
 export const PLACES = { hospital, 'fire-station': fireStation };
 // 한 일터 안의 다른 층: 직업이 floor 를 적으면 그 층의 모형에서 하루를 보낸다(간호사 → 7층 병동).
@@ -12,4 +13,5 @@ export const PLACES = { hospital, 'fire-station': fireStation };
 export const FLOORS = { 'hospital/ward': hospitalWard };
 FLOORS['hospital/surgery'] = hospitalSurgery;
 FLOORS['hospital/lobby'] = hospitalLobby;
+Object.assign(FLOORS, { 'hospital/lab': hospitalLab, 'hospital/radiology': hospitalRadiology }); // 임상병리사 · 방사선사
 export const placeOf = (job) => (job.floor && FLOORS[`${job.place}/${job.floor}`]) || PLACES[job.place];
