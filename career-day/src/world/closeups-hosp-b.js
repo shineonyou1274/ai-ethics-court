@@ -216,7 +216,7 @@ export const HOSP_B = {
       box(g, -1.95, 0.36, 1.3, 1.7, 0.72, 0.9, '#d9cdb6'); box(g, -1.95, 0.735, 1.3, 1.75, 0.03, 0.95, '#efe6d6');
       const plate = new T.Group(); box(plate, 0, 0.02, 0, 0.82, 0.04, 0.72, '#7d8a8f'); box(plate, 0, 0.042, 0, 0.7, 0.004, 0.6, '#9aa7ad'); mtag(plate, '검출기 판', 0, 0.42, 0.25, 0.85, 0.28); g.add(plate);
       const bag = new T.Group(); ball(bag, 0, 0.08, 0, 0.22, '#c4a27f', [1.4, 0.45, 0.8]); mtag(bag, '모래주머니', 0, 0.42, 0.2, 0.85, 0.28); g.add(bag);
-      const letter = (ch) => { const o = new T.Group(); box(o, 0, 0.03, 0, 0.16, 0.06, 0.16, '#e9d9a0'); mtag2(o, [ch], 0, 0.34, 0.05, 0.3, 0.3, '#344d63'); g.add(o); return o; };
+      const letter = (ch) => { const o = new T.Group(); box(o, 0, 0.03, 0, 0.16, 0.06, 0.16, '#e9d9a0'); mtag2(o, [ch], 0, 0.14, 0.12, 0.3, 0.3, '#344d63'); g.add(o); return o; };
       const R = letter('R'), L = letter('L');
       box(g, 1.9, 0.35, 1.0, 1.4, 0.7, 0.6, '#d9cdb6'); tag(g, '좌우 표시', 1.9, 1.15, 1.45, 0.8, 0.26);
       const ok = tag2(g, ['X선은 손목에만 ✓'], 1.9, 1.75, -1.3, 1.7, 0.32, '#2f8f6c'); ok.visible = false;
