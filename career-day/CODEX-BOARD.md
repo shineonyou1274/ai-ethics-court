@@ -35,3 +35,8 @@
 
 접수 창구에서 여섯 장을 한 장씩 보관합니다. 틀린 서랍에 놓으면 그 서류의 용도와 보관 이유가 나옵니다. 서류를 모두 넣은 뒤 모니터의 잠금 키를 눌러야 방문자 목록이 사라집니다. 오후에는 기존 위치에 방향 안내대를, 새 진료실에 도착 안내대를 세웁니다.
 [서류 분류 전후](review/2026-11-21/revision/admin/graded-to-new.png) · [잠금 완료](review/2026-11-21/revision/admin/morning-done.png) · [원무과](review/2026-11-21/revision/admin/floor.png)
+
+### 물리치료사 · ff81117
+
+매트와 세 기구를 정리한 뒤 서우 님의 외출 목표를 다룹니다. 길 모형의 공원·계단·빵집을 살펴보고 벤치와 난간을 설치합니다. 계단을 지난 뒤에 벤치를 놓으면 서우 님이 왜 그곳까지 걷기 어려운지 알려 주고 벤치가 돌아갑니다. 다음 근무자에게 시설 배치를 기록합니다.
+[빵집 길 모형 전후](review/2026-11-21/revision/physio/afternoon-before-after.png) · [재활실](review/2026-11-21/revision/physio/floor.png)
