@@ -66,7 +66,9 @@ function hoseHolder(g, x, z) {
   return { root, me, tip: [x + 0.68, 1.05, z + 0.12], kick: [noz, me.root], show() { root.visible = true; } };
 }
 
+import { departmentBenches } from './department-benches.js';
 export const CLOSEUPS = {
+  ...departmentBenches,
   // 환경미화 직원: 로비 천장에서 샌 물. 안내판을 세우고 대걸레로 물기를 걷어 낸다.
   spill: {
     build(g) {

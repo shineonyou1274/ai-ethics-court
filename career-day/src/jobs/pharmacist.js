@@ -29,7 +29,7 @@ job.scenes = hospitalDay(job, {
   // 손으로 하는 일
   after: {
     order: [{
-      kind: 'hands', game: 'rxcheck', atOff: 110, place: 'pharmacy', title: '나가기 전에 한 번 더',
+      kind: 'hands', game: 'rxcheck', closeup: true, atOff: 110, place: 'pharmacy', title: '나가기 전에 한 번 더',
       body: '가온 님에게 갈 약 봉투가 준비됐어요. 처방전과 한 줄씩 견주어 다른 곳이 없는지 확인해요. (약 이름은 모두 가상이에요)',
       moment: '처방전과 약 봉투를 대조한 순간', type: 'C',
       fact: '약이 환자에게 가기 전, 처방전과 준비된 약을 한 번 더 대조해요. 동료와 함께 확인하기도 해요.',
@@ -101,5 +101,15 @@ for (const scene of job.scenes) {
     scene.todo = { label: scene.title, via };
   }
 }
+
+const afternoon = {
+  moment: '상담 자료를 이어 준 순간', type: null, kind: 'hands', game: 'rxhandoff', closeup: true, at: '15:30', place: 'meeting',
+  title: '가온 님 상담 준비', body: '작업대에서 물건을 집어 옮겨요. 단순화한 체험이에요.',
+  grades: {
+    neat: { fx: { team: 2 }, text: '다음 사람이 이어받을 준비를 마쳤어요.' },
+    redo: { fx: { delay: 3 }, text: '자리를 다시 확인해 정리했어요. 재확인에 3분이 들었어요.' },
+  },
+};
+job.scenes.splice(job.scenes.findIndex(scene => scene.kind === 'pick'), 0, afternoon);
 
 export default job;

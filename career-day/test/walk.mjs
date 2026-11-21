@@ -84,6 +84,7 @@ for (const job of JOBS) {
   // 받은 일 목록을 하루 따라 넘겨 본다: 약속한 날과 하지 않은 날, 약속을 지킨 날
   const ids = (list) => list.map((x) => `${x.i}:${x.label}`);
   for (const [name, flagsAt] of [['약속 없음', {}], ['약속하고 지킴', { promise: true, kept: true }], ['약속하고 못 지킴', { promise: true }]]) {
+    if (flagsAt.promise && !job.scenes.some(sc => sc.options?.some(o => o.flag === 'promise'))) continue;
     const s = newDay(job); let promiseSeen = false, steps = 0, arrivals = 0;
     for (s.i = 0; s.i < job.scenes.length; s.i++) {
       if (skipped(s, job, s.i)) continue; // 이 하루에는 열리지 않는 장면 (engine.js 의 next 와 같다)

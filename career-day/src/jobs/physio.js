@@ -99,4 +99,14 @@ for (const scene of job.scenes) {
   }
 }
 
+const afternoon = {
+  moment: '외출길에서 쉴 곳을 찾은 순간', type: null, kind: 'hands', game: 'physiopath', closeup: true, at: '15:30', place: 'meeting',
+  title: '서우 님과 외출 경로 짚기', body: '작업대에서 물건을 집어 옮겨요. 단순화한 체험이에요.',
+  grades: {
+    neat: { fx: { team: 2 }, text: '다음 사람이 이어받을 준비를 마쳤어요.' },
+    redo: { fx: { delay: 3 }, text: '자리를 다시 확인해 정리했어요. 재확인에 3분이 들었어요.' },
+  },
+};
+job.scenes.splice(job.scenes.findIndex(scene => scene.kind === 'pick'), 0, afternoon);
+
 export default job;
