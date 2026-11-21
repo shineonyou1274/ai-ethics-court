@@ -34,16 +34,26 @@ const opt = phone ? { ...phone, deviceScaleFactor: 1 } : { viewport: { width: 12
   const W = (x, y, z) => p.evaluate(([x, y, z]) => window.__cd.world().project(x, y, z), [x, y, z]);
   const dragTo = async (from, to, snap) => { const a = await P(...from), c = await P(...to); mv.last=null; await dn(a.x, a.y); mv.last={x:a.x,y:a.y}; await mv((a.x + c.x) / 2, (a.y + c.y) / 2, 6); await mv(c.x, c.y, 6); await p.waitForTimeout(60); if (snap) await shot({ path: snap }); await up(); await p.waitForTimeout(250); };
   const rub = async (blobs, y) => { for (const [x, z, r] of blobs) { let first = true; for (let dz = -r; dz <= r + 0.01; dz += 0.14) { for (const dx of (Math.round((dz + r) / 0.14) % 2 ? [r, -r] : [-r, r])) { const q = await P(x + dx, y, z + dz); if (first) { mv.last=null; await dn(q.x, q.y); mv.last={x:q.x,y:q.y}; first = false; } else await mv(q.x, q.y, 5); } } await up(); await p.waitForTimeout(150); } };
-  const transfer = async route => {
-    const x = i => (i-(route.length-1)/2)*1.8;
-    for(const [i,slot] of route.entries()) await dragTo([x(i),.78,1],[x(slot),.78,-.9],out+'/'+tag0+'-drag-'+i+'.png');
+  const touchModel = async loc => {const q=await P(...loc);await tapAt(q.x,q.y);};
+  const button = async name => tl(p.getByRole('button',{name,exact:true}));
+  const feedback = async (word,label) => {
+    const value = await p.locator('#cuMsg').innerText();
+    if(!value.includes(word)) throw Error(label+' feedback: '+value);
+    await shot({path:out+'/'+label+'.png'});
   };
   const stages = {
-    '나가기 전에 한 번 더':()=>transfer([1,0]),
-    '가온 님 상담 준비':()=>transfer([1,0]),
-    '창구를 잠깐 비우기 전에':()=>transfer([1,2,0]),
-    '바뀐 진료실 안내':()=>transfer([1,0]),
-    '서우 님과 외출 경로 짚기':()=>transfer([1,0]),
+    '나가기 전에 한 번 더':async()=>{
+      const stamp=[-1.75,.82,1.44];if(mode==='messy'){await button('봉투 인계');await feedback('대조가 끝나지','early');await dragTo(stamp,[1.32,.81,-.72]);await feedback('일치','wrong');}
+      await button('다음 줄');await dragTo(stamp,[1.32,.81,-.04],out+'/mark.png');await button('다음 줄');
+      await dragTo(stamp,[1.32,.81,.64]);await button('봉투 인계');
+    },
+    '가온 님 상담 준비':async()=>{await dragTo([-1.3,.66,1.15],[-1.25,.72,-.85]);await dragTo([1.3,.68,1.16],[1.25,.72,-.85]);},
+    '창구를 잠깐 비우기 전에':async()=>{
+      const src=[-1.18,.78,1.12],lock=[1.55,1,1.62];if(mode==='messy'){await touchModel(lock);await feedback('아직','early');await dragTo(src,[1.8,.81,-.82]);await feedback('접수에','wrong');}
+      for(const x of [-1.8,-1.8,0,0,1.8,1.8])await dragTo(src,[x,.81,-.82]);await touchModel(lock);
+    },
+    '바뀐 진료실 안내':async()=>{for(const x of [-1.55,1.55])await dragTo([-x*.78,.68,1.35],[x,.7,-.08]);},
+    '서우 님과 외출 경로 짚기':async()=>{const bench=[-1.3,.76,1.14];if(mode==='messy'){await dragTo(bench,[1.15,.82,-.64]);await feedback('오르기 전에','wrong');}await dragTo(bench,[-1.72,.82,-.64]);await dragTo([1.25,.76,1.14],[0,.82,-.64]);},
     '치료를 마친 자리':async()=>{
       await rub([[-1.8,.4,.33],[-1,.25,.32],[-.5,.7,.24]],.555);
       for(const [x,z,to] of [[.6,1.25,.35],[1.4,1.35,1.3],[2.2,1.25,2.25]]) await dragTo([x,.13,z],[to,.72,-1.35]);
@@ -62,7 +72,7 @@ const opt = phone ? { ...phone, deviceScaleFactor: 1 } : { viewport: { width: 12
     if (travel) { await shot({ path: `${out}/${tag0}-${tag}-travel.png` }); console.log(tag, '가는 길:', travel); await p.waitForTimeout(2000); continue; }
     if (await p.locator('#walkGo').count()) {
       console.log(tag, '[걷기]', h, '|', await p.locator('#clock').textContent(), '| 알림:', (await p.locator('.notice').allTextContents()).join(' ') || '-', '| 받은 일:', (await p.locator('.inbox li').allTextContents()).join(' / '));
-      await measure('[walk] '+h); await walk(tag, h); continue;
+      await measure('[walk] '+h); await shot({path:out+'/'+tag0+'-floor-'+tag+'.png'}); await walk(tag, h); continue;
     }
     if (!seen.includes(h)) { seen.push(h); await measure(h); await shot({ path: `${out}/${tag0}-${tag}.png` }); console.log(tag, h, '|', (await p.locator('#clock').textContent().catch(() => '')), (await p.locator('#money').textContent().catch(() => ''))); }
     if (await p.locator('#go').count() && !(await p.locator('#stay').count())) { await press('#go'); continue; }
@@ -95,7 +105,11 @@ const opt = phone ? { ...phone, deviceScaleFactor: 1 } : { viewport: { width: 12
       const n = await ch.count(), isChoice = await p.locator('#opts').count();
       // 판단: clean 은 시장에서 "오후에 다시 오겠다"(약속)를 고르고, 불을 끈 뒤 약속을 지키러 간다. messy 는 약속하고 지키지 않는다
       let k = isChoice ? (mode === 'messy' ? Math.min(n - 1, 2) : 0) : step % n;
-      if (isChoice) { const labels = await ch.allTextContents(); const want = labels.findIndex((t) => (mode === 'clean' ? /약속대로|다시 와서 설명하겠다고/ : /다시 와서 설명하겠다고/).test(t)); if (want >= 0) k = want; }
+      if (isChoice) { const labels = await ch.allTextContents(); const want = labels.findIndex((t) => (mode === 'clean' ? /약속대로|다시 와서 설명하겠다고/ : /다시 와서 설명하겠다고/).test(t)); if (want >= 0) k = want;
+        if(job==='pharmacist'){
+          const index=labels.findIndex(t=>t.includes('오후 상담 시간을 잡아')||(mode!=='messy'&&t.includes('약속대로 가온')));
+          if(index>=0)k=index;
+        } }
       if (phone) await ch.nth(k).tap(); else await ch.nth(k).click(); continue;
     }
   }

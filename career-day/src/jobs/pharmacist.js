@@ -83,7 +83,7 @@ const day = {
 day.incident.options.push({label:'약속대로 가온 님과 상담한다', when:s=>!!s.flags.promise, flag:'kept', fx:{care:7,delay:8}, reply:'가온 님이 메모를 들고 상담실에 들어왔어요.',moment:'약속한 상담을 지킨 순간',type:'S'});
 day.thanks.unshift({if:s=>s.flags.kept,text:'“세 시에 메모를 함께 봐 주셔서 질문을 정리했어요.”'},{if:s=>s.flags.promise,text:'“오늘 상담 약속은 놓쳤어요. 다음에는 언제 만날까요?”'});
 const afternoon = {
-  moment: '상담 자료를 이어 준 순간', type: null, kind: 'hands', game: 'rxhandoff', closeup: true, atOff: 330, place: 'meeting',
+  moment: '상담 자료를 이어 준 순간', type: null, kind: 'hands', game: 'rxhandoff', closeup: true, atOff: 300, place: 'meeting',
   title: '가온 님 상담 준비', body: '가온 님이 질문을 표시한 메모를 펴셨어요. 상담에서 답한 질문과 의료진 확인이 남은 문의를 나눠요.',
   grades: {
     neat: { fx: { team: 2 }, text: '가온 님은 설명을 다시 들었고, 미회신 문의는 동료가 이어받았어요.' },
@@ -101,7 +101,7 @@ job.scenes = floorDay(job, {
     { ...day.team, kind:'choice', atOff:168, place:'office', todo:{label:'미확인 처방 문의' }, notice:{via:'전화',text:'의료진에게 확인할 질문이 있어요.'} }
   ],
   pm:[
-    { ...day.incident, kind:'choice', atOff:300, place:'counter', todo:[{label:'상담 대기 조정'},{label:'15:00 가온 님 상담',via:'약속',known:s=>!!s.flags.promise,now:(s,i)=>s.i===i||(s.flags.kept&&s.i===i+1),done:(s,i)=>s.flags.kept&&s.i>i+1,missed:(s,i)=>s.i>i&&!s.flags.kept}], notice:{via:'동료',text:'상담 대기자가 늘었어요.'} },
+    { ...day.incident, kind:'choice', atOff:290, place:'counter', todo:[{label:'상담 대기 조정'},{label:'15:00 가온 님 상담',via:'약속',at:'15:00',known:s=>!!s.flags.promise,now:(s,i)=>s.i===i||(s.flags.kept&&s.i===i+1),done:(s,i)=>s.flags.kept&&s.i>i+1,missed:(s,i)=>s.i>i&&!s.flags.kept}], notice:{via:'동료',text:'상담 대기자가 늘었어요.'} },
     {...afternoon,todo:{label:afternoon.title},notice:{via:'동료',text:afternoon.body}},
   ],
 });

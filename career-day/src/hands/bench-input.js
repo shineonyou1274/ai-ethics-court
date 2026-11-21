@@ -37,7 +37,7 @@ export function workbench(el,sc,{world,sfx,done},model) {
   const handle=world ? mountBench(world,sc.game,build) : null;
   if(!world){
     fallback=new Group();model(fallback,api,sc);
-    for(const item of items)api.button(item.g.name,()=>{held=item;api.say(item.g.name+' · 놓을 곳을 고르세요.');});
+    for(const item of items)api.button(item.g.name,()=>{if(item.g.userData.fixed||!item.g.visible)return;held=item;api.say(item.g.name+' · 놓을 곳을 고르세요.');});
     for(const a of targets)api.button(a.name,()=>{if(held){held.drop(a.name);held=null;}else a.fn?.();});
   }
   // 평행 투영된 작업대 위에서 포인터를 물체 높이의 x,z로 되돌린다.
