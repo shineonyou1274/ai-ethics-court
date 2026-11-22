@@ -90,18 +90,18 @@ export function openHand(studio,type,{say,mistake,done}){
   const patch=solid(jar,geo,0x745139);patch.material.color.offsetHSL(0,0,.018*Math.sin(i*4+j));patch.material.transparent=true;
   const centre=a.clone().lerp(c,.5);cells.push({patch,centre,wear:0,pass:0});
  }
- let selected=false,active=false,last,lastTime,warned=false,pass=0;
- down=p=>{
+ let selected=false,active=false,last,lastPixel,lastTime,warned=false,pass=0;
+ down=(p,e)=>{
   if(studio.hit(p,[wire])){selected=false;return mistake('쇠솔의 금속 끝이 표면을 긁어요. 부드러운 붓을 골라요.')}
   if(!selected && studio.hit(p,[soft])){selected=true;say('붓을 들었어요. 흙을 짧게 여러 번 쓸어 주세요.');return}
   if(!selected)return mistake('흙을 털 도구를 먼저 골라요.');
-  active=true;pass++;last=p.clone();lastTime=performance.now();warned=false;
+  active=true;pass++;last=p.clone();lastTime=e.timeStamp;lastPixel=[e.clientX,e.clientY];warned=false;
  };
- move=p=>{if(!active)return;const t=performance.now(),dist=p.distanceTo(last);
+ move=(p,e)=>{if(!active)return;const t=e.timeStamp,dist=p.distanceTo(last);
   const plane=new T.Plane(new T.Vector3(0,0,1),-2.48),tip=studio.ray.ray.intersectPlane(plane,new T.Vector3());
   soft.position.copy(tip);soft.position.x+=.39;soft.position.y+=.78;
-  if(dist/Math.max(16,t-lastTime)>.055){if(!warned){mistake('너무 빨라요. 표면이 상하지 않게 짧게 쓸어요.');warned=true}}
-  else if(dist>.01){let sum=0;
+  if(Math.hypot(e.clientX-lastPixel[0],e.clientY-lastPixel[1])/Math.max(16,t-lastTime)>1){if(!warned){mistake('너무 빨라요. 표면이 상하지 않게 짧게 쓸어요.');warned=true}}
+  else if(!warned&&dist>.01){let sum=0;
    for(const cell of cells){if(cell.wear<1&&cell.pass!==pass){
     const pos=studio.planePoint(jar.localToWorld(cell.centre.clone()));
     if(inside(p,pos,.67)){cell.pass=pass;cell.wear=Math.min(1,cell.wear+.34);cell.patch.material.opacity=1-cell.wear;cell.patch.visible=cell.wear<1}
@@ -110,7 +110,7 @@ export function openHand(studio,type,{say,mistake,done}){
    if(sum===cells.length){soft.position.set(-3.28,1.24,1);finish('100% · 흙 아래의 빗살무늬가 한 줄로 이어졌어요.')}
    else say('흙 털기 '+pct+'% · 붓을 떼었다가 남은 흙을 다시 쓸어요.');
   }
-  last=p.clone();lastTime=t;
+  last=p.clone();lastTime=t;lastPixel=[e.clientX,e.clientY];
  };up=()=>{active=false};
  }
  if(type==='fit'){
@@ -167,8 +167,8 @@ export function openHand(studio,type,{say,mistake,done}){
 
  }
  const surface=studio.surface;let id=null;
- surface.onpointerdown=e=>{if(completed||held)return;held=true;id=e.pointerId;surface.setPointerCapture(id);down(studio.point(e));studio.draw()};
- surface.onpointermove=e=>{if(held&&id===e.pointerId&&!completed){move(studio.point(e));studio.draw()}};
+ surface.onpointerdown=e=>{if(completed||held)return;held=true;id=e.pointerId;surface.setPointerCapture(id);down(studio.point(e),e);studio.draw()};
+ surface.onpointermove=e=>{if(held&&id===e.pointerId&&!completed){move(studio.point(e),e);studio.draw()}};
  surface.onpointerup=surface.onpointercancel=e=>{if(!held||id!==e.pointerId)return;held=false;if(!completed)up();studio.draw()};
  studio.draw();
  return ()=>{surface.onpointerdown=surface.onpointermove=surface.onpointerup=surface.onpointercancel=null};
