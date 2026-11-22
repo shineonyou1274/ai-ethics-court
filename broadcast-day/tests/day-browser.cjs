@@ -35,7 +35,7 @@ async function run(browser,name,w,h){
  const arc=f=>[2.02+.81*Math.sin(-1.34+1.34*f),-1.26+.81*Math.cos(-1.34+1.34*f)];
  await stroke(arc(0),arc(1),18,arc);await exposed(check);await check.click();assert.match(await message(),/또렷/);await shot('04-camera-after')}
  else if(i===2){await shot('05-mix-before');const listen=p.getByRole('button',{name:'소리 듣기'});await exposed(listen);await listen.click();
- for(const [x,v,target] of [[-2.65,.18,.62],[0,.15,.62],[2.65,.84,.18]]){await stroke([x,-1.5+v*2.9,.17],[x,-1.5+target*2.9],17)}
+ for(const [x,v,target] of [[-2.65,.18,.62],[0,.15,.62],[2.65,.84,.18]]){await stroke([x,-1.5+v*2.6,.17],[x,-1.5+target*2.6],17)}
  assert.match(await message(),/두 목소리/);await shot('06-mix-after')}
  else if(i===7){await shot('07-switch-before');
  for(let n=0;n<4;n++){await p.waitForFunction(()=>document.querySelector('#feedback').textContent.includes('지금 큐'));if(messy&&n===0){await p.waitForFunction(()=>document.querySelector('#feedback').textContent.includes('기다렸어요'));await stroke([2.64,-.44,.23]);assert.match(await message(),/큐시트/)}if(n<3){await stroke([-3.02+1.63*n,-.91,.23]);await stroke([2.64,-.44,.23])}else await stroke([2.64,-1.98,.23])}

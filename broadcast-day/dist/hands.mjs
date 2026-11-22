@@ -53,20 +53,20 @@ export function openHand(studio,kind,{say,mistake,done}){
  if(kind==='mix'){
  let voice=-1;const audio=audioCheck(i=>{voice=i;refresh();studio.draw()});clean.push(()=>audio.dispose());const xs=[-2.65,0,2.65],levels=[.18,.15,.84],caps=[],lamps=[],scopes=[];
  const track=['진행자','보람 님','배경 음악'];let channel=-1;
- xs.forEach((x,i)=>{box(p,1.96,4.36,.15,ink,x,0,-.50);box(p,.22,i<2?.78:.66,.09,mint,x-.52,i<2?.28:-1.18,-.19);box(p,.13,2.92,.06,0x101e2a,x,-.05,-.30);
+ xs.forEach((x,i)=>{box(p,1.96,4.36,.15,ink,x,0,-.50);box(p,.18,i<2?.78:.66,.09,mint,x-.86,i<2?.28:-1.18,-.19);box(p,.13,2.92,.06,0x101e2a,x,-.05,-.30);
  for(let n=0;n<9;n++)box(p,.23,.035,.05,ice,x-.37,-1.50+n*.36,-.28);
- caps.push(box(p,1.62,1.40,.34,0xd6d9ce,x,0,.06));box(caps[i],1.28,.085,.03,ink,0,0,.19);
+ {const hit=box(p,1.62,1.40,.34,0xd6d9ce,x,0,.06);hit.material.transparent=true;hit.material.opacity=0;hit.material.depthWrite=false;caps.push(hit);box(hit,1.3,.45,.34,0xd6d9ce,0,0,0);box(hit,1.1,.085,.03,ink,0,0,.19)} // 손에 닿는 칸은 크게, 보이는 손잡이는 얇게: 초록 띠·불빛·파형을 가리지 않게
  box(p,1.78,.58,.10,0x142d3a,x,1.75,-.27);
  scopes.push(Array.from({length:19},(_,j)=>box(p,.067,1,.035,mint,x+(j-9)*.081,1.75,-.17)));
- lamps.push(Array.from({length:10},(_,n)=>box(p,.20,.18,.11,ink,x+.63,-1.48+n*.31,-.2)));label(track[i],x,-2.38)});
+ lamps.push(Array.from({length:10},(_,n)=>box(p,.16,.18,.11,ink,x+.86,-1.48+n*.31,-.2)));label(track[i],x,-2.38)});
  const cue=label('마이크 점검',0,2.58);
- const refresh=()=>{cue.textContent=voice<0?'마이크 점검':track[voice]+' 말하는 중 · 음악 낮춤';for(let i=0;i<3;i++){caps[i].position.y=-1.5+levels[i]*2.9;audio.level(i,levels[i]);
+ const refresh=()=>{cue.textContent=voice<0?'마이크 점검':track[voice]+' 말하는 중 · 음악 낮춤';for(let i=0;i<3;i++){caps[i].position.y=-1.5+levels[i]*2.6;audio.level(i,levels[i]);
  const hot=i<2&&levels[i]>.75;
  scopes[i].forEach((bar,n)=>{const sample=Math.abs(Math.sin(n*.43+i)*(.76+.24*Math.cos(n*1.71)));bar.scale.y=.035+.43*Math.min(1,sample*levels[i]*(hot?2.4:1.2));bar.material.color.setHex(hot?red:(i<2&&levels[i]<.48?0x616e73:mint))});
  lamps[i].forEach((l,n)=>l.material.color.setHex(n<=(i===2&&voice>=0?levels[i]*.42:levels[i])*10?(n>7?red:n>4?mint:amber):0x263c46))}};
  refresh();const listen=add('소리 듣기',()=>listen.textContent=audio.toggle()?'소리 끄기':'소리 듣기');
  down=q=>{channel=caps.findIndex(cap=>studio.hit(q,[cap]));if(channel<0)return;say(track[channel]+' 페이더를 위아래로 밀어요.')};
- move=q=>{if(channel<0)return;levels[channel]=clamp((q.y+1.5)/2.9,0,1);refresh()};
+ move=q=>{if(channel<0)return;levels[channel]=clamp((q.y+1.5)/2.6,0,1);refresh()};
  up=()=>{if(channel<0)return;const i=channel;channel=-1;const v=levels[i];
  if(i<2&&(v<.48||v>.75))return mistake(v<.48?'안 들려요. 마이크 레벨을 올려요.':'빨간 피크예요. 목소리가 찌그러져 들려요.');
  const speechLimit=Math.min(levels[0],levels[1])*.5;

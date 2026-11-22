@@ -49,7 +49,7 @@ function event(){
  if(s.hand){
  el('extra').innerHTML='<small>방송 장비의 조작을 단순화한 체험이에요.</small>';
  const defer=button('뒤로 미루기 +10분',()=>{deferred.push(index);delay+=10;next()});
- if(revisiting)defer.remove();
+ if(revisiting||s.hand==='switch')defer.remove(); // 생방송 스위처는 나중에 다시 할 수 없어요
  release=openHand(studio,s.hand,{say,mistake:text=>{const old=delay;delay+=Math.min(2,Math.max(0,40-recheckMinutes));recheckMinutes+=delay-old;bar(currentTime()+delay,rooms[at]);say(text+(delay>old?' · 다시 살피기 +2분':''))},done:()=>{defer.remove();button('작업 기록하고 다음 연락 받기',next)}});return}
  studio.floor(at,s.room,false,()=>{});
  // A location label in a conversation is informational; the visitor stays there until the reply.
