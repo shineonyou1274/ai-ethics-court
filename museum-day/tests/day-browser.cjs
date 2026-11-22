@@ -49,7 +49,7 @@ async function run(browser,name,w,h){
  await action(0);
  }
  if(await p.locator('#title').innerText()==='마감할 시간이에요')await action(messy?1:0);
- await shot('11-pay');await action(0);await action(1);await action(2);await action(0);await shot('12-ending');
+ await shot('11-pay');await p.getByRole('button',{name:'오늘의 순간 돌아보기'}).click();await action(1);await action(2);await action(0);await shot('12-ending');
  assert.match(await message(),/도장/);assert.match(await p.locator('#title').innerText(),messy?/사진/:/함께/);assert.deepEqual(errors,[]);
  const video=p.video();await ctx.close();console.log(name,'PASS',await video.path());
  }catch(e){console.error(name,await p.locator('article').innerText());await shot('failure');await ctx.close();throw e}

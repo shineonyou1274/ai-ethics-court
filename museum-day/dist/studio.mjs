@@ -63,7 +63,7 @@ export class Studio{
  floor(at,goal,visit,arrive,alarm=false){
  this.reset();this.resize();const g=this.root;g.rotation.x=.53;g.rotation.y=-.07;
  const spots=rooms.map((_,i)=>[(i%3-1)*3.05,Math.floor(i/3)*3.7-1.85]);
- box(g,9.3,.13,8,0xd0ab84,0,-.14,0);
+ box(g,10.5,.13,8,0xd0ab84,0,-.14,0);
  const colors=[0xe5c999,0xb0c2a8,0xa5bec0,0xd4b78d,0xc7b7a8,0xabbcb0];
  const pins=[];
  spots.forEach(([x,z],i)=>{
@@ -78,6 +78,9 @@ export class Studio{
  if(i===1){box(r,.42,.45,.1,0x354b43,1,1.31,-1.40);box(r,.29,.17,.13,0x96d2b2,1,1.34,-1.30)}
  if(i===2){box(r,.49,.09,.32,0x324e50,-.57,.77,-.59);const barrel=box(r,.15,.48,.17,0x334747,-.45,1.26,-.49);barrel.rotation.z=-.55;box(r,.32,.06,.22,cream,-.53,.98,-.47)}
  if(i===3){for(const dx of [-.86,.86]){box(r,.075,.76,.08,teal,dx,1.65,-.86);oval(r,.19,.10,.15,cream,dx,2.04,-.83)}}
+ if(i===3){for(const px of [-1.09,1.09]){box(r,.48,.58,.52,0x747c72,px,.29,.27);vessel(r,px,.81,.27,.24);box(r,.45,.05,.25,cream,px,.06,.60);const lamp=solid(r,new T.ConeGeometry(.22,.27,16),0xe6b772,px,1.94,-.87);lamp.rotation.z=.22;oval(r,.20,.045,.13,0xffe5a6,px,1.83,-.87)}}
+ if(i===2){for(let j=0;j<4;j++)box(r,.045,.39,.04,clay,.73+j*.08,1,-.51).rotation.z=-.17}
+ if(i===4){for(let j=0;j<3;j++)box(r,.25,.36,.05,[teal,clay,cream][j],-.38+j*.37,1.12,-1.26)}
  const n=document.createElement('button');n.className='pin'+(goal===i?' goal':'');n.textContent=rooms[i];n.onclick=()=>walk(i);if(!visit){n.tabIndex=-1;n.style.pointerEvents='none'}this.host.append(n);pins.push(n);
  });
  const avatar=person(g,0,.05,0,0x148b9c,0x493128);const crowd=[person(g,-3.98,.05,1.87,0x658caa,0x42424b),person(g,.90,.05,-1.66,0xf4e7c5,0x48392d),person(g,.94,.05,2.3,0x9b7662,0x553a27)];
@@ -90,9 +93,14 @@ export class Studio{
  const [sx,sz]=coord(at);avatar.position.set(sx,.05,sz);
  const tag=document.createElement('span');tag.className='object-tag name-tag';tag.textContent='나';this.host.append(tag);
  this.labels=()=>{const pos=avatar.localToWorld(new T.Vector3(-.42,.72,.29)).project(this.camera);tag.style.left=(50+50*pos.x)+'%';tag.style.top=(50-50*pos.y)+'%';pins.forEach((n,i)=>{const [x,z]=spots[i],pt=g.localToWorld(new T.Vector3(x,1.18,z-.82)).project(this.camera);n.style.left=((pt.x+1)*50)+'%';n.style.top=((1-pt.y)*50)+'%'});};
- let segment=null;const walk=i=>{if(!visit)return;const [x,z]=coord(i);segment={i,x,z,sx:avatar.position.x,sz:avatar.position.z,start:performance.now()};if(this.motion.matches){avatar.position.set(x,.05,z);segment=null;this.draw();arrive(i)}};
+ let segment=null;
+ const walk=i=>{if(!visit||segment)return;const [x,z]=coord(i),sx=avatar.position.x,sz=avatar.position.z;
+ const aisle=sx+x>0?4.96:-4.96;
+ const points=Math.abs(z-sz)<.1?[[sx,sz],[x,z]]:[[sx,sz],[aisle,sz],[aisle,z],[x,z]];
+ segment={i,points,start:performance.now()};
+ if(this.motion.matches){avatar.position.set(x,.05,z);segment=null;this.draw();arrive(i)}};
  this.walk=walk;
- const entered=performance.now();const frame=t=>{if(segment){const s=segment,f=Math.min(1,(t-s.start)/650);avatar.position.set(s.sx+(s.x-s.sx)*f,.05+.04*Math.abs(Math.sin(f*12)),s.sz+(s.z-s.sz)*f);if(f===1){segment=null;arrive(s.i);if(this.root.children[0]!==floorMesh)return}}
+ const entered=performance.now();const frame=t=>{if(segment){const s=segment,f=Math.min(1,(t-s.start)/(400*s.points.length)),u=f*(s.points.length-1),k=Math.min(Math.floor(u),s.points.length-2),a=s.points[k],b=s.points[k+1];avatar.position.set(a[0]+(b[0]-a[0])*(u-k),.05+.04*Math.abs(Math.sin(f*12)),a[1]+(b[1]-a[1])*(u-k));if(f===1){segment=null;arrive(s.i);if(this.root.children[0]!==floorMesh)return}}
  if(!this.flat&&!this.motion.matches){if(beacon){beacon.material.color.setRGB(.8+.16*Math.cos(t/650),.24,.08);visitors.forEach((v,i)=>v.position.z=2.5+i*.16+Math.max(0,1-(t-entered)/1450)*1.1)}crowd[0].position.z=1.9+Math.sin(t/2350)*.3;crowd[2].rotation.y=.45*Math.sin(t/3200)}
  if(segment||(!this.flat&&!this.motion.matches)||!this.floorDrawn){this.draw();this.floorDrawn=true}
  this.frame=requestAnimationFrame(frame)};

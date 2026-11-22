@@ -20,9 +20,9 @@ export const moments = [['질그릇 옮기기','R'],['무늬 찾아내기','I'],
 export function finish({rest,delay,stay,first,like,hard,session,id}){
  const end=1080+(stay?delay:0), worked=end-540-rest;
  return makeRecord({app:'museum-day',place:'museum',job:{id:'curator',name:'학예사',careernet:348},
- annual,wageYear:2021,wageBasis:'학예사',shift:{start:'09:00',end:clock(end),breakMin:rest},workedMin:worked,shiftMin:480,
+ annual,wageYear:2021,wageBasis:'학예사',shift:{start:'09:00',end:'18:00',breakMin:rest},workedMin:worked,shiftMin:480,
  ending:{name:first?'단비 님과 첫 전시를 함께 본 하루':'전시 사진에 약속을 담아 보낸 하루',icon:'🏺'},
  like:{label:moments[like][0],type:moments[like][1]},hard:{label:moments[hard][0],type:moments[hard][1]},
- session,id,extra:{promised:true,firstVisitor:first,handedOver:stay?0:delay}});
+ session,id,extra:{actualEnd:clock(end),promised:true,firstVisitor:first,handedOver:stay?0:delay}});
 }
 export const earned=(minute,rest)=>salaryDay(annual,Math.max(0,minute-540-rest)).total;
