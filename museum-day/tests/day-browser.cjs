@@ -29,7 +29,7 @@ async function run(browser,name,w,h){
  await stroke([-3.3,1.1,1]);if(messy){await stroke([.70,.37,.15]);assert.match(await message(),/손잡이/)}
  await stroke([-1,-.9],[2.4,-.9],18);await shot('04-carry-after')}
  else if(i===2){await shot('05-brush-before');if(messy){await stroke([-3.28,-1.21,1]);assert.match(await message(),/쇠솔/)}
- await stroke([-3.28,1.24,1]);
+ await stroke([-3.28,1.24,1]);if(messy){await stroke([-1.35,.12],[3.2,.12],1);assert.match(await message(),/너무 빨라/)}
  for(let sweep=0;sweep<4;sweep++){for(const y of [-.85,-.23,.46,1.01]){await stroke([-1.55,y],[3.66,y],32)}if(sweep===0){assert.match(await message(),/흙 털기/);await shot('brush-progress')}if((await message()).includes('100%'))break}
  assert.match(await message(),/100%/);await shot('06-brush-after')}
  else if(i===5){await shot('07-fit-before');

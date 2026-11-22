@@ -101,7 +101,7 @@ export function openHand(studio,type,{say,mistake,done}){
   const plane=new T.Plane(new T.Vector3(0,0,1),-2.48),tip=studio.ray.ray.intersectPlane(plane,new T.Vector3());
   soft.position.copy(tip);soft.position.x+=.39;soft.position.y+=.78;
   if(Math.hypot(e.clientX-lastPixel[0],e.clientY-lastPixel[1])/Math.max(1,t-lastTime)>1){if(!warned){mistake('너무 빨라요. 표면이 상하지 않게 짧게 쓸어요.');warned=true}}
-  else if(dist>.01){let sum=0;
+  else if(!warned&&dist>.01){let sum=0;
    for(const cell of cells){if(cell.wear<1&&cell.pass!==pass){
     const pos=studio.planePoint(jar.localToWorld(cell.centre.clone()));
     if(inside(p,pos,.67)){cell.pass=pass;cell.wear=Math.min(1,cell.wear+.34);cell.patch.material.opacity=1-cell.wear;cell.patch.visible=cell.wear<1}
