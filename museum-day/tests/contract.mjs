@@ -10,3 +10,17 @@ for(const first of [true,false])for(const stay of [true,false])for(const rest of
  assert.equal(r.shift.end,stay?'18:12':'18:00');assert.equal(r.extra.firstVisitor,first);
 }
 console.log('공통 원본 · 네 작업 · 급여와 결말 8경로 통과');
+const memory=new Map();
+Object.defineProperty(globalThis,'localStorage',{configurable:true,value:{
+ getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,String(v))
+}});
+const {startNewSession,loadMine,saveRecordSafe}=await import('../dist/shared/workday.js');
+const {encodeRecords,decodeCodes}=await import('../dist/shared/collect.js');
+const session=startNewSession().id;
+const r=finish({first:true,stay:false,rest:60,delay:0,session,like:2,hard:3});
+assert.ok(saveRecordSafe(r).ok);assert.ok(saveRecordSafe(r).duplicate);assert.equal(loadMine().length,1);
+const decoded=decodeCodes(encodeRecords(loadMine(),'연습'));
+assert.deepEqual(decoded.errors,[]);assert.equal(decoded.students[0].records[0].jobId,'curator');
+assert.equal(decoded.students[0].records[0].pay,125600);
+startNewSession();assert.equal(loadMine().length,0);
+console.log('지갑 분리 · 중복 저장 방지 · 교사 코드 복원 통과');
