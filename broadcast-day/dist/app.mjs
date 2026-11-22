@@ -9,7 +9,7 @@ const say=s=>el('feedback').textContent=s;
 function button(label,fn,parent=el('actions')){const b=document.createElement('button');b.textContent=label;b.onclick=fn;parent.append(b);return b}
 function screen(mode,who,title,line){
  release?.();release=null;document.body.className=mode;el('speaker').textContent=who;el('title').textContent=title;el('line').textContent=line;say('');
- el('actions').replaceChildren();el('extra').replaceChildren();
+ el('actions').replaceChildren();el('extra').replaceChildren();window.scrollTo(0,0);
 }
 function bar(minute,where){
  el('status').textContent='방송 PD · '+clock(minute);el('place').textContent=where;
@@ -31,7 +31,7 @@ function travel(){
  const s=day[index];screen('map','새로 옴 · '+s.voice,s.title,s.voice+' · '+rooms[s.room]+'에서 만나요.');
  bar(s.time+delay,rooms[at]);
  const arrive=i=>{at=i;bar(s.time+delay,rooms[i]);if(i===s.room){event()}else say(rooms[i]+'에 도착했어요. 다음 일은 '+rooms[s.room]+'에 있어요.')};
- studio.floor(at,s.room,true,arrive,index===7||index===8);button(rooms[s.room]+'로 걸어가기',()=>studio.walk(s.room));
+ studio.floor(at,s.room,true,arrive);button(rooms[s.room]+'로 걸어가기',()=>studio.walk(s.room));
  if(index>0){const promise=document.createElement('p');promise.className='promise';promise.textContent='🤝 15:00 보람 님 손 신호(약속)'+(index>6?(first?' · 신호 전달':' · 동료 인계'):'');el('extra').append(promise)}
  const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='받은 일 · 앞으로 할 일';details.append(summary);
  for(const job of day.slice(index)){const p=document.createElement('p');p.textContent=clock(job.time)+' · '+rooms[job.room]+' · '+job.title;details.append(p)}el('extra').append(details);
@@ -41,7 +41,7 @@ function event(){
  if(s.hand){
  el('extra').innerHTML='<small>방송 장비의 조작을 단순화한 체험이에요.</small>';
  release=openHand(studio,s.hand,{say,mistake:text=>{const old=delay;delay=Math.min(60,delay+2);bar(s.time+delay,rooms[at]);say(text+(delay>old?' · 다시 살피기 +2분':''))},done:()=>button('작업 기록하고 다음 연락 받기',next)});return}
- studio.floor(at,s.room,false,()=>{},index===7||index===8);
+ studio.floor(at,s.room,false,()=>{});
  // A location label in a conversation is informational; the visitor stays there until the reply.
  studio.host.querySelectorAll('.pin').forEach(b=>{b.disabled=true});
  s.choices.forEach((label,i)=>button(label,()=>{if(index===4)rest=i===0?60:30;if(index===6)first=i===0;

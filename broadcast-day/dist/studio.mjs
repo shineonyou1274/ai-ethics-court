@@ -59,7 +59,7 @@ export class Studio{
  this.ray.setFromCamera(this.ndc,this.camera);const v=this.ray.ray.intersectPlane(this.plane,new T.Vector3());return new T.Vector2(v.x,v.y)}
  hit(pt,list){this.scene.updateMatrixWorld(true);return this.ray.intersectObjects(list,true)[0]?.object}
  planePoint(world){const p=world.clone().project(this.camera);const ray=new T.Raycaster();ray.setFromCamera(p,this.camera);return ray.ray.intersectPlane(this.plane,new T.Vector3())}
- floor(at,goal,visit,arrive,alarm=false){
+ floor(at,goal,visit,arrive){
  this.reset();this.resize();const g=this.root;g.rotation.x=.53;g.rotation.y=-.07;
  const spots=rooms.map((_,i)=>[(i%3-1)*3.05,Math.floor(i/3)*3.7-1.85]);
  box(g,10.5,.13,8,0xd0ab84,0,-.14,0);

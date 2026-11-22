@@ -11,7 +11,7 @@ async function run(browser,name,w,h){
  const action=async i=>{const b=p.locator('#actions button').nth(i);if(touch)await b.tap();else await b.click()};
  const message=()=>p.locator('#feedback').innerText();
  async function stroke(a,b=a,steps=1,arc=null){
- const box=await p.locator('#stage').boundingBox(),aspect=box.width/box.height;
+ const stage=p.locator('#stage');await stage.scrollIntoViewIfNeeded();const box=await stage.boundingBox(),aspect=box.width/box.height;
  const T=await import('../dist/vendor/three.module.min.js');
  const cam=new T.PerspectiveCamera(34,aspect,.1,90);cam.position.set(.045,.30,1).normalize().multiplyScalar(Math.max(3.05,4.98/aspect)/Math.tan(17*Math.PI/180));cam.lookAt(0,0,0);cam.updateMatrixWorld();
  const px=([x,y,z=0])=>{const v=new T.Vector3(x,y,z).project(cam);return {x:box.x+(1+v.x)*box.width/2,y:box.y+(1-v.y)*box.height/2}};
@@ -24,7 +24,7 @@ async function run(browser,name,w,h){
  try{
  await p.goto(url);await p.locator('#actions button').first().waitFor();await shot('01-badge');await action(0);await action(0);await shot('02-floor');
  for(let i=0;i<10;i++){
- await action(0);await p.waitForFunction(()=>document.body.matches('.working,.choice'));
+ const walk=p.getByRole('button',{name:/로 걸어가기$/});await walk.waitFor();if(touch)await walk.tap();else await walk.click();await p.waitForFunction(()=>document.body.matches('.working,.choice'));
  if(i===1){await shot('03-camera-before');const check=p.getByRole('button',{name:'촬영 화면 확인'});
  if(messy){await check.click();assert.match(await message(),/얼굴/)}
  await stroke([-2.18,-.72],[-3.98,-.72],18);
@@ -40,7 +40,7 @@ async function run(browser,name,w,h){
  for(const [x,target] of [[0,-2.65],[2.65,0],[-2.65,2.65]])await stroke([x,1.28,.22],[target,-.55],15);
  await stroke([-2.90,-2.14,.22]);if(messy){await stroke([1.48,-2.12]);assert.match(await message(),/넘겨요/)}await stroke([2.22,-2.12],[0,-2.12],18);assert.match(await message(),/빈 6초/);await shot('10-edit-after')}
  else await action(messy&&(i===4||i===6)?1:0);
- await action(0);
+ const next=p.getByRole('button',{name:/^(작업 기록하고 다음 연락 받기|다음 연락 받기|일당 확인하기)$/});await next.waitFor();if(touch)await next.tap();else await next.click();
  }
  if(await p.locator('#title').innerText()==='마감할 시간이에요')await action(messy?1:0);
  await shot('11-pay');await p.getByRole('button',{name:'오늘의 순간 돌아보기'}).click();await action(1);await action(2);await action(0);await shot('12-ending');
