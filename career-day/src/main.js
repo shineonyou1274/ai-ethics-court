@@ -394,9 +394,13 @@ function fitPick() {
   const app = $('#app'), v = panel.querySelector('.view'); if (!v || !app.classList.contains('pickOn') || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return;
   const cs = getComputedStyle(panel), pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
   const over = () => v.offsetHeight + pad - panel.clientHeight;
+  app.classList.remove('pickTight');
   if (over() <= 0) return;
   app.style.setProperty('--pick', `${Math.max(26, 34 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
   if (over() > 0) v.querySelectorAll('details.ripple').forEach((d) => { d.open = false; });
+  // 아주 작은 폰(320×568 등): 그래도 넘치면 글과 보기를 촘촘하게, 그래도 넘치면 3D를 20dvh 까지 (보기가 모두 한 화면에 — DESIGN §2-3)
+  if (over() > 0) app.classList.add('pickTight');
+  if (over() > 0) app.style.setProperty('--pick', `${Math.max(20, 26 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
   world?.resize();
 }
 

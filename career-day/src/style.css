@@ -450,3 +450,13 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   #app.walkDay .gauge { padding: 2px 4px; gap: 2px; }
   #app.walkDay #money { padding: 1px 6px; }
 }
+
+/* 아주 작은 폰의 고르는 장면 (main.js fitPick 이 넘칠 때만 붙인다) */
+#app.pickOn.pickTight .view > h2 { font-size: 19px; margin-bottom: 2px; }
+#app.pickOn.pickTight .lead { font-size: 15px; line-height: 1.4; margin: 2px 0 6px; }
+#app.pickOn.pickTight .speech { font-size: 15px; padding: 6px 12px; margin: 4px 0 2px; }
+#app.pickOn.pickTight .speech small { font-size: 12px; }
+#app.pickOn.pickTight .choice { padding: 7px 10px; margin-top: 6px; gap: 8px; font-size: 15px; line-height: 1.35; }
+#app.pickOn.pickTight .choice .n { width: 26px; height: 26px; font-size: 15px; }
+#app.pickOn.pickTight .fine { font-size: 13px; margin: 2px 0; }
+#app.pickOn.pickTight #ok { margin-top: 8px; padding: 10px 14px; font-size: 18px; }
