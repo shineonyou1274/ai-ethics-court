@@ -228,7 +228,7 @@ function scene() {
   $('#app').classList.toggle('handsOn', sc.kind === 'hands' && !sc.closeup);
   $('#app').classList.toggle('closeOn', sc.kind === 'hands' && !!sc.closeup && !!world);
   $('#app').classList.toggle('pickOn', ['choice', 'order', 'pick', 'leave'].includes(sc.kind)); // 폰 세로의 판단 장면: 3D 칸을 줄여 보기가 모두 한 화면에 들어오게 한다 (shared/DESIGN.md §2-1)
-  $('#app').style.removeProperty('--pick');
+  $('#app').style.removeProperty('--pick'); $('#app').style.removeProperty('--close'); $('#app').classList.remove('closeTight');
   world?.resize(); // 3D 칸의 크기를 먼저 정한 뒤 장면을 그린다 (작게 그렸다가 커지지 않게)
   ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
 }
@@ -254,7 +254,7 @@ function inboxHtml(list, tight = false, fold = false) { // fold: PC에서도 목
 function goView(sc, st) {
   const P = placeOf(J), N = P.nav;
   unmount?.(); unmount = null;
-  const app = $('#app'); app.classList.remove('handsOn', 'closeOn', 'pickOn'); app.classList.add('walkOn'); app.style.removeProperty('--pick'); app.style.removeProperty('--walk');
+  const app = $('#app'); app.classList.remove('handsOn', 'closeOn', 'pickOn'); app.classList.add('walkOn'); app.style.removeProperty('--pick'); app.style.removeProperty('--walk'); app.style.removeProperty('--close'); app.classList.remove('closeTight');
   drawHud();
   const spot = st.walk ? N.spots[st.walk] : null, far = st.remote ? N.remote[sc.place] : null;
   walkGoal = spot ? { id: st.walk, x: spot.x, z: spot.z } : null;
@@ -461,6 +461,17 @@ function hands(sc, head, body) {
       save(); setTimeout(() => { react(r.d); show(r); }, 700);
     },
   });
+  fitClose();
+}
+// 아주 작은 폰(320×568 등)의 손 장면: 지금 할 일 줄이 화면 밖이면, 글을 촘촘하게(closeTight) 한다.
+// 넘치지 않는 폰과 PC는 그대로다. 결과 글은 지금처럼 '다음 장면으로' 단추까지 내려 준다.
+function fitClose() {
+  const app = $('#app'), v = panel.querySelector('.view');
+  app.classList.remove('closeTight'); app.style.removeProperty('--close');
+  if (!v || !app.classList.contains('closeOn') || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return;
+  const bar = () => (v.querySelector('#cuNow') || v.querySelector('.benchControls') || v.querySelector('#hands'))?.getBoundingClientRect().bottom - panel.getBoundingClientRect().bottom;
+  if (!(bar() > 0)) return;
+  app.classList.add('closeTight'); // 손 장면은 3D가 주인공이라 3D 칸은 줄이지 않는다. 그래도 넘치면 위의 '손으로 하는 곳으로 내려 주기'가 맡는다
 }
 
 function pick(sc, head, body) {

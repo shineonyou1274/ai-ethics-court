@@ -142,7 +142,7 @@ ol.path { padding-left: 22px; font-size: 15px; margin: 6px 0 0; } ol.path li { m
 
 /* 손으로 하는 장면 (src/hands/) */
 @media not (min-aspect-ratio: 11/10) { #app.handsOn { grid-template-rows: 24dvh minmax(0, 1fr); } }
-@media not (min-aspect-ratio: 11/10) { #app.closeOn { grid-template-rows: 56dvh minmax(0, 1fr); transition: none; } } /* 가까이 보기에 들어갈 때는 칸을 바로 키운다. 서서히 키우면 3D가 작게 그려졌다가 커진다 */
+@media not (min-aspect-ratio: 11/10) { #app.closeOn { grid-template-rows: var(--close, 56dvh) minmax(0, 1fr); transition: none; } } /* 가까이 보기에 들어갈 때는 칸을 바로 키운다. 서서히 키우면 3D가 작게 그려졌다가 커진다 */
 #app.closeOn #gl { cursor: crosshair; }
 .todo { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 6px; }
 .todo li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 14px; background: var(--card); border: 2px solid var(--line); font-size: 16px; }
@@ -460,3 +460,20 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
 #app.pickOn.pickTight .choice .n { width: 26px; height: 26px; font-size: 15px; }
 #app.pickOn.pickTight .fine { font-size: 13px; margin: 2px 0; }
 #app.pickOn.pickTight #ok { margin-top: 8px; padding: 10px 14px; font-size: 18px; }
+
+/* 아주 작은 폰의 손 장면 (main.js fitClose 가 넘칠 때만 붙인다) */
+#app.closeOn.closeTight .view > h2 { font-size: 18px; margin: 0 0 2px; }
+#app.closeOn.closeTight .view > .eyebrow { display: none; }
+#app.closeOn.closeTight details.again summary { font-size: 14px; }
+#app.closeOn.closeTight .handsHead { margin-bottom: 4px; }
+#app.closeOn.closeTight .handsHead span { font-size: 14px; line-height: 1.4; }
+#app.closeOn.closeTight .handsMsg { padding: 7px 12px; font-size: 15px; margin-top: 6px; }
+#app.closeOn.closeTight .hands .handsMsg + .todoNow { margin-top: 6px; }
+@media (max-width: 360px) { /* 좁은 폰: 할 일 동그라미가 많아도 지금 할 일 이름이 한 줄에 들어가게 */
+  .todoNow { gap: 8px; padding: 8px 10px; }
+  .todoNow .dots { gap: 3px; }
+  .todoNow .dots i { width: 10px; height: 10px; }
+  .todoNow .now b { font-size: 16px; }
+  .todoNow .now small { font-size: 16px; }
+  .todoNow .more { width: 28px; height: 28px; }
+}
