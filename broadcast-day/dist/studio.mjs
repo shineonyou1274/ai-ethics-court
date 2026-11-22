@@ -92,7 +92,7 @@ export class Studio{
  segment={i,points,start:performance.now()};
  if(this.motion.matches){avatar.position.set(x,.05,z);segment=null;this.draw();arrive(i)}};
  this.walk=walk;
- const frame=t=>{if(segment){const s=segment,f=Math.min(1,(t-s.start)/(400*s.points.length)),u=f*(s.points.length-1),k=Math.min(Math.floor(u),s.points.length-2),a=s.points[k],b=s.points[k+1];avatar.position.set(a[0]+(b[0]-a[0])*(u-k),.05+.04*Math.abs(Math.sin(f*12)),a[1]+(b[1]-a[1])*(u-k));if(f===1){segment=null;arrive(s.i);if(this.root.children[0]!==floorMesh)return}}
+ const frame=t=>{if(segment){const s=segment,f=Math.max(0,Math.min(1,(t-s.start)/(400*s.points.length))),u=f*(s.points.length-1),k=Math.min(Math.floor(u),s.points.length-2),a=s.points[k],b=s.points[k+1];avatar.position.set(a[0]+(b[0]-a[0])*(u-k),.05+.04*Math.abs(Math.sin(f*12)),a[1]+(b[1]-a[1])*(u-k));if(f===1){segment=null;arrive(s.i);if(this.root.children[0]!==floorMesh)return}}
  if(!this.flat&&!this.motion.matches){crowd[0].position.z=1.9+Math.sin(t/2350)*.3;crowd[2].rotation.y=.45*Math.sin(t/3200)}
  if(segment||(!this.flat&&!this.motion.matches)||!this.floorDrawn){this.draw();this.floorDrawn=true}
  this.frame=requestAnimationFrame(frame)};
