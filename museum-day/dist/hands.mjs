@@ -16,6 +16,10 @@ export function openHand(studio,type,{say,mistake,done}){
  studio.reset();const root=studio.root;
  box(root,13,7,.32,0xb29878,0,0,-1.45);box(root,9.45,4.95,.14,0x526e63,0,0,-1.18);
  box(root,9.04,4.55,.12,0xd0bfa1,0,0,-1.05);
+ // A canvas-covered bench with stitched edges and a measuring strip.
+ for(let j=0;j<36;j++){const x=-4.32+j*.248;box(root,.11,.016,.018,0xbbaa8b,x,2.16,-.955);box(root,.11,.016,.018,0xbbaa8b,x,-2.16,-.955)}
+ box(root,1.75,.17,.06,0xd2ab73,3.18,1.88,-.85);
+ for(let j=0;j<16;j++)box(root,.016,j%5===0?.105:.057,.015,0x766147,2.41+j*.10,1.92,-.806);
  let down=()=>{},move=()=>{},up=()=>{},held=false,completed=false;
  const finish=message=>{if(completed)return;completed=true;say(message);done()};
  say(labels[type]);

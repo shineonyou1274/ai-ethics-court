@@ -8,10 +8,10 @@ import {
 	SRGBColorSpace,
 	Vector3
 } from './three.module.min.js';
-import { Projector } from '../renderers/Projector.js';
-import { RenderableFace } from '../renderers/Projector.js';
-import { RenderableLine } from '../renderers/Projector.js';
-import { RenderableSprite } from '../renderers/Projector.js';
+import { Projector } from './Projector.js';
+import { RenderableFace } from './Projector.js';
+import { RenderableLine } from './Projector.js';
+import { RenderableSprite } from './Projector.js';
 
 class SVGObject extends Object3D {
 

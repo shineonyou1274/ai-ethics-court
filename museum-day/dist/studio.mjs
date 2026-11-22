@@ -38,7 +38,7 @@ export class Studio{
  this.host=host;this.scene=new T.Scene();this.camera=new T.OrthographicCamera(-5,5,3,-3,.1,90);this.camera.position.z=24;
  this.scene.background=new T.Color(0xded6bc);this.scene.add(new T.HemisphereLight(0xfffae8,0xa59b88,2.0));
  const key=new T.DirectionalLight(0xffead1,2.1);key.position.set(-4,8,9);this.scene.add(key);
- try{this.renderer=new T.WebGLRenderer({antialias:true});this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.65))}
+ try{if(new URLSearchParams(location.search).get('view')==='flat')throw Error('flat');this.renderer=new T.WebGLRenderer({antialias:true});this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.65))}
  catch{this.renderer=new SVGRenderer();this.flat=true;this.renderer.setClearColor(0xded6bc)}
  this.surface=this.renderer.domElement;host.append(this.surface);this.root=group(this.scene);
  this.motion=matchMedia('(prefers-reduced-motion: reduce)');this.ray=new T.Raycaster();
@@ -65,17 +65,19 @@ export class Studio{
  if(i===3){box(r,1.74,.62,.9,teal,0,.31,-.45);vessel(r,0,1.07,-.46,.48);for(const x of [-.83,.83])box(r,.038,.93,.04,0x82a6a4,x,1.08,-.02);box(r,1.74,.05,.93,0xbfc8b7,0,1.57,-.46)}
  if(i===4){table(0,-.65);for(const a of [-.58,.53])box(r,.44,.37,.42,teal,a,.19,.01);box(r,1.38,.69,.08,0x416558,0,1.1,-1.35)}
  if(i===5){box(r,1.8,.48,.65,teal,-.1,.26,-.65);box(r,1.8,.52,.17,teal,-.1,.61,-.93);oval(r,.28,.45,.23,0x63875b,1.13,.65,-.55)}
- const n=document.createElement('button');n.className='pin'+(goal===i?' goal':'');n.textContent=rooms[i];n.onclick=()=>walk(i);this.host.append(n);pins.push(n);
+ const n=document.createElement('button');n.className='pin'+(goal===i?' goal':'');n.textContent=rooms[i];n.onclick=()=>walk(i);if(!visit){n.tabIndex=-1;n.style.pointerEvents='none'}this.host.append(n);pins.push(n);
  });
  const avatar=person(g,0,.05,0,0xa33f28,0x493128);const crowd=[person(g,-3.98,.05,1.87,0x658caa,0x42424b),person(g,.90,.05,-1.66,0xf4e7c5,0x48392d),person(g,.94,.05,2.3,0x9b7662,0x553a27)];
+ const donorRoom=goal===3?3:0;const [donorX,donorZ]=spots[donorRoom];
+ const donor=person(g,donorX+.78,.05,donorZ+.56,0xb97579,0x493d37);oval(donor,.12,.13,.12,0x493d37,.17,1.43,-.14);
  const coord=i=>[spots[i][0]-.53,spots[i][1]+.82];
  const [sx,sz]=coord(at);avatar.position.set(sx,.05,sz);
  this.labels=()=>pins.forEach((n,i)=>{const [x,z]=spots[i],pt=g.localToWorld(new T.Vector3(x,.05,z+1.42)).project(this.camera);n.style.left=((pt.x+1)*50)+'%';n.style.top=((1-pt.y)*50)+'%'});
  let segment=null;const walk=i=>{if(!visit)return;const [x,z]=coord(i);segment={i,x,z,sx:avatar.position.x,sz:avatar.position.z,start:performance.now()};if(this.motion.matches){avatar.position.set(x,.05,z);segment=null;this.draw();arrive(i)}};
  this.walk=walk;
  const frame=t=>{if(segment){const s=segment,f=Math.min(1,(t-s.start)/650);avatar.position.set(s.sx+(s.x-s.sx)*f,.05+.04*Math.abs(Math.sin(f*12)),s.sz+(s.z-s.sz)*f);if(f===1){segment=null;arrive(s.i);if(this.root.children[0]!==floorMesh)return}}
- if(!this.motion.matches){crowd[0].position.z=1.9+Math.sin(t/2350)*.3;crowd[2].rotation.y=.45*Math.sin(t/3200)}
- if(segment||!this.motion.matches||!this.floorDrawn){this.draw();this.floorDrawn=true}
+ if(!this.flat&&!this.motion.matches){crowd[0].position.z=1.9+Math.sin(t/2350)*.3;crowd[2].rotation.y=.45*Math.sin(t/3200)}
+ if(segment||(!this.flat&&!this.motion.matches)||!this.floorDrawn){this.draw();this.floorDrawn=true}
  this.frame=requestAnimationFrame(frame)};
  const floorMesh=g.children[0];this.draw();this.frame=requestAnimationFrame(frame);
  }
