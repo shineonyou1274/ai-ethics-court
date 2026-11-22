@@ -15,7 +15,7 @@
 | 모아 병원 (8직업) | `career-day/` | Claude·Codex | **여덟 직업 모두 카페 방식**. 모두 운영 중(2026-11-22). 약사·원무·물리치료는 Codex(`hands/department.js`·`places/department.js`). 공통 틀 `jobs/_floor-day.js`, 층은 `places/index.js` 의 FLOORS |
 | 다솜 소방서 (소방관) | `career-day/` 안의 일터 `fire-station`, 직업 `firefighter` | Claude | **카페 방식 판 운영 중(2026-11-20)**: 서 안을 걸어 다니기, 무전·출동 벨로 일이 찾아옴, 출동 둘(오작동 경보·골목 불), 보람 님 세 시 약속. 걷기 엔진 `career-day/src/flow.js`·`world/nav.js`(직업 `walk: true` 로 켬). 다음: 병원 간호사 |
 | 카페 바리스타 | `barista-day/` | Codex | 11/16 판 모습 + 손 조작 5개(거스름돈·붓기·수도꼭지·선반·손님) 고친 판 운영 중(2026-11-19) |
-| 온빛 항공우주 (항공우주공학기술자) | `aerospace-day/` (게시판 `aerospace-day/BOARD.md`) | Codex | 운영은 옛 날개 풍동 판. 새 판 "오후 4시, 무인 화물선 도킹"은 `codex/aerospace-story` 에서 운영 전 한 바퀴 더(게시판 2026-11-20). 일터 색 `#5965ac` |
+| 온빛 항공우주 (항공우주공학기술자) | `aerospace-day/` (게시판 `aerospace-day/BOARD.md`) | Codex | 새 판 "오후 4시, 무인 화물선 도킹" 채점 통과, 통합에 합침(2026-11-23, e8b778b): 3D 도킹 링 볼트·센서, 조종석 조이스틱. 권장: 조종석 결과 3D 140px, 16:00·17:00 단추 화면 밖, 표적 34px, 렌치가 손을 따라오게. 일터 색 `#5965ac` |
 | 누리 역사박물관 (학예사) | `museum-day/` (게시판 `museum-day/BOARD.md`) | Codex | 운영 중(2026-11-22). 유물 옮기기·붓질·조각 맞추기·진열장 다이얼, 단비 님 약속. 사이트 입구·도장 12칸째. 권장: 층이 휑함, 손 장면 3D 35%(바리스타 56%), 세게 문지르기 경고 |
 | 새빛 방송국 (방송 PD) | `broadcast-day/` (게시판 `broadcast-day/BOARD.md`) | Codex | 채점 통과, 통합에 합침(2026-11-23). 카메라 구도·초점, 믹서 페이더, 스위처, 편집 타임라인, 보람 님 손 신호 약속. 도장 13칸째. 권장: 손 장면 3D 43%, 초상권·지연 송출 출처, 커리어넷 연봉(4,500 vs 5,510) 다시 확인 |
 | 공통 약속 | `shared/` | Claude | 일당·기록·세션·교사 코드·디자인 |
