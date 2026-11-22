@@ -53,7 +53,7 @@ export function openHand(studio,kind,{say,mistake,done}){
  if(kind==='mix'){
  let voice=-1;const audio=audioCheck(i=>{voice=i;refresh();studio.draw()});clean.push(()=>audio.dispose());const xs=[-2.65,0,2.65],levels=[.18,.15,.84],caps=[],lamps=[],scopes=[];
  const track=['진행자','보람 님','배경 음악'];let channel=-1;
- xs.forEach((x,i)=>{box(p,1.96,4.36,.15,ink,x,0,-.50);box(p,.18,i<2?.78:.66,.09,mint,x-.86,i<2?.28:-1.18,-.19);box(p,.13,2.92,.06,0x101e2a,x,-.05,-.30);
+ xs.forEach((x,i)=>{box(p,1.96,4.36,.15,ink,x,0,-.50);box(p,.18,i<2?.70:.66,.09,mint,x-.86,i<2?.10:-1.18,-.19);box(p,.13,2.92,.06,0x101e2a,x,-.05,-.30);
  for(let n=0;n<9;n++)box(p,.23,.035,.05,ice,x-.37,-1.50+n*.36,-.28);
  {const hit=box(p,1.62,1.40,.34,0xd6d9ce,x,0,.06);hit.material.transparent=true;hit.material.opacity=0;hit.material.depthWrite=false;caps.push(hit);box(hit,1.3,.45,.34,0xd6d9ce,0,0,0);box(hit,1.1,.085,.03,ink,0,0,.19)} // 손에 닿는 칸은 크게, 보이는 손잡이는 얇게: 초록 띠·불빛·파형을 가리지 않게
  box(p,1.78,.58,.10,0x142d3a,x,1.75,-.27);
