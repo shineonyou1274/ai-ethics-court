@@ -11,6 +11,28 @@ function brush(p,x,y,metal){
  box(g,.19,1.02,.15,c,0,.12);box(g,.44,.21,.21,0x927e60,0,-.4);
  for(let i=0;i<7;i++)oval(g,.052,.23,.08,metal?0x607479:0xe3b56e,(i-3)*.059,-.58);g.rotation.z=-.48;return g;
 }
+// The two sides of a break share the same wandering fracture through a domed lid.
+function lidFragment(a,b,dx,dy,radius){
+ const vertices=[],indices=[],rows=9,cols=24;
+ const crack=(angle,r)=>angle+.065*Math.sin(r*17+angle*2)*Math.sin(Math.PI*r/radius);
+ for(let layer=0;layer<2;layer++)for(let row=0;row<=rows;row++){
+  const r=.012+(radius-.012)*row/rows;
+  for(let col=0;col<=cols;col++){
+   const t=crack(a,r)+(crack(b,r)-crack(a,r))*col/cols;
+   vertices.push(r*Math.cos(t)-dx,r*Math.sin(t)-dy,.34*(1-(r/radius)**2)-layer*.17);
+  }
+ }
+ const stride=cols+1,layerSize=(rows+1)*stride;
+ const quad=(a,b,c,d)=>indices.push(a,b,d,b,c,d);
+ for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+  const n=row*stride+col;quad(n,n+stride,n+stride+1,n+1);
+  const k=n+layerSize;quad(k+1,k+stride+1,k+stride,k);
+ }
+ const wall=(n,k)=>quad(k,n,n+layerSize,k+layerSize);
+ for(let row=0;row<rows;row++){wall(row*stride,(row+1)*stride);wall((row+1)*stride+cols,row*stride+cols)}
+ for(let col=0;col<cols;col++){wall(rows*stride+col,rows*stride+col+1);wall(col+1,col)}
+ const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(vertices,3));geo.setIndex(indices);geo.computeVertexNormals();return geo;
+}
 const labels={carry:'질그릇 밑을 받쳐 오른쪽 상자로 옮기세요.',brush:'왼쪽 도구에서 붓을 골라 흙 위를 천천히 문지르세요.',fit:'조각을 톡 눌러 돌리고, 끊긴 빗살이 이어지도록 받침에 끌어 놓으세요.',case:'왼쪽은 습도, 오른쪽은 조명이에요. 손잡이를 좌우로 밀어 초록 눈금에 맞추세요.'};
 export function openHand(studio,type,{say,mistake,done}){
  studio.reset();const root=studio.root;
@@ -55,25 +77,25 @@ export function openHand(studio,type,{say,mistake,done}){
  const centre={x:1.65,y:.12},radius=1.56,angles=[-.32,1.55,3.88,Math.PI*2-.32];
  const pieces=[];for(let i=0;i<3;i++){
  const a=angles[i],b=angles[i+1],mid=(a+b)/2,dx=.87*Math.cos(mid),dy=.87*Math.sin(mid);
- const shape=new T.Shape();shape.moveTo(-dx,-dy);shape.lineTo(radius*Math.cos(a)-dx,radius*Math.sin(a)-dy);
- for(let k=1;k<=28;k++){const t=a+(b-a)*k/28;shape.lineTo(radius*Math.cos(t)-dx,radius*Math.sin(t)-dy)}shape.closePath();
- const geo=new T.ExtrudeGeometry(shape,{depth:.12,bevelEnabled:false});
- const dest={x:centre.x+dx,y:centre.y+dy};solid(root,geo.clone(),0x978b70,dest.x,dest.y,-.61);
+ const geo=lidFragment(a,b,dx,dy,radius);
+ const dest={x:centre.x+dx,y:centre.y+dy};
+ const socket=solid(root,geo.clone(),0x978b70,dest.x,dest.y,-.60);socket.scale.set(.97,.97,.3);
  ring(root,.29,.045,green,dest.x,dest.y,-.36);
  const home=[[-3.15,.92],[-1.5,-.78],[-3.51,-.98]][i],g=group(root,...home,.25);
- solid(g,geo,clay);const arc=solid(g,new T.TorusGeometry(1.18,.044,6,28,b-a),cream,-dx,-dy,.16);arc.rotation.z=a;
- for(let k=0;k<4;k++){const t=a+(b-a)*(k+.5)/4;box(g,.055,.24,.04,cream,Math.cos(t)*1.37-dx,Math.sin(t)*1.37-dy,.15).rotation.z=t-.98}
- g.rotation.z=(i===1?2:3)*Math.PI/2;pieces.push({g,home,dest,fixed:false})}
+ solid(g,geo,clay);const arc=solid(g,new T.TorusGeometry(1.18,.044,6,28,b-a),cream,-dx,-dy,.166);arc.rotation.z=a;
+ for(let k=0;k<4;k++){const t=a+(b-a)*(k+.5)/4;box(g,.055,.24,.04,cream,Math.cos(t)*1.37-dx,Math.sin(t)*1.37-dy,.105).rotation.z=t-.98}
+ g.rotation.x=.15;g.rotation.y=-.09;g.rotation.z=(i===1?2:3)*Math.PI/2;pieces.push({g,home,dest,fixed:false})}
  let piece,start,off,travel;
  down=p=>{const hit=studio.hit(p,pieces.filter(q=>!q.fixed).map(q=>q.g));piece=pieces.find(q=>q.g===hit?.parent);if(!piece)return;start=p.clone();off=p.clone().sub(piece.g.position);travel=0;piece.g.position.z=.6};
  move=p=>{if(piece){travel=Math.max(travel,p.distanceTo(start));piece.g.position.set(p.x-off.x,p.y-off.y,.6)}};
  up=()=>{if(!piece)return;const q=piece;piece=null;
  if(travel<.13){q.g.rotation.z=(q.g.rotation.z+Math.PI/2)%(2*Math.PI);say('조각을 한 번 돌렸어요. 둥근 가장자리와 빗살을 살펴요.')}
- else if(inside(q.g.position,q.dest,.67)&&Math.abs(Math.sin(q.g.rotation.z/2))<.03){q.fixed=true;q.g.position.set(q.dest.x,q.dest.y,-.26);if(pieces.every(k=>k.fixed))finish('딸깍. 세 조각의 빗살이 한 바퀴 이어졌어요.');else say('딸깍. 가장자리 무늬가 이어졌어요.')}
+ else if(inside(q.g.position,q.dest,.67)&&Math.abs(Math.sin(q.g.rotation.z/2))<.03){q.fixed=true;q.g.rotation.x=0;q.g.rotation.y=0;q.g.position.set(q.dest.x,q.dest.y,-.26);if(pieces.every(k=>k.fixed))finish('딸깍. 세 조각의 빗살이 한 바퀴 이어졌어요.');else say('딸깍. 가장자리 무늬가 이어졌어요.')}
  else{q.g.position.set(...q.home,.25);mistake('곡선과 빗살의 방향이 이어지지 않아요. 가장자리를 비교해요.')}};
  }
  if(type==='case'){
  const jar=vessel(root,-.73,.95,0,.84);jar.rotation.x=.17;
+ for(const x of [-2.22,2.22])box(root,.045,1.80,.12,0x77978c,x,1.04,-.34);box(root,4.49,.07,.45,0x728e84,0,1.96,-.34);
  const cloth=box(root,1.65,.83,.11,0x98516b,1.13,.98,0);for(let j=0;j<5;j++)box(cloth,.05,.80,.045,cream,(j-2)*.28,0,.09);
  box(root,4.5,.14,.8,teal,.15,.07,-.15);
  const knobs=[{x:-2,a:-1.5},{x:2,a:1.45}];let knob,start,angle;
@@ -81,6 +103,7 @@ export function openHand(studio,type,{say,mistake,done}){
  const dial=solid(root,new T.CylinderGeometry(.68,.74,.2,36),teal,k.x,-1.21,0);dial.rotation.x=Math.PI/2;
  for(let j=-5;j<=5;j++){const a=j*.3;oval(root,.07,.07,.04,Math.abs(j)<=1?green:0x816e53,k.x+.93*Math.sin(a),-1.21+.93*Math.cos(a),.15)}
  k.pin=group(root,k.x,-1.21,.19);box(k.pin,.10,.49,.12,cream,0,.28)}
+ for(const k of knobs){const collar=ring(root,.71,.075,0x9b8060,k.x,-1.24,-.04);collar.rotation.x=.1}
  const refresh=()=>{knobs.forEach(k=>k.pin.rotation.z=-k.a);cloth.material.color.set(0x98516b).lerp(new T.Color(0xe9c8ba),Math.max(0,knobs[1].a)/1.5)};
  refresh();down=p=>{knob=knobs.find(k=>inside(p,{x:k.x,y:-1.21},1.1));if(knob){start=p.x;angle=knob.a}};
  move=p=>{if(knob){knob.a=Math.max(-1.5,Math.min(1.5,angle+(p.x-start)*.95));refresh();say(knobs[1].a>.4?'빛이 강해 보자기 색이 옅게 보여요.':'눈금이 초록 점 사이에 오는지 살펴요.')}};
