@@ -8,3 +8,6 @@ header{justify-content:center;gap:12px;padding:7px;color:var(--wd-ink);backgroun
 body{overflow-anchor:none}.working #feedback{min-height:2.9em}
 @media(max-height:620px) and (max-width:600px){.working #line{margin:.1em 0}.working article{padding:8px 10px}.working #extra small{margin-top:3px}}
 button,a,summary{touch-action:manipulation}
+.working #actions{position:relative;z-index:2;gap:4px}.working #actions button{margin:0}.working #feedback{min-height:1.5em}
+@media(max-width:899px){.working #stage{height:50dvh}.working article{display:grid;grid-template-columns:1fr;gap:2px;padding:8px 12px}.working #actions{grid-row:4;margin:0}.working #line,.working #feedback{margin:0}.working #extra small{margin:0}.working h1{margin:0}}
+@media(max-width:899px) and (max-height:700px){.working #stage{height:max(220px,43dvh)}.working h1{font-size:23px}.working #place,.working #speaker{display:inline}.working article{padding:5px 10px}.working #actions button{padding:5px 9px}}
