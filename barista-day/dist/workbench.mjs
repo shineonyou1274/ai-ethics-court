@@ -61,7 +61,7 @@ export class Workbench{
  this.el('benchCupView').hidden=!hasCoffee;const fill=this.el('cupZoomFill');fill.setAttribute('y',String(105-90*Math.min(1,volume/240)));fill.setAttribute('height',String(90*Math.min(1,volume/240)));fill.setAttribute('fill','#'+color.getHexString());this.el('cupZoomPour').style.opacity=this.pouring&&this.drag?.kind==='pour'?'1':'0';this.el('cupZoomPour').setAttribute('stroke',milk?'#fff4dc':'#9ad5e2');this.el('benchVolume').textContent=Math.round(volume)+' mL';const profile=tasteProfile(dose,s.order.preferred,milk);this.el('benchFlavor').textContent=hasCoffee?(extracting?'에스프레소가 차오르는 중':dose===0?'에스프레소 · 매우 진함':profile.label):'빈 컵';this.el('benchPreference').textContent='손님 취향: '+s.order.preference+' · 맛은 배합 비율로 단순화한 체험입니다.';
  this.el('benchSeal').hidden=this.done||s.cup!=='에스프레소'||this.amount<.15;this.el('benchSeal').disabled=!!this.drag;
  if(this.amount>0){this.el('benchMilk').hidden=true;this.el('benchOat').hidden=true}
- if(!this.hold&&!this.extracting){progress=volume/240;label=this.done?'완성한 양':hasCoffee?'손을 떼면 멈춰요 · 직접 완성해주세요':'컵을 직접 놓아주세요'}
+ if(!this.hold&&!this.extracting){progress=volume/240;label=this.done?'완성한 양':hasCoffee?'손을 떼면 멈춰요 · 직접 완성해주세요':!s.cup?'컵을 직접 놓아주세요':s.ground?'추출 준비 완료':'분쇄 준비 완료'}
 
  this.el('benchMeter').firstElementChild.style.width=Math.min(100,progress*100)+'%';this.el('benchMeter').lastElementChild.textContent=this.done?'한 잔 완성':label;
  }

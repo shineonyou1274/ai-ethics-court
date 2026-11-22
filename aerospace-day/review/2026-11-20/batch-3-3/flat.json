@@ -1,0 +1,183 @@
+{
+  "profile": "flat",
+  "base": "http://127.0.0.1:8130/item-3-3/aerospace-day/",
+  "steps": [
+    {
+      "label": "badge",
+      "clock": "항공우주공학 · 09:00"
+    },
+    {
+      "label": "mode-return",
+      "clock": "항공우주공학 · 09:00"
+    },
+    {
+      "label": "hall-suitReady",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "preparation",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "equipped-workwear",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "equipped-badge",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "equipped-wrist",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "hall-drawingDone",
+      "clock": "항공우주공학 · 09:30"
+    },
+    {
+      "label": "drawing",
+      "clock": "항공우주공학 · 09:30"
+    },
+    {
+      "label": "drawing-part-0",
+      "clock": "항공우주공학 · 09:30 · 2분 밀림"
+    },
+    {
+      "label": "drawing-part-2",
+      "clock": "항공우주공학 · 09:30 · 2분 밀림"
+    },
+    {
+      "label": "drawing-part-4",
+      "clock": "항공우주공학 · 09:30 · 2분 밀림"
+    },
+    {
+      "label": "hall-boltProgress",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "assembly-before",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "bolt-0",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "bolt-3",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "bolt-1",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "bolt-4",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "bolt-2",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "bolt-5",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "assembly-after",
+      "clock": "항공우주공학 · 10:30 · 2분 밀림"
+    },
+    {
+      "label": "hall-sensorDone",
+      "clock": "항공우주공학 · 11:30 · 2분 밀림"
+    },
+    {
+      "label": "sensor",
+      "clock": "항공우주공학 · 11:30 · 2분 밀림"
+    },
+    {
+      "label": "sensor-wrong-return",
+      "clock": "항공우주공학 · 11:30 · 2분 밀림"
+    },
+    {
+      "label": "sensor-connected-0",
+      "clock": "항공우주공학 · 11:30 · 2분 밀림"
+    },
+    {
+      "label": "sensor-connected-1",
+      "clock": "항공우주공학 · 11:30 · 2분 밀림"
+    },
+    {
+      "label": "sensor-connected-2",
+      "clock": "항공우주공학 · 11:30 · 2분 밀림"
+    },
+    {
+      "label": "hall-rest",
+      "clock": "항공우주공학 · 12:00 · 2분 밀림"
+    },
+    {
+      "label": "lunch",
+      "clock": "항공우주공학 · 12:00 · 2분 밀림"
+    },
+    {
+      "label": "hall-shipMass",
+      "clock": "항공우주공학 · 13:00 · 2분 밀림"
+    },
+    {
+      "label": "design-0",
+      "clock": "항공우주공학 · 13:00 · 2분 밀림"
+    },
+    {
+      "label": "flight-0",
+      "clock": "항공우주공학 · 13:00 · 2분 밀림"
+    },
+    {
+      "label": "results-0",
+      "clock": "항공우주공학 · 13:00 · 2분 밀림"
+    },
+    {
+      "label": "design-1",
+      "clock": "항공우주공학 · 13:00 · 2분 밀림"
+    },
+    {
+      "label": "flight-1",
+      "clock": "항공우주공학 · 13:00 · 2분 밀림"
+    },
+    {
+      "label": "results-1",
+      "clock": "항공우주공학 · 13:00 · 2분 밀림"
+    },
+    {
+      "label": "hall-hold",
+      "clock": "항공우주공학 · 15:00 · 2분 밀림"
+    },
+    {
+      "label": "decision",
+      "clock": "항공우주공학 · 15:00 · 2분 밀림"
+    },
+    {
+      "label": "control-result",
+      "clock": "항공우주공학 · 16:00 · 2분 밀림"
+    },
+    {
+      "label": "hall-cleanup",
+      "clock": "항공우주공학 · 17:00 · 2분 밀림"
+    },
+    {
+      "label": "handover-report",
+      "clock": "항공우주공학 · 17:00 · 2분 밀림"
+    },
+    {
+      "label": "leave-choice",
+      "clock": "항공우주공학 · 18:00 · 2분 밀림"
+    },
+    {
+      "label": "payslip",
+      "clock": "항공우주공학 · 18:00"
+    },
+    {
+      "label": "saved",
+      "clock": "항공우주공학 · 18:00"
+    }
+  ],
+  "errors": []
+}

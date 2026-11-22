@@ -1,0 +1,10 @@
+2026-11-20 · automated checks
+PASS shared/test.mjs
+PASS aerospace-day/tests/*.mjs
+PASS barista-day/tests/*.mjs
+PASS workday-site/build.mjs --check (45 files)
+PASS git diff --check
+
+assembly-canvas.webm: 5.6 seconds; maxFlashesPerSec 0; whiteFrames 0
+The clip contains the task canvas only, not the entire app UI or full day.
+touch-flight-canvas.webm: 13.5 seconds; maxFlashesPerSec 0; whiteFrames 0

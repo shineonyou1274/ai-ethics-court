@@ -1,0 +1,287 @@
+{
+  "profile": "flat",
+  "base": "local-review/round-ready/aerospace-day/",
+  "steps": [
+    {
+      "label": "badge",
+      "file": "01-badge.png",
+      "clock": "항공우주 · 09:00"
+    },
+    {
+      "label": "mode-return",
+      "file": "02-mode-return.png",
+      "clock": "항공우주 · 09:00"
+    },
+    {
+      "label": "hall-suitReady",
+      "file": "03-hall-suitReady.png",
+      "clock": "항공우주 · 09:10"
+    },
+    {
+      "label": "preparation",
+      "file": "04-preparation.png",
+      "clock": "항공우주 · 09:10"
+    },
+    {
+      "label": "equipped-workwear",
+      "file": "05-equipped-workwear.png",
+      "clock": "항공우주 · 09:10"
+    },
+    {
+      "label": "equipped-badge",
+      "file": "06-equipped-badge.png",
+      "clock": "항공우주 · 09:10"
+    },
+    {
+      "label": "equipped-wrist",
+      "file": "07-equipped-wrist.png",
+      "clock": "항공우주 · 09:10"
+    },
+    {
+      "label": "hall-drawingDone",
+      "file": "08-hall-drawingDone.png",
+      "clock": "항공우주 · 09:30"
+    },
+    {
+      "label": "drawing",
+      "file": "09-drawing.png",
+      "clock": "항공우주 · 09:30"
+    },
+    {
+      "label": "drawing-part-0",
+      "file": "10-drawing-part-0.png",
+      "clock": "항공우주 · 09:30 +2분"
+    },
+    {
+      "label": "drawing-part-2",
+      "file": "11-drawing-part-2.png",
+      "clock": "항공우주 · 09:30 +2분"
+    },
+    {
+      "label": "drawing-part-4",
+      "file": "12-drawing-part-4.png",
+      "clock": "항공우주 · 09:30 +2분"
+    },
+    {
+      "label": "hall-boltProgress",
+      "file": "13-hall-boltProgress.png",
+      "clock": "항공우주 · 10:30 +2분"
+    },
+    {
+      "label": "assembly-before",
+      "file": "14-assembly-before.png",
+      "clock": "항공우주 · 10:30 +2분"
+    },
+    {
+      "label": "assembly-wrong",
+      "file": "15-assembly-wrong.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-held-0",
+      "file": "16-bolt-held-0.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-0",
+      "file": "17-bolt-0.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-held-3",
+      "file": "18-bolt-held-3.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-3",
+      "file": "19-bolt-3.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-held-1",
+      "file": "20-bolt-held-1.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-1",
+      "file": "21-bolt-1.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-held-4",
+      "file": "22-bolt-held-4.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-4",
+      "file": "23-bolt-4.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-held-2",
+      "file": "24-bolt-held-2.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-2",
+      "file": "25-bolt-2.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-held-5",
+      "file": "26-bolt-held-5.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "bolt-5",
+      "file": "27-bolt-5.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "assembly-after",
+      "file": "28-assembly-after.png",
+      "clock": "항공우주 · 10:30 +4분"
+    },
+    {
+      "label": "hall-sensorDone",
+      "file": "29-hall-sensorDone.png",
+      "clock": "항공우주 · 11:30 +4분"
+    },
+    {
+      "label": "sensor",
+      "file": "30-sensor.png",
+      "clock": "항공우주 · 11:30 +4분"
+    },
+    {
+      "label": "sensor-wrong-return",
+      "file": "31-sensor-wrong-return.png",
+      "clock": "항공우주 · 11:30 +6분"
+    },
+    {
+      "label": "sensor-held-0",
+      "file": "32-sensor-held-0.png",
+      "clock": "항공우주 · 11:30 +6분"
+    },
+    {
+      "label": "sensor-connected-0",
+      "file": "33-sensor-connected-0.png",
+      "clock": "항공우주 · 11:30 +6분"
+    },
+    {
+      "label": "sensor-held-1",
+      "file": "34-sensor-held-1.png",
+      "clock": "항공우주 · 11:30 +6분"
+    },
+    {
+      "label": "sensor-connected-1",
+      "file": "35-sensor-connected-1.png",
+      "clock": "항공우주 · 11:30 +6분"
+    },
+    {
+      "label": "sensor-held-2",
+      "file": "36-sensor-held-2.png",
+      "clock": "항공우주 · 11:30 +6분"
+    },
+    {
+      "label": "sensor-connected-2",
+      "file": "37-sensor-connected-2.png",
+      "clock": "항공우주 · 11:30 +6분"
+    },
+    {
+      "label": "hall-rest",
+      "file": "38-hall-rest.png",
+      "clock": "항공우주 · 12:00 +6분"
+    },
+    {
+      "label": "lunch",
+      "file": "39-lunch.png",
+      "clock": "항공우주 · 12:00 +6분"
+    },
+    {
+      "label": "hall-shipMass",
+      "file": "40-hall-shipMass.png",
+      "clock": "항공우주 · 13:00 +6분"
+    },
+    {
+      "label": "design-0",
+      "file": "41-design-0.png",
+      "clock": "항공우주 · 13:00 +6분"
+    },
+    {
+      "label": "flight-0",
+      "file": "42-flight-0.png",
+      "clock": "항공우주 · 13:00 +6분"
+    },
+    {
+      "label": "results-0",
+      "file": "43-results-0.png",
+      "clock": "항공우주 · 13:00 +6분"
+    },
+    {
+      "label": "design-1",
+      "file": "44-design-1.png",
+      "clock": "항공우주 · 13:00 +6분"
+    },
+    {
+      "label": "flight-1",
+      "file": "45-flight-1.png",
+      "clock": "항공우주 · 13:00 +6분"
+    },
+    {
+      "label": "results-1",
+      "file": "46-results-1.png",
+      "clock": "항공우주 · 13:00 +6분"
+    },
+    {
+      "label": "hall-hold",
+      "file": "47-hall-hold.png",
+      "clock": "항공우주 · 15:00 +6분"
+    },
+    {
+      "label": "decision",
+      "file": "48-decision.png",
+      "clock": "항공우주 · 15:00 +6분"
+    },
+    {
+      "label": "control-approach",
+      "file": "49-control-approach.png",
+      "clock": "항공우주 · 16:00 +6분"
+    },
+    {
+      "label": "control-result",
+      "file": "50-control-result.png",
+      "clock": "항공우주 · 16:00 +6분"
+    },
+    {
+      "label": "hall-cleanup",
+      "file": "51-hall-cleanup.png",
+      "clock": "항공우주 · 17:00 +6분"
+    },
+    {
+      "label": "handover-report",
+      "file": "52-handover-report.png",
+      "clock": "항공우주 · 17:00 +6분"
+    },
+    {
+      "label": "report-values",
+      "file": "53-report-values.png",
+      "clock": "항공우주 · 17:00 +6분"
+    },
+    {
+      "label": "leave-choice",
+      "file": "54-leave-choice.png",
+      "clock": "항공우주 · 18:00 +6분"
+    },
+    {
+      "label": "payslip",
+      "file": "55-payslip.png",
+      "clock": "항공우주 · 18:06"
+    },
+    {
+      "label": "saved",
+      "file": "56-saved.png",
+      "clock": "항공우주 · 18:06"
+    }
+  ],
+  "errors": []
+}

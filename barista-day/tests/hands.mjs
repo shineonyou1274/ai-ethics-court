@@ -7,7 +7,7 @@ import {Payment} from '../dist/payment-state.mjs';
 import {Shift} from '../dist/shift.mjs';
 import {WashCup} from '../dist/wash-state.mjs';
 const els=new Map();
-globalThis.document={body:{insertAdjacentHTML(){},classList:{add(){},remove(){}}},createElement(){return{getContext(){return{fillText(){}}}}},querySelectorAll(){return[]},getElementById(id){if(!els.has(id))els.set(id,{style:{},setAttribute(){},getBoundingClientRect(){return{left:20,right:160,top:60,bottom:100}},querySelector(){return{scrollTo(){}}}});return els.get(id)},addEventListener(){}};
+globalThis.document={body:{insertAdjacentHTML(){},classList:{add(){},remove(){}}},createElement(){return{style:{},setAttribute(k,v){this[k]=v},remove(){},getContext(){return{fillText(){}}}}},querySelectorAll(){return[]},getElementById(id){if(!els.has(id))els.set(id,{style:{},append(){},setAttribute(){},getBoundingClientRect(){return{left:20,right:160,top:60,bottom:100}},querySelector(){return{scrollTo(){}}}});return els.get(id)},addEventListener(){}};
 globalThis.window={addEventListener(){},matchMedia(){return{matches:false}}};
 const canvas=(width,height)=>({addEventListener(){},setPointerCapture(){},getBoundingClientRect:()=>({left:0,top:0,width,height})});
 const state=new Shift();state.order={name:'지우',drink:'아메리카노'};state.payment=new Payment(4000,'cash',10000);state.payment.receive();
@@ -17,6 +17,7 @@ for(const value of [5000,1000,500,100,1000,500,100,5000]){
  const bounds=pay.change.children.map(g=>new T.Box3().setFromObject(g));
  for(let i=0;i<bounds.length;i++)for(let j=i+1;j<bounds.length;j++)assert.equal(bounds[i].intersectsBox(bounds[j]),false,'denomination labels must not overlap');
 }
+assert.equal(pay.countLabels.length,4);assert.deepEqual(pay.countLabels.map(e=>e.label.textContent),['2장','2장','2개','2개']);
 assert.equal(pay.change.children.length,4,'duplicates are counted in four separate denominations');
 const before=pay.change.children.map(g=>g.position.toArray());pay.close();pay.open();assert.deepEqual(pay.change.children.map(g=>g.position.toArray()),before,'reopening cannot change layout');
 for(const [width,height]of [[390,472],[768,800]]){
@@ -40,3 +41,12 @@ for(const [width,height]of [[390,472],[768,800]]){
  b.up(e);assert.equal(b.pouring,false);assert.deepEqual(b.vessel.position.toArray(),[1.55,.2,.85]);
 }
 console.log('PASS: pouring vessel clears cup and machine, then returns home on release at phone/PC sizes.');
+
+// Visible cup opening intersects the stream at an off-centre position.
+{
+ const s=new Shift(),cup=new WashCup(0,'rinse-edge');cup.points.forEach(p=>p.clean=true);s.washCups=[cup];
+ const w=new Washbench({state:s,canvas:canvas(390,472),onChange(){},onClose(){},sound(){}});w.open();w.water=true;
+ w.cup.position.set(.35,0,0);w.update(.5);assert.ok(cup.rinsing>0,'water inside the visible cup opening must rinse');
+ const before=cup.rinsing;w.cup.position.set(.5,0,0);w.update(.5);assert.equal(cup.rinsing,before,'water outside the cup must not rinse');
+}
+console.log('PASS: off-centre visible stream rinses; outside stream does not.');

@@ -1,0 +1,4 @@
+✓ local-review/item-3-4-matrix/flat/page@7130d8770cfd9e1b393a28355d788f3b.webm {"seconds":77.5,"maxFlashesPerSec":2,"worst":"칸 3,0","atSec":43.6,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/item-3-4-matrix/pc/page@eec1a52929b3f5946a4ccab4c9e94f0f.webm {"seconds":57.3,"maxFlashesPerSec":1,"worst":"칸 1,0","atSec":0.48,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/item-3-4-matrix/phone/page@84a2c920a4772151841183a359e37edb.webm {"seconds":83.2,"maxFlashesPerSec":1,"worst":"칸 2,0","atSec":0.8,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/item-3-4-matrix/se/page@d4b7257218d0852cb2af24bdea279b92.webm {"seconds":72.9,"maxFlashesPerSec":2,"worst":"칸 3,0","atSec":39.88,"whiteFrames":0,"whiteAt":[],"pass":true}

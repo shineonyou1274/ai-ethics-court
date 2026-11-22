@@ -1,0 +1,4 @@
+✓ local-review/01-after/phone/page@b6a131f6f9785cdda3da0de2845cf337.webm {"seconds":452.6,"maxFlashesPerSec":1,"worst":"칸 1,1","atSec":393.84,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/01-after/se/page@d9d812365f1d82618ea555735340f550.webm {"seconds":114,"maxFlashesPerSec":1,"worst":"칸 2,0","atSec":12.08,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/01-pc-clean/pc/page@ba19b2515a469febc9689ea49d1b544f.webm {"seconds":62.8,"maxFlashesPerSec":1,"worst":"칸 0,1","atSec":4.48,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/01-flat-retry-metal/flat/page@cec280bf386093412f0ba0206cc3abf6.webm {"seconds":100.8,"maxFlashesPerSec":2,"worst":"칸 3,0","atSec":35.72,"whiteFrames":0,"whiteAt":[],"pass":true}

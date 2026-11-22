@@ -1,0 +1,1 @@
+✓ local-review/overtime/flat/page@f12334cace66174a6d3f3ebd9440d2f2.webm {"seconds":69.6,"maxFlashesPerSec":2,"worst":"칸 3,0","atSec":66.32,"whiteFrames":0,"whiteAt":[],"pass":true}

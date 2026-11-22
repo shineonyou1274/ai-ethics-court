@@ -1,0 +1,235 @@
+일당 계산
+  ✓ 바리스타(커리어넷 180, 3,004만 원) 시급 11,980원
+  ✓ 바리스타 8시간 기본급 95,840원
+  ✓ 30분 연장은 1.5배
+  ✓ 자료 시급이 최저시급보다 낮으면 최저시급
+  ✓ 소방관(커리어넷 385, 4,000만 원) 시급 15,950원, 8시간 기본급 127,600원
+예시 기록
+  ✓ 바리스타 예시 기록 통과 
+  ✓ 일당을 다르게 계산하면 걸림
+  ✓ 학생 이름을 넣으면 걸림
+저장
+  ✓ 기록마다 id 가 붙음
+  ✓ 저장하면 ok
+  ✓ 같은 기록을 두 번 저장하지 않음
+  ✓ 다른 탭이 그사이 저장한 기록을 지우지 않음
+  ✓ 저장이 막히면 ok: false 와 까닭
+  ✓ 명세서 한 줄(PAY_NOTE)
+  ✓ 커리어넷 출처 주소
+기기를 함께 쓸 때
+  ✓ 세션이 없던 예전 기록은 처음 사람의 것으로 봄
+  ✓ 앞사람 기록이 남아 있으면 누구인지 물음
+  ✓ '이어서 하기'를 고르면 오늘은 다시 묻지 않음
+  ✓ 새 기록에 지금 세션이 붙음
+  ✓ 새로 출근하는 사람: 앞사람 기록은 남기고 숨김
+  ✓ 지갑 요약은 지금 사람 것만 (일한 시간, 다녀온 직업)
+  ✓ 모두 지우고 시작하면 이 기기의 기록이 비워짐
+교사 기록 모으기
+  ✓ 코드 모양 WD1.본문.검사
+  ✓ 붙여 넣은 글 속 코드를 찾아 풂 (한글 이름 포함)
+  ✓ 직업·일당·흥미 유형이 그대로
+  ✓ 글자가 바뀐 코드는 오류로 알림
+  ✓ 가게 매출 같은 다른 돈은 코드에 넣지 않음
+  ✓ CSV 머리줄
+복사본
+  ✓ ../barista-day/dist/shared/workday.js 가 원본과 같음
+  ✓ ../barista-day/dist/shared/collect.js 가 원본과 같음
+  ✓ ../barista-day/dist/shared/design.css 가 원본과 같음
+  ✓ ../aerospace-day/dist/shared/workday.js 가 원본과 같음
+  ✓ ../aerospace-day/dist/shared/collect.js 가 원본과 같음
+  ✓ ../aerospace-day/dist/shared/design.css 가 원본과 같음
+
+✓ 약속을 모두 지킴
+
+> career-day@0.1.0 test
+> node test/sim.mjs && node test/walk.mjs
+
+
+■ 의사
+  길 7,776가지 · 시급 33,890원 · 일당 271,120~316,870원 · 연장 0~54분
+   49.5%  사람 곁을 지킨 하루
+   36.1%  팀과 호흡을 맞춘 하루
+   10.0%  이것저것 챙기느라 바빴던 하루
+    2.8%  다 쓰고 돌아가는 퇴근길
+    1.6%  내 속도를 지킨 하루
+  흥미 유형 ACERS
+  care 54~81
+  team 35~94
+  energy 19~66
+
+■ 간호사
+  길 1,944가지 · 시급 14,610원 · 일당 116,880~136,970원 · 연장 0~55분
+   40.5%  사람 곁을 지킨 하루
+   28.5%  팀과 호흡을 맞춘 하루
+   23.7%  이것저것 챙기느라 바빴던 하루
+    4.3%  다 쓰고 돌아가는 퇴근길
+    3.0%  내 속도를 지킨 하루
+  흥미 유형 CERS
+  care 38~81
+  team 23~89
+  energy 19~68
+
+■ 임상병리사
+  길 1,944가지 · 시급 12,760원 · 일당 102,080~118,670원 · 연장 0~52분
+   33.6%  사람 곁을 지킨 하루
+   32.2%  팀과 호흡을 맞춘 하루
+   25.3%  이것저것 챙기느라 바빴던 하루
+    8.8%  내 속도를 지킨 하루
+    0.1%  다 쓰고 돌아가는 퇴근길
+  흥미 유형 CEIS
+  care 47~74
+  team 33~86
+  energy 29~69
+
+■ 방사선사
+  길 1,933가지 · 시급 15,280원 · 일당 122,240~140,580원 · 연장 0~48분
+   49.5%  사람 곁을 지킨 하루
+   24.2%  팀과 호흡을 맞춘 하루
+   20.7%  이것저것 챙기느라 바빴던 하루
+    5.6%  내 속도를 지킨 하루
+  흥미 유형 ACERS
+  care 48~80
+  team 31~87
+  energy 31~67
+
+■ 원무행정 직원
+  길 1,944가지 · 시급 12,390원 · 일당 99,120~114,610원 · 연장 0~50분
+   65.4%  사람 곁을 지킨 하루
+   15.7%  팀과 호흡을 맞춘 하루
+   12.0%  이것저것 챙기느라 바빴던 하루
+    6.7%  내 속도를 지킨 하루
+    0.3%  다 쓰고 돌아가는 퇴근길
+  흥미 유형 ACES
+  care 53~84
+  team 24~86
+  energy 27~70
+
+■ 약사
+  길 1,944가지 · 시급 25,920원 · 일당 207,360~244,300원 · 연장 0~57분
+   68.7%  사람 곁을 지킨 하루
+   14.6%  팀과 호흡을 맞춘 하루
+   13.8%  이것저것 챙기느라 바빴던 하루
+    2.8%  내 속도를 지킨 하루
+    0.2%  다 쓰고 돌아가는 퇴근길
+  흥미 유형 ACES
+  care 54~79
+  team 23~82
+  energy 28~68
+
+■ 물리치료사
+  길 1,846가지 · 시급 12,920원 · 일당 103,360~119,510원 · 연장 0~50분
+   39.9%  사람 곁을 지킨 하루
+   26.4%  이것저것 챙기느라 바빴던 하루
+   26.1%  팀과 호흡을 맞춘 하루
+    7.6%  내 속도를 지킨 하루
+  흥미 유형 CIRS
+  care 45~80
+  team 29~85
+  energy 30~67
+
+■ 환경미화 직원
+  길 1,908가지 · 시급 10,320원 (자료 시급 8,770원 → 최저시급 적용) · 일당 82,560~93,910원 · 연장 0~44분
+   49.7%  사람 곁을 지킨 하루
+   25.0%  이것저것 챙기느라 바빴던 하루
+   21.6%  팀과 호흡을 맞춘 하루
+    3.4%  내 속도를 지킨 하루
+    0.4%  다 쓰고 돌아가는 퇴근길
+  흥미 유형 CERS
+  care 48~78
+  team 32~82
+  energy 28~67
+
+■ 소방관
+  길 34,560가지 · 시급 15,950원 · 일당 127,600~157,910원 · 연장 0~76분
+   46.7%  사람 곁을 지킨 하루
+   28.3%  팀과 호흡을 맞춘 하루
+   13.5%  이것저것 챙기느라 바빴던 하루
+   10.2%  다 쓰고 돌아가는 퇴근길
+    1.4%  내 속도를 지킨 하루
+  흥미 유형 CEIRS
+  care 46~82
+  team 25~93
+  energy 14~67
+
+✓ 모든 검사 통과
+
+■ 일터 다솜 소방서
+  자리 6곳 · 서로 모두 이어짐 · 가장 긴 길 14.2
+
+■ 소방관 (걸어 다니기)
+  걷기 8번 · 차로 나가기 3번 · 돌아오기 2번 · 걷는 길 모두 58 · 찾아오는 일 10:05 무전, 14:30 출동 벨
+  약속 없음: 마지막 목록 교대 점검 · 1호차 장비(done), 나루 시장 소방시설 점검(done), 학원 건물 화재경보 확인(done), 방수 훈련(done), 팀 회의 · 정비는 언제?(done), 점심과 쉬는 시간(done), 골목 화재 출동(done), 불 끈 뒤 현장 마무리(done), 다음 출동 준비 · 장비 씻기(done), 출동 기록 넘기기(done), 18:00 퇴근(done)
+  약속하고 지킴: 마지막 목록 교대 점검 · 1호차 장비(done), 나루 시장 소방시설 점검(done), 학원 건물 화재경보 확인(done), 방수 훈련(done), 팀 회의 · 정비는 언제?(done), 점심과 쉬는 시간(done), 골목 화재 출동(done), 불 끈 뒤 현장 마무리(done), 세 시, 보람 님 가게에 다시 들르기(done), 다음 출동 준비 · 장비 씻기(done), 출동 기록 넘기기(done), 18:00 퇴근(done)
+  약속하고 못 지킴: 마지막 목록 교대 점검 · 1호차 장비(done), 나루 시장 소방시설 점검(done), 학원 건물 화재경보 확인(done), 방수 훈련(done), 팀 회의 · 정비는 언제?(done), 점심과 쉬는 시간(done), 골목 화재 출동(done), 불 끈 뒤 현장 마무리(done), 세 시, 보람 님 가게에 다시 들르기(missed), 다음 출동 준비 · 장비 씻기(done), 출동 기록 넘기기(done), 18:00 퇴근(done)
+
+걷지 않는 직업 8개: 의사, 간호사, 임상병리사, 방사선사, 원무행정 직원, 약사, 물리치료사, 환경미화 직원
+
+✓ 걸어 다니기 검사 통과
+PASS: departure branches/cap/energy, varied endings, source link/cards, safe save failure/retry with stable ID and no duplicate.
+PASS: contextual home link, earned wages independent of sales, delay HUD and no empty overtime row.
+PASS: fallback controls complete three orders, cash/card/receipt, brewing, rubbing, washing, reuse and end screen.
+PASS: separate denomination bundles/reopen, faucet on/off/cancel, generous shelf edges and visible stored cup on phone/PC.
+PASS: pouring vessel clears cup and machine, then returns home on release at phone/PC sizes.
+PASS: off-centre visible stream rinses; outside stream does not.
+PASS: all four hands-on cameras use the split canvas at mobile, desktop and small-phone sizes.
+PASS: incorrect/correct change, undo, card, duplicate prevention, prepayment guard, three orders, reuse and closing; sales 13500 once only.
+PASS: printing then manual handoff, production gate, duplicate protection, opposite counter positions, collision-free staff paths and inward-facing chairs.
+PASS: receipt rendering, cancelled handoff, reopen/resume, manual delivery, thanks bubble and unchanged sales.
+PASS: required name, only current person across both apps exported, teacher decode, shop money excluded, copy success/fallback, name/code cleared and no storage writes.
+PASS: changing person invalidates an already-created export code.
+Contract source: origin/claude/focused-davinci-c033wr
+일당 계산
+  ✓ 바리스타(커리어넷 180, 3,004만 원) 시급 11,980원
+  ✓ 바리스타 8시간 기본급 95,840원
+  ✓ 30분 연장은 1.5배
+  ✓ 자료 시급이 최저시급보다 낮으면 최저시급
+  ✓ 소방관(커리어넷 385, 4,000만 원) 시급 15,950원, 8시간 기본급 127,600원
+예시 기록
+  ✓ 바리스타 예시 기록 통과 
+  ✓ 일당을 다르게 계산하면 걸림
+  ✓ 학생 이름을 넣으면 걸림
+저장
+  ✓ 기록마다 id 가 붙음
+  ✓ 저장하면 ok
+  ✓ 같은 기록을 두 번 저장하지 않음
+  ✓ 다른 탭이 그사이 저장한 기록을 지우지 않음
+  ✓ 저장이 막히면 ok: false 와 까닭
+  ✓ 명세서 한 줄(PAY_NOTE)
+  ✓ 커리어넷 출처 주소
+기기를 함께 쓸 때
+  ✓ 세션이 없던 예전 기록은 처음 사람의 것으로 봄
+  ✓ 앞사람 기록이 남아 있으면 누구인지 물음
+  ✓ '이어서 하기'를 고르면 오늘은 다시 묻지 않음
+  ✓ 새 기록에 지금 세션이 붙음
+  ✓ 새로 출근하는 사람: 앞사람 기록은 남기고 숨김
+  ✓ 지갑 요약은 지금 사람 것만 (일한 시간, 다녀온 직업)
+  ✓ 모두 지우고 시작하면 이 기기의 기록이 비워짐
+교사 기록 모으기
+  ✓ 코드 모양 WD1.본문.검사
+  ✓ 붙여 넣은 글 속 코드를 찾아 풂 (한글 이름 포함)
+  ✓ 직업·일당·흥미 유형이 그대로
+  ✓ 글자가 바뀐 코드는 오류로 알림
+  ✓ 가게 매출 같은 다른 돈은 코드에 넣지 않음
+  ✓ CSV 머리줄
+복사본
+  ✓ ../barista-day/dist/shared/workday.js 가 원본과 같음
+  ✓ ../barista-day/dist/shared/collect.js 가 원본과 같음
+  ✓ ../barista-day/dist/shared/design.css 가 원본과 같음
+  · ../aerospace-day/dist/shared/workday.js 아직 없음
+  · ../aerospace-day/dist/shared/collect.js 아직 없음
+  · ../aerospace-day/dist/shared/design.css 아직 없음
+
+✓ 약속을 모두 지킴
+PASS: entire fetched shared tree, all three actual copies identical; repository shared/ untouched.
+PASS: four workplace entries, eleven stamps, aerospace record on hub, return/storage refresh, current-user isolation, shared copies and route configuration.
+PASS: Claude firefighter route retained; retired standalone app excluded.
+PASS: single docking story, ordered gates, actual latest test/decision outcome, safe stop, wages, overtime, record/export/session isolation.
+PASS: three interference gates, bounded recheck time and combined fastener delay.
+PASS: distinct assembly/sensor rechecks add time once; cancel, completed sensor and same errors do not double count.
+PASS: recheck minutes persist into overtime choice and saved record.
+PASS: every station pair is reachable; path segments avoid furniture and blocked destinations.
+PASS: required name, only current person across both apps exported, teacher decode, shop money excluded, copy success/fallback, name/code cleared and no storage writes.
+PASS: changing person invalidates an already-created export code.
+PASS: session switch before generation is blocked; reopening exports only the new person.
+PASS: suit gate, physical turn progression, design tradeoffs, loose-fastener drift, comparison and reachable docking.
+✓ workday-site/public 이 소스와 같아요 (65개 파일)

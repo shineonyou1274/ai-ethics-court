@@ -1,0 +1,7 @@
+2026-11-20 · automated checks
+PASS barista-day/tests/*.mjs (including off-centre rinse and outside-stream rejection)
+PASS shared/test.mjs
+PASS workday-site/build.mjs --check (45 files)
+
+wash-canvas.webm: 5.5 seconds; maxFlashesPerSec 0; whiteFrames 0
+The clip contains the task canvas only, not the entire app UI or full day.

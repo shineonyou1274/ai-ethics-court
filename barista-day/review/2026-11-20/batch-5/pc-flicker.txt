@@ -1,0 +1,1 @@
+✓ local-review/cafe-final-verified-pc/page@97264d886b2dfb388ded34d5d825a955.webm {"seconds":472.5,"maxFlashesPerSec":1,"worst":"칸 0,1","atSec":228.52,"whiteFrames":0,"whiteAt":[],"pass":true}
