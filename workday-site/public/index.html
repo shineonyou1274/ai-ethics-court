@@ -35,6 +35,7 @@
   .cafe { --c: #2f6b55; --cd: #1f4a3a; --bg: #e6efe9; }
   .aero { --c: #5965ac; --cd: #414b89; --bg: #eceff8; }
   .museum { --c: #8a5a3c; --cd: #69432c; --bg: #f5ece4; }
+  .broadcast { --c: #c0477a; --cd: #93355c; --bg: #f9e9ef; }
   /* 내 출근 수첩: 일당과 도장을 한 칸에 */
   .book { background: var(--card); border: 2px solid var(--line); border-radius: 20px; padding: 12px 16px 14px; margin-top: 22px; }
   .book h2 { font-size: 18px; margin: 0; display: flex; justify-content: space-between; align-items: baseline; }
@@ -76,6 +77,7 @@
     <a class="place cafe" href="barista-day/"><span class="icon" aria-hidden="true">☕</span><b>한 잔의 하루</b><small>카페 바리스타</small><span class="go">출근 →</span></a>
     <a class="place aero" href="aerospace-day/"><span class="icon" aria-hidden="true">🚀</span><b>우주항공 연구소</b><small>항공우주공학기술자</small><span class="go">출근 →</span></a>
     <a class="place museum" href="museum-day/"><span class="icon" aria-hidden="true">🏺</span><b>누리 역사박물관</b><small>학예사</small><span class="go">출근 →</span></a>
+    <a class="place broadcast" href="broadcast-day/"><span class="icon" aria-hidden="true">🎬</span><b>새빛 방송국</b><small>방송 PD</small><span class="go">출근 →</span></a>
   </div>
 
   <section class="book" aria-label="내 출근 수첩"><div class="stampCard" id="stamps"></div><div id="bank"></div></section>
@@ -91,7 +93,8 @@
   const CAFE = [['barista', '바리스타', '☕']];
   const AERO = [['aerospace-engineer','항공우주공학기술자','✈️']];
   const MUSEUM = [['curator', '학예사', '🏺']];
-  const ALL = [...HOSPITAL, ...FIRE, ...CAFE, ...AERO, ...MUSEUM];
+  const BROADCAST = [['broadcast-producer', '방송연출가', '🎬']];
+  const ALL = [...HOSPITAL, ...FIRE, ...CAFE, ...AERO, ...MUSEUM, ...BROADCAST];
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const $ = (id) => document.getElementById(id);
 
