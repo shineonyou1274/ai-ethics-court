@@ -1,8 +1,8 @@
 // 원무행정 직원 — 접수와 안내의 하루. 등장인물과 기록은 모두 가상이다.
-import { hospitalDay } from './_hospital-day.js';
+import { floorDay } from './_floor-day.js';
 
 const job = {
-  id: 'admin', name: '원무행정 직원', title: '접수와 안내의 하루', place: 'hospital', room: 'reception',
+  id: 'admin', name: '원무행정 직원', title: '접수와 안내의 하루', place: 'hospital', walk: true, floor: 'admin', room: 'reception',
   careernet: '1257', careernetNote: '커리어넷에 원무행정 직원이 따로 없어서, 임금은 가까운 직업인 병원코디네이터의 자료를 썼어요. 실제 임금과 다를 수 있어요.',
   // 커리어넷에 없는 직업이라 '하는 일'은 직접 적는다. 병원 원무과의 일반적인 업무만 적었다.
   works: ['병원을 찾은 사람의 접수와 수납을 맡아요.', '진료 예약을 잡고, 바뀐 일정과 진료실 위치를 안내해요.', '진단서 같은 서류 발급을 돕고, 그 과정에서 개인정보를 지켜요.'],
@@ -12,7 +12,7 @@ const job = {
   intro: '병원을 처음 찾은 사람의 막막함을 덜어요. 접수, 일정 연결, 서류 안내로 하루가 바빠요.',
 };
 
-job.scenes = hospitalDay(job, {
+const day = {
   recordsTitle: '오늘의 접수 현황 열기',
   records: [['오늘의 일정', '방문 접수 · 일정 확인 · 서류 안내'], ['가상 접수번호', 'ADM-0719'], ['공지', '오늘부터 2번 진료실이 3층으로 옮김']],
   first: {
@@ -32,7 +32,7 @@ job.scenes = hospitalDay(job, {
   // 손으로 하는 일
   after: {
     order: [{
-      kind: 'hands', game: 'paperwork', atOff: 110, place: 'reception', title: '창구를 잠깐 비우기 전에',
+      kind: 'hands', game: 'paperwork', closeup: true, atOff: 110, place: 'reception', title: '창구를 잠깐 비우기 전에',
       body: '점심 교대 전, 창구에 서류가 쌓였어요. 알맞은 곳에 정리하고 자리를 비워요.',
       moment: '서류를 정리하고 화면을 잠근 순간', type: 'C',
       fact: '병원 창구에는 다른 사람의 개인정보가 담긴 서류와 화면이 많아요. 자리를 비울 때는 민감한 서류를 잠금함에 넣고 화면을 잠가요.',
@@ -61,7 +61,7 @@ job.scenes = hospitalDay(job, {
     ],
   },
   incident: {
-    title: '계획대로만 흘러가진 않아요', body: '진료실이 옮긴 걸 모르는 방문자들이 2층에서 기다리고 있대요.',
+    title: '계획대로만 흘러가진 않아요', body: '진료실을 옮긴 걸 모르는 방문자들이 2층에서 기다리고 있대요.',
     speaker: '2층 직원', speech: '“여기 몇 분이 2번 진료실을 찾으세요!”',
     ripple: [
       { if: (s) => s.flags.sign, text: '엘리베이터 앞 안내판 덕분에 헤매는 분이 두 분뿐이에요.', fx: { delay: -6, care: 3 } },
@@ -78,10 +78,10 @@ job.scenes = hospitalDay(job, {
     items: [
       { label: '신분증으로 본인인지 확인', ok: true },
       { label: '어떤 서류가 필요한지 확인', ok: true },
-      { label: '어디에 낼 서류인지 듣고 맞는 양식 안내', ok: true },
-      { label: '줄 선 사람들이 다 들리게 진료 내용을 크게 확인', ok: false, why: '건강 정보는 다른 사람이 듣지 않게 확인해요.' },
-      { label: '가족이라며 온 사람에게 확인 없이 대신 발급', ok: false, why: '본인 동의나 정해진 서류 없이 남에게 주면 안 돼요.' },
-      { label: '빨리 하려고 다른 사람 서류와 한꺼번에 처리', ok: false, why: '서류가 섞이면 개인정보가 새어 나갈 수 있어요.' },
+      { label: '제출처에 맞는 양식 안내', ok: true },
+      { label: '진료 내용을 다 들리게 크게 확인', ok: false, why: '건강 정보는 다른 사람이 듣지 않게 확인해요.' },
+      { label: '확인 없이 가족에게 대신 발급', ok: false, why: '본인 동의나 정해진 서류 없이 남에게 주면 안 돼요.' },
+      { label: '여러 사람 서류를 한꺼번에', ok: false, why: '서류가 섞이면 개인정보가 새어 나갈 수 있어요.' },
     ],
   },
   thanks: [
@@ -90,6 +90,27 @@ job.scenes = hospitalDay(job, {
     { if: (s) => s.flags.sign, text: '“엘리베이터 앞 안내판 보고 바로 찾았어요.”', fx: { care: 2 } },
     { text: '“다들 바빠 보여서 그냥 물어물어 찾았어요.”' },
   ],
+};
+const afternoon = {
+  moment: '바뀐 진료실 길을 표시한 순간', type: null, kind: 'hands', game: 'adminroute', closeup: true, atOff: 330, place: 'meeting',
+  title: '바뀐 진료실 안내', body: '이든 님이 옛 진료실 앞에서 길을 잃었어요. 승강기와 새 진료실 사이에 안내 표지를 세워요.',
+  grades: {
+    neat: { fx: { team: 2 }, text: '이든 님이 승강기에서 방향을 확인하고 새 진료실에 도착했어요.' },
+    redo: { fx: { delay: 3 }, text: '이든 님이 승강기에서 방향을 확인하고 새 진료실에 도착했어요. 위치를 고쳐 3분 더 걸렸어요.' },
+  },
+};
+job.scenes = floorDay(job, {
+  records:day.records, pick:day.pick, thanks:day.thanks, pickAt:360, pickPlace:'reception', thanksPlace:'reception',
+  text:{locker:'원무과 탈의실에서 근무를 준비해요.',dressed:'명찰을 달고 동료와 인사했어요.',recordsTodo:'오늘 일정 확인',records:'동료에게 오늘 방문 일정과 요청을 받아요.',breakSpeech:'먼저 쉬고 와요. 제가 자리를 지킬게요.',breakTalk:'오후 방문자에게 필요한 준비를 함께 짚었어요.',leave:'다음 근무자에게 인계를 마쳤어요.',pickTodo:'이든 님 서류 발급 확인'},
+  am:[
+    { ...day.first, kind:'choice', atOff:25, place:'reception', todo:{label:'이든 님 접수 안내' }, notice:{via:'번호 호출',text:'이든 님 차례예요. 처음 오셨대요.'} },
+    { ...day.order, kind:'order', atOff:70, place:'reception', todo:{label:'새 방문자 접수' }, notice:{via:'업무 알림',text:'다음 접수 번호가 떴어요.'} },
+    { ...day.after.order[0], kind:'hands', atOff:110, place:'reception', todo:{label:'창구 교대 · 서류 보관' }, notice:{via:'동료',text:'창구 교대 전에 서류를 정리해 주세요.'} },
+    { ...day.team, kind:'choice', atOff:168, place:'office', todo:{label:'진료실 이동 공지 확인' }, notice:{via:'전화',text:'진료실 위치가 바뀌었어요.'} }
+  ],
+  pm:[
+    { ...day.incident, kind:'choice', atOff:300, place:'meeting', todo:{label:'대기 중인 방문자 안내' }, notice:{via:'동료',text:'이전 진료실 앞에서 기다리는 분들이 있어요.'} },
+    {...afternoon,todo:{label:afternoon.title},notice:{via:'동료',text:afternoon.body}},
+  ],
 });
-
 export default job;

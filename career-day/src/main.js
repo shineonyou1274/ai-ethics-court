@@ -2,9 +2,10 @@
 import '../../shared/design.css'; // 공통 디자인 토큰 (shared/DESIGN.md)
 import './style.css';
 import { JOBS, jobById } from './jobs/index.js';
-import { PLACES } from './places/index.js';
+import { PLACES, placeOf } from './places/index.js';
 import { createWorld } from './world/world.js';
 import { HANDS } from './hands/index.js';
+import { walkOn, stepFor, hasStep, inbox } from './flow.js';
 import { sendView, teacherView } from './collect.js';
 import { CAREERNET } from './data/careernet.js';
 import { sfx, startMusic, toggleSound, soundOn } from './audio.js';
@@ -44,14 +45,16 @@ const save = () => { saved.current = S && !S.closed ? S : null; store.set(saved)
 
 // ── 3D 일터 ──
 let world = null, worldPlace = null;
-function ensureWorld(placeId) {
-  if (worldPlace === placeId) return world;
+// place 는 일터(PLACES) 또는 그 안의 층(FLOORS, 예: 간호사의 7층 병동). 층이 다르면 모형을 새로 짓는다.
+function ensureWorld(place) {
+  const key = place.floor ? `${place.id}/${place.floor}` : place.id;
+  if (worldPlace === key) return world;
   world?.destroy(); world = null;
   const old = $('#gl'), canvas = old.cloneNode(false); old.replaceWith(canvas);
-  worldPlace = placeId; $('.fallback')?.remove();
-  try { world = createWorld(canvas, $('#stage'), PLACES[placeId]); } catch (e) { console.warn('3D 일터를 띄우지 못해 글과 버튼으로 진행해요.', e); world = null; }
+  worldPlace = key; $('.fallback')?.remove();
+  try { world = createWorld(canvas, $('#stage'), place); } catch (e) { console.warn('3D 일터를 띄우지 못해 글과 버튼으로 진행해요.', e); world = null; }
   $('#app').classList.toggle('flat', !world); // 3D가 없으면 폰에서 위 칸을 줄여 버튼이 밀리지 않게 한다
-  if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${PLACES[placeId].icon}</b><span class="long">이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</span><span class="short">3D 없이 글과 버튼으로 해요.</span></div></div>`); }
+  if (!world) { canvas.classList.add('off'); $('#stage').insertAdjacentHTML('afterbegin', `<div class="fallback"><div><b>${place.icon}</b><span class="long">이 기기에서는 3D 일터 대신<br>글과 버튼으로 하루를 보내요.</span><span class="short">3D 없이 글과 버튼으로 해요.</span></div></div>`); }
   return world;
 }
 
@@ -93,7 +96,7 @@ function drawHud() {
 }
 
 // 밀린 일만큼 기다리는 사람. 쉬는 곳, 탈의실처럼 일터가 정한 조용한 곳(quiet)과 퇴근 뒤에는 따라오지 않는다.
-const waiting = () => (S.closed || PLACES[J.place].quiet.includes(sceneOf(S, J).place) ? 0 : Math.ceil(S.delay / 8));
+const waiting = () => (S.closed || placeOf(J).quiet.includes(sceneOf(S, J).place) ? 0 : Math.ceil(S.delay / 8));
 
 // 바뀐 값 꼬리표와 3D 반응
 function chips(d = {}) {
@@ -116,9 +119,9 @@ function react(d = {}) {
 
 // ── 시작 화면 ──
 function title() {
-  S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {}; $('#app').classList.remove('pickOn', 'closeOn', 'handsOn');
+  S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {}; $('#app').classList.remove('pickOn', 'closeOn', 'handsOn', 'walkDay');
   const P = PLACES[focusPlace]; paintPlace(P);
-  const w0 = ensureWorld(P.id); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
+  const w0 = ensureWorld(P); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
   const cur = saved.current && jobById(saved.current.job) ? saved.current : null;
   diary = loadMine();
   const been = new Set(diary.map((r) => r.job.id));
@@ -198,7 +201,9 @@ function startJob(job) { J = job; S = newDay(job); shown = {}; begin(); }
 function begin() {
   document.documentElement.style.setProperty('--role', J.color);
   focusPlace = J.place; paintPlace(PLACES[J.place]);
-  ensureWorld(J.place); $('#gauges').innerHTML = ''; shown = {};
+  // 걸어 다니는 하루(카페 방식)의 폰 배치: 위쪽 띠를 늘 한 줄로, 고르는 장면을 더 촘촘하게 (style.css 의 .walkDay). 병원 직업들은 그대로다
+  $('#app').classList.toggle('walkDay', walkOn(J, placeOf(J)));
+  ensureWorld(placeOf(J)); $('#gauges').innerHTML = ''; shown = {};
   if (S.closed) return S.slipSeen ? reflect() : slip();
   scene();
 }
@@ -208,8 +213,10 @@ function scene() {
   const sc = sceneOf(S, J);
   const notes = enter(S, J); if (notes.length) S.notes = notes; else if (S.notesFor !== S.i) S.notes = [];
   S.notesFor = S.i; save();
+  // 걸어 다니는 일터(카페 방식): 장면을 열기 전에, 찾아온 일을 받고 그 자리까지 내 캐릭터로 걸어간다 (src/flow.js)
+  if (walkOn(J, placeOf(J)) && S.at !== S.i) { const st = stepFor(J, placeOf(J), S.i, S); if (hasStep(st)) return goView(sc, st); S.at = S.i; }
   const lockerDone = S.i > idxOf((x) => x.place === 'locker' && x.kind === 'tasks');
-  const setDress = PLACES[J.place].sets[sc.place]?.dress;
+  const setDress = placeOf(J).sets[sc.place]?.dress || placeOf(J).rooms.find((r) => r.id === sc.place)?.dress; // 층 안의 방도 옷을 정할 수 있다 (의사의 수술실)
   drawHud(); // 위쪽 띠를 먼저 그려 둔다. 3D 무대를 띠 아래 칸에 맞추기 때문이다
   if (world) { world.dress(setDress ? { ...J.look, ...setDress } : J.look, lockerDone ? 'work' : 'casual'); world.stage({ place: sc.place, hour: clockOf(S, J, sc) / 60, overview: false }); world.crowd(waiting()); }
   drawHud();
@@ -217,13 +224,104 @@ function scene() {
   const ripple = rippleCards();
   const body = `${ripple}<p class="lead">${esc(sc.body)}</p>`;
   unmount?.(); unmount = null;
+  $('#app').classList.remove('walkOn'); $('#app').style.removeProperty('--walk');
   $('#app').classList.toggle('handsOn', sc.kind === 'hands' && !sc.closeup);
   $('#app').classList.toggle('closeOn', sc.kind === 'hands' && !!sc.closeup && !!world);
   $('#app').classList.toggle('pickOn', ['choice', 'order', 'pick', 'leave'].includes(sc.kind)); // 폰 세로의 판단 장면: 3D 칸을 줄여 보기가 모두 한 화면에 들어오게 한다 (shared/DESIGN.md §2-1)
-  $('#app').style.removeProperty('--pick');
+  $('#app').style.removeProperty('--pick'); $('#app').style.removeProperty('--close'); $('#app').classList.remove('closeTight');
   world?.resize(); // 3D 칸의 크기를 먼저 정한 뒤 장면을 그린다 (작게 그렸다가 커지지 않게)
   ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
 }
+// ── 걸어가기 (카페 방식, shared/DESIGN.md §2-3) ──
+// 찾아온 일(무전·출동 벨)과 받은 일 목록을 보여 주고, 다음 일이 있는 자리에 표시를 띄운다.
+// 학생은 바닥이나 표시를 눌러 걷거나, 아래 큰 버튼을 눌러 그 자리로 걸어간다. 닿으면 장면이 열린다. 일터 밖은 소방차로 오간다.
+const VIA = { 일정: '🗓️', 무전: '📻', '출동 벨': '🔔', '호출 벨': '🔔', 팀장: '💬', 동료: '💬', 의사: '🩺', 약속: '🤝', 전화: '📞' };
+Object.assign(VIA, { 호출기: '📟', 간호사: '💬', 선배: '💬', '안내 데스크': '💬', 방문자: '💬' }); // 의사·환경미화 직원의 걷는 하루
+const VIA_SOUND = { '출동 벨': 'bell', '호출 벨': 'bell', 무전: 'radio', 전화: 'radio', 호출기: 'radio' }; // 그 밖(동료·의사·팀장)은 짧은 알림음
+const ro = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c < 11172 && c % 28 && c % 28 !== 8 ? '으로' : '로'; }; // 받침 따라 '로/으로'
+function inboxHtml(list, tight = false, fold = false) { // fold: PC에서도 목록이 넘치면 마친 일을 한 줄로 모은다 (fitWalk)
+  const wide = typeof matchMedia === 'function' && matchMedia('(min-aspect-ratio: 11/10)').matches, full = wide && !fold && !tight;
+  const li = (it) => `<li class="${it.state}${it.fresh ? ' fresh' : ''}"><i></i><span>${VIA[it.via] || '🗓️'} ${esc(it.label)}</span><small>${it.state === 'done' ? '마침' : it.state === 'missed' ? '못 함' : it.fresh ? '새로 옴' : it.state === 'now' ? '지금' : it.at}</small></li>`;
+  // 폰에서는 마친 일을 한 줄로 모으고, 지금 일과 다음 일 둘만 보인다. 남은 일은 개수로 알려 준다 (스크롤 없이 단추가 보이게)
+  const done = list.filter((x) => x.state === 'done' || x.state === 'missed'), rest = list.filter((x) => !done.includes(x));
+  const now = rest.filter((x) => x.state === 'now'), next = rest.filter((x) => x.state === 'next');
+  const shown = full ? list : tight ? (now.length ? now : next.slice(0, 1)) : wide ? rest : [...now, ...next.slice(0, now.length ? 1 : 2)]; // tight: 아주 작은 폰에서는 지금 일 하나만 (fitWalk)
+  const more = full ? 0 : rest.length - shown.length;
+  const missed = done.filter((x) => x.state === 'missed').length;
+  const headLine = `<p class="inboxHead"><b>받은 일</b>${!full && done.length ? `<span class="sum">✓ 마친 일 ${done.length - missed}개${missed ? ` · 못 한 일 ${missed}개` : ''}</span>` : ''}</p>`;
+  return `${headLine}<ol class="todo inbox" aria-label="받은 일">${shown.map(li).join('')}${more > 0 ? `<li class="later"><span>그다음에도 할 일 ${more}개</span></li>` : ''}</ol>`;
+}
+function goView(sc, st) {
+  const P = placeOf(J), N = P.nav;
+  unmount?.(); unmount = null;
+  const app = $('#app'); app.classList.remove('handsOn', 'closeOn', 'pickOn'); app.classList.add('walkOn'); app.style.removeProperty('--pick'); app.style.removeProperty('--walk'); app.style.removeProperty('--close'); app.classList.remove('closeTight');
+  drawHud();
+  const spot = st.walk ? N.spots[st.walk] : null, far = st.remote ? N.remote[sc.place] : null;
+  walkGoal = spot ? { id: st.walk, x: spot.x, z: spot.z } : null;
+  const todo = [].concat(sc.todo || [])[0], what = todo?.label || sc.goal || sc.title;
+  const lockerDone = S.i > idxOf((x) => x.place === 'locker' && x.kind === 'tasks');
+  const arrive = () => { if (S.at === S.i) return; sfx('pop'); if (st.travel) travelView(sc, st.travel); else { S.at = S.i; save(); scene(); } };
+  const head = spot ? `${spot.name}${ro(spot.name)} 가요` : far ? `${far.name}${ro(far.name)} 가요` : sc.title;
+  const btn = spot ? `${spot.name}${ro(spot.name)} 걸어가기` : st.travel ? '소방차 타고 출발하기' : `${N.spots[st.from]?.name || '이곳'}에서 시작하기`;
+  walker = null;
+  if (world && st.away) { // 일터 밖(시장)에서 곧장 다른 현장으로: 3D는 지금 있는 바깥 자리를 그대로 보여 준다
+    const set = P.sets[st.away]?.dress; world.dress(set ? { ...J.look, ...set } : J.look, 'work'); world.resize(); world.stage({ place: st.away, hour: clockOf(S, J, sc) / 60 });
+  } else if (world) {
+    world.dress(J.look, lockerDone ? 'work' : 'casual'); world.resize();
+    walker = world.walk({
+      hour: clockOf(S, J, sc) / 60, from: N.spots[st.from],
+      target: spot && { id: st.walk, x: spot.x, z: spot.z, name: spot.name, room: P.rooms.some((r) => r.id === st.walk) ? st.walk : null, what: far ? `소방차 타고 ${far.name}` : what },
+      onArrive: arrive, onNote: (t) => { const m = $('#walkMsg'); if (m) { m.textContent = t; m.classList.add('note'); } },
+      onMove: (moving) => { const b = $('#walkGo'); if (b) { b.disabled = moving; b.textContent = moving ? '걸어가는 중…' : btn; } }, // 바닥이나 표시를 눌러 걸어도 큰 단추가 함께 바뀐다
+    });
+  }
+  const n = sc.notice;
+  view(`<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· 다음 일</span></p>
+    ${st.back ? `<p class="travelLine">🚒 ${esc(st.back)}</p>` : ''}
+    ${n ? `<div class="notice" role="alert"><b>${VIA[n.via] || '📣'} ${esc(n.via)}</b>${esc(n.text)}</div>` : ''}
+    <h2>${esc(head)}</h2>
+    ${todo ? '' : `<p class="walkWhat">할 일 · <b>${esc(what)}</b></p>`}
+    ${spot && world ? `<p class="fine walkHint" id="walkMsg" role="status">3D의 바닥이나 장소 표시를 눌러 걸어가요.</p>` : ''}
+    <div id="inboxBox">${inboxHtml(inbox(S, J))}</div>
+    <button class="btn" id="walkGo">${esc(btn)}</button>`);
+  fitWalk(spot ? 40 : 30);
+  if (n) sfx(VIA_SOUND[n.via] || 'pop');
+  on('#walkGo', (b) => {
+    if (!spot || !walker) return arrive(); // 3D가 없는 기기나 걸을 곳이 없을 때는 바로 다음으로
+    walker.go();
+  });
+}
+let walker = null, walkGoal = null;
+// 폰 세로의 걸어가기 화면: 받은 일 목록의 지금 일(방금 들어온 일)이 큰 단추에 가리지 않게,
+//   ① 3D 칸을 모자란 만큼만 줄이고(52dvh → 40dvh 까지. 3D가 주인공이라 더 줄이지 않는다. 걸을 곳 없이 차를 타는 화면은 30dvh 까지)
+//   ② 그래도 넘치면 걸어가는 법 안내 한 줄을 접는다(3D의 장소 표시와 큰 단추가 같은 말을 한다)
+//   ③ 그래도 넘치면 목록에는 지금 일 하나만 두고, 나머지는 "그다음에도 할 일 N개" 한 줄로 센다.
+function fitWalk(min = 40) {
+  const app = $('#app'), v = panel.querySelector('.view'); if (!v || !app.classList.contains('walkOn')) return;
+  const cs = getComputedStyle(panel), pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+  const over = () => v.offsetHeight + pad - panel.clientHeight;
+  if (getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) { // PC 두 칸: 3D 칸은 그대로 두고, 목록이 넘치면 마친 일부터 한 줄로 모은다
+    const box = v.querySelector('#inboxBox'); if (!box) return;
+    if (over() > 0) box.innerHTML = inboxHtml(inbox(S, J), false, true);
+    if (over() > 0) box.innerHTML = inboxHtml(inbox(S, J), true, true);
+    return;
+  }
+  app.style.removeProperty('--walk');
+  if (over() <= 0) return;
+  app.style.setProperty('--walk', `${Math.max(min, 52 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
+  world?.resize();
+  if (over() > 0) v.querySelector('.walkHint:not(.note)')?.classList.add('tight');
+  if (over() > 0) { const box = v.querySelector('#inboxBox'); if (box) box.innerHTML = inboxHtml(inbox(S, J), true); }
+}
+// 일터 밖으로 오갈 때: 소방차를 타고 가는 짧은 한 장면 (걸어서 도시를 다니지는 않는다)
+function travelView(sc, text) {
+  S.at = S.i; save();
+  view(`<p class="eyebrow">${toHHMM(clockOf(S, J, sc))} <span>· 가는 길</span></p><div class="travelCard"><span class="truck" aria-hidden="true">🚒</span><b>${esc(text)}</b><div class="dots" aria-hidden="true"><span></span><span></span><span></span></div></div>
+    <button class="btn ghost" id="arrive">도착</button>`);
+  let gone = false; const go = () => { if (gone) return; gone = true; scene(); };
+  on('#arrive', go); setTimeout(go, 1800);
+}
+
 // 앞선 선택이 남긴 여파 카드. 보통은 펼쳐져 있고, 폰의 고르기 장면에서 자리가 모자랄 때만 접힌다(누르면 펼쳐진다).
 const rippleCards = () => (S.notes || []).map((n) => `<details class="ripple" open><summary>앞선 선택이 이어져요</summary>${esc(n.text)}${chips(n.d)}</details>`).join('');
 const goNext = () => { next(S, J); save(); scene(); };
@@ -296,9 +394,13 @@ function fitPick() {
   const app = $('#app'), v = panel.querySelector('.view'); if (!v || !app.classList.contains('pickOn') || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return;
   const cs = getComputedStyle(panel), pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
   const over = () => v.offsetHeight + pad - panel.clientHeight;
+  app.classList.remove('pickTight');
   if (over() <= 0) return;
   app.style.setProperty('--pick', `${Math.max(26, 34 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
   if (over() > 0) v.querySelectorAll('details.ripple').forEach((d) => { d.open = false; });
+  // 아주 작은 폰(320×568 등): 그래도 넘치면 글과 보기를 촘촘하게, 그래도 넘치면 3D를 20dvh 까지 (보기가 모두 한 화면에 — DESIGN §2-3)
+  if (over() > 0) app.classList.add('pickTight');
+  if (over() > 0) app.style.setProperty('--pick', `${Math.max(20, 26 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
   world?.resize();
 }
 
@@ -327,7 +429,7 @@ function order(sc, head, body) {
 // 마친 결과는 S.handsDone 에 남겨서, 새로 고쳐도 다시 하거나 두 번 반영되지 않게 한다.
 // 실기 검사에서만 쓰는 손잡이. 주소 끝 #test 또는 검사 도구가 넣어 둔 표시(cd-test)가 있을 때만 연다.
 let testing = location.hash === '#test'; try { testing ||= !!sessionStorage.getItem('cd-test'); } catch { /* 저장이 막힌 기기 */ }
-if (testing) window.__cd = { world: () => world };
+if (testing) window.__cd = { world: () => world, goal: () => walkGoal };
 let unmount = null; // 지금 붙어 있는 손 놀이를 떼어 내는 함수 (3D 가까이 보기를 끝낸다)
 function hands(sc, head, body) {
   // 손으로 하는 장면에서는 3D와 할 일이 먼저 보이게, 장면 설명은 "상황 다시 보기"로 접어 둔다 (shared/DESIGN.md §2-1)
@@ -343,7 +445,14 @@ function hands(sc, head, body) {
   const before = S.handsDone?.[S.i];
   if (before) { $('#app').classList.remove('closeOn'); $('#hands').innerHTML = `<div class="handsDone">✓ ${esc(sc.grades[before.grade]?.moment || sc.moment)}</div>`; show(before); return; }
   // 폰에서는 안내를 읽을 틈을 준 뒤, 손으로 하는 곳이 화면 위쪽에 오게 내려 준다
-  setTimeout(() => { const h = $('#hands'); if (h && h.getBoundingClientRect().bottom > window.innerHeight + 24) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 1600);
+  // 걸어 다니는 하루에서는 장면 제목이 칸 위로 밀려 사라지지 않게, 제목이 맨 위에 올 때까지만 내린다
+  setTimeout(() => {
+    const h = $('#hands'); if (!h || h.getBoundingClientRect().bottom <= window.innerHeight + 24) return;
+    const t = $('#app').classList.contains('walkDay') && panel.querySelector('.view > h2');
+    if (!t) return h.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const need = h.getBoundingClientRect().bottom - panel.getBoundingClientRect().bottom + 8, cap = t.getBoundingClientRect().top - panel.getBoundingClientRect().top - 4;
+    panel.scrollBy({ top: Math.max(0, Math.min(need, cap)), behavior: 'smooth' });
+  }, 1600);
   unmount = HANDS[sc.game]($('#hands'), sc, {
     sfx, act: (k) => world?.action(k), world,
     done: (grade, detail) => {
@@ -352,6 +461,17 @@ function hands(sc, head, body) {
       save(); setTimeout(() => { react(r.d); show(r); }, 700);
     },
   });
+  fitClose();
+}
+// 아주 작은 폰(320×568 등)의 손 장면: 지금 할 일 줄이 화면 밖이면, 글을 촘촘하게(closeTight) 한다.
+// 넘치지 않는 폰과 PC는 그대로다. 결과 글은 지금처럼 '다음 장면으로' 단추까지 내려 준다.
+function fitClose() {
+  const app = $('#app'), v = panel.querySelector('.view');
+  app.classList.remove('closeTight'); app.style.removeProperty('--close');
+  if (!v || !app.classList.contains('closeOn') || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return;
+  const bar = () => (v.querySelector('#cuNow') || v.querySelector('.benchControls') || v.querySelector('#hands'))?.getBoundingClientRect().bottom - panel.getBoundingClientRect().bottom;
+  if (!(bar() > 0)) return;
+  app.classList.add('closeTight'); // 손 장면은 3D가 주인공이라 3D 칸은 줄이지 않는다. 그래도 넘치면 위의 '손으로 하는 곳으로 내려 주기'가 맡는다
 }
 
 function pick(sc, head, body) {

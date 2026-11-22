@@ -1,16 +1,16 @@
 // 물리치료사 — 재활치료실의 하루. 등장인물과 기록은 모두 가상이다.
 // 치료 방법을 가르치지 않는다. 판단은 시간, 소통, 팀과의 조율에 관한 것만 다룬다.
-import { hospitalDay } from './_hospital-day.js';
+import { floorDay } from './_floor-day.js';
 
 const job = {
-  id: 'physio', name: '물리치료사', title: '재활치료실의 하루', place: 'hospital', room: 'rehab',
+  id: 'physio', name: '물리치료사', title: '재활치료실의 하루', place: 'hospital', walk: true, floor: 'physio', room: 'rehab',
   careernet: '369', color: '#c89884', look: { coat: '#d9aa98', hair: 0, outfit: 'scrub' }, uniform: '치료복',
   pay: 'salary', shift: { start: '09:00', end: '18:00', breakMin: 60 },
   person: '한서우',
   intro: '환자가 되찾고 싶은 일상을 듣고, 담당 팀이 세운 재활 계획에 따라 작은 변화를 함께 살펴요.',
 };
 
-job.scenes = hospitalDay(job, {
+const day = {
   records: [['오늘의 일정', '개별 치료 · 재활팀 회의'], ['서우 님의 목표', '동네 빵집에 스스로 다녀오기'], ['지난 기록', '움직임이 걱정된다고 말함']],
   first: {
     title: '첫 만남의 한마디', body: '치료실에 들어선 서우 님이 창밖을 보며 말해요. 다음 예약 환자도 곧 와요.',
@@ -78,6 +78,27 @@ job.scenes = hospitalDay(job, {
     { if: (s) => s.flags.goalSplit, text: '“계단 다섯 칸부터. 이제 뭘 연습할지 알겠어요.”', fx: { care: 3 } },
     { text: '“오늘은 힘들었어요. 다음엔 조금 더 천천히 해도 될까요?”' },
   ],
+};
+const afternoon = {
+  moment: '외출길에서 쉴 곳을 찾은 순간', type: null, kind: 'hands', game: 'physiopath', closeup: true, atOff: 330, place: 'rehab',
+  title: '서우 님과 외출 경로 짚기', body: '서우 님이 빵집까지 걷다가 계단 앞에서 쉬고 싶다고 해요. 길 모형에 벤치와 난간을 설치해 함께 살펴봐요.',
+  grades: {
+    neat: { fx: { team: 2 }, text: '서우 님이 계단 전 쉼터와 난간을 짚으며 빵집까지 갈 길을 설명했어요.' },
+    redo: { fx: { delay: 3 }, text: '서우 님이 계단 전 쉼터와 난간을 짚으며 빵집까지 갈 길을 설명했어요. 위치를 고쳐 3분 더 걸렸어요.' },
+  },
+};
+job.scenes = floorDay(job, {
+  records:day.records, pick:day.pick, thanks:day.thanks, pickAt:360, pickPlace:'office', thanksPlace:'rehab',
+  text:{locker:'재활실 탈의실에서 근무를 준비해요.',dressed:'명찰을 달고 동료와 인사했어요.',recordsTodo:'오늘 일정 확인',records:'동료에게 오늘 방문 일정과 요청을 받아요.',breakSpeech:'먼저 쉬고 와요. 제가 자리를 지킬게요.',breakTalk:'오후 방문자에게 필요한 준비를 함께 짚었어요.',leave:'다음 근무자에게 인계를 마쳤어요.',pickTodo:'다음 치료사에게 인계'},
+  am:[
+    { ...day.first, kind:'choice', atOff:25, place:'rehab', todo:{label:'서우 님 외출 목표 듣기' }, notice:{via:'번호 호출',text:'서우 님이 도착했어요.'} },
+    { ...day.order, kind:'order', atOff:70, place:'counter', todo:{label:'운동 자리 준비' }, notice:{via:'업무 알림',text:'다음 예약을 위해 매트를 확인해 주세요.'} },
+    { ...day.after.order[0], kind:'hands', atOff:110, place:'store', todo:{label:'매트와 기구 정리' }, notice:{via:'동료',text:'방금 사용한 기구가 정리대에 남았어요.'} },
+    { ...day.team, kind:'choice', atOff:168, place:'office', todo:{label:'재활팀 목표 공유' }, notice:{via:'전화',text:'오늘 재활 일정을 함께 맞춰요.'} }
+  ],
+  pm:[
+    { ...day.incident, kind:'choice', atOff:300, place:'rehab', todo:{label:'오후 활동 조율' }, notice:{via:'동료',text:'서우 님이 잠시 쉬고 싶다고 하세요.'} },
+    {...afternoon,todo:{label:afternoon.title},notice:{via:'동료',text:afternoon.body}},
+  ],
 });
-
 export default job;

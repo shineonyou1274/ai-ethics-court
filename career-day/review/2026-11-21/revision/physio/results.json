@@ -1,0 +1,23 @@
+[
+  {
+    "viewport": "iphone",
+    "seconds": 96.3,
+    "flashes": 2,
+    "white": 0,
+    "cut": []
+  },
+  {
+    "viewport": "se",
+    "seconds": 89.4,
+    "flashes": 2,
+    "white": 0,
+    "cut": []
+  },
+  {
+    "viewport": "pc",
+    "seconds": 97.9,
+    "flashes": 1,
+    "white": 0,
+    "cut": []
+  }
+]

@@ -1,24 +1,24 @@
 // 약사 — 병원 약제실의 하루. 등장인물과 기록은 모두 가상이다.
 // 약 이름이나 복용법을 가르치지 않는다. 판단은 설명할 시간, 확인하는 방법, 팀과 나누는 일만 다룬다.
-import { hospitalDay } from './_hospital-day.js';
+import { floorDay } from './_floor-day.js';
 
 const job = {
-  id: 'pharmacist', name: '약사', title: '병원 약제실의 하루', place: 'hospital', room: 'pharmacy',
+  id: 'pharmacist', name: '약사', title: '병원 약제실의 하루', place: 'hospital', walk: true, floor: 'pharmacist', room: 'pharmacy',
   careernet: '23', color: '#89a9af', look: { coat: '#f7f7f1', hair: 1, outfit: 'white' }, uniform: '가운',
   pay: 'salary', shift: { start: '09:00', end: '18:00', breakMin: 60 },
   person: '오가온',
   intro: '처방을 검토하고 의료진과 확인하며, 환자가 약에 관한 설명을 이해할 수 있도록 돕는 하루예요.',
 };
 
-job.scenes = hospitalDay(job, {
+const day = {
   records: [['오늘의 일정', '처방 검토 · 조제 과정 확인 · 상담'], ['가상 접수번호', 'PH-0624'], ['가온 님의 요청', '설명을 다시 듣고 싶음 · 질문 메모 있음']],
   first: {
-    title: '첫 만남의 한마디', body: '상담 창구에 가온 님이 메모를 들고 왔어요. 검토할 처방도 쌓여 있어요.',
+    title: '첫 만남의 한마디', body: '상담실에 가온 님이 메모를 들고 왔어요. 검토할 처방도 쌓여 있어요.',
     speaker: '가상 인물 · 오가온', speech: '“받은 설명 중 헷갈리는 부분을 다시 여쭤보고 싶어요.”',
     options: [
       { label: '가온 님의 질문 메모를 처음부터 하나씩 함께 짚는다', fx: { care: 11, delay: 14, energy: -3 }, reply: '메모의 물음표가 하나씩 지워졌어요. 그동안 검토할 처방이 더 쌓였어요.', moment: '질문 메모를 함께 짚은 순간', type: 'S' },
       { label: '가장 헷갈리는 한 가지를 먼저 풀고, 나머지는 안내문으로 드린다', fx: { care: 6, delay: 5 }, flag: 'sheet', reply: '“이게 제일 궁금했어요.” 나머지는 집에서 볼 수 있는 안내문에 담았어요.', moment: '가장 급한 질문부터 푼 순간', type: 'C' },
-      { label: '처방 검토를 먼저 마치고, 오후 상담 시간을 잡아 드린다', fx: { care: -1, team: 4 }, flag: 'appointment', reply: '“3시에 다시 올게요.” 처방 검토가 제때 이어졌어요. 오후에 지킬 약속이 생겼어요.', moment: '상담 시간을 따로 잡은 순간', type: 'C' },
+      { label: '처방 검토를 먼저 마치고, 오후 상담 시간을 잡아 드린다', fx: { care: -1, team: 4 }, flag: 'promise', reply: '“3시에 다시 올게요.” 처방 검토가 제때 이어졌어요. 오후에 지킬 약속이 생겼어요.', moment: '상담 시간을 따로 잡은 순간', type: 'C' },
     ],
   },
   order: {
@@ -29,7 +29,7 @@ job.scenes = hospitalDay(job, {
   // 손으로 하는 일
   after: {
     order: [{
-      kind: 'hands', game: 'rxcheck', atOff: 110, place: 'pharmacy', title: '나가기 전에 한 번 더',
+      kind: 'hands', game: 'rxcheck', closeup: true, atOff: 110, place: 'pharmacy', title: '나가기 전에 한 번 더',
       body: '가온 님에게 갈 약 봉투가 준비됐어요. 처방전과 한 줄씩 견주어 다른 곳이 없는지 확인해요. (약 이름은 모두 가상이에요)',
       moment: '처방전과 약 봉투를 대조한 순간', type: 'C',
       fact: '약이 환자에게 가기 전, 처방전과 준비된 약을 한 번 더 대조해요. 동료와 함께 확인하기도 해요.',
@@ -51,17 +51,17 @@ job.scenes = hospitalDay(job, {
     ],
   },
   incident: {
-    title: '계획대로만 흘러가진 않아요', body: '상담 요청이 몰려, 동료와 상담 시간을 나눠야 해요.',
-    speaker: '약제실 동료', speech: '“상담 기다리시는 분이 다섯 분이에요!”',
+    title: '오후 상담 순서 정하기', body: '누구부터 상담할까요?',
+    speaker: '약제실 동료', speech: '“다섯 분이 기다려요.”',
     ripple: [
       { if: (s) => s.flags.batched, text: '오전에 미뤄 둔 질문의 답을 아직 못 받아, 처리할 처방까지 쌓였어요.', fx: { delay: 8, team: -3 } },
       { if: (s) => s.flags.waiting, text: '메신저 답이 와 있어요. 멈춰 있던 처방 하나가 풀렸어요.', fx: { delay: -4 } },
-      { if: (s) => s.flags.appointment, text: '가온 님과 잡아 둔 오후 상담 시간도 다가와요.', fx: { energy: -3 } },
+      { if: (s) => s.flags.promise, text: '가온 님과 잡아 둔 오후 상담 시간도 다가와요.', fx: { energy: -3 } },
     ],
     options: [
-      { label: '오래 기다린 분부터 내가 맡고, 나머지는 동료에게 부탁한다', fx: { care: 6, team: 3, delay: 8, energy: -4 }, reply: '동료와 나눠 맡으니 줄이 줄어들기 시작해요.', moment: '동료와 상담을 나눈 순간', type: 'E' },
-      { label: '한 분 한 분 충분히 시간을 들여 설명한다', fx: { care: 10, team: -5, delay: 14, energy: -3 }, reply: '설명을 들은 분들은 고개를 끄덕여요. 기다리는 줄은 동료가 버텨 줬어요.', moment: '한 분씩 충분히 설명한 순간', type: 'S' },
-      { label: '자주 묻는 내용을 짧은 안내문으로 만들어 함께 드린다', fx: { care: 4, team: 2, delay: 6, energy: -2 }, reply: '같은 질문이 줄었어요. 안내문을 만드는 데 시간이 조금 들었어요.', moment: '안내문을 만들어 나눈 순간', type: 'A' },
+      { label: '기다린 순서대로 나눠 맡는다', fx: { care: 6, team: 3, delay: 8, energy: -4 }, reply: '동료와 나눠 맡으니 줄이 줄어들기 시작해요.', moment: '동료와 상담을 나눈 순간', type: 'E' },
+      { label: '한 분씩 충분히 설명한다', fx: { care: 10, team: -5, delay: 14, energy: -3 }, reply: '설명을 들은 분들은 고개를 끄덕여요. 기다리는 줄은 동료가 버텨 줬어요.', moment: '한 분씩 충분히 설명한 순간', type: 'S' },
+      { label: '공통 질문은 안내문으로 드린다', fx: { care: 4, team: 2, delay: 6, energy: -2 }, reply: '같은 질문이 줄었어요. 안내문을 만드는 데 시간이 조금 들었어요.', moment: '안내문을 만들어 나눈 순간', type: 'A' },
     ],
   },
   pick: {
@@ -76,11 +76,33 @@ job.scenes = hospitalDay(job, {
     ],
   },
   thanks: [
-    { if: (s) => s.flags.appointment && s.delay >= 15, text: '“약속한 상담이 조금 늦어졌지만, 기다린 보람이 있었어요.”' },
-    { if: (s) => s.g.care >= 65, text: '“제가 헷갈렸던 부분부터 다시 짚어 주셔서 고마워요. 질문을 적어 오길 잘했네요.”', fx: { care: 2 } },
     { if: (s) => s.flags.sheet, text: '“안내문에 적어 주신 건 집에서 다시 볼게요.”', fx: { care: 2 } },
-    { text: '“다들 바쁘신 것 같아서 메모를 다 못 여쭤봤어요.”' },
+    { text: '“질문 메모를 하나씩 함께 읽으니 헷갈리던 부분을 찾았어요.”' },
+  ],
+};
+day.incident.options.push({label:'약속대로 가온 님과 상담한다', when:s=>!!s.flags.promise, flag:'kept', fx:{care:7,delay:8}, reply:'가온 님이 메모를 들고 상담실에 들어왔어요.',moment:'약속한 상담을 지킨 순간',type:'S'});
+day.thanks.unshift({if:s=>s.flags.kept,text:'“세 시에 메모를 함께 봐 주셔서 질문을 정리했어요.”'},{if:s=>s.flags.promise,text:'“오늘 상담 약속은 놓쳤어요. 다음에는 언제 만날까요?”'});
+const afternoon = {
+  moment: '상담 자료를 이어 준 순간', type: null, kind: 'hands', game: 'rxhandoff', closeup: true, atOff: 300, place: 'meeting',
+  title: '가온 님 상담 준비', body: '가온 님이 질문을 표시한 메모를 펴셨어요. 상담에서 답한 질문과 의료진 확인이 남은 문의를 나눠요.',
+  grades: {
+    neat: { fx: { team: 2 }, text: '가온 님은 설명을 다시 들었고, 미회신 문의는 동료가 이어받았어요.' },
+    redo: { fx: { delay: 3 }, text: '가온 님은 설명을 다시 들었고, 미회신 문의는 동료가 이어받았어요. 위치를 고쳐 3분 더 걸렸어요.' },
+  },
+  skip: s => !s.flags.kept,
+};
+job.scenes = floorDay(job, {
+  records:day.records, pick:day.pick, thanks:day.thanks, pickAt:360, pickPlace:'office', thanksPlace:'meeting',
+  text:{locker:'약제실 탈의실에서 근무를 준비해요.',dressed:'명찰을 달고 동료와 인사했어요.',recordsTodo:'오늘 일정 확인',records:'동료에게 오늘 방문 일정과 요청을 받아요.',breakSpeech:'먼저 쉬고 와요. 제가 자리를 지킬게요.',breakTalk:'오후 방문자에게 필요한 준비를 함께 짚었어요.',leave:'다음 근무자에게 인계를 마쳤어요.',pickTodo:'미해결 질문 기록'},
+  am:[
+    { ...day.first, kind:'choice', atOff:25, place:'meeting', todo:{label:'가온 님 질문 듣기' }, notice:{via:'번호 호출',text:'가온 님이 질문 메모를 들고 오셨어요.'} },
+    { ...day.order, kind:'order', atOff:70, place:'pharmacy', todo:{label:'처방 접수 순서 확인' }, notice:{via:'업무 알림',text:'새 처방 기록이 도착했어요.'} },
+    { ...day.after.order[0], kind:'hands', atOff:110, place:'pharmacy', todo:{label:'봉투 대조 · 가온 님' }, notice:{via:'동료',text:'봉투를 내보내기 전에 기록을 함께 봐 주세요.'} },
+    { ...day.team, kind:'choice', atOff:168, place:'office', todo:{label:'미확인 처방 문의' }, notice:{via:'전화',text:'의료진에게 확인할 질문이 있어요.'} }
+  ],
+  pm:[
+    { ...day.incident, kind:'choice', atOff:290, place:'counter', todo:[{label:'상담 대기 조정'},{label:'15:00 가온 님 상담',via:'약속',at:'15:00',known:s=>!!s.flags.promise,now:(s,i)=>s.i===i||(s.flags.kept&&s.i===i+1),done:(s,i)=>s.flags.kept&&s.i>i+1,missed:(s,i)=>s.i>i&&!s.flags.kept}], notice:{via:'동료',text:'상담 대기자가 늘었어요.'} },
+    {...afternoon,todo:{label:afternoon.title},notice:{via:'동료',text:afternoon.body}},
   ],
 });
-
 export default job;

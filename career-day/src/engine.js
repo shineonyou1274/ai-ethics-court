@@ -41,7 +41,7 @@ export function enter(s, job) {
   if (s.entered === s.i) return [];
   s.entered = s.i;
   const sc = sceneOf(s, job), notes = [];
-  apply(s, { energy: -(DRAIN[sc.kind] ?? 2) });
+  apply(s, { energy: -(sc.drain ?? DRAIN[sc.kind] ?? 2) }); // drain: 이 장면만 다르게 (짧은 일이라 힘이 덜 드는 장면)
   for (const r of sc.ripple || []) {
     if (r.if(s)) { const d = apply(s, r.fx); notes.push({ text: r.text, d }); }
   }
@@ -112,7 +112,13 @@ export function leave(s, job, stay) {
   return { d };
 }
 
-export function next(s, job) { s.i = Math.min(job.scenes.length - 1, s.i + 1); }
+// 다음 장면으로. skip(s) 가 맞는 장면(예: 약속을 지키러 가기로 했을 때만 여는 장면)은 건너뛴다.
+export const skipped = (s, job, i) => !!job.scenes[i]?.skip?.(s);
+export function next(s, job) {
+  const last = job.scenes.length - 1;
+  s.i = Math.min(last, s.i + 1);
+  while (s.i < last && skipped(s, job, s.i)) s.i++;
+}
 
 // 오늘 실제로 일한 시간(분): 약속된 시간 + 남아서 한 시간 + 쉬는 시간에 일한 시간
 export function workedMin(s, job) {

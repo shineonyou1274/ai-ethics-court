@@ -8,6 +8,7 @@
 //   order: ['table', 'paper', 'pad'],          // (있으면) 이 순서를 지켜야 한다
 //   early: { paper: '…' },                     // 순서보다 먼저 하려 할 때의 한마디
 //   miss: (id, slotId) => '…',                 // 다른 칸에 놓았을 때의 한마디
+//   wrong: { chartB: { as: 'chart', msg } },   // (있으면) 닮았지만 틀린 물건. as 의 차례에 놓으려 하면 msg 를 보여 주고 제자리로 돌린다
 //   good: 'neat', bad: 'redo',                 // 등급 이름. 실수가 없으면 good
 // }
 import { checklist } from './closeup-ui.js';
@@ -22,19 +23,23 @@ export function tidy(def) {
     const finish = () => {
       if (left.size || finished) return;
       finished = true; sfx('good'); act('work');
-      ui.msg(mistakes ? '다시 바로잡아 모두 마쳤어요.' : '모두 마쳤어요. 다음 사람이 바로 쓸 수 있어요.');
+      ui.msg(mistakes ? '다시 바로잡아 모두 마쳤어요.' : def.finish || '모두 마쳤어요. 다음 사람이 바로 쓸 수 있어요.'); // finish: 실수 없이 마쳤을 때의 한마디 (없으면 정리 장면의 말)
       done(mistakes ? def.bad : def.good, { mistakes });
     };
     const complete = (id) => { if (!left.has(id)) return; left.delete(id); ui.done(id); sfx('pop'); act('work'); if (item(id).done) { ui.msg(item(id).done); warned = Date.now() + 1500; } finish(); }; // 마친 안내를 읽을 틈을 준다. 3초 동안은 '아직 안 돼요' 안내가 덮지 않는다
     const early = (id, count) => {
       if (count) { mistakes++; sfx('bad'); }
-      if (count || Date.now() - warned > 1500) { warned = Date.now(); ui.msg(def.early?.[id] || '먼저 해야 할 일이 있어요.', true); }
+      if (count || Date.now() - warned > 1500) { warned = Date.now(); ui.msg((typeof def.early === 'function' ? def.early(id, def.order?.find((x) => left.has(x))) : def.early?.[id]) || '먼저 해야 할 일이 있어요.', true); } // early 가 함수면 (누른 것, 아직 남은 첫 일)을 받는다
     };
     const on = {
       canRub: (id) => ready(id),
       onBlocked: (id) => early(id, false),
       onRub: (id, v) => { ui.progress(id, v); if (v >= 1) complete(id); },
-      onDrop: (id) => { if (!ready(id)) { early(id, true); return false; } complete(id); return true; },
+      onDrop: (id) => {
+        const w = def.wrong?.[id]; // 닮았지만 틀린 물건(예: 이름이 같은 다른 환자의 차트). 놓으면 제자리로 돌아가고 까닭을 알려 준다
+        if (w) { if (!ready(w.as)) { early(w.as, true); return false; } mistakes++; sfx('bad'); ui.msg(w.msg, true); warned = Date.now(); return false; }
+        if (!ready(id)) { early(id, true); return false; } complete(id); return true;
+      },
       onMiss: (id, slot) => { mistakes++; sfx('bad'); ui.msg(def.miss ? def.miss(id, slot) : '그 자리가 아니에요.', true); },
     };
     let handle = null;
@@ -92,6 +97,22 @@ export const rehabtidy = tidy({
 });
 
 // ── 소방관 ──
+export const alarmcheck = tidy({
+  stage: 'alarmcheck', title: '화재경보 확인', hint: '위쪽 3D 화면에서 직접 해요. 물기는 손가락으로 문지르고, 가습기와 열쇠는 끌어서 초록 원에 놓아요.',
+  start: '연기 감지기 아래를 먼저 살펴요. 진짜 불일까요, 다른 까닭일까요?',
+  items: [
+    { id: 'look', label: '감지기 아래를 살피기 (탁자의 물기 닦기)', kind: 'rub', done: '연기가 아니라 가습기 김이었어요. 탄 냄새도, 불도 없어요.' },
+    { id: 'humid', label: '가습기를 감지기에서 먼 창가로 옮기기', kind: 'move', done: '김이 감지기 쪽으로 오르지 않아요. 이제 수신기를 되돌려요.' },
+    { id: 'reset', label: '복구 열쇠로 수신기 되돌리기', kind: 'move', done: '수신기 불이 초록으로 바뀌었어요. 경보가 멈췄어요.' },
+  ],
+  order: ['look', 'humid', 'reset'],
+  early: {
+    humid: '잠깐! 먼저 둘레를 살펴요. 진짜 불이 아닌지부터 확인해야 해요.',
+    reset: '울린 까닭을 치우기 전에 되돌리면 경보가 또 울려요. 살피고, 까닭을 치운 뒤에 되돌려요.',
+  },
+  good: 'calm', bad: 'redo',
+});
+
 const GEAR = { helmet: '헬멧은', tank: '공기호흡기는', lantern: '랜턴은' };
 const GEARSLOT = { helmet: '헬멧', tank: '공기호흡기', lantern: '랜턴' };
 
@@ -160,4 +181,48 @@ export const firefight = tidy({
     ember: '불씨가 탄 상자 밑에 가려져 있어요. 상자를 먼저 걷어 내요.',
   },
   good: 'out', bad: 'redo',
+});
+
+// ── 간호사 (7층 병동) ──
+export const idcheck = tidy({
+  stage: 'idcheck', title: '손 위생과 환자 확인', hint: '위쪽 3D 화면에서 직접 해요. 손은 손가락으로 문질러 소독하고, 차트는 끌어서 팔찌 옆 초록 원에 대요.',
+  start: '702호 문 앞이에요. 다온 님 곁에 가기 전에 무엇부터 할까요?',
+  items: [
+    { id: 'rub', label: '문 앞 손 소독제로 손을 구석구석 문지르기', kind: 'rub', done: '손을 구석구석 문질러 소독했어요. 이제 차트를 들고 팔찌와 견줘요.' },
+    { id: 'chart', label: '팔찌와 이름·생년월일이 모두 같은 차트 대어 보기', kind: 'move', done: '이름도, 생년월일도 같아요. “네, 박다온이에요.”' },
+  ],
+  order: ['rub', 'chart'],
+  early: { chart: '잠깐! 환자분 곁에 가기 전에, 문 앞에서 손부터 소독해요.' },
+  wrong: { chartB: { as: 'chart', msg: '이름은 같지만 생년월일이 달라요. 같은 이름의 환자분이 계실 수 있어서, 이름과 생년월일을 둘 다 견줘요.' } },
+  finish: '손도, 이름도 확인했어요. 이제 다온 님 곁으로 가요.',
+  good: 'sure', bad: 'redo',
+});
+
+export const bedside = tidy({
+  stage: 'bedside', title: '침대 곁 살피기', hint: '위쪽 3D 화면에서 직접 해요. 베개, 호출 벨, 난간을 끌어서 초록 원에 놓아요.',
+  start: '윤호 님 침대 곁을 살펴요. 무엇부터 할까요?',
+  items: [
+    { id: 'pillow', label: '내려간 베개를 머리 쪽으로 올려 드리기', kind: 'move', done: '베개를 올려 드렸어요. 윤호 님이 편하게 머리를 기대요.' },
+    { id: 'bell', label: '떨어진 호출 벨을 손 닿는 곳에 두기', kind: 'move', done: '벨을 왼손 곁에 두었어요. 한번 눌러 보시더니 고개를 끄덕여요.' },
+    { id: 'rail', label: '나가기 전에 침대 난간 올리기', kind: 'move', done: '난간을 올렸어요. “이제 편해요. 벨도 손에 닿네요.”' },
+  ],
+  order: ['pillow', 'bell', 'rail'],
+  early: { bell: '먼저 베개를 올려 자세를 편하게 해 드려요. 그다음에 손 닿는 곳을 찾아요.', rail: '난간은 자리를 다 살핀 뒤, 병실을 나서기 전에 올려요.' },
+  miss: () => '오른팔은 붕대를 감아 쓰기 어려우세요. 쓸 수 있는 왼손 곁에 두어요.',
+  finish: '모두 살폈어요. 윤호 님이 편하게 누워 벨을 손에 쥐어요.',
+  good: 'safe', bad: 'redo',
+});
+
+const VITAL = { temp: ['36.8 ℃', '체온'], pulse: ['78 회/분', '맥박'], bp: ['118/76 mmHg', '혈압'] };
+export const vitals = tidy({
+  stage: 'vitals', title: '모니터 값 옮겨 적기', hint: '위쪽 3D 화면에서 직접 해요. 숫자 카드를 끌어 기록지의 알맞은 칸에 놓아요.',
+  start: '모니터를 읽어요. 왼쪽의 숫자 카드를 기록지의 알맞은 칸으로 옮겨요.',
+  items: [
+    { id: 'temp', label: '체온 칸에 36.8 ℃', kind: 'move' },
+    { id: 'pulse', label: '맥박 칸에 78 회/분', kind: 'move' },
+    { id: 'bp', label: '혈압 칸에 118/76 mmHg', kind: 'move' },
+  ],
+  miss: (id, slot) => `앗, ${VITAL[id][0]}는 ${VITAL[id][1]} 값이에요. 그 칸은 ${VITAL[slot][1]} 칸이에요. 단위를 보고 다시 놓아요.`,
+  finish: '세 값을 모두 옮겨 적었어요. 모니터에 기록함 표시가 떴어요.',
+  good: 'noted', bad: 'redo',
 });

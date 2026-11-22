@@ -1,0 +1,25 @@
+[
+  {
+    "viewport": "iphone",
+    "seconds": 115.1,
+    "flashes": 2,
+    "white": 0,
+    "cut": []
+  },
+  {
+    "viewport": "se",
+    "seconds": 82.1,
+    "flashes": 2,
+    "white": 0,
+    "cut": [
+      "계획대로만 흘러가진 않아요"
+    ]
+  },
+  {
+    "viewport": "pc",
+    "seconds": 97.4,
+    "flashes": 1,
+    "white": 0,
+    "cut": []
+  }
+]

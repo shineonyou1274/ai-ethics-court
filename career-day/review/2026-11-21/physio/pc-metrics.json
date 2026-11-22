@@ -1,0 +1,959 @@
+[
+ {
+  "h": "물리치료사",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "go",
+  "covered": "P",
+  "offscreen": true,
+  "panelScroll": 170,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 08:40",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 탈의실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 08:50",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "탈의실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "옷을 갈아입으면, 하루 시작",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 2,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 08:50",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 치료실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 09:00",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [],
+   "inboxText": "받은 일",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "치료실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "먼저, 오늘의 기록부터",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 09:00",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 운동 매트로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 09:25",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 번호 호출\n서우 님이 도착했어요.",
+   "head": "운동 매트로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "첫 만남의 한마디",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 09:25",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 치료실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 10:2212분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 업무 알림\n다음 예약을 위해 매트를 확인해 주세요.",
+   "head": "치료실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "치료 시간을 준비해요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 4,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 10:2212분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 기구 정리대로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 11:0212분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 마침",
+    "💬 치료를 마친 자리 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n마침\n💬 치료를 마친 자리\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "💬 동료\n방금 사용한 기구가 정리대에 남았어요.",
+   "head": "기구 정리대로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "치료를 마친 자리",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay closeOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 11:0212분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 평행봉으로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 12:0214분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 마침",
+    "💬 치료를 마친 자리 마침",
+    "📞 혼자 하는 일이 아니니까 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n마침\n💬 치료를 마친 자리\n마침\n📞 혼자 하는 일이 아니니까\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📞 전화\n오늘 재활 일정을 함께 맞춰요.",
+   "head": "평행봉으로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "혼자 하는 일이 아니니까",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 12:0214분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 휴게실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 13:1818분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 마침",
+    "💬 치료를 마친 자리 마침",
+    "📞 혼자 하는 일이 아니니까 마침"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n마침\n💬 치료를 마친 자리\n마침\n📞 혼자 하는 일이 아니니까\n마침",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "휴게실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "잠깐, 나도 숨을 고르기",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 13:1818분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 운동 매트로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 15:0818분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 마침",
+    "💬 치료를 마친 자리 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n마침\n💬 치료를 마친 자리\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "💬 동료\n서우 님이 잠시 쉬고 싶다고 하세요.",
+   "head": "운동 매트로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "계획대로만 흘러가진 않아요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 3,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 15:0818분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 평행봉으로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 16:0030분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 마침",
+    "💬 치료를 마친 자리 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 마침"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n마침\n💬 치료를 마친 자리\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n마침",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "평행봉으로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "서우 님과 외출 경로 짚기",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay closeOn",
+  "small": [],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 16:0030분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 기구 정리대로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 16:3030분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 마침",
+    "💬 치료를 마친 자리 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 마침",
+    "🗓️ 다음 치료사에게 남길 기록 새로 옴"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n마침\n💬 치료를 마친 자리\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n마침\n🗓️ 다음 치료사에게 남길 기록\n새로 옴",
+   "nowCovered": false,
+   "walkVar": "",
+   "notice": "📣 인계 요청\n다음 치료사가 오늘 기록을 요청했어요.",
+   "head": "기구 정리대로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "다음 치료사에게 남길 기록",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "ok",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 6,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 16:3030분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 치료실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 17:5030분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 마침",
+    "💬 치료를 마친 자리 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 마침",
+    "🗓️ 다음 치료사에게 남길 기록 마침"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n마침\n💬 치료를 마친 자리\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n마침\n🗓️ 다음 치료사에게 남길 기록\n마침",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "치료실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "오늘 남은 한마디",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 17:5030분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "[walk] 탈의실로 가요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay walkOn",
+  "small": [],
+  "mainBtn": "walkGo",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 18:3030분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": {
+   "hintShown": true,
+   "hintText": "3D의 바닥이나 장소 표시를 눌러 걸어가요.",
+   "tight": false,
+   "lis": [
+    "🗓️ 첫 만남의 한마디 마침",
+    "🗓️ 치료 시간을 준비해요 마침",
+    "💬 치료를 마친 자리 마침",
+    "📞 혼자 하는 일이 아니니까 마침",
+    "💬 계획대로만 흘러가진 않아요 마침",
+    "🗓️ 다음 치료사에게 남길 기록 마침"
+   ],
+   "inboxText": "받은 일\n\n🗓️ 첫 만남의 한마디\n마침\n🗓️ 치료 시간을 준비해요\n마침\n💬 치료를 마친 자리\n마침\n📞 혼자 하는 일이 아니니까\n마침\n💬 계획대로만 흘러가진 않아요\n마침\n🗓️ 다음 치료사에게 남길 기록\n마침",
+   "nowCovered": null,
+   "walkVar": "",
+   "notice": null,
+   "head": "탈의실로 가요"
+  },
+  "me": {
+   "vis": true,
+   "ov": false
+  }
+ },
+ {
+  "h": "근무복을 벗고, 오늘을 접어요",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "go",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 2,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 18:3030분 밀림",
+   "clockCut": false,
+   "smallCut": false,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "오늘의 일당 명세서",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [],
+  "mainBtn": "nx",
+  "covered": null,
+  "offscreen": false,
+  "panelScroll": 0,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 퇴근 18:00",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ },
+ {
+  "h": "사람 곁을 지킨 하루",
+  "canvasH": 800,
+  "canvasPct": 100,
+  "appCls": "walkDay pickOn",
+  "small": [
+   {
+    "t": "오늘의 기록을 읽은 순간",
+    "fs": 15
+   },
+   {
+    "t": "목표를 작은 길로 쪼갠 순간",
+    "fs": 15
+   },
+   {
+    "t": "치료 준비 순서를 맞춘 순간",
+    "fs": 15
+   },
+   {
+    "t": "치료 기구를 정리한 순간",
+    "fs": 15
+   },
+   {
+    "t": "환자의 말을 팀에 그대로 전한 순",
+    "fs": 15
+   },
+   {
+    "t": "팀과 상의해 계획을 조정한 순간",
+    "fs": 15
+   },
+   {
+    "t": "치료 기록을 고른 순간",
+    "fs": 15
+   }
+  ],
+  "mainBtn": null,
+  "covered": null,
+  "offscreen": null,
+  "panelScroll": 211,
+  "over": 0,
+  "nOpts": 0,
+  "optsCut": [],
+  "hud": {
+   "rows": 2,
+   "h": 50,
+   "bottom": 60,
+   "clock": "물리치료사 · 퇴근 18:00",
+   "clockCut": false,
+   "smallCut": null,
+   "hudOverflow": false
+  },
+  "walk": null,
+  "me": {
+   "vis": false,
+   "ov": false
+  }
+ }
+]

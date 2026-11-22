@@ -2,7 +2,7 @@
 
 > **일을 시작하기 전에 이 파일부터 읽어요.** 지금 상태를 한 장으로 적은 것이고, Claude가 늘 최신으로 고쳐 써요.
 > 자세한 사정과 주고받은 말은 게시판에 있어요: `shared/BOARD.md`(Claude) · `barista-day/BOARD.md`(Codex)
-> 마지막 고침: 2026-11-19 · 운영 브랜치 `claude/focused-davinci-c033wr` = 통합 브랜치 `claude/integrate-fire` (카페 손 조작 5개 고친 판 운영 반영)
+> 마지막 고침: 2026-11-22 · 운영 브랜치 `claude/focused-davinci-c033wr` = 통합 브랜치 `claude/integrate-fire` (박물관 학예사 운영 반영)
 
 ## 1. 무엇을 만들고 있나
 
@@ -12,10 +12,11 @@
 
 | 일터 | 폴더 | 맡은 쪽 | 상태 |
 |---|---|---|---|
-| 모아 병원 (8직업) | `career-day/` | Claude | 완성, 운영 중 |
-| 다솜 소방서 (소방관) | `career-day/` 안의 일터 `fire-station`, 직업 `firefighter` | Claude(새 대화) | 운영 중. **출동 현장 불 끄기 장면을 넣기로 결정**(새 대화에서 다듬는 중) |
+| 모아 병원 (8직업) | `career-day/` | Claude·Codex | **여덟 직업 모두 카페 방식**. 모두 운영 중(2026-11-22). 약사·원무·물리치료는 Codex(`hands/department.js`·`places/department.js`). 공통 틀 `jobs/_floor-day.js`, 층은 `places/index.js` 의 FLOORS |
+| 다솜 소방서 (소방관) | `career-day/` 안의 일터 `fire-station`, 직업 `firefighter` | Claude | **카페 방식 판 운영 중(2026-11-20)**: 서 안을 걸어 다니기, 무전·출동 벨로 일이 찾아옴, 출동 둘(오작동 경보·골목 불), 보람 님 세 시 약속. 걷기 엔진 `career-day/src/flow.js`·`world/nav.js`(직업 `walk: true` 로 켬). 다음: 병원 간호사 |
 | 카페 바리스타 | `barista-day/` | Codex | 11/16 판 모습 + 손 조작 5개(거스름돈·붓기·수도꼭지·선반·손님) 고친 판 운영 중(2026-11-19) |
-| 온빛 항공우주 설계실 (항공우주공학기술자) | `aerospace-day/` (게시판 `aerospace-day/BOARD.md`) | Codex | 만듦. 설계·시험·바람 영향, 세션·보내기. 운영 중. 일터 색 `#5965ac` |
+| 온빛 항공우주 (항공우주공학기술자) | `aerospace-day/` (게시판 `aerospace-day/BOARD.md`) | Codex | 운영은 옛 날개 풍동 판. 새 판 "오후 4시, 무인 화물선 도킹"은 `codex/aerospace-story` 에서 운영 전 한 바퀴 더(게시판 2026-11-20). 일터 색 `#5965ac` |
+| 누리 역사박물관 (학예사) | `museum-day/` (게시판 `museum-day/BOARD.md`) | Codex | 운영 중(2026-11-22). 유물 옮기기·붓질·조각 맞추기·진열장 다이얼, 단비 님 약속. 사이트 입구·도장 12칸째. 권장: 층이 휑함, 손 장면 3D 35%(바리스타 56%), 세게 문지르기 경고 |
 | 공통 약속 | `shared/` | Claude | 일당·기록·세션·교사 코드·디자인 |
 | 사이트 | `workday-site/` | Claude | 운영 중. 입구 넷, 도장 11칸 |
 
