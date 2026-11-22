@@ -34,7 +34,7 @@ async function run(browser,name,w,h){
  for(const [x,v,target] of [[-2.65,.18,.62],[0,.15,.62],[2.65,.84,.18]]){await stroke([x,-1.5+v*2.9,.17],[x,-1.5+target*2.9],17)}
  assert.match(await message(),/두 목소리/);await shot('06-mix-after')}
  else if(i===7){await shot('07-switch-before');
- for(let n=0;n<4;n++){await p.waitForFunction(()=>document.querySelector('#feedback').textContent.includes('지금 큐'));if(n<3){await stroke([-3.2+1.55*n,-.96,.23]);await stroke([2.10,-.95,.23])}else await stroke([2.1,-2.11,.23])}
+ for(let n=0;n<4;n++){await p.waitForFunction(()=>document.querySelector('#feedback').textContent.includes('지금 큐'));if(messy&&n===0){await p.waitForFunction(()=>document.querySelector('#feedback').textContent.includes('기다렸어요'));await stroke([2.1,-.95,.23]);assert.match(await message(),/큐시트/)}if(n<3){await stroke([-3.2+1.55*n,-.96,.23]);await stroke([2.10,-.95,.23])}else await stroke([2.1,-2.11,.23])}
  assert.match(await message(),/이름/);await shot('08-switch-after')}
  else if(i===8){await shot('09-edit-before');if(messy){await stroke([-2.9,-2.14,.22]);assert.match(await message(),/먼저/)}
  for(const [x,target] of [[0,-2.65],[2.65,0],[-2.65,2.65]])await stroke([x,1.28,.22],[target,-.55],15);
@@ -46,6 +46,6 @@ async function run(browser,name,w,h){
  await shot('11-pay');await p.getByRole('button',{name:'오늘의 순간 돌아보기'}).click();await action(1);await action(2);await action(0);await shot('12-ending');
  assert.match(await message(),/도장/);assert.match(await p.locator('#title').innerText(),messy?/동료/:/손 신호/);assert.deepEqual(errors,[]);
  const video=p.video();await ctx.close();console.log(name,'PASS',await video.path());
- }catch(e){console.error(name,await p.locator('article').innerText());await shot('failure');await ctx.close();throw e}
+ }catch(e){console.error(name,errors,await p.locator('article').innerText());await shot('failure');await ctx.close();throw e}
 }
 (async()=>{const browser=await chromium.launch({args:['--use-gl=angle','--use-angle=metal']});try{for(const [n,w,h] of [['phone',390,844],['se',375,667],['small',320,568],['desktop',1280,800]])if(!process.env.BROADCAST_DEVICE||process.env.BROADCAST_DEVICE===n)await run(browser,n,w,h)}finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});
