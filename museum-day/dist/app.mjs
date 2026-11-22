@@ -55,7 +55,7 @@ function payslip(overtime){stay=overtime;studio.reset();const end=1080+(stay?del
  el('line').innerHTML='<strong class="paybig">'+won(total)+'</strong>'+PAY_NOTE;
  const pay=salaryDay(annual,end-540-rest);
  const basis=el('extra');basis.innerHTML='<table class="wd-slip"><tr><td>기본급 · '+won(pay.hourly)+' × 8시간</td><td>'+won(pay.base)+'</td></tr>'+(pay.overMin?'<tr><td>연장 '+pay.overMin+'분 · 시급의 1.5배</td><td>'+won(pay.overtime)+'</td></tr>':'')+(rest<60?'<tr><td>휴게 중 일한 시간</td><td>'+(60-rest)+'분</td></tr>':'')+'</table><h2>이 일당은 어떻게 나왔을까?</h2><p>09:00–'+clock(end)+' · 휴게 '+rest+'분 · 실제 근무 '+(end-540-rest)+'분</p><p>시급 '+won(hourlyOf(annual).hourly)+' · '+MIN_WAGE.year+'년 최저시급 '+won(MIN_WAGE.hourly)+'</p><a href="'+careernetUrl(348)+'" target="_blank" rel="noopener">커리어넷 학예사 · 연 3,937만 원 (2021)</a><p>직업끼리 순위를 매기지 않아요.</p>';
- button('오늘의 순간 돌아보기',reflect,basis)}
+ basis.querySelector('table').after(button('오늘의 순간 돌아보기',reflect,basis))}
 function reflect(){screen('end','퇴근길 · 돌아보기',like<0?'끌린 순간은 언제였나요?':'버거운 순간은 언제였나요?',like<0?(first?'단비 님과 첫 전시를 함께 본 하루.':'전시 사진에 약속을 담아 보낸 하루.'):'다른 순간을 하나 골라요.');
  moments.forEach(([label],i)=>{if(i===like)return;const b=button(label,()=>{if(like<0){like=i;reflect()}else{hard=i;review()}});b.className='wd-moment'})}
 function review(){screen('end','퇴근길 · 고른 순간','오늘 맡은 일에서 찾은 흥미','끌린 순간은 '+moments[like][0]+'. '+RIASEC[moments[like][1]].what+'이었어요.');
