@@ -38,7 +38,7 @@ async function run(browser,name,w,h){
  assert.match(await message(),/이름/);await shot('08-switch-after')}
  else if(i===8){await shot('09-edit-before');if(messy){await stroke([-2.9,-2.14,.22]);assert.match(await message(),/먼저/)}
  for(const [x,target] of [[0,-2.65],[2.65,0],[-2.65,2.65]])await stroke([x,1.28,.22],[target,-.55],15);
- await stroke([-2.90,-2.14,.22]);await stroke([3.77,-.55,.12]);assert.match(await message(),/30초/);await shot('10-edit-after')}
+ await stroke([-2.90,-2.14,.22]);if(messy){await stroke([1.48,-2.12]);assert.match(await message(),/넘겨요/)}await stroke([2.22,-2.12],[0,-2.12],18);assert.match(await message(),/빈 6초/);await shot('10-edit-after')}
  else await action(messy&&(i===4||i===6)?1:0);
  await action(0);
  }

@@ -19,12 +19,12 @@ function monitor(studio,x,y,width,height){
 function led(p,x,y,c){return oval(p,.095,.095,.053,c,x,y,.23)}
 function pushKey(p,x,y,w,c){return box(p,w,.62,.30,c,x,y,.13)}
 function audioCheck(){
- const tracks=['host','guest'].map(n=>new Audio('audio/'+n+'.mp3'));let ctx,osc,gain,turn=0,playing=false;
+ const tracks=['host','guest'].map(n=>new Audio('audio/'+n+'.mp3'));let ctx,osc,gain,beat,turn=0,playing=false;
  const levels=[.2,.13,.82];tracks.forEach((t,i)=>t.onended=()=>{if(playing){turn=1-i;tracks[turn].play().catch(()=>{})}});
  function volumes(){tracks.forEach((t,i)=>t.volume=levels[i]**1.6);if(gain)gain.gain.value=levels[2]*.12}
  return {level:(i,v)=>{levels[i]=v;volumes()},toggle(){if(playing){this.stop();return false}
- ctx??=new AudioContext();ctx.resume().catch(()=>{});osc=ctx.createOscillator();gain=ctx.createGain();osc.type='triangle';osc.frequency.value=196;osc.connect(gain).connect(ctx.destination);volumes();osc.start();playing=true;tracks[turn].play().catch(()=>{});return true},
- stop(){playing=false;tracks.forEach(t=>t.pause());if(osc){osc.stop();osc=null}},dispose(){this.stop();ctx?.close()}};
+ ctx??=new AudioContext();ctx.resume().catch(()=>{});osc=ctx.createOscillator();gain=ctx.createGain();osc.type='triangle';osc.frequency.value=196;osc.connect(gain).connect(ctx.destination);volumes();osc.start();let note=0;const notes=[196,246.94,293.66,246.94,220,261.63,329.63,261.63];beat=setInterval(()=>osc?.frequency.setTargetAtTime(notes[++note%notes.length],ctx.currentTime,.035),380);playing=true;tracks[turn].play().catch(()=>{});return true},
+ stop(){clearInterval(beat);playing=false;tracks.forEach(t=>t.pause());if(osc){osc.stop();osc=null}},dispose(){this.stop();ctx?.close()}};
 }
 export function openHand(studio,kind,{say,mistake,done}){
  const p=bench(studio),surface=studio.surface,clean=[];let down=()=>{},move=()=>{},up=()=>{},held=null,complete=false;
@@ -90,13 +90,20 @@ export function openHand(studio,kind,{say,mistake,done}){
  if(i===2){for(let j=0;j<3;j++)oval(g,.19,.13,.06,0xf0d5a5,(j-1)*.34,0,.15)}
  clips.push(g);ring(p,.43,.05,mint,trackX[i],-.55,-.36);targets.push(new T.Vector2(trackX[i],-.55));label(titles[i],trackX[i],-1.41)}
  const blade=box(p,.66,.49,.24,amber,-2.9,-2.14,.18);blade.rotation.z=-.25;label('자르기',-1.87,-2.17);
- const tail=box(p,.64,.92,.20,red,3.64,-.55,-.05);tail.visible=false;const shadow=oval(p,.85,.22,.035,0x263b43,0,0,-.37);shadow.visible=false;
- down=q=>{if(studio.hit(q,[blade])){if(fixed.length!==3)return mistake('먼저 세 컷을 놓아야 빈 구간의 시작을 찾을 수 있어요.');cut=true;say('칼을 들었어요. 마지막 컷 끝의 붉은 빈 구간을 눌러요.');return}
- if(cut){if(!studio.hit(q,[tail]))return mistake('여기는 방송에 쓸 장면이에요. 끝의 빈 6초를 잘라요.');
- tail.visible=false;time.textContent='완성 30초 / 편성 30초';time.style.background='#216353';finish('36초에서 빈 6초를 잘라 30초 다시보기를 완성했어요.');return}
+ const tail=box(p,.72,.92,.20,red,3.57,-.55,.20);tail.visible=false;const shadow=oval(p,.85,.22,.035,0x263b43,0,0,-.37);shadow.visible=false;
+ // Zoom into the final twelve seconds for a fingertip-sized cut point.
+ const ruler=group(p,0,-2.12,.13);box(ruler,4.8,.35,.12,ink);for(let i=0;i<=12;i++)box(ruler,.035,i%3===0?.27:.12,.04,ice,-2.22+i*.37,0,.09);
+ const cursor=box(ruler,.13,.58,.15,amber,2.22,0,.17);ruler.visible=false;
+ let trimming=false,endSec=36;
+ const updateCut=q=>{endSec=clamp(24+Math.round((q.x+2.22)/.37),24,36);cursor.position.x=(endSec-24)*.37-2.22;time.textContent='자를 위치 '+endSec+'초 / 편성 30초';time.style.background=endSec===30?'#216353':'#973f37'};
+ down=q=>{if(studio.hit(q,[blade])){if(fixed.length!==3)return mistake('먼저 세 컷을 놓아야 빈 구간의 시작을 찾을 수 있어요.');
+ cut=true;ruler.visible=true;say('마지막 12초를 확대했어요. 눈금 위 칼날을 움직이고 30초에서 놓아요.');return}
+ if(cut){if(Math.abs(q.y+2.12)<.58 && Math.abs(q.x)<2.65){trimming=true;updateCut(q)}return}
  drag=clips.findIndex((g,i)=>!fixed.includes(i)&&studio.hit(q,[g]));if(drag<0)return;offset=q.clone().sub(clips[drag].position);clips[drag].position.z=.59;shadow.visible=true};
- move=q=>{if(drag<0)return;clips[drag].position.set(q.x-offset.x,q.y-offset.y,.59);shadow.position.set(q.x+.12,q.y-.22,-.37)};
- up=()=>{if(drag<0)return;const i=drag,g=clips[i];drag=-1;shadow.visible=false;
+ move=q=>{if(trimming){updateCut(q);return}if(drag<0)return;clips[drag].position.set(q.x-offset.x,q.y-offset.y,.59);shadow.position.set(q.x+.12,q.y-.22,-.37)};
+ up=()=>{if(trimming){trimming=false;if(endSec!==30)return mistake(endSec>30?'편성 시간을 넘겨요. 빈 구간이 시작되는 30초를 찾아요.':'보람 님의 손 장면까지 잘려요. 끝을 조금 늘려요.');
+ tail.visible=false;time.textContent='완성 30초 / 편성 30초';finish('빈 6초를 덜어내고 떡을 빚는 마지막 손동작까지 담았어요.');return}
+ if(drag<0)return;const i=drag,g=clips[i];drag=-1;shadow.visible=false;
  if(i!==fixed.length||targets[i].distanceTo(g.position)>.84){g.position.set(homes[i],1.28,.1);return mistake('시장부터 소개하고 사람, 손으로 좁혀요. 비어 있는 다음 칸을 확인해요.')}
  fixed.push(i);g.position.set(trackX[i],-.55,.05);tail.visible=fixed.length===3;
  say(tail.visible?'세 컷이 이어졌어요. 칼을 집어 빈 6초를 잘라요.':titles[i]+' 컷을 붙였어요.')};
