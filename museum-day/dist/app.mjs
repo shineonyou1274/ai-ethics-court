@@ -13,7 +13,7 @@ function screen(mode,who,title,line){
 }
 function bar(minute,where){
  el('status').textContent='학예사 · '+clock(minute);el('place').textContent=where;
- const breakUsed=index>4?rest:0;el('pay').textContent='🪙 오늘 번 일당 '+won(earned(minute,breakUsed));
+ const breakUsed=index>4?rest:0;el('delay').textContent=delay?'밀림 '+delay+'분':'';el('pay').textContent='🪙 '+won(earned(minute,breakUsed));
 }
 function badge(){
  studio.reset();box(studio.root,9.6,4.9,.24,0x466e62,0,0,-1.4);box(studio.root,3,.24,1.9,0xbda17c,0,-1.67,0);const jar=vessel(studio.root,0,-.16,0,1.67);jar.rotation.x=.17;studio.draw();
@@ -28,22 +28,23 @@ function prepare(){
  bar(535,'사무실');studio.floor(0,0,false,()=>{});button('대장과 상자 챙기기',travel)
 }
 function travel(){
- const s=day[index];screen('map','받은 일 · 새로 옴',s.title,s.voice+' 님의 연락 · '+rooms[s.room]+'에서 만나요.');
+ const s=day[index];screen('map',['💬 기증 접수','📞 수장고 호출','📞 보존처리실 호출','💬 관람객 질문','💬 교대 연락','📞 보존 담당 연락','💬 촬영 문의','🎫 단체 관람 · 경보','📞 환경 점검','💬 기증자 연락'][index],s.title,s.voice+' · '+rooms[s.room]+'에서 만나요.');
  bar(s.time+delay,rooms[at]);
  const arrive=i=>{at=i;bar(s.time+delay,rooms[i]);if(i===s.room){event()}else say(rooms[i]+'에 도착했어요. 다음 일은 '+rooms[s.room]+'에 있어요.')};
- studio.floor(at,s.room,true,arrive);button(rooms[s.room]+'로 걸어가기',()=>studio.walk(s.room));
+ studio.floor(at,s.room,true,arrive,index===7||index===8);button(rooms[s.room]+'로 걸어가기',()=>studio.walk(s.room));
+ if(index>0){const promise=document.createElement('p');promise.className='promise';promise.textContent='🤝 15:00 단비 님 첫 관람(약속)'+(index>7?(first?' · 함께 관람':' · 사진으로 인계'):'');el('extra').append(promise)}
  const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='받은 일 · 앞으로 할 일';details.append(summary);
- for(const job of day.slice(index,index+3)){const p=document.createElement('p');p.textContent=clock(job.time)+' · '+rooms[job.room]+' · '+job.title;details.append(p)}el('extra').append(details);
+ for(const job of day.slice(index)){const p=document.createElement('p');p.textContent=clock(job.time)+' · '+rooms[job.room]+' · '+job.title;details.append(p)}el('extra').append(details);
 }
 function event(){
  const s=day[index];screen(s.hand?'working':'choice',s.voice,s.title,index===9?(first?'할머니 그릇을 제일 먼저 보게 해 주셨네요. 저 빗살 사이에 콩가루가 끼곤 했어요.':'보내 주신 사진을 할머니와 봤어요. 다음에는 둘이 같이 갈게요.'):s.line);
  if(s.hand){
  el('extra').innerHTML='<small>보존 담당자와 함께하는 모형 작업을 단순화한 체험이에요.</small>';
  release=openHand(studio,s.hand,{say,mistake:text=>{const old=delay;delay=Math.min(60,delay+2);bar(s.time+delay,rooms[at]);say(text+(delay>old?' · 다시 살피기 +2분':''))},done:()=>button('작업 기록하고 다음 연락 받기',next)});return}
- studio.floor(at,s.room,false,()=>{});
+ studio.floor(at,s.room,false,()=>{},index===7||index===8);
  // A location label in a conversation is informational; the visitor stays there until the reply.
  studio.host.querySelectorAll('.pin').forEach(b=>{b.disabled=true});
- s.choices.forEach((label,i)=>button(label,()=>{if(index===4)rest=i===0?60:30;if(index===7)first=i===0;
+ s.choices.forEach((label,i)=>button(label,()=>{if(index===4)rest=i===0?60:30;if(index===7){first=i===0;if(i===2){const before=delay;delay=Math.min(60,delay+10);bar(s.time+delay,rooms[at]);if(delay===before)say('인계 기록을 다시 정리해요.')}}
  el('actions').replaceChildren();say(s.reply[i]);button(index===9?'일당 확인하기':'다음 연락 받기',next)}));
 }
 function next(){if(++index<day.length){travel();return}
@@ -63,6 +64,6 @@ function review(){screen('end','퇴근길 · 고른 순간','오늘 맡은 일�
 function endDay(){record??=finish({rest,delay,stay,first,like,hard,session});
  screen('end','퇴근길 한 줄',record.ending.name,'끌린 순간 · '+record.like.label+'　 버거운 순간 · '+record.hard.label);
  const save=()=>{if(currentSession().id!==session){say('사용자가 바뀌었어요. 원래 지갑에서 다시 시작해 주세요.');return}
- const result=!checkRecord(record).length&&saveRecordSafe(record);say(result?.ok?'출근 도장을 찍었어요. 내 지갑 '+won(walletSummary().total):'저장 공간을 확인하고 다시 눌러 주세요.');if(!result?.ok)button('저장 다시 시도',save)};
- save();button('선생님께 보내기',openSendDialog);button('다른 일터 고르기',()=>location.assign('../'))}
+ const result=!checkRecord(record).length&&saveRecordSafe(record);const wallet=walletSummary();say(result?.ok?'출근 도장을 찍었어요. '+wallet.jobs.length+'개 직업 · '+Math.floor(wallet.minutes/60)+'시간 '+wallet.minutes%60+'분 · 내 지갑 '+won(wallet.total):'저장 공간을 확인하고 다시 눌러 주세요.');if(!result?.ok)button('저장 다시 시도',save)};
+ save();button('같은 직업 다시 하기',()=>location.reload());button('선생님께 보내기',openSendDialog);button('다른 일터 고르기',()=>location.assign('../'))}
 el('info').onclick=()=>el('sources').showModal();el('records').onclick=openSendDialog;badge();

@@ -12,7 +12,7 @@
 - 장갑을 누르고 그릇의 바닥을 잡아 완충 상자 안에 놓는다.
 - 부드러운 붓을 든 뒤 겹친 흙을 여러 번 쓸어 빗살무늬를 드러낸다.
 - 볼록한 뚜껑 조각을 톡 눌러 90도씩 돌린다. 서로 다른 절단면과 테두리가 이어지도록 세 조각을 옮긴다.
-- 습도·조명 손잡이를 좌우로 민다. 초록 구간은 질그릇과 보자기를 함께 전시하는 가상 전시 계획이다.
+- 습도·조명 손잡이를 둥글게 돌린다. 초록 구간은 질그릇과 보자기를 함께 전시하는 가상 전시 계획이다.
 - WebGL을 이용할 수 없으면 같은 모형을 SVG로 투영한다. `?view=flat`으로 확인할 수 있다. 기기가 동작 줄이기를 요청하면 이동이 즉시 끝나고 관람객의 반복 운동이 멈춘다.
 
 ## 자료와 계산
@@ -27,3 +27,7 @@
 `dist/day.mjs`는 일정과 기록, `studio.mjs`는 건물과 모형, `hands.mjs`는 직접 조작, `app.mjs`는 출퇴근 흐름을 맡는다. `dist/shared/`는 공통 원본과 같은 복사본이다. Three.js와 대체 투영기의 라이선스는 `dist/vendor/`에 있다.
 
 `node museum-day/tests/contract.mjs`로 계약과 결말별 급여를 확인한다. 위의 로컬 서버와 Playwright Chromium 준비 후 `node museum-day/tests/day-browser.cjs`로 네 크기에서 직접 포인터 입력을 재생한다. `MUSEUM_URL`, `MUSEUM_DEVICE`, `MUSEUM_REVIEW`, `MUSEUM_VIDEO`로 주소·기기·출력 위치를 고를 수 있다. 동영상은 `node shared/tools/flicker.cjs <영상>`으로 검사한다.
+
+### 재채점판의 조작
+
+흙을 덮은 부분에 붓을 짧게 대고 떼며 여러 번 쓴다. 뚜껑은 금빛 점 조각부터 기준을 잡는다. 진열장에서는 주황 경보등을 먼저 누르고 각 손잡이 테두리를 따라 호를 그린다. 초록 구간에서 보자기의 색과 유리의 물방울을 관찰한다. 장갑 사용은 이번 유약 없는 질그릇에 적용한 취급 결정이다. [아이오와 주 역사학회 원문](https://history.iowa.gov/resources/caretakers-historic-information/local-history-network/toolkits/glass-ceramics-stone)
