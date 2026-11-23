@@ -75,11 +75,24 @@ function workedSoFar() {
 }
 
 let shown = {};
+// 좁은 폰에서 위쪽 띠를 한 줄로 둘 때 직업 이름이 잘리면, 이름을 시각 위 줄로 올린다 (style.css 의 #clock.stack).
+// 밀린 시간이 있을 때는 늘 두 줄이라(이름 / 시각·밀림) 따로 볼 것이 없다. 높이가 바뀌면 3D를 다시 맞춘다.
+function fitHud() {
+  const ck = $('#clock'); if (!ck || hud.hidden) return;
+  const was = ck.className; ck.classList.remove('stack', 'stack2', 'stack3');
+  const i = ck.querySelector('i'), cut = () => !!i && i.clientWidth > 0 && (i.scrollWidth > i.clientWidth + 1 || ck.scrollWidth > ck.clientWidth + 1);
+  if (!ck.querySelector('small')) { if (cut()) ck.classList.add('stack'); }
+  else if (cut()) { // 밀린 시간이 있는데도 잘리면(아주 좁은 폰, 큰 일당): 이름과 시각을 한 줄에, 밀린 시간을 아래 줄에. 그래도 잘리면 세 줄로
+    ck.classList.add('stack2');
+    if (cut()) ck.classList.replace('stack2', 'stack3');
+  }
+  if (was !== ck.className) world?.resize();
+}
 function drawHud() {
   hud.hidden = false;
   const sc = sceneOf(S, J);
-  $('#clock').innerHTML = S.closed ? `<i>${esc(J.name)} · </i><span>퇴근 ${toHHMM(toMin(J.shift.end) + (S.stayed ? S.delay : 0))}</span>`
-    : `<i>${esc(J.name)} · </i><span>${toHHMM(clockOf(S, J, sc))}</span>${S.delay > 0 && sc.kind !== 'reveal' ? `<small>${S.delay}분 밀림</small>` : ''}`;
+  $('#clock').innerHTML = S.closed ? `<i>${esc(J.name)}<em> · </em></i><span>퇴근 ${toHHMM(toMin(J.shift.end) + (S.stayed ? S.delay : 0))}</span>`
+    : `<i>${esc(J.name)}<em> · </em></i><span>${toHHMM(clockOf(S, J, sc))}</span>${S.delay > 0 && sc.kind !== 'reveal' ? `<small>${S.delay}분 밀림</small>` : ''}`;
   const box = $('#gauges');
   if (!box.children.length) box.innerHTML = GAUGES.map((g) => `<div class="gauge" data-k="${g.k}"><small>${g.icon}<span class="nm"> ${g.name}</span></small><b></b><i><u style="background:${g.color}"></u></i></div>`).join('');
   for (const g of GAUGES) {
@@ -93,6 +106,7 @@ function drawHud() {
     shown[g.k] = v;
   }
   $('#money').textContent = `🪙 ${won(S.closed ? payslip(S, J, annual()).total : earnedSoFar(annual(), workedSoFar(), shiftMin(J)))}`;
+  fitHud();
 }
 
 // 밀린 일만큼 기다리는 사람. 쉬는 곳, 탈의실처럼 일터가 정한 조용한 곳(quiet)과 퇴근 뒤에는 따라오지 않는다.
@@ -119,7 +133,7 @@ function react(d = {}) {
 
 // ── 시작 화면 ──
 function title() {
-  S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {}; $('#app').classList.remove('pickOn', 'closeOn', 'handsOn', 'walkDay');
+  S = null; J = null; hud.hidden = true; $('#gauges').innerHTML = ''; shown = {}; $('#app').classList.remove('pickOn', 'closeOn', 'handsOn', 'walkDay', 'flowFit', 'flowTight', 'pickTight', 'pickTight2');
   const P = PLACES[focusPlace]; paintPlace(P);
   const w0 = ensureWorld(P); w0?.dress(null, 'casual'); w0?.stage({ overview: true, hour: 9 });
   const cur = saved.current && jobById(saved.current.job) ? saved.current : null;
@@ -229,8 +243,10 @@ function scene() {
   $('#app').classList.toggle('closeOn', sc.kind === 'hands' && !!sc.closeup && !!world);
   $('#app').classList.toggle('pickOn', ['choice', 'order', 'pick', 'leave'].includes(sc.kind)); // 폰 세로의 판단 장면: 3D 칸을 줄여 보기가 모두 한 화면에 들어오게 한다 (shared/DESIGN.md §2-1)
   $('#app').style.removeProperty('--pick'); $('#app').style.removeProperty('--close'); $('#app').classList.remove('closeTight');
-  world?.resize(); // 3D 칸의 크기를 먼저 정한 뒤 장면을 그린다 (작게 그렸다가 커지지 않게)
+  $('#app').style.removeProperty('--flow'); $('#app').classList.remove('flowFit', 'flowTight');
+  fitHud(); world?.resize(); // 3D 칸의 크기를 먼저 정한 뒤 장면을 그린다 (작게 그렸다가 커지지 않게)
   ({ reveal, tasks, records, choice, order, pick, hands, thanks, leave: leaving })[sc.kind](sc, head, body);
+  fitHud();
 }
 // ── 걸어가기 (카페 방식, shared/DESIGN.md §2-3) ──
 // 찾아온 일(무전·출동 벨)과 받은 일 목록을 보여 주고, 다음 일이 있는 자리에 표시를 띄운다.
@@ -254,7 +270,7 @@ function inboxHtml(list, tight = false, fold = false) { // fold: PC에서도 목
 function goView(sc, st) {
   const P = placeOf(J), N = P.nav;
   unmount?.(); unmount = null;
-  const app = $('#app'); app.classList.remove('handsOn', 'closeOn', 'pickOn'); app.classList.add('walkOn'); app.style.removeProperty('--pick'); app.style.removeProperty('--walk'); app.style.removeProperty('--close'); app.classList.remove('closeTight');
+  const app = $('#app'); app.classList.remove('handsOn', 'closeOn', 'pickOn', 'flowFit', 'flowTight'); app.style.removeProperty('--flow'); app.classList.add('walkOn'); app.style.removeProperty('--pick'); app.style.removeProperty('--walk'); app.style.removeProperty('--close'); app.classList.remove('closeTight');
   drawHud();
   const spot = st.walk ? N.spots[st.walk] : null, far = st.remote ? N.remote[sc.place] : null;
   walkGoal = spot ? { id: st.walk, x: spot.x, z: spot.z } : null;
@@ -284,7 +300,7 @@ function goView(sc, st) {
     ${spot && world ? `<p class="fine walkHint" id="walkMsg" role="status">3D의 바닥이나 장소 표시를 눌러 걸어가요.</p>` : ''}
     <div id="inboxBox">${inboxHtml(inbox(S, J))}</div>
     <button class="btn" id="walkGo">${esc(btn)}</button>`);
-  fitWalk(spot ? 40 : 30);
+  fitWalk(spot ? 40 : 30); fitHud();
   if (n) sfx(VIA_SOUND[n.via] || 'pop');
   on('#walkGo', (b) => {
     if (!spot || !walker) return arrive(); // 3D가 없는 기기나 걸을 곳이 없을 때는 바로 다음으로
@@ -349,9 +365,13 @@ function tasks(sc, head, body) {
   const done = new Set();
   view(`${head}${body}${sc.tasks.map((t, i) => `<button class="choice" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(t.label)}</span></button><p class="why" id="r${i}" hidden>${esc(t.result)}</p>`).join('')}
     ${sc.fact ? `<div class="fact"><b>알아 두기</b>${esc(sc.fact)}</div>` : ''}<button class="btn" id="nx" disabled>다음 장면으로</button>`);
+  // 촘촘한 배치(fitFlow 의 flowFit)에서는 누른 할 일의 결과를 따로 한 줄 더 띄우지 않고, 그 단추의 글을 결과로 바꾼다 (단추가 밀리지 않게)
+  const inPlace = () => $('#app').classList.contains('flowFit');
+  const result = (b, on) => { const i = +b.dataset.i, t = sc.tasks[i]; if (inPlace()) { b.lastElementChild.textContent = on ? t.result : t.label; $(`#r${i}`).hidden = true; } else $(`#r${i}`).hidden = !on; };
+  fitFlow((on) => panel.querySelectorAll('.choice[data-i]').forEach((b) => result(b, on)));
   on('.choice', (b) => {
     const i = +b.dataset.i; if (done.has(i)) return; done.add(i);
-    b.classList.add('done'); b.querySelector('.n').textContent = '✓'; $(`#r${i}`).hidden = false;
+    b.classList.add('done'); b.querySelector('.n').textContent = '✓'; result(b, true);
     const t = sc.tasks[i]; if (world) { if (t.act === 'dress') world.dress(J.look, 'work'); world.action(t.act); }
     sfx('pop');
     if (done.size === sc.tasks.length) { const r = finishTasks(S, J); react(r.d); $('#nx').disabled = false; }
@@ -394,14 +414,45 @@ function fitPick() {
   const app = $('#app'), v = panel.querySelector('.view'); if (!v || !app.classList.contains('pickOn') || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return;
   const cs = getComputedStyle(panel), pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
   const over = () => v.offsetHeight + pad - panel.clientHeight;
-  app.classList.remove('pickTight');
+  app.classList.remove('pickTight', 'pickTight2');
   if (over() <= 0) return;
   app.style.setProperty('--pick', `${Math.max(26, 34 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
   if (over() > 0) v.querySelectorAll('details.ripple').forEach((d) => { d.open = false; });
-  // 아주 작은 폰(320×568 등): 그래도 넘치면 글과 보기를 촘촘하게, 그래도 넘치면 3D를 20dvh 까지 (보기가 모두 한 화면에 — DESIGN §2-3)
+  // 아주 작은 폰(320×568 등): 그래도 넘치면 글과 보기를 촘촘하게 한다. 3D는 26dvh 아래로 줄이지 않는다 (판단할 때도 일터가 보이게)
   if (over() > 0) app.classList.add('pickTight');
-  if (over() > 0) app.style.setProperty('--pick', `${Math.max(20, 26 - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
-  world?.resize();
+  if (over() > 0) app.classList.add('pickTight2'); // 그래도 넘치면(보기 여섯 개 등) 보기 사이와 안쪽 여백을 더 줄인다. 글자는 그대로
+  world?.resize(); fitHud();
+}
+
+// 폰 세로의 읽고 누르는 장면(할 일 누르기, 남은 한마디): '다음 장면으로' 단추가 화면 밖으로 밀리면
+//   ① 제목 위 시각 줄을 감추고(flowFit) ② 3D 칸을 모자란 만큼만 줄이고(46dvh → 26dvh 까지)
+//   ③ 그래도 넘치면 앞선 선택 카드를 접고 ④ 그래도 넘치면 글과 단추를 촘촘하게(flowTight) 한다. 넘치지 않는 폰과 PC는 그대로다.
+// 할 일 장면은 누르면 나타나는 결과 글(.why)까지 펼친 높이로 잰다. 누른 뒤에도 단추가 밀리지 않게.
+function fitFlow(final) {
+  const app = $('#app'), v = panel.querySelector('.view');
+  app.classList.remove('flowFit', 'flowTight'); app.style.removeProperty('--flow');
+  if (!v || getComputedStyle(app).gridTemplateColumns.split(' ').length > 1) return;
+  const cs = getComputedStyle(panel), pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+  // final(true): 다 누른 뒤의 모습(결과 글)으로 잠깐 바꿔 잰다. final(false)로 되돌린다
+  const over = () => { final?.(true); const o = v.offsetHeight + pad - panel.clientHeight; final?.(false); return o; };
+  // 걸어가기(52dvh)에서 넘어오면 3D 칸이 46dvh 로 천천히 바뀌는 중이다. 바뀐 뒤의 크기로 재도록 움직임을 끊는다
+  app.style.transition = 'none'; void app.offsetHeight;
+  const fits = over() <= 0; app.style.transition = '';
+  if (fits) return;
+  app.classList.add('flowFit');
+  const grid = () => parseFloat(getComputedStyle(app).gridTemplateRows) / (window.innerHeight / 100); // 지금 3D 칸 (dvh)
+  const base = grid();
+  if (over() > 0) app.style.setProperty('--flow', `${Math.max(26, Math.round(base) - Math.ceil((over() + 4) / (window.innerHeight / 100)))}dvh`);
+  if (over() > 0) v.querySelectorAll('details.ripple').forEach((d) => { d.open = false; });
+  if (over() > 0) app.classList.add('flowTight');
+  // 그래도 넘치면 접힌 앞선 선택 카드 여럿을 한 장으로 모은다 (누르면 모두 펼쳐진다)
+  const rs = [...v.querySelectorAll('details.ripple')];
+  if (over() > 0 && rs.length > 1) {
+    const one = document.createElement('details'); one.className = 'ripple';
+    one.innerHTML = `<summary>앞선 선택 ${rs.length}개가 이어져요</summary>${rs.map((r) => `<div class="rippleItem">${[...r.childNodes].filter((n) => n.nodeName !== 'SUMMARY').map((n) => n.outerHTML ?? esc(n.textContent)).join('')}</div>`).join('')}`;
+    rs[0].before(one); rs.forEach((r) => r.remove());
+  }
+  world?.resize(); fitHud();
 }
 
 // 순서 맞추기: 정답 순서와 다르게 섞어 보여 준다
@@ -502,6 +553,7 @@ function pick(sc, head, body) {
 function thanks(sc, head, body) {
   if (!S.thanks) { S.thanks = thanksLine(S, J); save(); react(S.thanks.d); }
   view(`${head}${body}<div class="speech"><small>${esc(sc.speaker)}</small>${esc(S.thanks.text)}</div>${chips(S.thanks.d)}<button class="btn" id="nx">다음 장면으로</button>`);
+  fitFlow();
   on('#nx', goNext);
 }
 

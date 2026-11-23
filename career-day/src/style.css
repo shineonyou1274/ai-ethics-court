@@ -351,7 +351,6 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   #app:is(.pickOn, .walkOn) .gauge { padding: 2px 5px; }
   /* 밀림 표시가 있을 때는 직업 이름을 감추고 시각과 밀린 시간을 보여 준다 (한 줄에 다 들어가게) */
   #app:is(.pickOn, .walkOn) #clock { overflow: hidden; }
-  #app:is(.pickOn, .walkOn) #clock:has(small) i { display: none; }
   /* 골라 담기: 보기가 여섯이라 다 들어오지 않을 수 있다. 정하는 단추는 늘 아래에 붙어 보이게 한다 */
   #app.pickOn #ok { position: sticky; bottom: 0; box-shadow: 0 5px 0 var(--coral-d), 0 -10px 12px 6px var(--paper); }
   #app:is(.pickOn, .walkOn) #money { flex: none; padding: 1px 8px; }
@@ -427,7 +426,6 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   #app.walkDay #clock { display: flex; align-items: baseline; min-width: 0; flex: 0 1 auto; padding: 3px 8px; overflow: hidden; }
   #app.walkDay #clock i { font-style: normal; overflow: hidden; text-overflow: ellipsis; min-width: 2.2em; }
   #app.walkDay #clock span, #app.walkDay #clock small { flex: none; }
-  #app.walkDay #clock:has(small) i { display: none; }
   #app.walkDay #gauges { gap: 2px; flex: none; }
   #app.walkDay .gauge { padding: 2px 5px; }
   #app.walkDay #money { flex: none; padding: 1px 8px; }
@@ -442,11 +440,22 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   #app.walkDay .inboxHead { margin: 4px 0 2px; }
   #app.walkDay .inbox li small { white-space: nowrap; }
 }
-/* 아주 좁은 폰(폭 360px 미만): 밀린 시간이 있으면 시계 알약 안에서 시각 아래로 내려, 단어가 잘리지 않게 한다 */
+/* 폰 세로에서 밀린 시간이 있으면(시계 알약에 small 이 있으면) 직업 이름을 감추지 않고 두 줄로 쌓는다:
+   첫 줄은 직업 이름, 둘째 줄은 시각과 밀린 시간. 알약이 옆으로 길어지지 않아 위쪽 띠가 한 줄에 들어간다 (shared/DESIGN.md §3) */
+@media not (min-aspect-ratio: 11/10) {
+  #app[class] #clock:is(:has(small), .stack) { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: baseline; column-gap: 4px; line-height: 1.15; padding: 2px 10px 3px; border-radius: 14px; overflow: hidden; min-width: 0; }
+  #app[class] #clock:is(:has(small), .stack) i { display: block; grid-column: 1 / -1; text-align: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  #app[class] #clock:is(:has(small), .stack) i em { display: none; }
+  #app[class] #clock.stack2 i { grid-column: auto; }
+  #app[class] #clock.stack2 small { grid-column: 1 / -1; text-align: center; }
+  #app[class] #clock.stack3 { grid-template-columns: auto; line-height: 1.1; padding: 2px 8px 3px; }
+  #app[class] #clock.stack3 :is(i, span, small) { grid-column: 1; text-align: center; }
+  #app[class] #clock:has(small) small { margin-left: 0; }
+}
+#clock i em { font-style: normal; }
+/* 아주 좁은 폰(폭 360px 미만): 위쪽 띠의 틈과 안쪽 여백을 줄인다 */
 @media (max-width: 359px) {
   #app.walkDay #hud { gap: 3px; inset: 8px 6px auto 6px; }
-  #app.walkDay #clock:has(small) { flex-direction: column; align-items: center; line-height: 1.12; padding: 2px 9px; border-radius: 14px; }
-  #app.walkDay #clock small { margin-left: 0; }
   #app.walkDay .gauge { padding: 2px 4px; gap: 2px; }
   #app.walkDay #money { padding: 1px 6px; }
 }
@@ -460,6 +469,41 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
 #app.pickOn.pickTight .choice .n { width: 26px; height: 26px; font-size: 15px; }
 #app.pickOn.pickTight .fine { font-size: 13px; margin: 2px 0; }
 #app.pickOn.pickTight #ok { margin-top: 8px; padding: 10px 14px; font-size: 18px; }
+#app.pickOn.pickTight2 .view > h2 { margin-bottom: 0; }
+#app.pickOn.pickTight2 .lead { margin: 0 0 4px; }
+#app.pickOn.pickTight2 .choice { padding: 5px 10px; margin-top: 4px; }
+#app.pickOn.pickTight2 .choice .n { width: 22px; height: 22px; font-size: 14px; }
+#app.pickOn.pickTight2 #ok { margin-top: 6px; padding: 8px 14px; }
+
+/* 폰의 읽고 누르는 장면(할 일 누르기·남은 한마디): '다음 장면으로'가 화면 밖이면 (main.js fitFlow 가 넘칠 때만 붙인다)
+   3D 칸을 모자란 만큼만 줄이고, 위쪽 띠를 한 줄로, 제목 위 시각 줄(위쪽 띠에 같은 시각이 있다)을 감춘다 */
+@media not (min-aspect-ratio: 11/10) {
+  #app.flowFit { grid-template-rows: var(--flow, 46dvh) minmax(0, 1fr); transition: none; }
+  #app.flowFit #zoomBtn { display: none; }
+  #app.flowFit #hud { flex-wrap: nowrap; gap: 4px; }
+  #app.flowFit #clock { min-width: 0; flex: 0 1 auto; padding-inline: 8px; }
+  #app.flowFit #gauges { gap: 2px; flex: none; }
+  #app.flowFit .gauge { padding: 2px 5px; }
+  #app.flowFit #money { flex: none; padding: 1px 8px; }
+  #app.flowFit .view > .eyebrow { display: none; }
+  #app.flowFit #panel { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  #app.flowFit details.ripple[open] summary { display: inline; margin-right: 6px; font-size: 16px; }
+  #app.flowFit .ripple { padding: 5px 12px; margin: 0 0 6px; }
+  #app.flowFit .ripple .chips { margin: 4px 0 0; }
+  #app.flowFit .rippleItem + .rippleItem { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #f2c4b3; }
+  #app.flowFit .fact { margin: 8px 0; padding: 8px 12px; }
+  #app.flowFit #nx { margin-top: 8px; }
+  #app.flowFit.flowTight .view > h2 { font-size: 19px; margin-bottom: 2px; }
+  #app.flowFit.flowTight .lead { font-size: 15px; line-height: 1.4; margin: 2px 0 6px; }
+  #app.flowFit.flowTight .choice { gap: 8px; font-size: 15px; line-height: 1.35; }
+  #app.flowFit.flowTight .choice .n { width: 26px; height: 26px; font-size: 15px; }
+  #app.flowFit.flowTight .why { margin-top: 0; }
+  #app.flowFit.flowTight .fact b { display: inline; margin-right: 6px; }
+  #app.flowFit.flowTight .choice { padding: 5px 10px; margin-top: 5px; }
+  #app.flowFit.flowTight .fine { font-size: 13px; margin: 2px 0; }
+  #app.flowFit.flowTight .speech { font-size: 15px; padding: 6px 12px; }
+  #app.flowFit.flowTight #nx { padding: 10px 14px; font-size: 18px; }
+}
 
 /* 아주 작은 폰의 손 장면 (main.js fitClose 가 넘칠 때만 붙인다) */
 #app.closeOn.closeTight .view > h2 { font-size: 18px; margin: 0 0 2px; }
