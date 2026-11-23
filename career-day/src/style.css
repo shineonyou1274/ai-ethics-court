@@ -493,6 +493,7 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
   #app.flowFit details.ripple[open] summary { display: inline; margin-right: 6px; font-size: 16px; }
   #app.flowFit .ripple { padding: 5px 12px; margin: 0 0 6px; }
   #app.flowFit .ripple .chips { margin: 4px 0 0; }
+  #app.flowFit .choice .taskRes { display: block; font-size: 14.5px; line-height: 1.35; color: var(--soft); margin-top: 2px; }
   #app.flowFit .rippleItem + .rippleItem { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #f2c4b3; }
   #app.flowFit .fact { margin: 8px 0; padding: 8px 12px; }
   #app.flowFit #nx { margin-top: 8px; }

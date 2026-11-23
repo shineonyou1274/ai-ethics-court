@@ -365,16 +365,20 @@ function tasks(sc, head, body) {
   const done = new Set();
   view(`${head}${body}${sc.tasks.map((t, i) => `<button class="choice" data-i="${i}"><span class="n">${i + 1}</span><span>${esc(t.label)}</span></button><p class="why" id="r${i}" hidden>${esc(t.result)}</p>`).join('')}
     ${sc.fact ? `<div class="fact"><b>알아 두기</b>${esc(sc.fact)}</div>` : ''}<button class="btn" id="nx" disabled>다음 장면으로</button>`);
-  // 촘촘한 배치(fitFlow 의 flowFit)에서는 누른 할 일의 결과를 따로 한 줄 더 띄우지 않고, 그 단추의 글을 결과로 바꾼다 (단추가 밀리지 않게)
+  // 촘촘한 배치(fitFlow 의 flowFit)에서는 결과를 단추 밖 줄 대신 단추 안, 할 일 이름 아래에 작은 줄로 붙인다 (이름은 그대로 둔다)
   const inPlace = () => $('#app').classList.contains('flowFit');
-  const result = (b, on) => { const i = +b.dataset.i, t = sc.tasks[i]; if (inPlace()) { b.lastElementChild.textContent = on ? t.result : t.label; $(`#r${i}`).hidden = true; } else $(`#r${i}`).hidden = !on; };
+  const result = (b, on) => {
+    const i = +b.dataset.i, t = sc.tasks[i];
+    if (inPlace()) { b.lastElementChild.innerHTML = esc(t.label) + (on ? `<small class="taskRes">${esc(t.result)}</small>` : ''); $(`#r${i}`).hidden = true; }
+    else $(`#r${i}`).hidden = !on;
+  };
   fitFlow((on) => panel.querySelectorAll('.choice[data-i]').forEach((b) => result(b, on)));
   on('.choice', (b) => {
     const i = +b.dataset.i; if (done.has(i)) return; done.add(i);
     b.classList.add('done'); b.querySelector('.n').textContent = '✓'; result(b, true);
     const t = sc.tasks[i]; if (world) { if (t.act === 'dress') world.dress(J.look, 'work'); world.action(t.act); }
     sfx('pop');
-    if (done.size === sc.tasks.length) { const r = finishTasks(S, J); react(r.d); $('#nx').disabled = false; }
+    if (done.size === sc.tasks.length) { const r = finishTasks(S, J); react(r.d); $('#nx').disabled = false; $('#nx').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   });
   on('#nx', goNext);
 }
