@@ -98,6 +98,8 @@ body[data-space-phase=result] .space-content{flex:0 0 auto;min-height:0;overflow
 .station-pin,.drawing-target{min-height:44px;min-width:44px}
 .space-gear button{touch-action:none}
 .gear-in-hand{position:fixed;z-index:20;pointer-events:none;transform:translate(-50%,-50%);font-size:36px}
-.bolt-target.turning::after{content:'🔧';position:absolute;pointer-events:none;left:50%;top:50%;font-size:34px;line-height:1;transform-origin:4px 50%;transform:translate(-4px,-50%) rotate(var(--tool-angle,0rad)) rotate(42deg)}
+.bolt-target.turning::before,.bolt-target.turning::after{content:'';position:absolute;pointer-events:none;left:50%;top:50%}
+.bolt-target.turning::before{width:15px;height:15px;border:4px solid #dce7eb;border-radius:38%;box-shadow:0 0 0 2px #41566b;transform:translate(-50%,-50%) rotate(var(--tool-angle,0rad))}
+.bolt-target.turning::after{width:32px;height:9px;border:1px solid #41566b;border-radius:5px;background:linear-gradient(to right,#aebfc6 45%,#38586c 45%,#63859a);transform-origin:0 50%;transform:translateY(-50%) rotate(var(--tool-angle,0rad)) translateX(8px)}
 @media(max-width:799px){body[data-space-phase=result] main{grid-template-rows:38dvh minmax(0,1fr)}}
 @media(max-width:360px){body.judging main{grid-template-rows:34dvh minmax(0,1fr)}}
