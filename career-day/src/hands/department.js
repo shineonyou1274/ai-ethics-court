@@ -83,33 +83,8 @@ function pathway(g,ui){
   }
   ui.say('서우 님이 계단을 오르기 전에 쉬고 싶대요. 두 시설을 모형 길에 직접 놓아요.');
 }
-function directions(g,ui){
-  table(g);const xs=[-1.55,1.55];let placed=0;
-  xs.forEach((x,i)=>{box(g,x,.94,-.92,1.85,.75,1,'#adc4d1');box(g,x,.99,-.40,.70,.66,.08,'#657d8a');print(g,x,1.34,-.91,1.82,.7,[i?'3층 진료실':'2층 승강기']);ui.area(String(i),x,.70,-.08,1.9,1);});
-  ['↑ 3층으로','도착 · 진료실'].forEach((text,i)=>{
-    const obj=unit(g,xs[i]*-.78,.68,1.35);obj.name=text;
-    box(obj,0,.06,0,.75,.12,.46,'#737e83');cyl(obj,0,.32,0,.07,.56,'#66757a');box(obj,0,.62,0,1.26,.22,.57,'#e9c879');print(obj,0,.75,0,1.24,.54,[text]);
-    ui.drag(obj,1.38,.95,id=>{if(id!==String(i))return ui.wrong(i?'여기는 옛 위치예요. 도착 표지를 보면 이든 님이 여기서 기다리게 돼요.':'이든 님이 이미 진료실에 도착한 자리예요. 더 올라가라는 표지가 필요할까요?');
-      obj.position.set(xs[i],.62,0);obj.userData.fixed=true;
-      if(++placed===2)ui.finish();else ui.say('안내대를 세웠어요. 남은 표지도 방문자의 길을 따라 놓아요.');
-    });
-  });ui.say('이든 님이 옛 진료실로 돌아가지 않게 두 안내대를 세워요.');
-}
-function counsel(g,ui){
-  table(g);const folder=unit(g,-1.3,.66,1.15);folder.name='질문 수첩';
-  box(folder,0,.07,0,1.4,.17,.98,'#627e89');print(folder,0,.17,0,1.30,.9,['가온 님','질문 수첩']);
-  tray(g,-1.25,-.85,1.9,1.25,'#9ebcaf');tray(g,1.25,-.85,1.85,1.25,'#ae987f');
-  print(g,-1.25,.71,-.85,1.7,.7,['상담 자리']);print(g,1.25,.71,-.85,1.7,.7,['의료진 문의함']);
-  const envelope=unit(g,1.3,.68,1.16);envelope.name='문의 봉투';box(envelope,0,.04,0,1.45,.08,.95,'#e7cf98');print(envelope,0,.09,0,1.35,.8,['미회신 문의','✉']);
-  ui.area('상담',-1.25,.72,-.85,1.9,1.45);ui.area('문의',1.25,.72,-.85,1.9,1.45);
-  ui.drag(folder,1.6,1.1,id=>{if(id!=='상담')return ui.wrong('수첩은 가온 님이 함께 펼쳐 볼 개인 메모예요. 문의함에 보관하면 읽을 수 없어요.');
-    folder.position.set(-1.25,.73,-.85);folder.userData.fixed=true;ui.say('수첩을 펼쳐 질문을 들었어요. 답을 기다리는 문의를 이어 주세요.');});
-  ui.drag(envelope,1.6,1.1,id=>{if(!folder.userData.fixed)return ui.wrong('어떤 질문인지 아직 함께 확인하지 않았어요. 가온 님 수첩부터 펼쳐요.');
-    if(id!=='문의')return ui.wrong('확인되지 않은 답을 상담에서 건네지 않아요. 의료진에게 확인을 요청해요.');
-    envelope.position.set(1.25,.73,-.85);envelope.userData.fixed=true;ui.finish();});
-  ui.say('약속 시각에 가온 님이 오셨어요. 수첩을 들고 상담을 시작해요.');
-}
-const models={rxcheck:prescription,paperwork:filing,physiopath:pathway,adminroute:directions,rxhandoff:counsel};
+// 약사의 오후 상담(rxhandoff)과 원무행정의 진료실 안내(adminroute)는 hosp-c.js 의 3D 가까이 보기로 옮겼다
+const models={rxcheck:prescription,paperwork:filing,physiopath:pathway};
 export const departmentHands=Object.fromEntries(Object.entries(models).map(([name,model])=>[name,(el,sc,ctx)=>{
   if(!ctx.world&&name==='rxcheck')return flatRx(el,sc,ctx);
   if(!ctx.world&&name==='paperwork')return flatPaper(el,sc,ctx);

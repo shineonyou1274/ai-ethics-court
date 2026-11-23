@@ -5,4 +5,4 @@ export function mountBench(world, name, build) {
   try { return world.closeup(name, {}); }
   finally { delete departmentBenches[name].build; }
 }
-for (const name of ['rxcheck','rxhandoff','paperwork','adminroute','physiopath']) departmentBenches[name] = {};
+for (const name of ['rxcheck','paperwork','physiopath']) departmentBenches[name] = {};

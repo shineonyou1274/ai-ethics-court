@@ -4,11 +4,11 @@
 // def = {
 //   stage: 'lab',                              // src/world/closeups.js 의 무대 이름
 //   title, hint, start,                        // 아래 칸의 제목, 안내, 첫 한마디
-//   items: [{ id, label, kind: 'rub' | 'move', done }],   // 할 일. done 은 마쳤을 때의 한마디
+//   items: [{ id, label, kind: 'rub' | 'move' | 'tap', done }],   // 할 일. done 은 마쳤을 때의 한마디. tap 은 무대의 누를 곳(taps)을 누른다
 //   order: ['table', 'paper', 'pad'],          // (있으면) 이 순서를 지켜야 한다
 //   early: { paper: '…' },                     // 순서보다 먼저 하려 할 때의 한마디
 //   miss: (id, slotId) => '…',                 // 다른 칸에 놓았을 때의 한마디
-//   wrong: { chartB: { as: 'chart', msg } },   // (있으면) 닮았지만 틀린 물건. as 의 차례에 놓으려 하면 msg 를 보여 주고 제자리로 돌린다
+//   wrong: { chartB: { as: 'chart', msg } },   // (있으면) 닮았지만 틀린 물건. as 의 차례에 놓으려 하면 msg 를 보여 주고 제자리로 돌린다 (틀린 누를 곳도 같다)
 //   good: 'neat', bad: 'redo',                 // 등급 이름. 실수가 없으면 good
 // }
 import { checklist } from './closeup-ui.js';
@@ -38,6 +38,13 @@ export function tidy(def) {
       onDrop: (id) => {
         const w = def.wrong?.[id]; // 닮았지만 틀린 물건(예: 이름이 같은 다른 환자의 차트). 놓으면 제자리로 돌아가고 까닭을 알려 준다
         if (w) { if (!ready(w.as)) { early(w.as, true); return false; } mistakes++; sfx('bad'); ui.msg(w.msg, true); warned = Date.now(); return false; }
+        if (!ready(id)) { early(id, true); return false; } complete(id); return true;
+      },
+      // 누를 곳: 할 일이면 순서를 보고 마친다. wrong 에 적힌 곳(예: 봉투의 다른 줄)이면 실수로 세고 까닭을 알려 준다
+      onTap: (id) => {
+        const w = def.wrong?.[id];
+        if (w) { if (!left.has(w.as) || finished) return false; if (!ready(w.as)) { early(w.as, true); return false; } mistakes++; sfx('bad'); ui.msg(w.msg, true); warned = Date.now(); return false; }
+        if (!left.has(id)) return false;
         if (!ready(id)) { early(id, true); return false; } complete(id); return true;
       },
       onMiss: (id, slot) => { mistakes++; sfx('bad'); ui.msg(def.miss ? def.miss(id, slot) : '그 자리가 아니에요.', true); },

@@ -93,10 +93,11 @@ const day = {
 };
 const afternoon = {
   moment: '바뀐 진료실 길을 표시한 순간', type: null, kind: 'hands', game: 'adminroute', closeup: true, atOff: 330, place: 'meeting',
-  title: '바뀐 진료실 안내', body: '이든 님이 옛 진료실 앞에서 길을 잃었어요. 승강기와 새 진료실 사이에 안내 표지를 세워요.',
+  title: '바뀐 진료실 안내', body: '이든 님이 2층 옛 진료실 앞에서 길을 잃었어요. 복도 모형에서 이든 님이 걷는 길을 따라 안내 표지를 세워요.',
+  fact: '진료실이 옮겨지면 방문자가 길을 꺾는 자리(승강기 앞)와 도착하는 자리(문 앞)에 안내를 둬요. 옛 자리에도 안내가 필요할 수 있어요. (단순화한 체험이에요)',
   grades: {
     neat: { fx: { team: 2 }, text: '이든 님이 승강기에서 방향을 확인하고 새 진료실에 도착했어요.' },
-    redo: { fx: { delay: 3 }, text: '이든 님이 승강기에서 방향을 확인하고 새 진료실에 도착했어요. 위치를 고쳐 3분 더 걸렸어요.' },
+    redo: { fx: { delay: 3 }, text: '이든 님이 승강기에서 방향을 확인하고 새 진료실에 도착했어요. 표지 자리를 고쳐 3분 더 걸렸어요.' },
   },
 };
 job.scenes = floorDay(job, {

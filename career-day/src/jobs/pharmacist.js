@@ -84,10 +84,11 @@ day.incident.options.push({label:'약속대로 가온 님과 상담한다', when
 day.thanks.unshift({if:s=>s.flags.kept,text:'“세 시에 메모를 함께 봐 주셔서 질문을 정리했어요.”'},{if:s=>s.flags.promise,text:'“오늘 상담 약속은 놓쳤어요. 다음에는 언제 만날까요?”'});
 const afternoon = {
   moment: '상담 자료를 이어 준 순간', type: null, kind: 'hands', game: 'rxhandoff', closeup: true, atOff: 300, place: 'meeting',
-  title: '가온 님 상담 준비', body: '가온 님이 질문을 표시한 메모를 펴셨어요. 상담에서 답한 질문과 의료진 확인이 남은 문의를 나눠요.',
+  title: '가온 님 상담 준비', body: '약속한 세 시, 가온 님이 질문을 적은 수첩을 들고 오셨어요. 함께 펼쳐 보고, 약 봉투 라벨에서 답을 짚고, 확인이 필요한 질문은 의료진에게 넘겨요.',
+  fact: '복약 상담에서는 약 봉투의 라벨을 함께 보며 설명해요. 확인하지 않은 질문은 짐작으로 답하지 않고 의료진에게 확인해요. (단순화한 체험이에요)',
   grades: {
     neat: { fx: { team: 2 }, text: '가온 님은 설명을 다시 들었고, 미회신 문의는 동료가 이어받았어요.' },
-    redo: { fx: { delay: 3 }, text: '가온 님은 설명을 다시 들었고, 미회신 문의는 동료가 이어받았어요. 위치를 고쳐 3분 더 걸렸어요.' },
+    redo: { fx: { delay: 3 }, text: '가온 님은 설명을 다시 들었고, 미회신 문의는 동료가 이어받았어요. 다시 짚고 고치느라 3분 더 걸렸어요.' },
   },
   skip: s => !s.flags.kept,
 };

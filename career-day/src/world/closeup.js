@@ -7,6 +7,9 @@
 //   알림.onDrop(물건 id)       물건을 목표 자리에 놓았을 때. false 를 돌려주면 제자리로 돌아간다
 //   알림.onBlocked(무늬 id)    막힌 곳을 문질렀을 때
 //   알림.onMiss(물건 id, 칸 id) 칸(slots)이 있는 물건을 다른 칸에 놓았을 때. 물건은 제자리로 돌아간다
+//   알림.onTap(누를 곳 id)     무대가 준 누를 곳(taps)을 손가락으로 눌렀을 때. true 를 돌려주면 받아들인 것 (무대의 onTap 도 알게 된다)
+// 누를 곳(taps): { id, obj } (그 물체를 손가락이 맞히면) 또는 { id, at: [x, z], y, w, d } (그 높이의 네모 안이면).
+//   물건보다 나중에, 문지르기보다 먼저 본다. 누른 뒤 손가락을 움직여도 문지르지 않는다. off 를 켜 둔 곳은 지나친다.
 // 칸(slots)이 있으면 끄는 동안 빈 칸 모두에 같은 원을 띄워서, 원만 보고는 정답을 알 수 없게 한다.
 import * as T from 'three';
 import { CLOSEUPS } from './closeups.js';
@@ -120,14 +123,29 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
       const m = free.find((x) => { let o = hit.object; while (o) { if (o === x.obj) return true; o = o.parent; } return false; });
       cur.drag = { kind: 'move', m }; m.obj.position.y = (m.dragY ?? m.y) + (m.lift ?? 0.25);
       if (m.slot) cur.slots.forEach((sl) => { sl.ring.visible = !sl.filled; }); else m.ring.visible = true;
+    } else if (tapAt()) {
+      cur.drag = { kind: 'tap' };
     } else {
       const p = onPlane(cur.built.rubY ?? 0); if (!p) return true;
       cur.drag = { kind: 'rub', last: p }; if (cur.tool) { cur.tool.visible = true; cur.tool.position.set(p.x, cur.built.rubY ?? 0, p.z); } rubAt(p);
     }
     return true;
   }
+  // 누를 곳: 손가락 아래(그 높이의 평면)에 있는 누를 곳을 찾아 알린다. 꺼 둔 곳(off)은 지나친다
+  function tapAt() {
+    for (const tp of cur.built.taps || []) {
+      if (tp.off) continue;
+      let hit = false;
+      if (tp.obj) hit = ray.intersectObject(tp.obj, true).length > 0;
+      else { const p = onPlane(tp.y ?? 0); hit = !!p && Math.abs(p.x - tp.at[0]) <= tp.w / 2 && Math.abs(p.z - tp.at[1]) <= tp.d / 2; }
+      if (hit) {
+        const ok = cur.on.onTap?.(tp.id) === true; cur.built.onTap?.(tp.id, ok); return true;
+      }
+    }
+    return false;
+  }
   function move(e) {
-    if (!cur?.drag) return;
+    if (!cur?.drag || cur.drag.kind === 'tap') return;
     pointerRay(e);
     if (cur.drag.kind === 'move') {
       const m = cur.drag.m, p = onPlane(m.dragY ?? m.y); if (!p) return;
