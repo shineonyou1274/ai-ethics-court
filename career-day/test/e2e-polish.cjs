@@ -42,6 +42,8 @@ fs.mkdirSync(out, { recursive: true });
       appCls: document.querySelector('#app')?.className, pick: document.querySelector('#app').style.getPropertyValue('--pick'),
       main: main.map((m) => ({ id: m.id, vis: vis(m), bottom: Math.round(m.getBoundingClientRect().bottom) })),
       opts: [...document.querySelectorAll('#panel .choice')].filter((c) => c.offsetParent).map((c) => vis(c)),
+      pickUnderOk: (() => { const ok = document.querySelector('#ok'); if (!ok || !ok.offsetParent) return null; const t = ok.getBoundingClientRect().top; return [...document.querySelectorAll('#panel .choice')].filter((c) => c.getBoundingClientRect().bottom > t + 1).length; })(),
+      minChoiceH: Math.round(Math.min(...[...document.querySelectorAll('#panel .choice')].filter((c) => c.offsetParent).map((c) => c.getBoundingClientRect().height), 999)),
       panelScroll: ps ? ps.scrollHeight - ps.clientHeight : 0, panelTop: ps ? ps.scrollTop : 0, over: document.documentElement.scrollWidth - vw,
       hud: ck && !document.querySelector('#hud').hidden ? { text: ck.innerText.replace(/\n/g, '/'), clockCut: ck.scrollWidth > ck.clientWidth + 1, nameCut: name ? (name.scrollWidth > name.clientWidth + 1 || name.getBoundingClientRect().right > ck.getBoundingClientRect().right + 1 || getComputedStyle(name).display === 'none') : null, hudOverflow: document.querySelector('#hud').scrollWidth > document.querySelector('#hud').clientWidth + 1 } : null,
     };
@@ -165,7 +167,7 @@ fs.mkdirSync(out, { recursive: true });
       console.log(tag, '[걷기]', h, '| 단추 보임', JSON.stringify(m.main), '| 3D', m.canvasDvh + 'dvh', '| HUD', JSON.stringify(m.hud));
       await walk(tag); continue;
     }
-    if (!seen.includes(h)) { seen.push(h); const m = await measure(h); await shot({ path: `${out}/${tag0}-${tag}.png` }); console.log(tag, h, '|', m.hud?.text, '| 3D', m.canvasDvh + 'dvh', '| 보기', JSON.stringify(m.opts), '| 단추', JSON.stringify(m.main), '| 스크롤', m.panelScroll, '| 이름 잘림', m.hud?.nameCut); }
+    if (!seen.includes(h)) { seen.push(h); const m = await measure(h); await shot({ path: `${out}/${tag0}-${tag}.png` }); console.log(tag, h, '|', m.hud?.text, '| 3D', m.canvasDvh + 'dvh', '| 보기', JSON.stringify(m.opts), '| 단추', JSON.stringify(m.main), '| 스크롤', m.panelScroll, '| 이름 잘림', m.hud?.nameCut, m.pickUnderOk === null ? '' : `| OK 밑 보기 ${m.pickUnderOk} · 보기 최소 높이 ${m.minChoiceH}px`); }
     if (await p.locator('#go').count() && !(await p.locator('#stay').count())) { await press('#go'); continue; }
     if (await p.locator('#hands').count() && !(await p.locator('#nx').count())) {
       if (await p.locator('.handsDone').count()) continue;

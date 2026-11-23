@@ -471,9 +471,10 @@ details.again:not([open]) { position: absolute; top: -3px; right: 0; margin: 0; 
 #app.pickOn.pickTight #ok { margin-top: 8px; padding: 10px 14px; font-size: 18px; }
 #app.pickOn.pickTight2 .view > h2 { margin-bottom: 0; }
 #app.pickOn.pickTight2 .lead { margin: 0 0 4px; }
-#app.pickOn.pickTight2 .choice { padding: 5px 10px; margin-top: 4px; }
+#app.pickOn.pickTight2 .choice { padding: 3px 10px; margin-top: 6px; min-height: 40px; } /* 누르기 쉬운 높이(40px)는 지킨다 */
 #app.pickOn.pickTight2 .choice .n { width: 22px; height: 22px; font-size: 14px; }
-#app.pickOn.pickTight2 #ok { margin-top: 6px; padding: 8px 14px; }
+#app.pickOn.pickTight2 #ok { margin-top: 4px; padding: 7px 14px; }
+#app.pickOn.pickTight2 #panel { padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom)); }
 
 /* 폰의 읽고 누르는 장면(할 일 누르기·기록 펼치기·남은 한마디): '다음 장면으로'가 화면 밖이면 (main.js fitFlow 가 넘칠 때만 붙인다)
    3D 칸을 모자란 만큼만 줄이고, 위쪽 띠를 한 줄로, 제목 위 시각 줄(위쪽 띠에 같은 시각이 있다)을 감추고, 기록 카드는 이름과 내용을 한 흐름으로 */
