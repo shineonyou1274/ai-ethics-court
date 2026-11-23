@@ -63,7 +63,7 @@ export function openHand(studio,kind,{say,mistake,done}){
  const refresh=()=>{cue.textContent=voice<0?'마이크 점검':track[voice]+' 말하는 중 · 음악 낮춤';for(let i=0;i<3;i++){caps[i].position.y=-1.5+levels[i]*2.6;audio.level(i,levels[i]);
  const hot=i<2&&levels[i]>.75;
  scopes[i].forEach((bar,n)=>{const sample=Math.abs(Math.sin(n*.43+i)*(.76+.24*Math.cos(n*1.71)));bar.scale.y=.035+.43*Math.min(1,sample*levels[i]*(hot?2.4:1.2));bar.material.color.setHex(hot?red:(i<2&&levels[i]<.48?0x616e73:mint))});
- lamps[i].forEach((l,n)=>l.material.color.setHex(n<=(i===2&&voice>=0?levels[i]*.42:levels[i])*10?(n>7?red:n>4?mint:amber):0x263c46))}};
+ lamps[i].forEach((l,n)=>l.material.color.setHex(n<=(i===2&&voice>=0?levels[i]*.42:levels[i])*10?(hot&&n>=7?red:n>4?mint:amber):0x263c46))}};
  refresh();const listen=add('소리 듣기',()=>listen.textContent=audio.toggle()?'소리 끄기':'소리 듣기');
  down=q=>{channel=caps.findIndex(cap=>studio.hit(q,[cap]));if(channel<0)return;say(track[channel]+' 페이더를 위아래로 밀어요.')};
  move=q=>{if(channel<0)return;levels[channel]=clamp((q.y+1.5)/2.6,0,1);refresh()};

@@ -25,8 +25,8 @@ async function run(browser,name,w,h){
  try{
  await p.goto(url);await p.locator('#actions button').first().waitFor();await shot('01-badge');await action(0);await action(0);await shot('02-floor');
  let postponed=false;
- for(const i of (messy?[0,1,2,3,4,5,6,7,8,1,9]:[0,1,2,3,4,5,6,7,8,9])){
- if(messy&&i===6){assert.match(await message(),/정정 연락/);assert.match(await p.locator('#delay').innerText(),/20분/)}
+ for(const i of (messy?[0,1,2,3,4,5,1,6,7,8,9]:[0,1,2,3,4,5,6,7,8,9])){
+ if(messy&&i===6){assert.match(await message(),/정정 연락/);assert.match(await p.locator('#delay').innerText(),/22분/)}
  const walk=p.getByRole('button',{name:/로 걸어가기$/});await walk.waitFor();if(touch)await walk.tap();else await walk.click();await p.waitForFunction(()=>document.body.matches('.working,.choice'));
  if(i===1&&messy&&!postponed){postponed=true;await p.getByRole('button',{name:'뒤로 미루기 +10분'}).tap();assert.match(await p.locator('#delay').innerText(),/10분/);continue}
  if(i===1){await shot('03-camera-before');const check=p.getByRole('button',{name:'촬영 화면 확인'});
@@ -43,7 +43,7 @@ async function run(browser,name,w,h){
  else if(i===8){await shot('09-edit-before');if(messy){await stroke([-2.9,-2.14,.22]);assert.match(await message(),/먼저/)}
  for(const [x,target] of [[.40,-2.87],[2.62,-.82],[-2.25,2.05]])await stroke([x,1.16,.22],[target,-.45],15);
  if(messy){await stroke([-2.95,-2.03,.34],[1.8,-1.89],12);assert.match(await message(),/넘겨요/)}await stroke([-2.95,-2.03,.34],[0,-1.89],18);assert.match(await message(),/빈 6초/);await shot('10-edit-after')}
- else await action(messy&&i===5?2:messy&&(i===4||i===6)?1:0);
+ else await action(messy&&i===0?1:messy&&i===5?2:messy&&(i===4||i===6)?1:0);
  const next=p.getByRole('button',{name:/^(작업 기록하고 다음 연락 받기|다음 연락 받기|일당 확인하기)$/});await next.waitFor();if([1,2,7,8].includes(i))await exposed(next);if(touch)await next.tap();else await next.click();
  }
  if(await p.locator('#title').innerText()==='마감할 시간이에요')await action(messy?1:0);

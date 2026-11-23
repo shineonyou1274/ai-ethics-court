@@ -5,9 +5,9 @@ import {won,PAY_NOTE,MIN_WAGE,salaryDay,RIASEC,hourlyOf,currentSession,needsWhoC
 import {openSendDialog} from './send-records.mjs';
 const el=id=>document.getElementById(id),studio=new Studio(el('stage'));
 let index=0,at=0,delay=0,rest=60,first=true,stay=false,like=-1,hard=-1,release,record,session;
-let correctionPending=false;
+let rehearsalDeadline=6, signalPractice=false, correctionPending=false;
 const deferred=[];let revisiting=false,recheckMinutes=0;
-const currentTime=()=>revisiting?day[9].time:day[index].time;
+const currentTime=()=>revisiting?day[rehearsalDeadline].time-5:day[index].time;
 const say=s=>el('feedback').textContent=s;
 function button(label,fn,parent=el('actions')){const b=document.createElement('button');b.textContent=label;b.onclick=fn;parent.append(b);return b}
 function screen(mode,who,title,line){
@@ -34,15 +34,15 @@ function travel(){
  const s=day[index];
  const correction=index===6&&correctionPending;
  if(correction){delay+=10;correctionPending=false}
- screen('map',(revisiting?'재점검 · ':'새로 옴 · ')+s.voice,s.title,s.voice+' · '+rooms[s.room]+'에서 만나요.');
+ screen('map',(revisiting?'재점검 · ':[0,2,3,5,6,9].includes(index)?'새로 옴 · ':'')+s.voice,s.title,s.voice+' · '+rooms[s.room]+'에서 만나요.');
  bar(currentTime()+delay,rooms[at]);
  if(correction)say('작가의 정정 연락 · 시장 위치가 달랐어요. 자막을 바로잡느라 방송 준비가 10분 밀렸어요.');
  const arrive=i=>{at=i;bar(currentTime()+delay,rooms[i]);if(i===s.room){event()}else say(rooms[i]+'에 도착했어요. 다음 일은 '+rooms[s.room]+'에 있어요.')};
  studio.floor(at,s.room,true,arrive);button(rooms[s.room]+'로 걸어가기',()=>studio.walk(s.room));
  if(deferred.length){const later=document.createElement('p');later.textContent='재점검 예정 · '+deferred.map(i=>day[i].title).join(' / ');el('extra').append(later)}
- if(index>0){const promise=document.createElement('p');promise.className='promise';promise.textContent='🤝 15:00 보람 님 손 신호(약속)'+(index>6?(first?' · 신호 전달':' · 동료 인계'):'');el('extra').append(promise)}
+ if(index>0){const promise=document.createElement('p');promise.className='promise';promise.textContent=(signalPractice?'🤝 15:00 눈을 맞추고 손 신호':'🤝 15:00 보람 님 손 신호(약속)')+(index>6?(first?' · 신호 전달':' · 동료 인계'):'');el('extra').append(promise)}
  const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='받은 일 · 앞으로 할 일';details.append(summary);
- for(const job of (revisiting?[s,...deferred.map(i=>day[i]),day[9]]:day.slice(index))){const p=document.createElement('p');p.textContent=clock(job.time)+' · '+rooms[job.room]+' · '+job.title;details.append(p)}el('extra').append(details);
+ for(const job of (revisiting?[s,...deferred.map(i=>day[i]),...day.slice(rehearsalDeadline)]:day.slice(index))){const p=document.createElement('p');p.textContent=clock(job.time)+' · '+rooms[job.room]+' · '+job.title;details.append(p)}el('extra').append(details);
 }
 function event(){
  const s=day[index];screen(s.hand?'working':'choice',s.voice,s.title,index===9?(first?'손을 펴 주셔서 첫마디가 나왔어요. 할머니에게도 제 방송을 보여 드리려고요.':'누구를 볼지 잠깐 헤맸어요. 다음에는 신호를 줄 분을 미리 소개해 주세요.'):s.line);
@@ -50,16 +50,16 @@ function event(){
  el('extra').innerHTML='<small>방송 장비의 조작을 단순화한 체험이에요.</small>';
  const defer=button('뒤로 미루기 +10분',()=>{deferred.push(index);delay+=10;next()});
  if(revisiting||s.hand==='switch')defer.remove(); // 생방송 스위처는 나중에 다시 할 수 없어요
- release=openHand(studio,s.hand,{say,mistake:text=>{const old=delay;delay+=Math.min(2,Math.max(0,40-recheckMinutes));recheckMinutes+=delay-old;bar(currentTime()+delay,rooms[at]);say(text+(delay>old?' · 다시 살피기 +2분':''))},done:()=>{defer.remove();button('작업 기록하고 다음 연락 받기',next)}});return}
+ release=openHand(studio,s.hand,{say,mistake:text=>{const old=delay;delay+=Math.min(2,Math.max(0,40-recheckMinutes));recheckMinutes+=delay-old;bar(currentTime()+delay,rooms[at]);say(text+(delay>old?' · 다시 살피기 +2분':''))},done:()=>{el('actions').replaceChildren();button('작업 기록하고 다음 연락 받기',next)}});return}
  studio.floor(at,s.room,false,()=>{});
  // A location label in a conversation is informational; the visitor stays there until the reply.
  studio.host.querySelectorAll('.pin').forEach(b=>{b.disabled=true});
- s.choices.forEach((label,i)=>button(label,()=>{if(index===4)rest=i===0?60:30;if(index===6)first=i===0;if(index===5&&i===2)correctionPending=true;
+ s.choices.forEach((label,i)=>button(label,()=>{if(index===0)signalPractice=i===1;if(index===4)rest=i===0?60:30;if(index===6)first=i===0;if(index===5&&i===2)correctionPending=true;
  el('actions').replaceChildren();say(s.reply[i]);button(index===9?'일당 확인하기':'다음 연락 받기',next)}));
 }
 function next(){
- index=revisiting?9:index+1;revisiting=false;
- if(index===9&&deferred.length){index=deferred.shift();revisiting=true}
+ index=revisiting?rehearsalDeadline:index+1;revisiting=false;
+ if((index===6||index===9)&&deferred.length){rehearsalDeadline=index;index=deferred.shift();revisiting=true}
  if(index<day.length){travel();return}
  if(delay){screen('end','18:00 · 인계','마감할 시간이에요','다시 살피는 데 '+delay+'분이 들었어요. 남은 정리 기록을 어떻게 할까요?');
  button('다음 근무자에게 인계',()=>payslip(false));button('남아서 '+delay+'분 정리',()=>payslip(true))}else payslip(false)}
