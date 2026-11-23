@@ -102,7 +102,7 @@ fs.mkdirSync(out, { recursive: true });
         await dragTo(UP, S3E); await expect('3층 승강기', 'route-wrong3e'); // 3층 승강기 앞 (틀림)
       }
       await dragTo(UP, S2E, S('route-up-drag'));
-      if (mode === 'messy') { await dragTo(ARR, S2D); await expect('옛 진료실', 'route-wrong2'); }
+      if (mode === 'messy') { await dragTo(ARR, S2D); await expect('옛 진료실', 'route-wrong2'); await dragTo(ARR, S2E, S('route-filled-drag')); await expect('이미', 'route-filled'); } // 옛 진료실 앞, 이미 표지가 선 2층 승강기 앞 (틀림)
       await dragTo(ARR, S3D, S('route-arrive-drag'));
       await p.waitForTimeout(1500); await shot({ path: S('route-walking') }); await p.waitForTimeout(3500); await shot({ path: S('route-done') });
     },

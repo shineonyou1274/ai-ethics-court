@@ -6,7 +6,8 @@
 //   알림.canRub(무늬 id)       지금 그 무늬를 문질러도 되는지 (false 면 안 지워지고 onBlocked 를 부른다)
 //   알림.onDrop(물건 id)       물건을 목표 자리에 놓았을 때. false 를 돌려주면 제자리로 돌아간다
 //   알림.onBlocked(무늬 id)    막힌 곳을 문질렀을 때
-//   알림.onMiss(물건 id, 칸 id) 칸(slots)이 있는 물건을 다른 칸에 놓았을 때. 물건은 제자리로 돌아간다
+//   알림.onMiss(물건 id, 칸 id, 찬 칸?) 칸(slots)이 있는 물건을 다른 칸에 놓았을 때. 물건은 제자리로 돌아간다.
+//                              이미 다른 물건이 놓인 칸 위에 놓으면 세 번째 값이 true 다 (말없이 돌아가지 않게)
 //   알림.onTap(누를 곳 id)     무대가 준 누를 곳(taps)을 손가락으로 눌렀을 때. true 를 돌려주면 받아들인 것 (무대의 onTap 도 알게 된다)
 // 누를 곳(taps): { id, obj } (그 물체를 손가락이 맞히면) 또는 { id, at: [x, z], y, w, d } (그 높이의 네모 안이면).
 //   물건보다 나중에, 문지르기보다 먼저 본다. 누른 뒤 손가락을 움직여도 문지르지 않는다. off 를 켜 둔 곳은 지나친다.
@@ -175,8 +176,9 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
     const at = m.obj.position, home = () => m.obj.position.set(m.from[0], m.y, m.from[1]);
     if (m.slot) {
       cur.slots.forEach((sl) => { sl.ring.visible = false; sl.ring.scale.setScalar(1); });
-      const sl = cancel ? null : slotNear(at);
+      const sl = cancel ? null : slotNear(at, true);
       if (!sl) return home();
+      if (sl.filled) { home(); cur.on.onMiss?.(m.id, sl.id, true); return; }
       if (sl.id !== m.slot) { home(); cur.on.onMiss?.(m.id, sl.id); return; }
       if (cur.on.onDrop?.(m.id) !== false) put(m); else home();
       return;
@@ -185,9 +187,9 @@ export function makeCloseup({ scene, camera, canvas, hideWorld, view }) {
     else home();
   }
 
-  function slotNear(p) {
+  function slotNear(p, any = false) { // any: 이미 찬 칸도 찾는다 (놓을 때만)
     let best = null, bd = Infinity;
-    for (const sl of cur.slots) { if (sl.filled) continue; const d = Math.hypot(p.x - sl.at[0], p.z - sl.at[1]); if (d < sl.r && d < bd) { best = sl; bd = d; } }
+    for (const sl of cur.slots) { if (sl.filled && !any) continue; const d = Math.hypot(p.x - sl.at[0], p.z - sl.at[1]); if (d < sl.r && d < bd) { best = sl; bd = d; } }
     return best;
   }
 

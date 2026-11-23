@@ -49,6 +49,7 @@ export const adminroute = tidy({
   order: ['up', 'arrive'],
   early: { arrive: '이든 님이 걷는 순서대로 세워요. 먼저 2층 승강기 앞에서 3층으로 가라고 알려야 해요.' },
   miss: (id, slot) => ROUTE[id]?.[slot] || '그 자리가 아니에요. 이든 님이 걷는 길을 따라가 봐요.',
+  filled: (id, slot) => (slot === 's2e' ? '2층 승강기 앞에는 이미 ‘↑ 3층’ 표지가 서 있어요. ‘도착’은 이든 님이 마지막에 닿는 곳에 세워요.' : '그 자리에는 이미 표지가 서 있어요. 이든 님이 걷는 길을 따라가 봐요.'),
   finish: '이든 님이 표지를 따라 3층 새 진료실에 도착했어요.',
   good: 'neat', bad: 'redo',
 });

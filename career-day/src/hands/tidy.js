@@ -8,6 +8,7 @@
 //   order: ['table', 'paper', 'pad'],          // (있으면) 이 순서를 지켜야 한다
 //   early: { paper: '…' },                     // 순서보다 먼저 하려 할 때의 한마디
 //   miss: (id, slotId) => '…',                 // 다른 칸에 놓았을 때의 한마디
+//   filled: (id, slotId) => '…',               // (있으면) 이미 다른 것이 놓인 칸에 놓았을 때의 한마디. 없으면 공통 한마디
 //   wrong: { chartB: { as: 'chart', msg } },   // (있으면) 닮았지만 틀린 물건. as 의 차례에 놓으려 하면 msg 를 보여 주고 제자리로 돌린다 (틀린 누를 곳도 같다)
 //   good: 'neat', bad: 'redo',                 // 등급 이름. 실수가 없으면 good
 // }
@@ -47,7 +48,7 @@ export function tidy(def) {
         if (!left.has(id)) return false;
         if (!ready(id)) { early(id, true); return false; } complete(id); return true;
       },
-      onMiss: (id, slot) => { mistakes++; sfx('bad'); ui.msg(def.miss ? def.miss(id, slot) : '그 자리가 아니에요.', true); },
+      onMiss: (id, slot, filled) => { mistakes++; sfx('bad'); ui.msg(filled ? def.filled?.(id, slot) || '그 자리에는 이미 다른 것이 놓여 있어요. 빈 자리를 골라요.' : def.miss ? def.miss(id, slot) : '그 자리가 아니에요.', true); },
     };
     let handle = null;
     if (world) { handle = world.closeup(def.stage, on); ui.msg(def.start); }
