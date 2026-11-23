@@ -103,3 +103,4 @@ body[data-space-phase=result] .space-content{flex:0 0 auto;min-height:0;overflow
 .bolt-target.turning::after{width:32px;height:9px;border:1px solid #41566b;border-radius:5px;background:linear-gradient(to right,#aebfc6 45%,#38586c 45%,#63859a);transform-origin:0 50%;transform:translateY(-50%) rotate(var(--tool-angle,0rad)) translateX(8px)}
 @media(max-width:799px){body[data-space-phase=result] main{grid-template-rows:38dvh minmax(0,1fr)}}
 @media(max-width:360px){body.judging main{grid-template-rows:34dvh minmax(0,1fr)}}
+@media(max-width:799px) and (max-height:620px){body[data-space-phase=result] main{grid-template-rows:30dvh minmax(0,1fr)}}
