@@ -75,7 +75,7 @@ export const HOSP_C = {
         rows[id] = { hl, hit };
       });
       const finger = new T.Group(); ball(finger, 0, 0, 0, 0.08, '#e6bfa1', [1, 0.7, 1.7]); finger.visible = false; bag.add(finger);
-      const bagTag = quiet(tag(g, '답이 적힌 줄 짚기', BAG.x, 1.75, BAG.z - 0.95, 1.4, 0.3)); bagTag.visible = false;
+      const bagTag = quiet(tag(g, '답이 적힌 줄 짚기', BAG.x, 1.0, BAG.z + 1.05, 1.4, 0.3)); bagTag.visible = false; // 봉투 바로 앞 (가온 님 앞 이름표와 겹치지 않게)
 
       // ③ 문의 봉투와 놓을 곳 둘 (가온 님 앞 · 의료진 문의함). 끄는 동안 두 곳 모두에 같은 초록 원이 뜬다
       const env = new T.Group(); box(env, 0, 0.03, 0, 0.8, 0.06, 0.55, '#e7cf98'); box(env, 0, 0.065, -0.13, 0.8, 0.01, 0.22, '#d8bb7e');
@@ -88,7 +88,7 @@ export const HOSP_C = {
       let opening = false, t0 = 0;
       const taps = [{ id: 'notebook', obj: nb }, ...LINES.map(([id]) => ({ id, obj: rows[id].hit }))];
       return {
-        frame: { w: 4.85, d: 3.5, top: 2.55, tilt: [0.72, 1.0] }, taps,
+        frame: { w: 5.6, d: 3.5, top: 2.55, tilt: [0.72, 1.0] }, taps, // 폭을 넉넉히: PC에서도 수첩과 문의함이 잘리지 않게
         slots: [{ id: 'gaon', at: [-0.5, -0.75], y: 0.86, r: 0.42 }, { id: 'inbox', at: [1.85, -0.75], y: 0.95, r: 0.42 }],
         movers: [{ id: 'envelope', obj: env, slot: 'inbox', from: [2.0, 1.2], y: 0.84, restY: 1.05, lift: 0.12, onPlaced(o) { untag(o); o.rotation.y = -0.12; sent.visible = true; speak(3); } }], // 봉투는 문의함 벽 위에 얹혀 잘 보인다
         onTap(id, ok) {
