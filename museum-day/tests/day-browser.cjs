@@ -13,7 +13,7 @@ async function run(browser,name,w,h){
  async function stroke(a,b=a,steps=1,arc=null){
  const box=await p.locator('#stage').boundingBox(),aspect=box.width/box.height;
  const T=await import('../dist/vendor/three.module.min.js');
- const cam=new T.PerspectiveCamera(34,aspect,.1,90);cam.position.set(.045,.30,1).normalize().multiplyScalar(Math.max(3.05,4.98/aspect)/Math.tan(17*Math.PI/180));cam.lookAt(0,0,0);cam.updateMatrixWorld();
+ const cam=new T.PerspectiveCamera(34,aspect,.1,90);cam.position.set(.045,.30,1).normalize().multiplyScalar(Math.max(2.83,4.42/aspect)/Math.tan(17*Math.PI/180));cam.lookAt(0,0,0);cam.updateMatrixWorld();
  const px=([x,y,z=0])=>{const v=new T.Vector3(x,y,z).project(cam);return {x:box.x+(1+v.x)*box.width/2,y:box.y+(1-v.y)*box.height/2}};
  const start=px(a),end=px(b);
  const dispatch=(type,pt)=>c.send('Input.dispatchTouchEvent',{type,touchPoints:pt?[{...pt,radiusX:4,radiusY:4,id:1}]:[]});
