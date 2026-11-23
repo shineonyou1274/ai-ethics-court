@@ -48,9 +48,9 @@ export class Studio{
  }
  resize(){const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h)return;
  if(this.camera.isPerspectiveCamera){
- const cam=this.camera;cam.aspect=w/h;const distance=Math.max(3.05,4.98/cam.aspect)/Math.tan(cam.fov*Math.PI/360);
+ const cam=this.camera;cam.aspect=w/h;const distance=Math.max(2.83,4.42/cam.aspect)/Math.tan(cam.fov*Math.PI/360);
  cam.position.set(.045,.30,1).normalize().multiplyScalar(distance);cam.lookAt(0,0,0);cam.updateMatrixWorld();
- }else{const half=Math.max(2.85,5*h/w);this.camera.top=half;this.camera.bottom=-half;this.camera.left=-half*w/h;this.camera.right=-this.camera.left}this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);this.draw()}
+ }else{const half=Math.max(2.85,5.32*h/w);this.camera.top=half;this.camera.bottom=-half;this.camera.left=-half*w/h;this.camera.right=-this.camera.left}this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);this.draw()}
  draw(){this.renderer.render(this.scene,this.camera);this.labels?.()}
  reset(){cancelAnimationFrame(this.frame);this.labels=null;this.camera=this.mapCamera;this.host.querySelectorAll('.pin,.object-tag').forEach(n=>n.remove());this.root.traverse(n=>{n.geometry?.dispose();n.material?.dispose()});this.root.clear();this.root.rotation.set(0,0,0);this.root.position.set(0,0,0)}
  bench(){this.camera=this.benchCamera;this.resize()}
@@ -83,6 +83,15 @@ export class Studio{
  if(i===4){for(let j=0;j<3;j++)box(r,.25,.36,.05,[teal,clay,cream][j],-.38+j*.37,1.12,-1.26)}
  const n=document.createElement('button');n.className='pin'+(goal===i?' goal':'');n.textContent=rooms[i];n.onclick=()=>walk(i);if(!visit){n.tabIndex=-1;n.style.pointerEvents='none'}this.host.append(n);pins.push(n);
  });
+ // A brass visitor trail follows the aisle to the exhibition cases.
+ for(let x=-3.8;x<3.9;x+=.48)box(g,.28,.015,.048,0xc39853,x,-.049,.02);
+ for(const x of [-4.23,4.23])for(let z=-1.5;z<2.8;z+=.5)box(g,.048,.015,.28,0xc39853,x,-.049,z);
+ for(const x of [-3.96,-2.14]){
+  oval(g,.55,.013,.36,0xf6d493,x,.064,2.48);
+  box(g,.64,.53,.48,0x637b73,x,.32,2.48);vessel(g,x,.78,2.48,.20);
+  for(const side of [-1,1])box(g,.024,.56,.025,0xa6c7ba,x+side*.31,.86,2.69);
+  box(g,.66,.035,.49,0xc7d7bd,x,1.14,2.48);
+ }
  const avatar=person(g,0,.05,0,0x148b9c,0x493128);const crowd=[person(g,-3.98,.05,1.87,0x658caa,0x42424b),person(g,.90,.05,-1.66,0xf4e7c5,0x48392d),person(g,.94,.05,2.3,0x9b7662,0x553a27)];
  ring(avatar,.48,.075,0xf9c94e,0,.08,0).rotation.x=Math.PI/2;box(avatar,.17,.20,.055,0xffeabb,.12,.82,.23);
  const visitors=alarm?[0,1,2].map((n)=>person(g,.45+n*.38,.06,2.45,colors[n],0x443a30)):[];
@@ -95,7 +104,7 @@ export class Studio{
  this.labels=()=>{const pos=avatar.localToWorld(new T.Vector3(-.42,.72,.29)).project(this.camera);tag.style.left=(50+50*pos.x)+'%';tag.style.top=(50-50*pos.y)+'%';pins.forEach((n,i)=>{const [x,z]=spots[i],pt=g.localToWorld(new T.Vector3(x,1.18,z-.82)).project(this.camera);n.style.left=((pt.x+1)*50)+'%';n.style.top=((1-pt.y)*50)+'%'});};
  let segment=null;
  const walk=i=>{if(!visit||segment)return;const [x,z]=coord(i),sx=avatar.position.x,sz=avatar.position.z;
- const aisle=sx+x>0?4.96:-4.96;
+ const aisle=sx+x>0?4.65:-4.65;
  const points=Math.abs(z-sz)<.1?[[sx,sz],[x,z]]:[[sx,sz],[aisle,sz],[aisle,z],[x,z]];
  segment={i,points,start:performance.now()};
  if(this.motion.matches){avatar.position.set(x,.05,z);segment=null;this.draw();arrive(i)}};

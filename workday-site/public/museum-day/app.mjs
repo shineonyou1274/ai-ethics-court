@@ -8,7 +8,7 @@ let index=0,at=0,delay=0,rest=60,first=true,stay=false,like=-1,hard=-1,release,r
 const say=s=>el('feedback').textContent=s;
 function button(label,fn,parent=el('actions')){const b=document.createElement('button');b.textContent=label;b.onclick=fn;parent.append(b);return b}
 function screen(mode,who,title,line){
- release?.();release=null;document.body.className=mode;el('speaker').textContent=who;el('title').textContent=title;el('line').textContent=line;say('');
+ release?.();release=null;document.body.className=mode;el('speaker').textContent=who;if(who.startsWith('새로 옴 · ')){const badge=document.createElement('span');badge.className='arrival';badge.textContent='새로 옴';el('speaker').replaceChildren(badge,' '+who.slice(7))}el('title').textContent=title;el('line').textContent=line;say('');
  el('actions').replaceChildren();el('extra').replaceChildren();
 }
 function bar(minute,where){

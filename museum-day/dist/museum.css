@@ -4,3 +4,5 @@ header{justify-content:center;gap:12px;padding:7px;color:var(--wd-ink);backgroun
 .name-tag{background:#19594e;color:white;border:1px solid #f5d785;border-radius:50%;font-size:12px;padding:1px 5px}
 .working #stage{height:56dvh}@media(max-height:620px){.working #stage{height:max(220px,43dvh)}}.name-tag{font-size:16px}
 @media(min-width:900px){body:not(.end) main{width:min(1200px,98%);display:grid;grid-template-columns:3fr 2fr;align-items:start}body:not(.end) #stage{height:clamp(440px,68dvh,700px)}body:not(.end) article{border-top:0}}
+
+.arrival{display:inline-block;background:#28574e;color:white;border-radius:99px;padding:2px 9px}.end #extra table+button{margin-bottom:1rem}
