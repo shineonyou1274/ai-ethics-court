@@ -198,7 +198,7 @@ fs.mkdirSync(out, { recursive: true });
       console.log('   마침:', (await p.locator('#panel h2').first().textContent()));
       break;
     }
-    if (await p.locator('#nx').count() && await p.locator('#nx').isEnabled()) { const m = await measure('[result] ' + h); if (!m.main.every((x) => x.vis)) console.log('   (결과 단추가 화면 밖)', JSON.stringify(m.main)); await press('#nx'); continue; }
+    if (await p.locator('#nx').count() && await p.locator('#nx').isEnabled()) { const m = await measure('[result] ' + h); if (!m.main.every((x) => x.vis)) console.log('   (결과 단추가 화면 밖)', JSON.stringify(m.main)); if (!seen.includes('result:' + h)) { seen.push('result:' + h); await shot({ path: `${out}/${tag0}-${tag}-result.png` }); } await press('#nx'); continue; }
     const ch = p.locator('#panel .choice:not(.done):not([disabled])');
     if (await ch.count()) {
       if (await ch.first().getAttribute('data-i') !== null && !await p.locator('#opts,#ok').count()) { const ids = await ch.evaluateAll((bs) => bs.map((b) => +b.dataset.i)); await tl(ch.nth(ids.indexOf(Math.min(...ids)))); continue; }
