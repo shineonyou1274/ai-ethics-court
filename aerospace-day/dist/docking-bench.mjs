@@ -19,7 +19,7 @@ export function dockingBench({sensors=false}={}){
  // Tools and cable tray make the scale and working surface legible.
  box(.65,.07,.36,0x4d6575,1.6,.79,.3);box(.08,.05,.64,0xbac7cc,1.6,.85,.25);box(.14,.07,.24,0x5965ac,1.6,.86,.6);
  for(let i=0;i<3;i++)box(.65,.04,.65,0xe1e7df,(i-1)*1.12,.78,1.7);
- function setTurns(turns){bolts.forEach((b,i)=>{const done=turns[i]>=180;b.position.y=done?1.37:1.44;b.rotation.y=-turns[i]*Math.PI/180;b.material.color.set(done?0x3f806b:0x485e73);gaps[i].visible=!done})}
+ function setTurns(turns){bolts.forEach((b,i)=>{const done=turns[i]>=180;b.position.y=done?1.37:1.44+.09*Math.sin(turns[i]*Math.PI/180);b.rotation.y=-turns[i]*Math.PI/180;b.material.color.set(done?0x3f806b:0x485e73);gaps[i].visible=!done})}
  function setSensors(found){ports.forEach(p=>p.visible=sensors);chips.forEach((chip,i)=>{chip.visible=sensors;const p=ports[i].position;chip.position.set(found.has(i)?p.x:(i-1)*1.12,found.has(i)?1.58:.96,found.has(i)?p.z:1.7)});bolts.forEach(b=>b.visible=!sensors);gaps.forEach(g=>g.visible=!sensors)}
  setTurns(Array(6).fill(0));setSensors(new Set());
  return{root,model,bolts,ports,chips,setTurns,setSensors,at};

@@ -94,3 +94,10 @@ body[data-space-phase=result] .space-content{flex:0 0 auto;min-height:0;overflow
  .judging #panel .eyebrow,.judging #panel h2{margin:4px 0}
  .judging .decision-actions button{min-height:48px}
 }
+
+.station-pin,.drawing-target{min-height:44px;min-width:44px}
+.space-gear button{touch-action:none}
+.gear-in-hand{position:fixed;z-index:20;pointer-events:none;transform:translate(-50%,-50%);font-size:36px}
+.bolt-target.turning::after{content:'🔧';position:absolute;pointer-events:none;left:50%;top:50%;font-size:34px;line-height:1;transform-origin:4px 50%;transform:translate(-4px,-50%) rotate(var(--tool-angle,0rad)) rotate(42deg)}
+@media(max-width:799px){body[data-space-phase=result] main{grid-template-rows:38dvh minmax(0,1fr)}}
+@media(max-width:360px){body.judging main{grid-template-rows:34dvh minmax(0,1fr)}}
