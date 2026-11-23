@@ -383,6 +383,7 @@ function records(sc, head, body) {
   const open = new Set();
   view(`${head}${body}${sc.records.map(([k, v], i) => `<button class="record closed" data-i="${i}"><b>${esc(k)}</b><span>${esc(v)}</span></button>`).join('')}
     <p class="fine">카드를 눌러 하나씩 펼쳐 보세요.</p><button class="btn" id="nx" disabled>다음 장면으로</button>`);
+  fitFlow();
   on('.record', (b) => {
     open.add(b.dataset.i); b.classList.replace('closed', 'open'); world?.action('inspect');
     if (open.size === sc.records.length) { finishTasks(S, J); drawHud(); $('#nx').disabled = false; }
@@ -424,10 +425,10 @@ function fitPick() {
   world?.resize(); fitHud();
 }
 
-// 폰 세로의 읽고 누르는 장면(할 일 누르기, 남은 한마디): '다음 장면으로' 단추가 화면 밖으로 밀리면
-//   ① 제목 위 시각 줄을 감추고(flowFit) ② 3D 칸을 모자란 만큼만 줄이고(46dvh → 26dvh 까지)
+// 폰 세로의 읽고 누르는 장면(할 일 누르기, 기록 펼치기, 남은 한마디): '다음 장면으로' 단추가 화면 밖으로 밀리면
+//   ① 제목 위 시각 줄을 감추고 기록 카드를 촘촘하게(flowFit) ② 3D 칸을 모자란 만큼만 줄이고(46dvh → 26dvh 까지)
 //   ③ 그래도 넘치면 앞선 선택 카드를 접고 ④ 그래도 넘치면 글과 단추를 촘촘하게(flowTight) 한다. 넘치지 않는 폰과 PC는 그대로다.
-// 할 일 장면은 누르면 나타나는 결과 글(.why)까지 펼친 높이로 잰다. 누른 뒤에도 단추가 밀리지 않게.
+// 할 일 장면은 다 누른 뒤의 모습(결과 글)으로 잰다(final). 누른 뒤에도 단추가 밀리지 않게. 기록 카드는 닫혀도 펼친 것과 높이가 같다.
 function fitFlow(final) {
   const app = $('#app'), v = panel.querySelector('.view');
   app.classList.remove('flowFit', 'flowTight'); app.style.removeProperty('--flow');
