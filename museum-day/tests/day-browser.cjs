@@ -26,7 +26,7 @@ async function run(browser,name,w,h){
  for(let i=0;i<10;i++){
  await action(0);await p.waitForFunction(()=>document.body.matches('.working,.choice'));
  if(i===1){await shot('03-carry-before');if(messy){await stroke([-1,-.6]);assert.match(await message(),/맨손/)}
- await stroke([-3.3,1.1,1]);if(messy){await stroke([.70,.37,.15]);assert.match(await message(),/손잡이/)}
+ await stroke([-3.46,1.46,1.5]);if(messy){await stroke([.70,.37,.15]);assert.match(await message(),/손잡이/)}
  await stroke([-1,-.9],[2.4,-.9],18);await shot('04-carry-after')}
  else if(i===2){await shot('05-brush-before');if(messy){await stroke([-3.28,-1.21,1]);assert.match(await message(),/쇠솔/)}
  await stroke([-3.28,1.24,1]);if(messy){await stroke([-1.35,.12],[3.2,.12],1);assert.match(await message(),/너무 빨라/)}

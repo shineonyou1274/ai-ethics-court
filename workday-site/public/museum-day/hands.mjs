@@ -47,7 +47,7 @@ export function openHand(studio,type,{say,mistake,done}){
  const finish=message=>{if(completed)return;completed=true;say(message);done()};
  say(labels[type]);
  if(type==='carry'){
- const gloves=[glove(root,-3.72,1.15,1.5),glove(root,-2.81,1.12,1.5)];
+ const gloves=[glove(root,-3.46,1.46,1.5),glove(root,-2.55,1.43,1.5)];
  // A padded shipping cradle rests on a horizontal timber bench.
  box(root,16,.21,6,0x927050,0,-1.66,.7);
  box(root,15.6,.05,5.9,0xba9972,0,-1.53,.7);
