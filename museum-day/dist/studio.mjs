@@ -48,7 +48,7 @@ export class Studio{
  }
  resize(){const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h)return;
  if(this.camera.isPerspectiveCamera){
- const cam=this.camera;cam.aspect=w/h;const distance=Math.max(2.83,4.42/cam.aspect)/Math.tan(cam.fov*Math.PI/360);
+ const cam=this.camera;cam.aspect=w/h;const distance=Math.max(2.83,(cam.aspect>1.2?4.9:4.42)/cam.aspect)/Math.tan(cam.fov*Math.PI/360);
  cam.position.set(.045,.30,1).normalize().multiplyScalar(distance);cam.lookAt(0,0,0);cam.updateMatrixWorld();
  }else{const half=Math.max(2.85,5.32*h/w);this.camera.top=half;this.camera.bottom=-half;this.camera.left=-half*w/h;this.camera.right=-this.camera.left}this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);this.draw()}
  draw(){this.renderer.render(this.scene,this.camera);this.labels?.()}
