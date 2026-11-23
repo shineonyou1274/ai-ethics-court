@@ -82,15 +82,15 @@ export const HOSP_C = {
       quiet(tag2(env, ['문의 봉투', '질문 ②'], 0, 0.62, 0.05, 0.95, 0.42)); g.add(env);
       box(g, -0.5, 0.835, -0.75, 1.25, 0.02, 0.7, '#e5d6c3'); tag(g, '가온 님 앞', -0.3, 1.02, -0.62, 0.9, 0.27);
       box(g, 1.85, 0.87, -0.75, 1.2, 0.1, 0.75, '#9db8b0'); for (const sd of [-1, 1]) box(g, 1.85 + sd * 0.6, 0.95, -0.75, 0.05, 0.18, 0.75, '#87a59c'); box(g, 1.85, 0.95, -1.1, 1.2, 0.18, 0.05, '#87a59c');
-      tag(g, '의료진 문의함', 1.85, 1.35, -0.42, 1.25, 0.3);
-      const sent = tag2(g, ['의료진에게 넘겼어요 ✓'], 1.85, 1.8, -0.75, 1.7, 0.3, '#2f8f6c'); sent.visible = false;
+      tag(g, '의료진 문의함', 1.85, 1.3, -1.25, 1.25, 0.3); // 이름표는 함 뒤쪽에 (놓은 봉투를 가리지 않게)
+      const sent = tag2(g, ['의료진에게', '넘겼어요 ✓'], 2.12, 1.25, 0.45, 1.05, 0.62, '#2f8f6c', true); sent.visible = false; // 결과가 잘 보이게 크게
 
       let opening = false, t0 = 0;
       const taps = [{ id: 'notebook', obj: nb }, ...LINES.map(([id]) => ({ id, obj: rows[id].hit }))];
       return {
         frame: { w: 4.85, d: 3.5, top: 2.55, tilt: [0.72, 1.0] }, taps,
         slots: [{ id: 'gaon', at: [-0.5, -0.75], y: 0.86, r: 0.42 }, { id: 'inbox', at: [1.85, -0.75], y: 0.95, r: 0.42 }],
-        movers: [{ id: 'envelope', obj: env, slot: 'inbox', from: [2.0, 1.2], y: 0.84, restY: 0.93, lift: 0.12, onPlaced(o) { untag(o); o.scale.setScalar(0.85); sent.visible = true; speak(3); } }],
+        movers: [{ id: 'envelope', obj: env, slot: 'inbox', from: [2.0, 1.2], y: 0.84, restY: 1.05, lift: 0.12, onPlaced(o) { untag(o); o.rotation.y = -0.12; sent.visible = true; speak(3); } }], // 봉투는 문의함 벽 위에 얹혀 잘 보인다
         onTap(id, ok) {
           if (!ok) return;
           if (id === 'notebook') { opening = true; t0 = 0; taps[0].off = true; nbTag.visible = false; bagTag.visible = true; speak(1); return; }
