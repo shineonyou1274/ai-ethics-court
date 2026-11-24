@@ -1,0 +1,106 @@
+
+:root{--place:#5965ac;--place-d:#414b89}*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:var(--wd-paper);color:var(--wd-ink);font:16px/1.5 var(--wd-body)}
+h1,h2,h3,button,.pay{font-family:var(--wd-title);font-weight:400}h1{font-size:34px;line-height:1.25}h2{font-size:24px;line-height:1.3;margin:10px 0}p{margin:12px 0}button{font-size:16px;min-height:44px;cursor:pointer;word-break:keep-all}button:disabled{opacity:.5;cursor:default}.wd-btn{margin:8px 0}button[aria-pressed=true]{background:var(--place);color:#fff}
+.scene-header{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:8px 12px;background:var(--wd-paper)}.scene-header .wd-hud{position:static;padding:0;display:flex;flex-wrap:wrap;gap:4px}.stage-controls{display:flex;gap:6px;margin-left:auto}.stage-controls button{border:1px solid var(--wd-line);background:var(--wd-card);border-radius:20px;padding:6px 12px}#sceneLabel{font-size:13px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) max(40%,400px)}#stage{position:relative;overflow:hidden;background:#dbe6ec}canvas{width:100%;height:100%;display:block;touch-action:none}#panel{min-height:0;overflow:auto;padding:16px 20px 32px;overscroll-behavior:contain}.radio{background:var(--wd-card);border-left:4px solid var(--place);padding:10px 12px;margin:0 0 12px;border-radius:8px}#speech{position:static;font-size:16px}.eyebrow{color:var(--place)}.fine,small{font-size:14px;color:var(--wd-soft)}a{color:var(--place)}
+#stations{position:absolute;inset:0;pointer-events:none}.station-pin{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;max-width:45%;padding:6px 10px;min-height:36px;border:1px solid #9aaab5;border-radius:12px;background:#fffdf8ed;color:var(--wd-ink);font-size:14px;box-shadow:0 2px 5px #263c5222}.station-pin.current{border:2px solid #c99736;background:#fff3cf}
+.todo{margin-top:14px;border-top:1px solid var(--wd-line);padding-top:8px}.todo summary{cursor:pointer}.todo span{color:var(--wd-soft)}.todo span.done{color:#2f8f6c}.todo ol{padding-left:22px}.blueprint{display:flex;flex-direction:column;gap:18px;text-align:center;background:repeating-linear-gradient(0deg,#e6edf5 0 1px,#f3f7fa 1px 24px);border:2px solid #b4c8d6;border-radius:14px;padding:20px}.blueprint b{font-size:30px;color:var(--place)}.control-window{background:#dbe7eb;border:8px solid #8dabb8;padding:18px;border-radius:12px}.control-window strong{display:block;font-size:34px;text-align:center}.decision-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.decision-actions button{margin:0;min-height:64px}.trial-list article{padding:8px;border-bottom:1px solid var(--wd-line)}
+label{display:block;margin:10px 0}input[type=range]{width:100%;height:38px;accent-color:var(--place);touch-action:pan-y}output{float:right;font-family:var(--wd-title)}.pay{font-size:38px}table{width:100%;border-collapse:collapse;font-size:16px}td,th{padding:8px 4px;border-bottom:1px solid var(--wd-line)}.wd-moment{margin:8px 0}.wd-moment button{border:1px solid var(--wd-line);border-radius:8px;padding:8px;margin-right:6px;background:var(--wd-paper)}.wd-moment button[aria-pressed=true]{background:var(--place);color:#fff}
+.send-records{width:min(92vw,500px);max-height:90dvh;overflow:auto;background:var(--wd-card);color:var(--wd-ink);border:0;border-radius:20px;padding:24px;font:16px var(--wd-body)}.send-records::backdrop{background:#263c5288}.send-records input,.send-records textarea{width:100%;font:16px var(--wd-body);padding:10px}.send-records button{padding:10px;margin:8px;border:0;border-radius:10px;background:var(--place);color:white}
+@media(max-width:799px){main{grid-template-columns:1fr;grid-template-rows:42dvh minmax(0,1fr)}body.judging main{grid-template-rows:34dvh minmax(0,1fr)}body.expanded main{grid-template-rows:56dvh minmax(0,1fr)}.scene-header{gap:4px}.scene-header .wd-clock,.scene-header .wd-money{font-size:14px}#sceneLabel{display:none}#panel{padding:12px 16px 24px}h1{font-size:30px}.stage-controls button{font-size:14px;min-height:36px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.space-surface{position:absolute;inset:0}.space-surface canvas{width:100%;height:100%}.space-session #speech{display:none}.space-target{position:absolute;transform:translate(-50%,-50%);width:48px;height:48px;min-height:48px;padding:0;border:2px dashed #77b993;border-radius:50%;background:#fff5;color:#244d3a;font-size:26px;touch-action:none}.bolt-target{background:transparent;border:1px dashed #446e7866;width:56px;height:56px}
+.space-heading{display:flex;justify-content:space-between;gap:8px;font-size:14px;align-items:center;color:var(--place)}.space-heading button{padding:4px 10px;border:1px solid var(--wd-line);border-radius:20px;background:var(--wd-card)}.space-gear{display:flex;gap:8px;flex-wrap:wrap}.space-gear button{flex:1;padding:10px;border:1px solid var(--wd-line);border-radius:12px}.space-actions{display:flex;gap:8px;position:sticky;bottom:0;background:var(--wd-paper);padding:8px 0;z-index:4}.space-actions button{flex:1;font-size:16px;word-break:keep-all}.space-results{overflow:auto}.space-results th,.space-results td{font-size:14px;white-space:nowrap}
+.flight-controls{display:grid;grid-template-columns:108px 1fr;gap:12px;align-items:center}#joystickSpace{width:100px;height:100px;border:2px solid var(--wd-line);border-radius:50%;position:relative;background:radial-gradient(circle,#cbd7db,#eef0eb);touch-action:none}#stickKnob{width:42px;height:42px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:var(--place);box-shadow:0 3px 0 #303b6c}.flight-controls label{margin:0}.flight-controls input{height:32px}#brakeSpace{width:100%;background:#2f6b55;color:white;border:0;border-radius:10px;min-height:44px;touch-action:none}#flightStats{font-family:var(--wd-title);font-size:16px;margin:8px 0}.nudge-controls{display:flex;gap:6px;margin:8px 0}.nudge-controls button{flex:1;min-height:44px;border:1px solid var(--wd-line);border-radius:8px;background:var(--wd-card)}.space-session #panel{padding-bottom:16px}.space-session #panel h2{font-size:23px;margin:8px 0}.space-session #panel p{margin:8px 0}.space-session input[type=checkbox]{width:22px;height:22px;vertical-align:middle}
+@media(max-width:799px){.space-session main{grid-template-rows:38dvh minmax(0,1fr)}.space-session .scene-header .stage-controls{display:none}.space-session #panel{padding:8px 16px 18px}.space-actions .wd-btn{margin:0}.space-session #panel h2{font-size:21px}.space-session #panel>details{margin-bottom:8px}}
+@media(max-width:799px) and (max-height:620px){.space-session main{grid-template-rows:minmax(180px,32dvh) minmax(0,1fr)}.space-heading{font-size:14px}.flight-controls{grid-template-columns:84px 1fr;gap:8px}#joystickSpace{width:80px;height:80px}#flightStats{margin:4px 0}.space-session #panel p{margin:4px 0}.space-session .nudge-controls{margin:4px 0}}
+body[data-space-phase=flight] #flightStats{white-space:pre-line;line-height:1.3;margin:4px 0}body[data-space-phase=flight] #spaceHint{line-height:1.3;margin:4px 0}body[data-space-phase=flight] .nudge-controls{display:grid;grid-template-columns:repeat(2,44px);gap:2px;margin:0}body[data-space-phase=flight] .nudge-controls button{padding:0}body[data-space-phase=flight] .space-actions{margin-top:6px}body[data-space-phase=flight] .space-actions button{border:1px solid var(--wd-line);border-radius:12px;min-height:44px;margin:0;padding:8px;background:var(--wd-card);color:var(--wd-ink)}body[data-space-phase=flight] .space-actions #stopSpace{background:var(--place);color:#fff}
+
+/* Dedicated content and action rows: buttons never cover editable controls or results. */
+body:is([data-space-phase=design],[data-space-phase=result],[data-space-phase=inspect]) #panel{display:flex;flex-direction:column;overflow:hidden;padding-bottom:8px}
+.space-content{min-height:0;overflow-y:auto;flex:1;scroll-padding:8px}
+body:is([data-space-phase=design],[data-space-phase=result],[data-space-phase=inspect]) .space-actions{position:static;flex:none;margin:0;padding:6px 0 0}
+.ship-settings{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ship-settings label{line-height:1.3}.ship-settings output{margin-left:4px}
+.ship-assist{display:flex;align-items:center;gap:8px;min-height:32px}
+.space-result{padding:6px 0;border-bottom:1px solid var(--wd-line);font-size:14px;line-height:1.4}.space-result b,.space-result span{display:block}.space-result details{font-size:14px}
+body[data-space-phase=result] .space-actions{display:block}body[data-space-phase=result] .space-actions>div{display:flex;gap:8px}
+#spaceReason{font-size:16px;line-height:1.35}#spaceDelay{font-size:16px;line-height:1.35}
+@media(max-width:799px){body:is([data-space-phase=design],[data-space-phase=result],[data-space-phase=inspect]) main{grid-template-rows:minmax(140px,26dvh) minmax(0,1fr)}body:is([data-space-phase=design],[data-space-phase=result],[data-space-phase=inspect]) #panel h2{font-size:20px;margin:4px 0}.space-content .space-heading{line-height:1.3}.ship-settings input{margin:0;height:38px}.space-session #panel #spaceReason{margin:2px 0 6px}}
+
+@media(max-width:799px){body[data-space-phase=result] main{grid-template-rows:140px minmax(0,1fr)}}
+body[data-space-phase=result] .space-actions button{min-height:44px;margin:0;padding:6px;border-radius:12px;border:1px solid var(--wd-line)}
+
+.space-result,.space-result details{font-size:16px}.space-actions{flex-wrap:wrap}#returnHall{min-height:44px;padding:6px 10px;border:1px solid var(--wd-line);border-radius:12px;background:var(--wd-card);color:var(--wd-ink)}
+
+/* Keep the active view toggle legible after the general control background. */
+.stage-controls button[aria-pressed="true"]{background:var(--place);color:#fff;border-color:var(--place)}
+
+#groundTag{position:absolute;top:8px;left:10px;z-index:8;pointer-events:none;background:#fffdf8ed;color:#263c52;border:1px solid #b4c8d6;border-radius:12px;padding:3px 10px;font-size:16px;line-height:1.4}
+
+.station-pin{transform:translate(-50%,-100%);padding:4px 8px;min-height:34px;font-size:14px;max-width:42%}
+
+@media(max-width:799px){body:is([data-space-phase=suit],[data-space-phase=inspect],[data-space-phase=flight]) main{grid-template-rows:56dvh minmax(0,1fr)}}
+
+@media(max-width:799px){body[data-space-phase=drawing] main{grid-template-rows:56dvh minmax(0,1fr)}}
+.drawing-target{font-size:16px;width:36px;height:36px;min-height:36px;background:#fffdf8;border:1px solid #657f92}.drawing-target[aria-pressed=true]{background:#b04f42;color:white}
+
+.bolt-target{font-size:16px;color:#fff;text-shadow:0 1px 3px #14223b;line-height:1}
+
+@media(max-width:799px){body[data-space-phase=sensor] main{grid-template-rows:56dvh minmax(0,1fr)}}
+.sensor-port{position:absolute;transform:translate(-50%,-50%);width:50px;height:50px;display:grid;place-items:center;border:3px solid #3f806b;border-radius:50%;background:#e7f2e9aa;color:#244d3a;font-size:18px;pointer-events:none}.sensor-port.filled{background:#3f806b;color:white}.sensor-chip{position:absolute;bottom:10px;width:calc(33.333% - 4px);margin:0 2px;padding:8px 4px;min-height:48px;border:2px solid #657f92;border-radius:10px;background:#fffdf8;color:#263c52;font-size:16px;touch-action:none;z-index:2}.sensor-chip.dragging{z-index:5;box-shadow:0 4px 12px #263c5244}
+
+@media(max-width:799px){body[data-space-phase=control] main{grid-template-rows:56dvh minmax(0,1fr)}}
+
+.station-call{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#fff3cf;border:1px solid #b28b3a;border-radius:9px;padding:2px 7px;font-size:14px;white-space:nowrap;box-shadow:0 2px 6px #263c5222;pointer-events:none}.station-call::after{content:"";position:absolute;top:100%;left:45%;border:4px solid transparent;border-top-color:#b28b3a}
+
+.trial-comparison{table-layout:fixed;width:100%;font-size:16px}.trial-comparison caption{text-align:left;font-family:var(--wd-title);padding:10px 0}.trial-comparison th,.trial-comparison td{font-size:16px;overflow-wrap:anywhere;text-align:left}.trial-comparison th:first-child{width:38%}
+
+/* Small phones: actions stay in normal flow, so no floating footer covers a control. */
+.space-actions{position:static;flex-wrap:wrap}.space-actions button{min-width:100px}.space-content{scroll-padding:12px;min-height:96px}
+.scene-header .wd-hud{flex-wrap:nowrap;white-space:nowrap;max-width:100%}.scene-header .wd-clock,.scene-header .wd-money{white-space:nowrap;flex-shrink:0}
+.stage-controls button,.station-pin,.space-heading button,.space-gear button,.nudge-controls button{font-size:16px}
+@media(max-width:799px){.scene-header{padding:6px 8px}.scene-header .wd-hud{gap:3px}.scene-header .wd-clock,.scene-header .wd-money{font-size:14px;padding:4px 8px}#panel{scroll-padding:12px}.space-session #panel{padding:8px 12px 20px}body:is([data-space-phase=design],[data-space-phase=result],[data-space-phase=inspect]) #panel{overflow-y:auto}.space-content{flex:1 0 auto;overflow:visible}.station-pin{max-width:46%;padding:4px 6px}.station-call{font-size:14px}}
+
+/* Keep hall calls inside the scene; the location badge stays clear of station names. */
+body:not(.space-session) #groundTag{top:auto;bottom:8px}
+
+/* Labels occupy free space rather than sitting on the model or the person. */
+.station-pin{transform:none;max-width:145px;min-height:34px;padding:3px 7px;font-size:16px;line-height:1.25;isolation:isolate}
+.station-pin::after{content:"";position:absolute;left:50%;top:100%;height:1px;width:var(--lead-length);transform-origin:0 0;transform:rotate(var(--lead-angle));background:#718995;pointer-events:none;z-index:-1}
+.station-call{display:block;position:static;transform:none;border:0;box-shadow:none;padding:0;background:none;font-size:14px;line-height:1.2;color:#795b20}.station-call::after{content:none}
+
+/* Touch targets are attached to the actual bench parts, with their names below. */
+.bolt-target{width:44px;height:44px;min-height:44px;border:1px dashed #637d8977;background:#263c5218}
+.sensor-port{background:transparent;border:2px dashed #3f806b;width:48px;height:48px}.sensor-port.filled{background:transparent;border-color:#2e6b55}
+.sensor-chip{bottom:auto;width:100px;max-width:31%;min-height:36px;padding:4px 2px;margin:0;transform:translate(-50%,0);font-size:16px;background:#fffdf8ed}.sensor-chip.dragging{background:#fffdf8b8}
+
+/* A horizontal control-room window; no camera rotation on portrait devices. */
+body[data-space-phase=control] #stage{display:flex;align-items:center}
+body[data-space-phase=control] .space-surface{position:relative;inset:auto;width:100%;aspect-ratio:1.6;height:auto;max-height:100%}
+@media(max-width:799px){body[data-space-phase=control] main{grid-template-rows:clamp(180px,62.5vw,300px) minmax(0,1fr)}}
+body[data-space-phase=result] #panel{overflow-y:auto}
+body[data-space-phase=result] .space-content{flex:0 0 auto;min-height:0;overflow:visible}
+
+.sensor-port{transform:translate(-50%,-50%) scaleY(.68)}
+
+/* Pick up the visible 3D sensor itself; the caption sits underneath the hit area. */
+.sensor-chip{height:76px;min-height:76px;border:0;background:transparent;display:flex;align-items:flex-end;padding:0;box-shadow:none}.sensor-chip.dragging{background:transparent;box-shadow:none}
+.sensor-name{display:block;width:100%;border:1px solid #657f92;border-radius:9px;padding:4px 2px;background:#fffdf8ed;line-height:1.25}
+@media(max-width:799px) and (max-height:620px){
+ body.judging main{grid-template-rows:28dvh minmax(0,1fr)}
+ .judging #panel{padding:8px 12px 20px}
+ .judging .decision-radio summary{cursor:pointer;line-height:30px}
+ .judging #panel .eyebrow,.judging #panel h2{margin:4px 0}
+ .judging .decision-actions button{min-height:48px}
+}
+
+.station-pin,.drawing-target{min-height:44px;min-width:44px}
+.space-gear button{touch-action:none}
+.gear-in-hand{position:fixed;z-index:20;pointer-events:none;transform:translate(-50%,-50%);font-size:36px}
+.bolt-target.turning::before,.bolt-target.turning::after{content:'';position:absolute;pointer-events:none;left:50%;top:50%}
+.bolt-target.turning::before{width:15px;height:15px;border:4px solid #dce7eb;border-radius:38%;box-shadow:0 0 0 2px #41566b;transform:translate(-50%,-50%) rotate(var(--tool-angle,0rad))}
+.bolt-target.turning::after{width:32px;height:9px;border:1px solid #41566b;border-radius:5px;background:linear-gradient(to right,#aebfc6 45%,#38586c 45%,#63859a);transform-origin:0 50%;transform:translateY(-50%) rotate(var(--tool-angle,0rad)) translateX(8px)}
+@media(max-width:799px){body[data-space-phase=result] main{grid-template-rows:38dvh minmax(0,1fr)}}
+@media(max-width:360px){body.judging main{grid-template-rows:34dvh minmax(0,1fr)}}
+@media(max-width:799px) and (max-height:620px){body[data-space-phase=result] main{grid-template-rows:30dvh minmax(0,1fr)}}

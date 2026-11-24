@@ -1,0 +1,101 @@
+{
+  "profile": "flat",
+  "base": "http://127.0.0.1:8130/item-2-4/aerospace-day/",
+  "steps": [
+    {
+      "label": "badge",
+      "clock": "항공우주공학 · 09:00"
+    },
+    {
+      "label": "mode-return",
+      "clock": "항공우주공학 · 09:00"
+    },
+    {
+      "label": "hall-suitReady",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "preparation",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "equipped-workwear",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "equipped-badge",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "equipped-wrist",
+      "clock": "항공우주공학 · 09:10"
+    },
+    {
+      "label": "hall-drawingDone",
+      "clock": "항공우주공학 · 09:30"
+    },
+    {
+      "label": "drawing",
+      "clock": "항공우주공학 · 09:30"
+    },
+    {
+      "label": "hall-boltProgress",
+      "clock": "항공우주공학 · 10:30"
+    },
+    {
+      "label": "assembly-before",
+      "clock": "항공우주공학 · 10:30"
+    },
+    {
+      "label": "assembly-after",
+      "clock": "항공우주공학 · 10:30"
+    },
+    {
+      "label": "hall-sensorDone",
+      "clock": "항공우주공학 · 11:30"
+    },
+    {
+      "label": "sensor",
+      "clock": "항공우주공학 · 11:30"
+    },
+    {
+      "label": "hall-rest",
+      "clock": "항공우주공학 · 12:00"
+    },
+    {
+      "label": "lunch",
+      "clock": "항공우주공학 · 12:00"
+    },
+    {
+      "label": "hall-shipMass",
+      "clock": "항공우주공학 · 13:00"
+    },
+    {
+      "label": "design-0",
+      "clock": "항공우주공학 · 13:00"
+    },
+    {
+      "label": "flight-0",
+      "clock": "항공우주공학 · 13:00"
+    },
+    {
+      "label": "results-0",
+      "clock": "항공우주공학 · 13:00"
+    },
+    {
+      "label": "design-1",
+      "clock": "항공우주공학 · 13:00"
+    },
+    {
+      "label": "flight-1",
+      "clock": "항공우주공학 · 13:00"
+    },
+    {
+      "label": "results-1",
+      "clock": "항공우주공학 · 13:00"
+    }
+  ],
+  "errors": [
+    "TimeoutError: locator.tap: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#finishSpace')\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"wd-btn\" id=\"finishSpace\">시험 기록 들고 회의실로</button>\u001b[22m\n\u001b[2m  - attempting tap action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying tap action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying tap action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    53 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying tap action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n"
+  ]
+}

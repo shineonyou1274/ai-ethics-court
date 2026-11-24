@@ -1,0 +1,92 @@
+import { box, cyl, ball } from '../world/kit.js';
+import { workbench, print, unit, table, tray, seal } from './bench-input.js';
+import { rxcheck as flatRx } from './rxcheck.js';
+import { paperwork as flatPaper } from './paperwork.js';
+// 받침이 있으면 a(이라고·을), 없으면 b(라고·를). 숫자로 끝나면 읽는 소리로 본다
+const josa=(w,a,b)=>{const ch=String(w).trim().slice(-1);if(/[0-9]/.test(ch))return '013678'.includes(ch)?a:b;const c=ch.charCodeAt(0)-0xac00;return c>=0&&c<11172&&c%28?a:b;};
+
+function prescription(g,ui,sc){
+  table(g);tray(g,0,0,5.5,3.65,'#bac6bc');
+  const x=[-1.32,1.32], keys=['name','times','days'], z=[-.72,-.04,.64];
+  const fields=[[],[]], marked=new Set();let row=0;
+  for(let s=0;s<2;s++){
+    box(g,x[s],.72,0,2.42,.12,2.76,s?'#f3d7a2':'#faf9f2');
+    print(g,x[s],.8,-1.15,2.25,.35,[s?'준비된 봉투':'가온 님 처방전'],s?'#efd099':'#d1e0d8');
+    keys.forEach((k,i)=>fields[s].push(print(g,x[s],.81,z[i],2.23,.54,[''])));
+  }
+  // 처방전은 집게판에 끼우고 봉투 아래에는 봉합선과 포장된 약포지를 둔다.
+  box(g,-1.32,.85,-1.42,.68,.12,.17,'#748687');
+  for(let i=0;i<5;i++)box(g,.38+i*.45,.8,1.17,.34,.045,.085,'#c29c67');
+  const strip=unit(g,1.52,.82,1.52);box(strip,0,0,0,1.50,.06,.46,'#b6c2c2');
+  for(const x of [-.51,0,.51])ball(strip,x,.08,0,.16,'#efd8b7',[1,.53,.84]);
+  const diffs=sc.rx.flatMap((r,i)=>keys.filter(k=>r[k]!==sc.bag[i][k]).map(k=>i+'.'+k));
+  function show(){for(const [s,data] of [sc.rx,sc.bag].entries())keys.forEach((k,i)=>fields[s][i]([data[row][k]],s&&marked.has(row+'.'+k)?'#f5b485':'#fff9ea'));ui.say((row+1)+' / '+sc.rx.length+' · 같은 줄을 비교하고 다른 칸에 검토 도장을 놓아요.');}
+  keys.forEach((k,i)=>ui.area(k,x[1],.81,z[i],2.3,.62));
+  const stamp=unit(g,-1.75,.82,1.44);stamp.name='검토 도장';seal(stamp,0,0,0);cyl(stamp,0,.16,0,.10,.26,'#486f73');
+  ui.drag(stamp,.95,.7,key=>{
+    if(!keys.includes(key))return;
+    const id=row+'.'+key;
+    if(!diffs.includes(id))return ui.wrong('처방전과 봉투에 모두 '+sc.rx[row][key]+josa(sc.rx[row][key],'이라고','라고')+' 적혀 있어요. 이 칸은 일치해요.');
+    marked.add(id);show();ui.say('다른 칸에 도장을 남겼어요. 확인 '+marked.size+' / '+diffs.length);
+  });
+  const half=[ui.button('이전 줄',()=>{row=(row+sc.rx.length-1)%sc.rx.length;show();}),ui.button('다음 줄',()=>{row=(row+1)%sc.rx.length;show();})];
+  half.forEach((b,i)=>Object.assign(b.style,{display:'inline-block',width:'calc(50% - 5px)',marginRight:i?'0':'10px',marginTop:'10px',padding:'10px 12px'})); // 두 단추를 한 줄에: 폰에서 '봉투 인계'가 화면 안에
+  ui.button('봉투 인계',()=>marked.size===diffs.length?ui.finish():ui.wrong('대조가 끝나지 않았어요. 남은 줄의 횟수와 기간을 확인해요.'));
+  show();
+}
+function filing(g,ui,sc){
+  table(g);let current=0;
+  const xs=[-1.8,0,1.8],counts=[0,0,0];
+  const tags=sc.trays.map((t,i)=>{
+    tray(g,xs[i],-.82,1.56,1.47,'#ac896e');box(g,xs[i],.77,-.08,1.53,.32,.13,'#bb9778');
+    box(g,xs[i],.81,.015,.48,.09,.09,'#575b59');
+    ui.area(t.id,xs[i],.81,-.82,1.68,1.65);
+    return print(g,xs[i],.86,-.84,1.48,.77,[t.label,'0장']);
+  });
+  const doc=unit(g,-1.18,.78,1.12);doc.name='맨 위 서류';box(doc,0,0,0,2.58,.12,1.03,'#fffae8');
+  const stack=sc.cards.slice(1).map((_,i)=>box(g,-1.18-i*.035,.66+i*.016,1.16+i*.035,2.58,.018,1.03,i%2?'#e2d6bd':'#faf3da'));
+  const face=print(doc,0,.07,0,2.53,.96,['']);
+  function refresh(){if(current===sc.cards.length){doc.visible=false;ui.say('서류 여섯 장을 보관했어요. 화면에 무엇이 남았나요?');return;}
+    const c=sc.cards[current];face([c.label,c.sub]);ui.say((current+1)+' / 6 · '+c.label+josa(c.label,'을','를')+' 집어 보관할 서랍에 넣어요.');}
+  ui.drag(doc,2.58,1.13,id=>{
+    if(current>=sc.cards.length)return;
+    const c=sc.cards[current];if(c.to!==id)return ui.wrong(c.why);
+    const i=sc.trays.findIndex(t=>t.id===id);counts[i]++;tags[i]([sc.trays[i].label,counts[i]+'장']);
+    box(g,xs[i],.91+counts[i]*.05,-1.25,1.05,.04,.29,'#fff8e8');if(stack.length)stack.pop().visible=false;current++;refresh();
+  });
+  box(g,1.55,.78,1.12,2.15,.4,1.23,'#374c58');
+  const screen=print(g,1.55,1.0,1.02,1.95,.78,['접수 목록','이든 · 010-****','새봄 · 010-****'],'#d8e9df');
+  print(g,1.55,1.01,1.62,1.25,.34,['화면 잠금'],'#b5c9d1');
+  const lock=()=>{if(current<6)return ui.wrong('창구에 아직 서류가 펼쳐져 있어요. 서랍에 보관한 뒤 화면을 잠가요.');screen(['잠김','● ● ●'],'#8cabb8');ui.say('접수 화면이 잠겼어요. 방문자 이름과 연락처가 가려졌어요.');ui.finish();};
+  ui.area('잠금 키',1.55,1,1.62,1.45,.63,lock);ui.button('창구 비우기',()=>ui.wrong(current<6?'방문자의 서류가 창구에 남아 있어요.':'방문자 목록이 화면에 남아 있어요. 잠금 키를 눌러요.'));refresh();
+}
+function pathway(g,ui){
+  table(g);box(g,0,.62,-.62,5.5,.13,1.8,'#b8cda3');box(g,0,.71,-.62,5.5,.07,.59,'#e4c7a7');
+  for(let i=0;i<4;i++)box(g,-.65+i*.32,.74+i*.07,-.65,.32,.12+i*.14,.82,'#aa937f');
+  box(g,2.12,1.04,-.9,.88,.7,.84,'#e5b686');box(g,2.12,1.46,-.9,1.06,.17,1.01,'#a85844');
+  print(g,2.12,1.57,-.9,1,.52,['빵집']);ball(g,-2.45,1.21,-1.38,.33,'#79a37d');
+  const locations=[-1.72,0,1.15];locations.forEach((x,i)=>ui.area(String(i),x,.82,-.64,1.03,1.3));
+  let count=0;
+  const bench=unit(g,-1.3,.76,1.14),rail=unit(g,1.25,.76,1.14);
+  box(bench,0,.25,0,1.05,.14,.45,'#ae7650');box(bench,0,.48,-.18,1.05,.35,.09,'#bb855d');
+  for(const x of [-.4,.4]){box(bench,x,.11,0,.1,.22,.38,'#526267');cyl(rail,x,.31,0,.06,.62,'#889397');}box(rail,0,.63,0,1,.10,.12,'#9a764c');
+  print(bench,0,.62,.32,.9,.3,['벤치']);print(rail,0,.8,.32,.9,.3,['난간']);
+  ['계단 앞','계단','계단 뒤'].forEach((t,i)=>print(g,locations[i],.72,.25,.95,.28,[t]));
+  for(const [obj,name,goal] of [[bench,'벤치','0'],[rail,'난간','1']]){
+    obj.name=name;let placed=false;
+    ui.drag(obj,1.32,1,id=>{
+      if(placed)return;
+      if(id!==goal)return ui.wrong(obj===bench?(id==='2'?'계단을 지난 뒤예요. 서우 님은 오르기 전에 쉬고 싶다고 했어요.':'계단 한가운데는 앉을 자리를 두기 어려워요.'):'이 길에는 단차가 없어요. 손으로 짚을 곳이 필요한 구간을 찾아요.');
+      obj.position.set(locations[+id],.82,-.67);placed=true;obj.userData.fixed=true;count++;
+      ui.say(name+' 설치를 마쳤어요.');if(count===2)ui.finish();
+    });
+  }
+  ui.say('서우 님이 계단을 오르기 전에 쉬고 싶대요. 두 시설을 모형 길에 직접 놓아요.');
+}
+// 약사의 오후 상담(rxhandoff)과 원무행정의 진료실 안내(adminroute)는 hosp-c.js 의 3D 가까이 보기로 옮겼다
+const models={rxcheck:prescription,paperwork:filing,physiopath:pathway};
+export const departmentHands=Object.fromEntries(Object.entries(models).map(([name,model])=>[name,(el,sc,ctx)=>{
+  if(!ctx.world&&name==='rxcheck')return flatRx(el,sc,ctx);
+  if(!ctx.world&&name==='paperwork')return flatPaper(el,sc,ctx);
+  return workbench(el,sc,ctx,model);
+}]));

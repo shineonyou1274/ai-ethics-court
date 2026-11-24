@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {Day,MOMENTS,STEPS} from '../dist/model.mjs';
+import {finishDay,completeSpace} from './space-fixture.mjs';
+import {saveRecordSafe,loadMine,loadRecords,startNewSession,keepSession,needsWhoCheck,checkRecord} from '../dist/shared/workday.js';
+import {encodeRecords,decodeCodes} from '../dist/shared/collect.js';
+const store=new Map();globalThis.localStorage={getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)};
+assert.deepEqual(STEPS.map(s=>s.time),['09:00','09:10','09:30','10:30','11:30','12:00','13:00','15:00','16:00','17:00','18:00']);
+for(const repaired of [true,false])for(const decision of ['go','hold'])for(const leave of ['stay','handover']){const d=finishDay(new Day(),{repaired,decision,leave});assert.equal(d.stage,10);assert.equal(d.delay,repaired?0:15);assert.equal(d.outcome,decision==='hold'?'held':'stopped');assert.equal(d.pay.base,173840);assert.equal(d.worked,480+(leave==='stay'&&!repaired?15:0));assert.throws(()=>d.make(0,0));const r=d.make(2,5);assert.deepEqual(checkRecord(r),[]);assert.equal(r.extra.mission,'cargo-docking-1600');assert.equal(saveRecordSafe(r).ok,true);assert.equal(saveRecordSafe(r).duplicate,true)}
+const d=new Day();assert.equal(d.prepare(),false);assert.equal(d.assemble(true),false);assert.ok(d.next());assert.equal(d.next(),false);d.prepare();d.next();assert.equal(d.next(),false);[0,2,4].forEach(id=>d.inspectDrawing(id));d.next('drawing');assert.equal(d.next(),false);d.assemble(true);assert.equal(d.assemble(false),false);d.next();assert.equal(d.next(),false);[0,1,2].forEach(id=>d.attachSensor(id,id));d.next('sensor');assert.equal(d.next(),false);d.next('rest');assert.equal(d.next(),false);
+const trial={status:'docked',fuelUsed:1,offset:.1,speed:.2,repaired:true,config:{mass:2,power:2,assist:true}};
+assert.equal(d.completeSpace({results:[trial,trial],repaired:true}),false);assert.equal(d.completeSpace({results:[trial,{...trial,config:{...trial.config,mass:3}}],repaired:false}),false);
+assert.ok(d.completeSpace({results:[trial,{...trial,config:{...trial.config,mass:3}}],repaired:true}));assert.equal(completeSpace(d),false);assert.equal(d.delay,0);d.next();assert.equal(d.next(),false);d.next('go');assert.equal(d.outcome,'docked');d.next('result');assert.equal(d.next('handover'),false);d.cleanup();d.next('handover');assert.match(d.ending,/검증/);
+assert.ok(new Set(MOMENTS.map(m=>m.type)).size>=4);assert.equal(loadMine().length,8);assert.ok(needsWhoCheck());keepSession();assert.equal(needsWhoCheck(),false);const old=loadRecords().length;startNewSession();assert.equal(loadMine().length,0);assert.equal(loadRecords().length,old);const r=finishDay(new Day()).make(0,1);saveRecordSafe(r);assert.equal(decodeCodes(encodeRecords(loadMine(),'검증')).students[0].records.length,1);globalThis.localStorage.setItem=()=>{throw Error('blocked')};assert.equal(saveRecordSafe({...r,id:'retry'}).ok,false);
+console.log('PASS: single docking story, ordered gates, actual latest test/decision outcome, safe stop, wages, overtime, record/export/session isolation.');
+const drawing=new Day();drawing.next();drawing.prepare();drawing.next();assert.equal(drawing.next('drawing'),false);assert.equal(drawing.inspectDrawing(1).valid,false);assert.equal(drawing.delay,2);drawing.inspectDrawing(1);assert.equal(drawing.delay,2);[0,2,4].forEach(id=>drawing.inspectDrawing(id));assert.ok(drawing.next('drawing'));assert.equal(drawing.drawingDelay,2);drawing.assemble(false);assert.equal(drawing.delay,17);
+console.log('PASS: three interference gates, bounded recheck time and combined fastener delay.');
+
+const sensor=new Day();sensor.stage=4;assert.equal(sensor.next('sensor'),false);assert.equal(sensor.attachSensor(0,1).valid,false);assert.equal(sensor.sensors.size,0);[0,1,2].forEach(id=>assert.ok(sensor.attachSensor(id,id).valid));assert.ok(sensor.next('sensor'));
+
+const mistakes=new Day();mistakes.stage=3;
+assert.equal(mistakes.noteBolt(1,0),2);assert.equal(mistakes.noteBolt(1,0),0);assert.equal(mistakes.noteBolt(0,0),0);assert.equal(mistakes.delay,2);
+mistakes.assemble(false);assert.equal(mistakes.delay,17);mistakes.next();
+mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);mistakes.attachSensor(0,-1);assert.equal(mistakes.delay,19);
+for(const id of [0,1,2])mistakes.attachSensor(id,id);mistakes.attachSensor(0,1);assert.equal(mistakes.delay,19);
+console.log('PASS: distinct assembly/sensor rechecks add time once; cancel, completed sensor and same errors do not double count.');
+// Recheck time must survive the entire day, into overtime and the saved handover record.
+for(const leave of ['stay','handover']){
+ const d=new Day();d.stage=3;d.noteBolt(1,0);d.assemble(false);d.next();d.attachSensor(0,1);[0,1,2].forEach(i=>d.attachSensor(i,i));d.next('sensor');d.next('rest');assert.ok(completeSpace(d));d.next();d.next('go');d.next('result');d.cleanup();d.next(leave);
+ const r=d.make(2,5);assert.equal(d.delay,19);assert.equal(d.worked,leave==='stay'?499:480);assert.equal(r.extra.handedOverMin,leave==='stay'?0:19);assert.equal(r.extra.boltRecheckMin,2);assert.equal(r.extra.sensorRecheckMin,2);assert.deepEqual(checkRecord(r),[]);
+}
+console.log('PASS: recheck minutes persist into overtime choice and saved record.');

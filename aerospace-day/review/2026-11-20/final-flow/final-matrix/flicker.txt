@@ -1,0 +1,4 @@
+✓ local-review/final-matrix/flat/page@add18859897f9bed68594580ef431d39.webm {"seconds":79.2,"maxFlashesPerSec":2,"worst":"칸 2,1","atSec":75.72,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/final-matrix/pc/page@52be3a79fc8ffcaf3735ae9693e041a7.webm {"seconds":62.9,"maxFlashesPerSec":1,"worst":"칸 1,0","atSec":2.72,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/final-matrix/phone/page@6dc8ea7cf29e196b77ee72d80be277ec.webm {"seconds":123.4,"maxFlashesPerSec":1,"worst":"칸 0,1","atSec":0.04,"whiteFrames":0,"whiteAt":[],"pass":true}
+✓ local-review/final-matrix/se/page@0fd6e596b6b3005b49f1186e693ce6a5.webm {"seconds":85.9,"maxFlashesPerSec":2,"worst":"칸 3,0","atSec":82.64,"whiteFrames":0,"whiteAt":[],"pass":true}

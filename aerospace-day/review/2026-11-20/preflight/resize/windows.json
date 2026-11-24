@@ -1,0 +1,62 @@
+[
+  {
+    "label": "preparation",
+    "from": 6.85,
+    "to": 9.25
+  },
+  {
+    "label": "drawing",
+    "from": 13.2,
+    "to": 15.6
+  },
+  {
+    "label": "assembly-before",
+    "from": 18.72,
+    "to": 21.12
+  },
+  {
+    "label": "sensor",
+    "from": 34.19,
+    "to": 36.59
+  },
+  {
+    "label": "design-0",
+    "from": 45.88,
+    "to": 48.28
+  },
+  {
+    "label": "flight-0",
+    "from": 49.63,
+    "to": 52.03
+  },
+  {
+    "label": "results-0",
+    "from": 50.38,
+    "to": 52.78
+  },
+  {
+    "label": "decision",
+    "from": 89.65,
+    "to": 92.05
+  },
+  {
+    "label": "control-approach",
+    "from": 90.48,
+    "to": 92.88
+  },
+  {
+    "label": "control-result",
+    "from": 99.53,
+    "to": 101.93
+  },
+  {
+    "label": "handover-report",
+    "from": 104.13,
+    "to": 106.53
+  },
+  {
+    "label": "payslip",
+    "from": 106.02,
+    "to": 108.42
+  }
+]

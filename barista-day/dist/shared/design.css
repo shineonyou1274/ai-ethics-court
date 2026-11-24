@@ -1,0 +1,60 @@
+/* 직업체험 앱 공통 디자인 (shared/DESIGN.md 를 코드로 옮긴 것)
+   - 색과 글꼴은 이 토큰만 쓴다. 일터마다 다른 것은 --place, --place-d 두 개뿐이다.
+   - 앱에 그대로 복사해 쓰고(바리스타는 dist/shared/design.css), 여기서만 고친다.
+   - 글꼴은 HTML <head> 에서 불러온다:
+     <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet"> */
+
+:root {
+  color-scheme: light only;
+  /* 바탕과 글자 */
+  --wd-paper: #f7f2e9;   /* 화면 바탕 */
+  --wd-card: #fffdf8;    /* 카드 */
+  --wd-line: #e6ddcf;    /* 테두리, 버튼 그림자 */
+  --wd-ink: #263c52;     /* 글자 */
+  --wd-soft: #6f7875;    /* 덜 중요한 글자 */
+  /* 결과 색 (모든 앱 같음) */
+  --wd-up: #2f8f6c;      /* 좋아짐 */
+  --wd-down: #c9524a;    /* 나빠짐, 실수 */
+  --wd-coin: #fff6d8;    /* 일당 칸 바탕 */
+  --wd-coin-line: #f1dc9b;
+  --wd-good-bg: #eef7f2; /* 마친 일, 맞게 고름 */
+  --wd-good-line: #8fcfb6;
+  --wd-bad-bg: #fdeeea;  /* 실수 안내 */
+  /* 일터 색: 앱마다 이 둘만 바꾼다 */
+  --place: #dc795e;      /* 병원 기본값. 카페 #2f6b55, 소방서 #d2553f */
+  --place-d: #b85f47;
+  /* 글꼴 */
+  --wd-title: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --wd-body: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  /* 모양 */
+  --wd-r: 18px;          /* 카드·버튼 모서리 */
+  --wd-gutter: 16px;     /* 폰 좌우 여백 */
+}
+
+/* ── 화면 위쪽 띠 (HUD): 왼쪽부터 직업·시계 → (게이지) → 오늘 번 일당 ── */
+.wd-hud { position: absolute; inset: 10px 10px auto 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; pointer-events: none; z-index: 5; }
+.wd-clock { background: var(--wd-ink); color: #fff; border-radius: 999px; padding: 3px 12px; font: 15px var(--wd-title); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.wd-clock small { color: #f6c4b1; font-size: 12.5px; margin-left: 5px; }
+.wd-money { background: var(--wd-coin); border: 2px solid var(--wd-coin-line); border-radius: 999px; padding: 1px 11px; font: 15px var(--wd-title); white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--wd-ink); }
+
+/* ── 카드와 버튼 ── */
+.wd-card { background: var(--wd-card); border: 2px solid var(--wd-line); border-radius: var(--wd-r); padding: 14px 16px; }
+.wd-btn { display: block; width: 100%; padding: 14px 18px; border: 0; border-radius: var(--wd-r); background: var(--place); color: #fff; box-shadow: 0 5px 0 var(--place-d); font: 20px var(--wd-title); cursor: pointer; transition: transform .08s, box-shadow .08s; }
+.wd-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--place-d); }
+.wd-btn:disabled { opacity: .45; transform: none; cursor: default; }
+.wd-btn.ghost { background: #fff; color: var(--wd-ink); border: 2px solid var(--wd-line); box-shadow: 0 5px 0 var(--wd-line); font-size: 17px; }
+.wd-msg { padding: 10px 14px; border-radius: 14px; background: #f3f8f6; }
+.wd-msg.bad { background: var(--wd-bad-bg); color: #8f3b2c; }
+
+/* ── 퇴근: 일당 명세서 ── */
+.wd-slip { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.wd-slip td { padding: 7px 0; border-bottom: 1px dashed var(--wd-line); }
+.wd-slip td:last-child { text-align: right; font-family: var(--wd-title); }
+.wd-slip small { display: block; color: var(--wd-soft); font-size: 13px; }
+.wd-slip .sum td { border: 0; padding-top: 12px; font-size: 22px; font-family: var(--wd-title); }
+
+/* ── 퇴근길 돌아보기: 순간 카드 (누르면 💛 → 🪨 → 해제) ── */
+.wd-moments { display: grid; gap: 8px; }
+.wd-moment { text-align: left; padding: 11px 14px; border-radius: 14px; border: 2px solid var(--wd-line); background: var(--wd-card); font: 16px var(--wd-body); color: var(--wd-ink); cursor: pointer; }
+.wd-moment.like { border-color: #e9b949; background: #fff7dc; }
+.wd-moment.hard { border-color: #9aa5ad; background: #eef1f3; }
