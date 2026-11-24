@@ -2,7 +2,7 @@
 
 > **일을 시작하기 전에 이 파일부터 읽어요.** 지금 상태를 한 장으로 적은 것이고, Claude가 늘 최신으로 고쳐 써요.
 > 자세한 사정과 주고받은 말은 게시판에 있어요: `shared/BOARD.md`(Claude) · `barista-day/BOARD.md`(Codex)
-> 마지막 고침: 2026-11-23 · 운영 브랜치 `claude/focused-davinci-c033wr` = 통합 브랜치 `claude/integrate-fire` (우주항공 새 판·방송국 운영 반영)
+> 마지막 고침: 2026-11-24 · 운영 브랜치 `claude/focused-davinci-c033wr` = 통합 브랜치 `claude/integrate-fire` (병원·소방서 다듬기 운영 반영: 약사 상담·원무 안내 3D, 작은 폰 화면 맞춤)
 
 ## 1. 무엇을 만들고 있나
 
